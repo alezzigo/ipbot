@@ -8,12 +8,23 @@
 require_once('../../models/app.php');
 
 class Orders extends App {
+
+/**
+ * List orders
+ *
+ * @return array Orders data
+ */
 	public function index() {
 		return array(
 			'orders' => $this->find('orders')
 		);
 	}
 
+/**
+ * View order
+ *
+ * @return array Order data
+ */
 	public function view() {
 		$orderId = $this->validateId(!empty($_GET['id']) ? $_GET['id'] : '', 'orders') ? $_GET['id'] : $this->redirect($this->config['base_url']);
 		return array(
@@ -22,6 +33,7 @@ class Orders extends App {
 			))
 		);
 	}
+
 }
 
 $controller = new Orders();

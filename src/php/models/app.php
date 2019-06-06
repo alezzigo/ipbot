@@ -131,6 +131,7 @@ class App extends Config {
 	public function save($table, $rows = array()) {
 		$ids = array();
 		$queries = array();
+		$success = true;
 
 		foreach (array_chunk($rows, 88) as $rows) {
 			$groupValues = array();
@@ -162,11 +163,11 @@ class App extends Config {
 			$connection = $this->_query($query);
 
 			if (empty($connection)) {
-				return false;
+				$success = false;
 			}
 		}
 
-		return true;
+		return $success;
 	}
 
 /**

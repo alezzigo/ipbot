@@ -11,7 +11,8 @@
 					'username' => 'root',
 					'password' => '',
 					'name' => 'database_name'
-				)
+				),
+				'base_url' => '/src/php/'
 			);
 		}
 

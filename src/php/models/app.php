@@ -68,12 +68,19 @@ class App extends Config {
  *
  * @return array $result Return associative array if it exists, otherwise return boolean ($execute)
  */
-	public function find($table, $conditions = array(), $order = 'created DESC') {
+	public function find($table, $conditions = array(), $order = 'id DESC') {
 		$query = 'SELECT * FROM ' . $table;
 
 		if (!empty($conditions)) {
 			array_walk($conditions, function(&$value, $key) {
-				$value = $key . "='" . $value . "'";
+				if (
+					!empty($value) &&
+					is_array($value)
+				) {
+					$value = $key . " IN ('" . implode("','", $value) . "')";
+				} else {
+					$value = $key . "='" . $value . "'";
+				}
 			});
 			$query .= ' WHERE ' . implode(' AND ', $conditions);
 		}

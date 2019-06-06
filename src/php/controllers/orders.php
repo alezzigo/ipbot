@@ -5,9 +5,9 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
-require_once('../../models/app.php');
+require_once('../../models/orders.php');
 
-class Orders extends App {
+class OrdersController extends OrdersModel {
 
 /**
  * List orders
@@ -15,9 +15,7 @@ class Orders extends App {
  * @return array Orders data
  */
 	public function index() {
-		return array(
-			'orders' => $this->find('orders')
-		);
+		return $this->getOrders();
 	}
 
 /**
@@ -27,14 +25,11 @@ class Orders extends App {
  */
 	public function view() {
 		$orderId = $this->validateId(!empty($_GET['id']) ? $_GET['id'] : '', 'orders') ? $_GET['id'] : $this->redirect($this->config['base_url']);
-		return array(
-			'orders' => $this->find('orders', array(
-				'id' => $orderId
-			))
-		);
+
+		return $this->getOrder($orderId);
 	}
 
 }
 
-$controller = new Orders();
+$controller = new OrdersController();
 $data = $controller->route();

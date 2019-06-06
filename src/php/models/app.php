@@ -11,7 +11,6 @@ class App extends Config {
 
 	protected function _extract($data, $key) {
 		array_walk($data, function(&$value, $index, $key) {
-			print_r($value);
 			$value = !empty($value[$key]) ? $value[$key] : null;
 		}, $key);
 

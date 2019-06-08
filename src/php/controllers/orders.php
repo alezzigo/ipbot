@@ -25,7 +25,6 @@ class OrdersController extends OrdersModel {
  */
 	public function view() {
 		$orderId = $this->validateId(!empty($_GET['id']) ? $_GET['id'] : '', 'orders') ? $_GET['id'] : $this->redirect($this->config['base_url']);
-
 		return $this->getOrder($orderId);
 	}
 

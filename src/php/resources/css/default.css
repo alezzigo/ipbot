@@ -91,9 +91,36 @@ label {
 		.table tr:hover {
 			background: #242833;
 		}
+		.table tr:hover span.details {
+			display: block;
+		}
 		.table tr td {
 			padding: 6px;
 		}
+		.table tr td .details {
+			background: #181b23;
+			border-radius: 4px;
+			display: none;
+			font-size: 12px;
+			left: 48px;
+			margin-top: 18px;
+			position: absolute;
+			padding: 10px 12px;
+			text-align: left;
+			width: 358px;
+			z-index: 9;
+		}
+			.table tr td .details:after {
+				border-color: transparent transparent #181b23;
+				border-style: solid;
+				border-width: 10px;
+				content: "";
+				height: 0;
+				left: 18px;
+				position: absolute;
+				top: -18px;
+				width: 0;
+			}
 .section {
 	padding: 51px 15px;
 }
@@ -151,7 +178,7 @@ label {
 		margin: 2px 7px 8px 0;
 		width: 18px;
 	}
-.select-container {
+.checkbox-container {
 	background: #222631;
 	border: 1px solid #3d414b;
 	border-radius: 4px;
@@ -161,15 +188,15 @@ label {
 	margin-right: 10px;
 	width: 22px;
 }
-	.select-container.active {
+	.checkbox-container.active {
 		background: #58ce79;
 		border-color: #58ce79;
 	}
-	.select-container:hover {
-		background: #1f232d;
+	.checkbox-container:hover {
+		background: #181b23;
 		border-color: #58ce79;
 	}
-		.select-container .select-box {
+		.checkbox-container .checkbox {
 			background-size: 21px;
 			display: inline-block;
 			height: 21px;

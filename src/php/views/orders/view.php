@@ -38,39 +38,39 @@
 								</span>
 							</div>
 							<div class="align-left">
-								<div class="select-all-container select-container align-left">
-									<span class="select-all-box select-box tooltip tooltip-bottom" title="Select all"></span>
+								<div class="checkbox-container align-left">
+									<span class="checkbox select-all tooltip tooltip-bottom" title="Select all"></span>
 								</div>
 								<div class="search-container align-left">
 									<span class="icon-container align-left tooltip tooltip-bottom" title="Advanced proxy search and filter">
 										<span class="icon search button window">
-											<svg xmlns="http://www.w3.org/2000/svg" license="https://raw.githubusercontent.com/feathericons/feather/master/LICENSE" copyright="The MIT License (MIT) Copyright (c) 2013-2017 Cole Bemis" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+											<svg xmlns="http://www.w3.org/2000/svg" svg-license="https://raw.githubusercontent.com/feathericons/feather/master/LICENSE" svg-copyright="The MIT License (MIT) Copyright (c) 2013-2017 Cole Bemis" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
 										</span>
 									</span>
 								</div>
 								<span class="icon-container align-left disabled tooltip tooltip-bottom" title="Configure proxy replacement settings">
 									<span href="#" class="icon replacements button window">
-										<svg xmlns="http://www.w3.org/2000/svg" license="https://raw.githubusercontent.com/feathericons/feather/master/LICENSE" copyright="The MIT License (MIT) Copyright (c) 2013-2017 Cole Bemis" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+										<svg xmlns="http://www.w3.org/2000/svg" svg-license="https://raw.githubusercontent.com/feathericons/feather/master/LICENSE" svg-copyright="The MIT License (MIT) Copyright (c) 2013-2017 Cole Bemis" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
 									</span>
 								</span>
 								<span class="icon-container align-left disabled tooltip tooltip-bottom" title="Configure authentication settings">
 									<span href="#" class="icon authentication button window">
-										<svg xmlns="http://www.w3.org/2000/svg" license="https://raw.githubusercontent.com/feathericons/feather/master/LICENSE" copyright="The MIT License (MIT) Copyright (c) 2013-2017 Cole Bemis" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+										<svg xmlns="http://www.w3.org/2000/svg" svg-license="https://raw.githubusercontent.com/feathericons/feather/master/LICENSE" svg-copyright="The MIT License (MIT) Copyright (c) 2013-2017 Cole Bemis" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
 									</span>
 								</span>
 								<span class="icon-container align-left disabled tooltip tooltip-bottom" title="Create group from selected proxies">
 									<span href="#" class="icon group button window">
-										<svg xmlns="http://www.w3.org/2000/svg" license="https://raw.githubusercontent.com/feathericons/feather/master/LICENSE" copyright="The MIT License (MIT) Copyright (c) 2013-2017 Cole Bemis" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+										<svg xmlns="http://www.w3.org/2000/svg" svg-license="https://raw.githubusercontent.com/feathericons/feather/master/LICENSE" svg-copyright="The MIT License (MIT) Copyright (c) 2013-2017 Cole Bemis" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
 									</span>
 								</span>
 								<span class="icon-container align-left disabled tooltip tooltip-bottom" title="Copy selected proxies to clipboard">
 									<span href="#" class="icon clipboard button window">
-										<svg xmlns="http://www.w3.org/2000/svg" license="https://raw.githubusercontent.com/feathericons/feather/master/LICENSE" copyright="The MIT License (MIT) Copyright (c) 2013-2017 Cole Bemis" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+										<svg xmlns="http://www.w3.org/2000/svg" svg-license="https://raw.githubusercontent.com/feathericons/feather/master/LICENSE" svg-copyright="The MIT License (MIT) Copyright (c) 2013-2017 Cole Bemis" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
 									</span>
 								</span>
 							</div>
 							<div class="clear"></div>
-							<p class="no-margin-bottom"><span class="selected-container pull-left"><span class="selected">0</span> of <?php echo count($data['proxies']); ?> proxies selected</span>. <a class="select-all-results" href="javascript:void(0);">Select all <?php echo count($data['proxies']); ?> proxies</a></p>
+							<p class="no-margin-bottom"><span class="selected-container pull-left"><span class="selected">0</span> of <?php echo count($data['proxies']); ?> proxies selected</span>. <a class="select-all" href="javascript:void(0);">Select all <?php echo count($data['proxies']); ?> proxies</a></p>
 						</div>
 					</div>
 					<div class="item-body">
@@ -116,12 +116,12 @@
 									<tbody>
 										<?php foreach ($data['proxies'] as $index => $proxy): ?>
 											<tr row_index="<?php echo $index; ?>"
-												class="proxy-<?php echo $proxy['id']; ?>"
-												data="<?php echo json_encode($proxy); // TODO: retrieve with API call during pagination ?>"
-												page="<?php echo $proxy['current_page']; ?>">
+												data='<?php echo json_encode($proxy); // TODO: retrieve with API call during pagination ?>'
+												page="<?php echo $proxy['current_page']; ?>"
+												proxy_id="<?php echo $proxy['id']; ?>">
 												<td style="width: 1px;">
-													<div class="select-container no-margin-right" proxy_id="<?php echo $proxy['id']; ?>">
-														<span class="select-box"></span>
+													<div class="checkbox-container no-margin-right" proxy_id="<?php echo $proxy['id']; ?>">
+														<span class="checkbox"></span>
 													</div>
 												</td>
 												<td>

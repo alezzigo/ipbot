@@ -38,7 +38,7 @@
 								</span>
 							</div>
 							<div class="align-left">
-								<span class="align-left checkbox check-all tooltip tooltip-bottom" selector="tr:not(.hidden)" title="Check all"></span>
+								<span class="align-left checkbox check-all tooltip tooltip-bottom" title="Check all"></span>
 								<div class="search-container align-left">
 									<span class="icon-container align-left tooltip tooltip-bottom" title="Advanced proxy search and filter">
 										<span class="icon search button window"></span>
@@ -53,12 +53,12 @@
 								<span class="icon-container align-left disabled tooltip tooltip-bottom" title="Create group from selected proxies">
 									<span href="#" class="icon group button window"></span>
 								</span>
-								<span class="icon-container align-left disabled tooltip tooltip-bottom" title="Copy selected proxies to clipboard">
-									<span href="#" class="icon clipboard button window"></span>
+								<span class="icon-container align-left disabled tooltip tooltip-bottom" title="Copy selected proxies to copy">
+									<span href="#" class="icon copy button window"></span>
 								</span>
 							</div>
 							<div class="clear"></div>
-							<p class="no-margin-bottom"><span class="checked-container pull-left"><span class="checked">0</span> of <?php echo count($data['proxies']); ?> proxies selected</span>. <a class="check" href="javascript:void(0);" selector="tr:not(.hidden) ">Select all <?php echo count($data['proxies']); ?> proxies</a></p>
+							<p class="no-margin-bottom"><span class="checked-container pull-left"><span class="total-checked">0</span> of <span class="total-results"><?php echo count($data['proxies']); ?></span> proxies selected</span><span class="check-action"></span>.</p>
 						</div>
 					</div>
 					<div class="item-body">

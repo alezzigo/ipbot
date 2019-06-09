@@ -45,11 +45,11 @@ a:focus,
 a:visited,
 a:active {
 	color: #fff;
+	opacity: 0.6;
 	text-decoration: none;
 }
-	a:hover,
-	svg:hover {
-		color: #58ce79;
+	a:hover {
+		opacity: 1;
 	}
 h1 {
 	margin: 45px 0 25px;
@@ -176,16 +176,20 @@ label {
 		float: left;
 		font-size: 10px;
 		margin: 2px 7px 8px 0;
+		opacity: 0.7;
 		width: 18px;
 	}
+		.icon-container .icon:hover {
+			opacity: 1;
+		}
 		.icon-container .icon.authentication {
 			background: url('../images/icons/icon-authentication.png') center no-repeat / 100%;
 		}
 		.icon-container .icon.check {
 			background: url('../images/icons/icon-check.png') center no-repeat / 100%;
 		}
-		.icon-container .icon.clipboard {
-			background: url('../images/icons/icon-clipboard.png') center no-repeat / 100%;
+		.icon-container .icon.copy {
+			background: url('../images/icons/icon-copy.png') center no-repeat / 100%;
 		}
 		.icon-container .icon.group {
 			background: url('../images/icons/icon-group.png') center no-repeat / 100%;
@@ -196,6 +200,10 @@ label {
 		.icon-container .icon.search {
 			background: url('../images/icons/icon-search.png') center no-repeat / 100%;
 		}
+	.icon-container .flag {
+		display: block;
+		width: 16px;
+	}
 .checkbox {
 	background: #222631;
 	border: 1px solid #3d414b;
@@ -204,13 +212,17 @@ label {
 	display: block;
 	height: 22px;
 	margin-right: 10px;
+	opacity: 1;
 	width: 22px;
 }
-	.checkbox.active {
-		background: #58ce79;
-		border-color: #58ce79;
-	}
 	.checkbox:hover {
-		background: #181b23;
-		border-color: #58ce79;
+		border-color: #fff;
+	}
+	.checkbox[checked] {
+		background: url('../images/icons/icon-checked.png') #fff center no-repeat / 100%;
+		border-color: #fff;
+		opacity: 0.7;
+	}
+	.checkbox[checked]:hover {
+		opacity: 1;
 	}

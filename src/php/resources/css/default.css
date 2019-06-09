@@ -178,7 +178,25 @@ label {
 		margin: 2px 7px 8px 0;
 		width: 18px;
 	}
-.checkbox-container {
+		.icon-container .icon.authentication {
+			background: url('../images/icons/icon-authentication.png') center no-repeat / 100%;
+		}
+		.icon-container .icon.check {
+			background: url('../images/icons/icon-check.png') center no-repeat / 100%;
+		}
+		.icon-container .icon.clipboard {
+			background: url('../images/icons/icon-clipboard.png') center no-repeat / 100%;
+		}
+		.icon-container .icon.group {
+			background: url('../images/icons/icon-group.png') center no-repeat / 100%;
+		}
+		.icon-container .icon.refresh {
+			background: url('../images/icons/icon-refresh.png') center no-repeat / 100%;
+		}
+		.icon-container .icon.search {
+			background: url('../images/icons/icon-search.png') center no-repeat / 100%;
+		}
+.checkbox {
 	background: #222631;
 	border: 1px solid #3d414b;
 	border-radius: 4px;
@@ -188,17 +206,11 @@ label {
 	margin-right: 10px;
 	width: 22px;
 }
-	.checkbox-container.active {
+	.checkbox.active {
 		background: #58ce79;
 		border-color: #58ce79;
 	}
-	.checkbox-container:hover {
+	.checkbox:hover {
 		background: #181b23;
 		border-color: #58ce79;
 	}
-		.checkbox-container .checkbox {
-			background-size: 21px;
-			display: inline-block;
-			height: 21px;
-			width: 21px;
-		}

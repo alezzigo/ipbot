@@ -100,15 +100,14 @@
 								}
 							?>
 							<div class="proxy-table">
-								<table class="table" last_selected_row="">
+								<table class="table">
 									<tbody>
-										<?php foreach ($data['proxies'] as $index => $proxy): ?>
-											<tr row_index="<?php echo $index; ?>"
-												data='<?php echo json_encode($proxy); // TODO: retrieve with API call during pagination ?>'
+										<?php foreach (array_values($data['proxies']) as $index => $proxy): ?>
+											<tr data='<?php echo json_encode($proxy); // TODO: retrieve with API call during pagination ?>'
 												page="<?php echo $proxy['current_page']; ?>"
 												proxy_id="<?php echo $proxy['id']; ?>">
 												<td style="width: 1px;">
-													<span class="checkbox" proxy_id="<?php echo $proxy['id']; ?>"></span>
+													<span class="checkbox" index="<?php echo $index; ?>" proxy_id="<?php echo $proxy['id']; ?>"></span>
 												</td>
 												<td>
 													<span class="details-container"></span>

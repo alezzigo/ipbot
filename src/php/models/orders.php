@@ -93,7 +93,7 @@ class OrdersModel extends App {
 		$proxyData = array(
 			'current_page' => 1,
 			'pagination_index' => 0,
-			'results_per_page' => 100 // 100
+			'results_per_page' => 100
 		);
 
 		foreach ($nodes as $index => $node) {

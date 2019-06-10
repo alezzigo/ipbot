@@ -1,3 +1,4 @@
+'use_strict';
 var elements = {
 	addClass: (selector, className) => {
 		selectAllElements(selector).map((element) => {

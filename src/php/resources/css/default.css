@@ -165,42 +165,52 @@ label {
 				height: inherit;
 				width: inherit;
 			}
-.icon-container {
-	display: block;
-}
-	.icon-container .icon {
+	.icon {
+		border-radius: 4px;
 		color: #fff;
 		cursor: pointer;
 		display: block;
 		height: 18px;
 		float: left;
 		font-size: 10px;
-		margin: 2px 7px 8px 0;
+		margin: 1px 0 8px 8px;
 		opacity: 0.7;
 		width: 18px;
 	}
-		.icon-container .icon:hover {
+		.icon:hover {
 			opacity: 1;
 		}
-		.icon-container .icon.authentication {
+		.icon.authentication {
 			background: url('../images/icons/icon-authentication.png') center no-repeat / 100%;
 		}
-		.icon-container .icon.check {
+		.icon.check {
 			background: url('../images/icons/icon-check.png') center no-repeat / 100%;
 		}
-		.icon-container .icon.copy {
+		.icon.copy {
 			background: url('../images/icons/icon-copy.png') center no-repeat / 100%;
 		}
-		.icon-container .icon.group {
+		.icon.group {
 			background: url('../images/icons/icon-group.png') center no-repeat / 100%;
 		}
-		.icon-container .icon.refresh {
+		.icon.next {
+			background: url('../images/icons/icon-next.png') #fff center no-repeat / 100%;
+		}
+		.icon.previous {
+			background: url('../images/icons/icon-previous.png') #fff center no-repeat / 100%;
+		}
+			.icon.previous[page="0"],
+			.icon.next[page="0"] {
+				cursor: default;
+				opacity: 0.18;
+			}
+		.icon.refresh {
 			background: url('../images/icons/icon-refresh.png') center no-repeat / 100%;
 		}
-		.icon-container .icon.search {
+		.icon.search {
 			background: url('../images/icons/icon-search.png') center no-repeat / 100%;
+			margin-left: 14px;
 		}
-	.icon-container .flag {
+	.flag {
 		display: block;
 		width: 16px;
 	}
@@ -210,10 +220,9 @@ label {
 	border-radius: 4px;
 	cursor: pointer;
 	display: block;
-	height: 22px;
-	margin-right: 10px;
+	height: 18px;
 	opacity: 1;
-	width: 22px;
+	width: 18px;
 }
 	.checkbox:hover {
 		border-color: #fff;

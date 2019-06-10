@@ -91,9 +91,9 @@ class OrdersModel extends App {
 		}
 
 		$proxyData = array(
-			'current_page' => 0,
+			'current_page' => 1,
 			'pagination_index' => 0,
-			'results_per_page' => 100
+			'results_per_page' => 100 // 100
 		);
 
 		foreach ($nodes as $index => $node) {
@@ -111,7 +111,6 @@ class OrdersModel extends App {
 
 		return array(
 			'order' => $order[0],
-			'pages' => (!empty($data['proxies']) ? (count($data['proxies']) <= $proxyData['results_per_page'] ? 0 : round(count($data['proxies']) / $proxyData['results_per_page'])) : 0),
 			'proxies' => $proxies,
 			'results_per_page' => $proxyData['results_per_page'],
 			'servers' => $servers

@@ -26,9 +26,9 @@ var onLoad = (callback) => {
 	document.readyState != 'complete' ? setTimeout('onLoad(' + callback + ')', 1) : callback();
 };
 
-var processPagination = (currentPage) => {
-	var checkboxAll = document.querySelector('.checkbox.all');
-		items = document.querySelector('.proxy-configuration table');
+var processPagination = (currentPage, pagination) => {
+	var checkboxAll = document.querySelector('.checkbox.all'),
+		items = document.querySelector('.proxy-configuration table'),
 		pagination = document.querySelector('.pagination');
 
 	var toggle = (checkbox) => {
@@ -56,7 +56,7 @@ var processPagination = (currentPage) => {
 	elements.removeClass('.proxy-configuration tr[page="' + currentPage + '"]', 'hidden');
 
 	elements.loop('.proxy-configuration tr:not(.hidden)', (index, element) => {
-		var checkbox = element.querySelector('.checkbox');
+		var checkbox = element.querySelector('.checkbox'),
 			proxyData = JSON.parse(element.getAttribute('data')),
 			proxyStatusDisplay = 'Next IP Replacement ' + proxyData.next_replacement_available_formatted + ' Auto Replacements ' + (proxyData.auto_replacement_interval_value == '0' ? 'Disabled' : 'Enabled') + '';
 

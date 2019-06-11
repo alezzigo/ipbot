@@ -81,7 +81,7 @@ var processChecked = (checkboxes, checkboxState, all = false) => {
 	var totalResults = document.querySelector('.total-results').innerHTML;
 
 	checkboxes.map((checkbox, checkboxIndex) => {
-		(((checkboxes.length > 1 || all) && checkboxState) || (checkboxes.length === 1 && !checkboxState) ? document.querySelector('.checkbox[index="' + checkbox + '"]').setAttribute('checked', 'checked') : document.querySelector('.checkbox[index="' + checkbox + '"]').removeAttribute('checked'));
+		(((checkboxes.length > 1 || all) && checkboxState) || ((checkboxes.length === 1 && !all) && !checkboxState) ? document.querySelector('.checkbox[index="' + checkbox + '"]').setAttribute('checked', 'checked') : document.querySelector('.checkbox[index="' + checkbox + '"]').removeAttribute('checked'));
 	});
 
 	document.querySelector('.total-checked').innerHTML = selectAllElements('.checkbox:not(.all)[checked]').length;

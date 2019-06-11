@@ -2,10 +2,10 @@
 	require_once('../../controllers/orders.php');
 	include('../layouts/default/header.php');
 	require_once('../../views/includes/forms/search.php');
-	require_once('../../views/includes/forms/replacement.php');
-	require_once('../../views/includes/forms/authentication.php');
+	require_once('../../views/includes/forms/replace.php');
+	require_once('../../views/includes/forms/authenticate.php');
 	require_once('../../views/includes/forms/group.php');
-	require_once('../../views/includes/forms/clipboard.php');
+	require_once('../../views/includes/forms/copy.php');
 ?>
 <main class="section">
 	<div class="container small">
@@ -40,12 +40,12 @@
 							<div class="align-left">
 								<span class="align-left checkbox all tooltip tooltip-bottom" title="Check all" visible-only></span>
 								<div class="search-container align-left">
-									<span class="icon search button window tooltip tooltip-bottom" title="Advanced proxy search and filter"></span>
+									<span class="icon search button window tooltip tooltip-bottom" title="Advanced proxy search and filter" window="search"></span>
 								</div>
-								<span class="icon refresh button window tooltip tooltip-bottom" title="Configure proxy replacement settings"></span>
-								<span class="icon authentication button window tooltip tooltip-bottom" title="Configure authentication settings"></span>
-								<span class="icon group button window tooltip tooltip-bottom" title="Create group from selected proxies"></span>
-								<span class="icon copy button window tooltip tooltip-bottom" title="Copy selected proxies to copy"></span>
+								<span class="icon replace button window tooltip tooltip-bottom" title="Configure proxy replacement settings" window="replace"></span>
+								<span class="icon authenticate button window tooltip tooltip-bottom" title="Configure authentication settings" window="authenticate"></span>
+								<span class="icon group button window tooltip tooltip-bottom" title="Create group from selected proxies" window="group"></span>
+								<span class="icon copy button window tooltip tooltip-bottom" title="Copy selected proxies to copy" window="copy"></span>
 							</div>
 							<div class="clear"></div>
 							<p class="no-margin-bottom"><span class="checked-container pull-left"><span class="total-checked">0</span> of <span class="total-results"><?php echo count($data['proxies']); ?></span> proxies selected</span><span class="check-action"></span>.</p>

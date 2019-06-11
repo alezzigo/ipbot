@@ -133,5 +133,15 @@ onLoad(() => {
 			}
 		});
 	});
+	selectAllElements('.button.window').map((button) => {
+		button[1].addEventListener('click', (button) => {
+			elements.removeClass('.window-container[window="' + button.target.getAttribute('window') + '"]', 'hidden');
+		});
+	});
+	selectAllElements('.window .button.close').map((button) => {
+		button[1].addEventListener('click', (button) => {
+			elements.addClass('.window-container', 'hidden');
+		});
+	});
 	// ...
 });

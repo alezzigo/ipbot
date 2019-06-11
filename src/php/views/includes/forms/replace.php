@@ -1,11 +1,11 @@
-<div class="hidden window-container" window="search">
+<div class="hidden window-container" window="replace">
 	<div class="window">
 		<div class="item-container">
 			<div class="item">
-				<div class="search-configuration">
+				<div class="replacement-configuration">
 					<div class="item-header">
 						<span class="button close icon icon-close"></span>
-						<h1>Advanced Proxy Search</h1>
+						<h1>Proxy Replacement Configuration</h1>
 					</div>
 					<div class="item-body">
 					</div>

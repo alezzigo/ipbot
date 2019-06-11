@@ -184,7 +184,7 @@ label {
 			background: url('../images/icons/icon-authenticate.png') center no-repeat / 100%;
 		}
 		.icon.close {
-			background: url('../images/icons/icon-close.png?1') #fff center no-repeat / 100%;
+			background: url('../images/icons/icon-close.png') #fff center no-repeat / 100%;
 		}
 		.icon.copy {
 			background: url('../images/icons/icon-copy.png') center no-repeat / 100%;

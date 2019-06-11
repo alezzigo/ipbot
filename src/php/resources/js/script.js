@@ -65,14 +65,14 @@ var processPagination = (currentPage) => {
 		}
 
 		element.querySelector('.details-container').innerHTML = '<span class="details">' + proxyData.status + ' Proxy IP ' + proxyData.ip + ' Location ' + proxyData.city + ', ' + proxyData.region + ' ' + proxyData.country_code + ' <span class="icon-container"><img src="../../resources/images/icons/flags/' + proxyData.country_code.toLowerCase() + '.png" class="flag" alt="' + proxyData.country_code + ' flag"></span> ISP ' + proxyData.asn + ' Timezone ' + proxyData.timezone + ' ' + proxyStatusDisplay + ' HTTP + HTTPS Port ' + (proxyData.disable_http == 1 ? 'Disabled' : '80') + ' Whitelisted IPs ' + (proxyData.whitelisted_ips ? '<textarea>' + proxyData.whitelisted_ips + '</textarea>' : 'N/A') + ' Username ' + (proxyData.username ? proxyData.username : 'N/A') + ' Password ' + (proxyData.password ? proxyData.password : 'N/A') + '</span>';
-		checkbox.removeEventListener('click', checkbox.listener, false);
+		checkbox.removeEventListener('click', checkbox.listener);
 		checkbox.listener = toggle;
-		checkbox.addEventListener('click', toggle, false);
+		checkbox.addEventListener('click', toggle);
 	});
 
-	checkboxAll.removeEventListener('click', checkboxAll.listener, false);
+	checkboxAll.removeEventListener('click', checkboxAll.listener);
 	checkboxAll.listener = toggleAll;
-	checkboxAll.addEventListener('click', toggleAll, false);
+	checkboxAll.addEventListener('click', toggleAll);
 	toggleAll();
 	// ...
 };

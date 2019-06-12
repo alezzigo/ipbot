@@ -1,5 +1,5 @@
 <div class="hidden window-container" window="copy">
-	<div class="window">
+	<div class="section window">
 		<div class="item-container">
 			<div class="item">
 				<div class="copy-configuration">

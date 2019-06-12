@@ -1,5 +1,5 @@
 <div class="hidden window-container" window="group">
-	<div class="window">
+	<div class="section window">
 		<div class="item-container">
 			<div class="item">
 				<div class="group-configuration">

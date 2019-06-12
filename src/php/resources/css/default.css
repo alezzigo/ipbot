@@ -252,7 +252,7 @@ label {
 	}
 		.window-container .window {
 			max-width: 450px;
-			top: 100px;
+			top: 51px;
 			z-index: 3;
 		}
 			.window-container .window input,

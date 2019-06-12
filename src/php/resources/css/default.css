@@ -24,9 +24,12 @@ html {
 }
 a,
 body,
+button,
 div,
+input,
+label,
 span,
-svg {
+textarea {
 	transition: all 100ms ease;
 		-webkit-transition: all 100ms ease;
 		-o-transition: all 100ms ease;
@@ -41,9 +44,9 @@ h6 {
 	font-weight: 300;
 }
 a,
+a:active,
 a:focus,
-a:visited,
-a:active {
+a:visited {
 	color: #fff;
 	opacity: 0.7;
 	text-decoration: none;
@@ -63,18 +66,16 @@ strong {
 	font-weight: 500;
 }
 label {
-	background: #1d2029;
-	border-radius: 3px;
-	color: #acb9d1;
-	font-size: 11px;
-	font-weight: 600;
-	padding: 3px 6px;
+	display: block;
+	padding: 2px 0;
+	width: 100%;
 }
 .table {
 	border-left: 1px solid #3d414b;
 	border-right: 1px solid #3d414b;
 	border-top: 1px solid #3d414b;
 	border-spacing: 0;
+	margin-bottom: 5px;
 	text-align: left;
 	width: 100%;
 }
@@ -226,6 +227,7 @@ label {
 }
 	.checkbox:hover {
 		border-color: #fff;
+		opacity: 0.7;
 	}
 	.checkbox[checked] {
 		background: url('../images/icons/icon-check.png') #fff center no-repeat / 100%;
@@ -253,6 +255,53 @@ label {
 			top: 100px;
 			z-index: 3;
 		}
+			.window-container .window input,
+			.window-container .window textarea {
+				background: none;
+				border: 1px solid #3d414b;
+				border-radius: 4px;
+				box-sizing: border-box;
+				color: #616671;
+				display: block;
+				font-family: 'Courier New', arial, serif !important;
+				font-size: 14px;
+				margin-bottom: 17px;
+				outline: none;
+				padding: 10px 12px;
+				width: 100%;
+			}
+				.window-container .window input:hover,
+				.window-container .window textarea:hover {
+					border-color: #fff;
+					opacity: 0.7;
+				}
+				.window-container .window input:active,
+				.window-container .window input:focus,
+				.window-container .window input:visited,
+				.window-container .window textarea:active,
+				.window-container .window textarea:focus,
+				.window-container .window textarea:visited {
+					background: #1f222d;
+					opacity: 1;
+				}
+				.window-container .window textarea {
+					height: 140px;
+				}
+			.window-container .window .checkbox-container {
+				margin-bottom: 10px;
+			}
+				.window-container .window .checkbox-container .checkbox {
+					float: left;
+					margin-top: 3px;
+				}
+				.window-container .window .checkbox-container .custom-checkbox-label {
+					cursor: pointer;
+					padding-left: 31px;
+				}
+					.window-container .window .checkbox-container .custom-checkbox-label:hover {
+						color: #fff;
+						opacity: 0.7;
+					}
 		.window-container .window-overlay {
 			background: #222631;
 			z-index: 2;
@@ -268,3 +317,24 @@ label {
 				.window-container .window .item-header h1 {
 					margin: 4px 28px 8px 0;
 				}
+			.window-container .window .item-footer {
+				border-top: 1px solid #3d414b;
+				position: relative;
+			}
+				.window-container .window .item-footer button {
+					background: #fff;
+					border: none;
+					border-radius: 4px;
+					color: #181b23;
+					cursor: pointer;
+					font-family: 'Courier New', arial, serif !important;
+					font-size: 14px;
+					font-weight: 600;
+					margin: 0 6px 4px 0;
+					opacity: 0.7;
+					outline: none;
+					padding: 10px 15px;
+				}
+					.window-container .window .item-footer button:hover {
+						opacity: 1;
+					}

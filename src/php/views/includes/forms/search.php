@@ -9,21 +9,21 @@
 					</div>
 					<div class="item-body">
 						<label for="broad-search">Search Terms</label>
-						<input class="broad-search" id="broad-search" name="broad_search" placeholder="Enter broad search terms (e.g. California 154.3.x, replaced, etc.)" type="text">
+						<input class="broad-search" id="broad-search" name="broad_search" type="text">
 						<label for="granular-search">Filter List of Specific IPs</label>
-						<input class="granular-search" id="granular-search" name="granular_search" placeholder="<?php echo 'Enter list of specific proxy IPs to filter within your order.' . "\n" . '1.2.3.4' . "\n" . '1.2.3.5' . "\n" . 'etc...'; ?>" type="textarea">
+						<textarea class="granular-search" id="granular-search" name="granular_search"></textarea>
 						<div class="checkbox-container">
-							<span class="checkbox" id="exclude-search"></span>
+							<span class="checkbox" id="exclude-search" name="exclude_search"></span>
+							<label class="custom-checkbox-label" for="exclude-search" name="exclude_search">Exclude proxies matching terms and filter</label>
 						</div>
-						<label class="custom-checkbox-label" for="exclude-search">Exclude proxies that match search terms and filter</label>
 						<div class="checkbox-container">
-							<span class="checkbox" id="match-all-search"></span>
+							<span class="checkbox" id="match-all-search" name="match_all_search"></span>
+							<label class="custom-checkbox-label" for="match-all-search" name="match_all_search">Require all search terms to match proxy results</label>
 						</div>
-						<label class="custom-checkbox-label" for="match-all-search">Require all search terms to match proxy results</label>
 					</div>
 					<div class="item-footer">
 						<button class="button close">Close</button>
-						<button class="button search">Search</button>
+						<button class="button submit">Search</button>
 					</div>
 				</div>
 			</div>

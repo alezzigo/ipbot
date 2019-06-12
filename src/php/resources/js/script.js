@@ -136,10 +136,14 @@ onLoad(() => {
 	selectAllElements('.button.window').map((button) => {
 		button[1].addEventListener('click', (button) => {
 			elements.removeClass('.window-container[window="' + button.target.getAttribute('window') + '"]', 'hidden');
+			document.querySelector('input[name="configuration_action"]').value = button.target.getAttribute('window');
 		});
 	});
 	selectAllElements('.window .button.close').map((button) => {
 		button[1].addEventListener('click', (button) => {
+			elements.loop('.window input', (index, input) => {
+				input.value = '';
+			});
 			elements.addClass('.window-container', 'hidden');
 		});
 	});

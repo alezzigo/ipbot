@@ -105,8 +105,7 @@ class OrdersModel extends App {
 			$proxyData['pagination_index']++;
 			$proxyData['next_replacement_available_formatted'] = 'Available' . (!empty($proxies[$index]['next_replacement_available']) ? ' in ' . $this->formatTimestampToCountdown($proxies[$index]['next_replacement_available']) : '');
 			$proxyData['replacement_removal_date_formatted'] = $proxies[$index]['status'] == 'replaced' ? 'Removal in ' . $this->formatTimestampToCountdown($proxies[$index]['replacement_removal_date']) : '';
-			$proxies[$proxies[$index]['id']] = array_merge($servers[$node['server_id']], $proxies[$index], $proxyData);
-			unset($proxies[$index]);
+			$proxies[$index] = array_merge($servers[$node['server_id']], $proxies[$index], $proxyData);
 		}
 
 		return array(

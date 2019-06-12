@@ -293,6 +293,7 @@ label {
 					margin-top: 3px;
 				}
 				.window-container .window .checkbox-container .custom-checkbox-label {
+					box-sizing: border-box;
 					cursor: pointer;
 					padding-left: 31px;
 				}

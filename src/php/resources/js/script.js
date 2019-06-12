@@ -126,25 +126,41 @@ onLoad(() => {
 	elements.removeClass('.proxy-configuration', 'hidden');
 	elements.addClass('.loading', 'hidden');
 	processPagination(parseInt(document.querySelector('.pagination').getAttribute('current')), 10);
-	selectAllElements('.pagination .button').map((button) => {
-		button[1].addEventListener('click', (button) => {
-			if ((page = parseInt(button.target.getAttribute('page'), 10)) > 0) {
+	selectAllElements('.pagination .button').map((element) => {
+		element[1].addEventListener('click', (element) => {
+			if ((page = parseInt(element.target.getAttribute('page'), 10)) > 0) {
 				processPagination(page);
 			}
 		});
 	});
-	selectAllElements('.button.window').map((button) => {
-		button[1].addEventListener('click', (button) => {
-			elements.removeClass('.window-container[window="' + button.target.getAttribute('window') + '"]', 'hidden');
-			document.querySelector('input[name="configuration_action"]').value = button.target.getAttribute('window');
+	selectAllElements('.button.window').map((element) => {
+		element[1].addEventListener('click', (element) => {
+			elements.removeClass('.window-container[window="' + element.target.getAttribute('window') + '"]', 'hidden');
+			document.querySelector('input[name="configuration_action"]').value = element.target.getAttribute('window');
 		});
 	});
-	selectAllElements('.window .button.close').map((button) => {
-		button[1].addEventListener('click', (button) => {
+	selectAllElements('.window .button.close').map((element) => {
+		element[1].addEventListener('click', (element) => {
 			elements.loop('.window input', (index, input) => {
 				input.value = '';
 			});
 			elements.addClass('.window-container', 'hidden');
+		});
+	});
+	selectAllElements('.window .button.submit').map((element) => {
+		element[1].addEventListener('click', (element) => {
+			var form = '.window-container[window="' + element.target.getAttribute('form') + '"]';
+			elements.loop(form + ' input, ' + form + ' select, ' + form + ' textarea', (index, element) => {
+				document.querySelector('input[name="' + element.getAttribute('name') + '"][type="hidden"]').value = element.value;
+			});
+			document.querySelector('.proxy-configuration form').submit(); // TODO: Chunk post data and send to dynamic JSON API instead of submitting HTML form
+		});
+	});
+	selectAllElements('.window .checkbox, .window label.custom-checkbox-label').map((element) => {
+		element[1].addEventListener('click', (element) => {
+			checkbox = document.querySelector('.checkbox[name="' + element.target.getAttribute('name') + '"]');
+			checkbox.hasAttribute('checked') ? checkbox.removeAttribute('checked') : checkbox.setAttribute('checked', 'checked');
+			document.querySelector('input[name="' + element.target.getAttribute('name') + '"][type="hidden"]').value = +checkbox.hasAttribute('checked');
 		});
 	});
 	// ...

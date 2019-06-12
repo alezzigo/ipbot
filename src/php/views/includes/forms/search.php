@@ -23,7 +23,7 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close">Close</button>
-						<button class="button submit">Search</button>
+						<button class="button submit" form="search">Search</button>
 					</div>
 				</div>
 			</div>

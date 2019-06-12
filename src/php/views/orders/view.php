@@ -52,7 +52,7 @@
 						</div>
 					</div>
 					<div class="item-body">
-						<form>
+						<form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
 							<?php
 								$hiddenFields = array(
 									'broad_search' => '',

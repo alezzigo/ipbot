@@ -272,8 +272,7 @@ label {
 			}
 				.window-container .window input:hover,
 				.window-container .window textarea:hover {
-					border-color: #fff;
-					opacity: 0.7;
+					border-color: #464b56;
 				}
 				.window-container .window input:active,
 				.window-container .window input:focus,
@@ -281,8 +280,7 @@ label {
 				.window-container .window textarea:active,
 				.window-container .window textarea:focus,
 				.window-container .window textarea:visited {
-					background: #1f222d;
-					opacity: 1;
+					border-color: #535965;
 				}
 				.window-container .window textarea {
 					height: 140px;

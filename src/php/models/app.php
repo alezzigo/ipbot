@@ -63,16 +63,15 @@ class App extends Config {
  * @todo Simplify complex nested AND + OR + NOT queries without using joins
  *
  * @param string $table Table name
- * @param array $conditions Search parameters
- * @param string $order Sort results
+ * @param array $parameters Query parameters
  *
  * @return array $result Return associative array if it exists, otherwise return boolean ($execute)
  */
-	public function find($table, $conditions = array(), $order = 'id DESC') {
+	public function find($table, $parameters = array()) {
 		$query = 'SELECT * FROM ' . $table;
 
-		if (!empty($conditions)) {
-			array_walk($conditions, function(&$value, $key) {
+		if (!empty($parameters['conditions'])) {
+			array_walk($parameters['conditions'], function(&$value, $key) {
 				if (
 					!empty($value) &&
 					is_array($value)
@@ -82,10 +81,12 @@ class App extends Config {
 					$value = $key . "='" . $value . "'";
 				}
 			});
-			$query .= ' WHERE ' . implode(' AND ', $conditions);
+			$query .= ' WHERE ' . implode(' AND ', $parameters['conditions']);
 		}
 
-		$query .= ' ORDER BY ' . $order;
+		if (!empty($parameters['order'])) {
+			$query .= ' ORDER BY ' . $parameters['order'];
+		}
 
 		return $this->_query($query);
 	}

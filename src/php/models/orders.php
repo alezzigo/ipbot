@@ -86,16 +86,26 @@ class OrdersModel extends App {
  */
 	public function getOrder($id) {
 		$order = $this->find('orders', array(
-			'id' => $id
+			'conditions' => array(
+				'id' => $id
+			)
 		));
 		$proxies = $this->find('proxies', array(
-			'order_id' => $id
-		), 'ip DESC');
+			'conditions' => array(
+				'order_id' => $id
+			),
+			'order' => 'ip DESC'
+		));
 		$nodes = $this->find('nodes', array(
-			'id' => $this->_extract($proxies, 'node_id')
-		), 'ip DESC');
+			'conditions' => array(
+				'id' => $this->_extract($proxies, 'node_id')
+			),
+			'order' => 'ip DESC'
+		));
 		$servers = $this->find('servers', array(
-			'id' => array_unique($this->_extract($nodes, 'server_id'))
+			'conditions' => array(
+				'id' => array_unique($this->_extract($nodes, 'server_id'))
+			)
 		));
 
 		foreach ($servers as $index => $server) {
@@ -141,7 +151,7 @@ class OrdersModel extends App {
 			return false;
 		}
 
-		$response = $this->$configurationActionMethod;
+		$response = $this->$configurationActionMethod($data);
 	}
 
 }

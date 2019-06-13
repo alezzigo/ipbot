@@ -98,8 +98,8 @@ var processChecked = (checkboxes, checkboxState, all = false) => {
 
 var range = (low, high, step) => {
 	var array = [],
-		high = parseInt(high, 10),
-		low = parseInt(low, 10),
+		high = +high,
+		low = +low,
 		plus,
 		step = step || 1;
 

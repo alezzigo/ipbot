@@ -1,4 +1,5 @@
 'use_strict';
+var proxies = [];
 var elements = {
 	addClass: (selector, className) => {
 		selectAllElements(selector).map((element) => {
@@ -26,7 +27,7 @@ var onLoad = (callback) => {
 	document.readyState != 'complete' ? setTimeout('onLoad(' + callback + ')', 1) : callback();
 };
 
-var processPagination = (currentPage) => {
+var processPagination = (currentPage, selected) => {
 	var checkboxAll = document.querySelector('.checkbox.all'),
 		items = document.querySelector('.proxy-configuration table'),
 		pagination = document.querySelector('.pagination');
@@ -81,7 +82,10 @@ var processChecked = (checkboxes, checkboxState, all = false) => {
 	var totalResults = document.querySelector('.total-results').innerHTML;
 
 	checkboxes.map((checkbox, checkboxIndex) => {
-		(((checkboxes.length > 1 || all) && checkboxState) || ((checkboxes.length === 1 && !all) && !checkboxState) ? document.querySelector('.checkbox[index="' + checkbox + '"]').setAttribute('checked', 'checked') : document.querySelector('.checkbox[index="' + checkbox + '"]').removeAttribute('checked'));
+		var checkboxElement = document.querySelector('.checkbox[index="' + checkbox + '"]');
+		var isChecked = ((checkboxes.length > 1 || all) && checkboxState) || ((checkboxes.length === 1 && !all) && !checkboxState) ? +Boolean(checkboxElement.setAttribute('checked', 'checked')) + 1 : +Boolean(checkboxElement.removeAttribute('checked') + 0);
+		var proxyId = checkboxElement.getAttribute('proxy_id');
+		isChecked ? proxies[checkbox] = proxyId : proxies.splice(proxies.indexOf(proxyId), 1);
 	});
 
 	document.querySelector('.total-checked').innerHTML = selectAllElements('.checkbox:not(.all)[checked]').length;
@@ -153,6 +157,7 @@ onLoad(() => {
 			elements.loop(form + ' input, ' + form + ' select, ' + form + ' textarea', (index, element) => {
 				document.querySelector('input[name="' + element.getAttribute('name') + '"][type="hidden"]').value = element.value;
 			});
+			document.querySelector('input[name="proxies"][type="hidden"]').value = proxies;
 			document.querySelector('.proxy-configuration form').submit(); // TODO: Chunk post data and send to dynamic JSON API instead of submitting HTML form
 		});
 	});

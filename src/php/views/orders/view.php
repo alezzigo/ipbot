@@ -72,7 +72,7 @@
 									'password' => '',
 									'authorized_ips' => '',
 									'group_name' => '',
-									'selected_ips' => ''
+									'proxies' => ''
 								);
 
 								foreach ($hiddenFields as $fieldName => $fieldValue) {

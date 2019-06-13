@@ -27,10 +27,11 @@ var onLoad = (callback) => {
 	document.readyState != 'complete' ? setTimeout('onLoad(' + callback + ')', 1) : callback();
 };
 
-var processPagination = (currentPage) => {
+var processPagination = (currentPage, pagination) => {
 	var checkboxAll = document.querySelector('.checkbox.all'),
 		items = document.querySelector('.proxy-configuration table'),
-		pagination = document.querySelector('.pagination');
+		resultsPerPage = +pagination.getAttribute('results'),
+		totalResults = +pagination.querySelector('.total-results').innerHTML;
 
 	var toggle = (checkbox) => {
 		var index = checkbox.target.getAttribute('index');
@@ -53,6 +54,9 @@ var processPagination = (currentPage) => {
 	pagination.setAttribute('current', currentPage);
 	pagination.querySelector('.next').setAttribute('page', selectAllElements('.proxy-configuration tr[page="' + (currentPage + 1) + '"]').length ? currentPage + 1 : 0);
 	pagination.querySelector('.previous').setAttribute('page', currentPage <= 0 ? 0 : currentPage - 1);
+	pagination.querySelector('.first-result').innerHTML = currentPage === 1 ? currentPage : ((currentPage * resultsPerPage) - resultsPerPage) + 1;
+	pagination.querySelector('.last-result').innerHTML = (lastResult = currentPage * resultsPerPage) >= totalResults ? totalResults : lastResult;
+
 	elements.addClass('.proxy-configuration tr:not(.hidden)', 'hidden');
 	elements.removeClass('.proxy-configuration tr[page="' + currentPage + '"]', 'hidden');
 
@@ -131,11 +135,11 @@ onLoad(() => {
 	elements.addClass('.loading', 'hidden');
 
 	if (pagination = document.querySelector('.pagination')) {
-		processPagination(parseInt(pagination.getAttribute('current')), 10)
+		processPagination(+pagination.getAttribute('current'), pagination)
 		selectAllElements('.pagination .button').map((element) => {
 			element[1].addEventListener('click', (element) => {
-				if ((page = parseInt(element.target.getAttribute('page'), 10)) > 0) {
-					processPagination(page);
+				if ((page = +element.target.getAttribute('page')) > 0) {
+					processPagination(page, pagination);
 				}
 			});
 		});

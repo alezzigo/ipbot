@@ -88,11 +88,37 @@ class OrdersModel extends App {
 		$order = $this->find('orders', array(
 			'conditions' => array(
 				'id' => $id
+			),
+			'fields' => array(
+				'id',
+				'name',
+				'status'
 			)
 		));
 		$proxies = $this->find('proxies', array(
 			'conditions' => array(
 				'order_id' => $id
+			),
+			'fields' => array(
+				'id',
+				'user_id',
+				'order_id',
+				'node_id',
+				'ip',
+				'http_port',
+				'whitelisted_ips',
+				'username',
+				'password',
+				'disable_http',
+				'require_authentication',
+				'group_name',
+				'next_replacement_available',
+				'replacement_removal_date',
+				'last_replacement_date',
+				'auto_replacement_interval_type',
+				'auto_replacement_interval_value',
+				'status',
+				'created'
 			),
 			'order' => 'ip DESC'
 		));
@@ -100,11 +126,29 @@ class OrdersModel extends App {
 			'conditions' => array(
 				'id' => $this->_extract($proxies, 'node_id')
 			),
+			'fields' => array(
+				'id',
+				'server_id',
+				'ip'
+			),
 			'order' => 'ip DESC'
 		));
 		$servers = $this->find('servers', array(
 			'conditions' => array(
 				'id' => array_unique($this->_extract($nodes, 'server_id'))
+			),
+			'fields' => array(
+				'id',
+				'ip',
+				'asn',
+				'isp',
+				'city',
+				'region',
+				'country_name',
+				'country_code',
+				'timezone',
+				'status',
+				'created'
 			)
 		));
 

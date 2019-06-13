@@ -68,7 +68,7 @@ class App extends Config {
  * @return array $result Return associative array if it exists, otherwise return boolean ($execute)
  */
 	public function find($table, $parameters = array()) {
-		$query = 'SELECT * FROM ' . $table;
+		$query = 'SELECT ' . (!empty($parameters['fields']) && is_array($parameters['fields']) ? implode(',', $parameters['fields']) : '*') . ' FROM ' . $table;
 
 		if (!empty($parameters['conditions'])) {
 			array_walk($parameters['conditions'], function(&$value, $key) {
@@ -181,7 +181,9 @@ class App extends Config {
  */
 	public function validateId($id, $table) {
 		return !empty($this->find($table, array(
-			'id' => preg_replace("/[^a-zA-Z0-9-]+/", '', $id)
+			'conditions' => array(
+				'id' => preg_replace("/[^a-zA-Z0-9-]+/", '', $id)
+			)
 		)));
 	}
 

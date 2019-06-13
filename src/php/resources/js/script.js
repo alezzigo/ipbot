@@ -27,7 +27,7 @@ var onLoad = (callback) => {
 	document.readyState != 'complete' ? setTimeout('onLoad(' + callback + ')', 1) : callback();
 };
 
-var processPagination = (currentPage, selected) => {
+var processPagination = (currentPage) => {
 	var checkboxAll = document.querySelector('.checkbox.all'),
 		items = document.querySelector('.proxy-configuration table'),
 		pagination = document.querySelector('.pagination');

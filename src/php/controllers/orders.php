@@ -40,7 +40,7 @@ class OrdersController extends OrdersModel {
 			!empty($_POST['configuration_action']) &&
 			strtolower($_SERVER['REQUEST_METHOD']) == 'post'
 		) {
-			// Process request based on configuration action
+			$this->processConfiguration($_POST);
 		}
 
 		return $this->getOrder($orderId);

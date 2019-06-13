@@ -10,9 +10,22 @@ require_once('../../models/app.php');
 class OrdersModel extends App {
 
 /**
+ * Process search requests
+ *
+ * @param array $data Request data
+ *
+ * @return array $data Response data
+ */
+	protected function _processSearch($data) {
+		// ...
+	}
+
+/**
 * Format timestamps to custom countdown timer format ([days]d [minutes]m, [hours]h)
 *
-* @return string Countdown format, boolean false if current time exceeds timestamp
+* @param string $timestamp Timestamp
+*
+* @return string $countdown Countdown format, boolean false if current time exceeds timestamp
 */
 	public function formatTimestampToCountdown($timestamp) {
 		$countdown = (strtotime($timestamp) - time());
@@ -114,6 +127,21 @@ class OrdersModel extends App {
 			'results_per_page' => $proxyData['results_per_page'],
 			'servers' => $servers
 		);
+	}
+
+/**
+ * Process order configuration requests
+ *
+ * @param array $data Request data
+ *
+ * @return array $response Response data
+ */
+	public function processConfiguration($data) {
+		if (!method_exists($this, $configurationActionMethod = '_process' . preg_replace('/\s+/', '', ucwords(str_replace('_', ' ', $data['configuration_action']))))) {
+			return false;
+		}
+
+		$response = $this->$configurationActionMethod;
 	}
 
 }

@@ -129,14 +129,18 @@ String.prototype.trim = (charlist) => {
 onLoad(() => {
 	elements.removeClass('.proxy-configuration', 'hidden');
 	elements.addClass('.loading', 'hidden');
-	processPagination(parseInt(document.querySelector('.pagination').getAttribute('current')), 10);
-	selectAllElements('.pagination .button').map((element) => {
-		element[1].addEventListener('click', (element) => {
-			if ((page = parseInt(element.target.getAttribute('page'), 10)) > 0) {
-				processPagination(page);
-			}
+
+	if (pagination = document.querySelector('.pagination')) {
+		processPagination(parseInt(pagination.getAttribute('current')), 10)
+		selectAllElements('.pagination .button').map((element) => {
+			element[1].addEventListener('click', (element) => {
+				if ((page = parseInt(element.target.getAttribute('page'), 10)) > 0) {
+					processPagination(page);
+				}
+			});
 		});
-	});
+	}
+
 	selectAllElements('.button.window').map((element) => {
 		element[1].addEventListener('click', (element) => {
 			elements.removeClass('.window-container[window="' + element.target.getAttribute('window') + '"]', 'hidden');

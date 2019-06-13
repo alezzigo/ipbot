@@ -79,7 +79,6 @@ var processPagination = (currentPage, pagination) => {
 	checkboxAll.listener = toggleAll;
 	checkboxAll.addEventListener('click', toggleAll);
 	toggleAll();
-	// ...
 };
 
 var processChecked = (checkboxes, checkboxState, all = false) => {
@@ -96,12 +95,10 @@ var processChecked = (checkboxes, checkboxState, all = false) => {
 	// ...
 };
 
-var range = (low, high, step) => {
+var range = (low, high, step = 1) => {
 	var array = [],
 		high = +high,
-		low = +low,
-		plus,
-		step = step || 1;
+		low = +low;
 
 	if (low < high) {
 		while (low <= high) {

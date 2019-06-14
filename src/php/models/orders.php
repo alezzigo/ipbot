@@ -11,13 +11,36 @@ class OrdersModel extends App {
 
 /**
  * Process search requests
+ * @todo Format [match all] terms and filter, parse and format granular IP / subnet search, process query
  *
  * @param array $data Request data
  *
- * @return array $data Response data
+ * @return array $response Response data
  */
-	protected function _processSearch($data) {
-		// ...
+	protected function _processSearch($data, $response = array()) {
+		$broadSearchConditions = array();
+		$broadSearchFields = array('ip', 'asn', 'isp', 'city', 'region', 'country_name', 'country_code', 'timezone', 'status', 'whitelisted_ips', 'username', 'password', 'group_name');
+
+		if (!empty($broadSearchTerms = array_filter(explode(' ', $data['broad_search'])))) {
+			$broadSearchConditions = array_map(function($broadSearchTerm) use ($broadSearchFields, $data) {
+				$broadSearchCondition = array_map(function($broadSearchField) {
+					return $broadSearchField;
+				}, $broadSearchFields);
+				array_walk($broadSearchCondition, function(&$value, $key) use ($broadSearchTerm, $data) {
+					$value = $value . ($data['exclude_search'] ? ' NOT' : null) . ' LIKE %' . $broadSearchTerm . '%';
+				}, $broadSearchTerm);
+				return $broadSearchCondition;
+			}, $broadSearchTerms);
+		}
+
+		// ... $broadSearchConditions is populated for [match_all]
+
+		if (!empty($data['granular_search'])) {
+			// ... parse IPs / subnets
+		}
+
+		// ... find()
+		return $response;
 	}
 
 /**

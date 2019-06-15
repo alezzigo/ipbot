@@ -10,37 +10,105 @@ require_once('../../models/app.php');
 class OrdersModel extends App {
 
 /**
+ * Parse and filter IPv4 address list.
+ *
+ * @param array $ips Unfiltered IPv4 address list
+ *
+ * @return array $ips Filtered IPv4 address list
+ */
+	protected function _parseIps($ips = array()) {
+		$ips = implode("\n", array_map(function($ip) {
+			return trim($ip, '.');
+		}, array_filter(preg_split("/[](\r\n|\n|\r) @#$+,[;:_-]/", $ips))));
+		$ips = $this->_validateIps($ips);
+		return explode("\n", $ips);
+	}
+
+/**
  * Process search requests
- * @todo Format [match all] terms and filter, parse and format granular IP / subnet search, process query
  *
  * @param array $data Request data
  *
  * @return array $response Response data
  */
-	protected function _processSearch($data, $response = array()) {
+	protected function _processSearch($data) {
 		$broadSearchConditions = array();
 		$broadSearchFields = array('ip', 'asn', 'isp', 'city', 'region', 'country_name', 'country_code', 'timezone', 'status', 'whitelisted_ips', 'username', 'password', 'group_name');
+		$conditions = array();
+		$response = array(
+			'message' => ''
+		);
 
 		if (!empty($broadSearchTerms = array_filter(explode(' ', $data['broad_search'])))) {
-			$broadSearchConditions = array_map(function($broadSearchTerm) use ($broadSearchFields, $data) {
-				$broadSearchCondition = array_map(function($broadSearchField) {
-					return $broadSearchField;
-				}, $broadSearchFields);
-				array_walk($broadSearchCondition, function(&$value, $key) use ($broadSearchTerm, $data) {
-					$value = $value . ($data['exclude_search'] ? ' NOT' : null) . ' LIKE %' . $broadSearchTerm . '%';
-				}, $broadSearchTerm);
-				return $broadSearchCondition;
+			$conditions = array_map(function($broadSearchTerm) use ($broadSearchFields, $data) {
+				return array(
+					'OR' => array_fill_keys($broadSearchFields, '%' . $broadSearchTerm . '%')
+				);
 			}, $broadSearchTerms);
 		}
 
-		// ... $broadSearchConditions is populated for [match_all]
-
-		if (!empty($data['granular_search'])) {
-			// ... parse IPs / subnets
+		if (
+			!empty($data['granular_search']) &&
+			($conditions['ip'] = $this->_parseIps($data['granular_search']))
+		) {
+			array_walk($conditions['ip'], function(&$value, $key) use ($data) {
+				$value .= '%'; // Add trailing wildcard for A/B/C class subnet search
+			});
 		}
 
-		// ... find()
+		$conditions = array(
+			($data['match_all_search'] ? 'AND' : 'OR') => $conditions
+		);
+
+		if (!empty($data['exclude_search'])) {
+			$conditions = array(
+				'NOT' => $conditions
+			);
+		}
+
+		$response['results'] = $this->_extract($this->find('proxies', array(
+			'conditions' => $conditions,
+			'fields' => array(
+				'id'
+			)
+		)), 'id');
+
 		return $response;
+	}
+
+/**
+ * Validate IPv4 address/subnet list
+ *
+ * @param array $ips Filtered IPv4 address/subnet list
+ *
+ * @return array $ips Validated IPv4 address/subnet list
+ */
+	protected function _validateIps($ips) {
+		$ips = array_values(array_filter(explode("\n", $ips)));
+
+		foreach ($ips as $key => $ip) {
+			$splitIpSubnets = array_map('trim', explode('.', trim($ip)));
+
+			if (count($splitIpSubnets) != 4) {
+				unset($ips[$key]);
+				continue;
+			}
+
+			foreach ($splitIpSubnets as $splitIpSubnet) {
+				if (
+					!is_numeric($splitIpSubnet) ||
+					strlen($splitIpSubnet) > 3 ||
+					$splitIpSubnet > 255 ||
+					$splitIpSubnet < 0
+				) {
+					unset($ips[$key]);
+					continue;
+				}
+			}
+
+			$ips[$key] = $splitIpSubnets[0] . '.' . $splitIpSubnets[1] . '.' . $splitIpSubnets[2] . '.' . $splitIpSubnets[3];
+		}
+		return implode("\n", array_unique($ips));
 	}
 
 /**
@@ -104,10 +172,11 @@ class OrdersModel extends App {
  * @todo Pagination, format timer countdowns with Javascript on front end
  *
  * @param string $id Order ID
+ * @param array $proxyIds Proxy IDs
  *
  * @return array Order data
  */
-	public function getOrder($id) {
+	public function getOrder($id, $proxyIds) {
 		$order = $this->find('orders', array(
 			'conditions' => array(
 				'id' => $id
@@ -118,10 +187,19 @@ class OrdersModel extends App {
 				'status'
 			)
 		));
+		$proxyConditions = array(
+			'order_id' => $id
+		);
+
+		if (
+			!empty($proxyIds) &&
+			is_array($proxyIds)
+		) {
+			$proxyConditions['id'] = $proxyIds;
+		}
+
 		$proxies = $this->find('proxies', array(
-			'conditions' => array(
-				'order_id' => $id
-			),
+			'conditions' => $proxyConditions,
 			'fields' => array(
 				'id',
 				'user_id',
@@ -129,6 +207,13 @@ class OrdersModel extends App {
 				'node_id',
 				'ip',
 				'http_port',
+				'asn',
+				'isp',
+				'city',
+				'region',
+				'country_name',
+				'country_code',
+				'timezone',
 				'whitelisted_ips',
 				'username',
 				'password',
@@ -175,11 +260,6 @@ class OrdersModel extends App {
 			)
 		));
 
-		foreach ($servers as $index => $server) {
-			$servers[$server['id']] = $server;
-			unset($servers[$index]);
-		}
-
 		$proxyData = array(
 			'current_page' => 1,
 			'pagination_index' => 0,
@@ -195,7 +275,7 @@ class OrdersModel extends App {
 			$proxyData['pagination_index']++;
 			$proxyData['next_replacement_available_formatted'] = 'Available' . (!empty($proxies[$index]['next_replacement_available']) ? ' in ' . $this->formatTimestampToCountdown($proxies[$index]['next_replacement_available']) : '');
 			$proxyData['replacement_removal_date_formatted'] = $proxies[$index]['status'] == 'replaced' ? 'Removal in ' . $this->formatTimestampToCountdown($proxies[$index]['replacement_removal_date']) : '';
-			$proxies[$index] = array_merge($servers[$node['server_id']], $proxies[$index], $proxyData);
+			$proxies[$index] = array_merge($proxies[$index], $proxyData);
 		}
 
 		return array(
@@ -218,7 +298,7 @@ class OrdersModel extends App {
 			return false;
 		}
 
-		$response = $this->$configurationActionMethod($data);
+		return $this->$configurationActionMethod($data);
 	}
 
 }

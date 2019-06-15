@@ -26,6 +26,37 @@ class App extends Config {
 	}
 
 /**
+ * Format array of conditions to SQL query
+ *
+ * @param array $conditions Conditions
+ * @param string $condition Condition
+ *
+ * @return array $conditions SQL query conditions
+ */
+	protected function _formatConditionsToSQL($conditions = array(), $condition = 'OR') {
+		foreach ($conditions as $key => $value) {
+			$condition = !empty($key) && (in_array($key, array('AND', 'OR'))) ? $key : $condition;
+
+			if (count($value) == count($value, COUNT_RECURSIVE)) {
+				if (is_array($value)) {
+					$key = (strlen($key) > 1 && is_string($key) ? $key : null);
+					array_walk($value, function(&$fieldValue, $fieldKey) use ($key) {
+						$fieldValue = (strlen($fieldKey) > 1 && is_string($fieldKey) ? $fieldKey : $key) . " LIKE '" . $fieldValue . "'";
+					});
+				} else {
+					$value = array($key . " LIKE '" . $value . "'");
+				}
+
+				$conditions[$key] = '(' . implode(' ' . $condition . ' ', $value) . ')';
+			} else {
+				$conditions[$key] = ($key === 'NOT' ? 'NOT' : null) . '(' . implode(' ' . $condition . ' ', $this->_formatConditionsToSQL($value, $condition)) . ')';
+			}
+		}
+
+		return $conditions;
+	}
+
+/**
  * Generate 36-character unique ID
  *
  * @return string Unique ID
@@ -60,7 +91,6 @@ class App extends Config {
 
 /**
  * Database helper method for retrieving data
- * @todo Simplify complex nested AND + OR + NOT queries without using joins
  *
  * @param string $table Table name
  * @param array $parameters Query parameters
@@ -70,18 +100,11 @@ class App extends Config {
 	public function find($table, $parameters = array()) {
 		$query = 'SELECT ' . (!empty($parameters['fields']) && is_array($parameters['fields']) ? implode(',', $parameters['fields']) : '*') . ' FROM ' . $table;
 
-		if (!empty($parameters['conditions'])) {
-			array_walk($parameters['conditions'], function(&$value, $key) {
-				if (
-					!empty($value) &&
-					is_array($value)
-				) {
-					$value = $key . " IN ('" . implode("','", $value) . "')";
-				} else {
-					$value = $key . "='" . $value . "'";
-				}
-			});
-			$query .= ' WHERE ' . implode(' AND ', $parameters['conditions']);
+		if (
+			!empty($parameters['conditions']) &&
+			is_array($parameters['conditions'])
+		) {
+			$query .= ' WHERE ' . implode(' AND ', $this->_formatConditionsToSQL($parameters['conditions']));
 		}
 
 		if (!empty($parameters['order'])) {

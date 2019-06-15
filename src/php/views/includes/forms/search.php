@@ -10,7 +10,7 @@
 					<div class="item-body">
 						<label for="broad-search">Search Terms</label>
 						<input class="broad-search" id="broad-search" name="broad_search" type="text">
-						<label for="granular-search">Filter List of Specific IPs</label>
+						<label for="granular-search">Filter List of Specific IPs or Subnets</label>
 						<textarea class="granular-search" id="granular-search" name="granular_search"></textarea>
 						<div class="checkbox-container">
 							<span class="checkbox" id="exclude-search" name="exclude_search"></span>

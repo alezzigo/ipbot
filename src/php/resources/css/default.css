@@ -100,7 +100,6 @@ label {
 		}
 		.table tr td .details {
 			background: #181b23;
-			border-radius: 4px;
 			display: none;
 			font-size: 12px;
 			left: 48px;
@@ -134,7 +133,6 @@ label {
 	}
 .item-container {
 	border: 1px solid #3d414b;
-	border-radius: 4px;
 	margin-bottom: 15px;
 	margin-top: 5px;
 	position: relative;
@@ -167,7 +165,6 @@ label {
 				width: inherit;
 			}
 	.icon {
-		border-radius: 4px;
 		color: #fff;
 		cursor: pointer;
 		display: block;
@@ -218,7 +215,6 @@ label {
 .checkbox {
 	background: #222631;
 	border: 1px solid #3d414b;
-	border-radius: 4px;
 	cursor: pointer;
 	display: block;
 	height: 18px;
@@ -259,7 +255,6 @@ label {
 			.window-container .window textarea {
 				background: none;
 				border: 1px solid #3d414b;
-				border-radius: 4px;
 				box-sizing: border-box;
 				color: #616671;
 				display: block;
@@ -323,7 +318,6 @@ label {
 				.window-container .window .item-footer button {
 					background: #fff;
 					border: none;
-					border-radius: 4px;
 					color: #181b23;
 					cursor: pointer;
 					font-family: 'Courier New', arial, serif !important;

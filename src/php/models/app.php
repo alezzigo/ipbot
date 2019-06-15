@@ -18,6 +18,10 @@ class App extends Config {
  * @return array $data Flattened array of values
  */
 	protected function _extract($data, $key) {
+		if (!is_array($data)) {
+			return;
+		}
+
 		array_walk($data, function(&$value, $index, $key) {
 			$value = !empty($value[$key]) ? $value[$key] : null;
 		}, $key);

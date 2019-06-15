@@ -6,11 +6,12 @@
 		public function __construct() {
 			$this->config = array(
 				'database' => array(
-					'type' => 'mysql',
+					'charset' => 'utf8',
 					'hostname' => '127.0.0.1',
-					'username' => 'root',
+					'name' => 'database_name',
 					'password' => '',
-					'name' => 'database_name'
+					'type' => 'mysql',
+					'username' => 'root'
 				),
 				'base_url' => '/src/php/'
 			);

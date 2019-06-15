@@ -77,7 +77,7 @@ class App extends Config {
  * @return array $result Return associative array if data exists, otherwise return boolean ($execute)
  */
 	protected function _query($query) {
-		$database = new mysqli($this->config['database']['hostname'], $this->config['database']['username'], $this->config['database']['password'], $this->config['database']['name']);
+		$database = new PDO($this->config['database']['type'] . ':host=' . $this->config['database']['hostname'] . '; dbname=' . $this->config['database']['name'] . '; charset=' . $this->config['database']['charset'], $this->config['database']['username'], $this->config['database']['password']);
 		$connection = $database->prepare($query);
 
 		if (
@@ -88,9 +88,9 @@ class App extends Config {
 		}
 
 		$execute = $connection->execute();
-		$result = $connection->get_result();
-		$connection->close();
-		return !empty($result) ? $result->fetch_all(MYSQLI_ASSOC) : $execute;
+		$result = $connection->fetchAll(PDO::FETCH_ASSOC);
+		$connection->closeCursor();
+		return !empty($result) ? $result : $execute;
 	}
 
 /**

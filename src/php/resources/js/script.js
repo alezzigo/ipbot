@@ -142,10 +142,25 @@ onLoad(() => {
 		});
 	}
 
+	if ((scrollableElements = selectAllElements('.scrollable')).length) {
+		scrollableElements.map((element) => {
+			elementDetails = element[1].getBoundingClientRect();
+			window.onscroll = () => {
+				if (window.pageYOffset >= elementDetails.top) {
+					element[1].classList.add('scrolling');
+					element[1].setAttribute('style', 'max-width: ' + elementDetails.width + 'px;');
+				} else {
+					element[1].classList.remove('scrolling');
+				}
+			};
+		});
+	}
+
 	selectAllElements('.button.window').map((element) => {
 		element[1].addEventListener('click', (element) => {
 			elements.removeClass('.window-container[window="' + element.target.getAttribute('window') + '"]', 'hidden');
 			document.querySelector('input[name="configuration_action"]').value = element.target.getAttribute('window');
+			document.querySelector('main').classList.add('hidden');
 		});
 	});
 	selectAllElements('.window .button.close').map((element) => {
@@ -154,6 +169,7 @@ onLoad(() => {
 				input.value = '';
 			});
 			elements.addClass('.window-container', 'hidden');
+			document.querySelector('main').classList.remove('hidden');
 		});
 	});
 	selectAllElements('.window .button.submit').map((element) => {

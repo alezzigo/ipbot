@@ -122,7 +122,7 @@ label {
 				width: 0;
 			}
 .section {
-	padding: 51px 15px;
+	padding: 51px 15px 180px;
 }
 .container {
 	margin: 0 auto;
@@ -132,25 +132,38 @@ label {
 		max-width: 450px;
 	}
 .item-container {
-	border: 1px solid #3d414b;
 	margin-bottom: 15px;
 	margin-top: 5px;
 	position: relative;
 	width: 100%;
 }
-	.item-container.item-button:hover {
-		border-color: #58ce79;
+	.item-container.item-button {
+		border: 1px solid #3d414b;
 	}
+		.item-container.item-button:hover {
+			border-color: #58ce79;
+		}
 	.item-container .item {
 		display: block;
 	}
 		.item-container .item-body,
 		.item-container .item-footer,
 		.item-container .item-header {
+			background: #222631;
 			padding: 19px 19px 14px;
 		}
-		.item-container .item-header {
+		.item-container .item-body {
+			border: 1px solid #3d414b;
+		}
+		.item-container .item-footer {
 			border-bottom: 1px solid #3d414b;
+			border-right: 1px solid #3d414b;
+			border-left: 1px solid #3d414b;
+		}
+		.item-container .item-header {
+			background: #222631;
+			border: 1px solid #3d414b;
+			margin-bottom: -1px;
 		}
 	.item-container .item-link-container {
 		height: 100%;
@@ -248,9 +261,11 @@ label {
 	}
 		.window-container .window {
 			max-width: 450px;
-			top: 51px;
 			z-index: 3;
 		}
+			.window-container .item-container {
+				padding: 51px 0;
+			}
 			.window-container .window input,
 			.window-container .window textarea {
 				background: none;
@@ -312,7 +327,6 @@ label {
 					margin: 4px 28px 8px 0;
 				}
 			.window-container .window .item-footer {
-				border-top: 1px solid #3d414b;
 				position: relative;
 			}
 				.window-container .window .item-footer button {
@@ -331,3 +345,18 @@ label {
 					.window-container .window .item-footer button:hover {
 						opacity: 1;
 					}
+.scrollable {
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+.scrollable.scrolling {
+	margin: auto;
+	position: fixed;
+	z-index: 2;
+}
+.proxy-configuration-container .item-body {
+	border-top: none;
+	padding-top: 105px;
+}

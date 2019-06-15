@@ -26,29 +26,31 @@
 					<p class="no-margin-bottom">Loading...</p>
 				</div>
 				<div class="proxy-configuration hidden">
-					<div class="item-header proxy-controls-container controls-container scrollable">
-						<div class="proxy-controls">
-							<div class="align-right">
-								<span class="pagination" current="1" results="<?php echo $data['results_per_page']; ?>">
-									<span class="align-left results">
-										<span class="first-result">1</span> - <span class="last-result"><?php echo (count($data['proxies']) >= $data['results_per_page'] ? $data['results_per_page'] : count($data['proxies'])); ?></span> of <span class="total-results"><?php echo count($data['proxies']); ?></span>
+					<div class="proxy-controls-container controls-container scrollable">
+						<div class="item-header">
+							<div class="proxy-controls">
+								<div class="align-right">
+									<span class="pagination" current="1" results="<?php echo $data['results_per_page']; ?>">
+										<span class="align-left results">
+											<span class="first-result">1</span> - <span class="last-result"><?php echo (count($data['proxies']) >= $data['results_per_page'] ? $data['results_per_page'] : count($data['proxies'])); ?></span> of <span class="total-results"><?php echo count($data['proxies']); ?></span>
+										</span>
+										<span title="Previous <?php echo $data['results_per_page']; ?> proxies" class="icon button previous align-left tooltip tooltip-bottom"></span>
+										<span title="Next <?php echo $data['results_per_page']; ?> proxies" class="icon button next align-left tooltip tooltip-bottom"></span>
 									</span>
-									<span title="Previous <?php echo $data['results_per_page']; ?> proxies" class="icon button previous align-left tooltip tooltip-bottom"></span>
-									<span title="Next <?php echo $data['results_per_page']; ?> proxies" class="icon button next align-left tooltip tooltip-bottom"></span>
-								</span>
-							</div>
-							<div class="align-left">
-								<span class="align-left checkbox all tooltip tooltip-bottom" title="Check all" visible-only></span>
-								<div class="search-container align-left">
-									<span class="icon search button window tooltip tooltip-bottom" title="Advanced proxy search and filter" window="search"></span>
 								</div>
-								<span class="icon replace button window tooltip tooltip-bottom" title="Configure proxy replacement settings" window="replace"></span>
-								<span class="icon authenticate button window tooltip tooltip-bottom" title="Configure authentication settings" window="authenticate"></span>
-								<span class="icon group button window tooltip tooltip-bottom" title="Create group from selected proxies" window="group"></span>
-								<span class="icon copy button window tooltip tooltip-bottom" title="Copy selected proxies to copy" window="copy"></span>
+								<div class="align-left">
+									<span class="align-left checkbox all tooltip tooltip-bottom" title="Check all" visible-only></span>
+									<div class="search-container align-left">
+										<span class="icon search button window tooltip tooltip-bottom" title="Advanced proxy search and filter" window="search"></span>
+									</div>
+									<span class="icon replace button window tooltip tooltip-bottom" title="Configure proxy replacement settings" window="replace"></span>
+									<span class="icon authenticate button window tooltip tooltip-bottom" title="Configure authentication settings" window="authenticate"></span>
+									<span class="icon group button window tooltip tooltip-bottom" title="Create group from selected proxies" window="group"></span>
+									<span class="icon copy button window tooltip tooltip-bottom" title="Copy selected proxies to copy" window="copy"></span>
+								</div>
+								<div class="clear"></div>
+								<p class="no-margin-bottom"><span class="checked-container pull-left"><span class="total-checked">0</span> of <span class="total-results"><?php echo count($data['proxies']); ?></span> proxies selected</span><span class="check-action"></span>.</p>
 							</div>
-							<div class="clear"></div>
-							<p class="no-margin-bottom"><span class="checked-container pull-left"><span class="total-checked">0</span> of <span class="total-results"><?php echo count($data['proxies']); ?></span> proxies selected</span><span class="check-action"></span>.</p>
 						</div>
 					</div>
 					<div class="item-body">

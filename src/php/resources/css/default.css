@@ -191,6 +191,19 @@ label {
 		.icon:hover {
 			opacity: 1;
 		}
+		.icon.tooltip:hover.tooltip:after {
+			background-color: #181b23;
+			content: attr(data-title);
+			display: inline-block;
+			font-size: 12px;
+			line-height: 15px;
+			margin-left: -1px;
+			padding: 7px 11px 6px;
+			position: absolute;
+		}
+			.icon.tooltip:hover.tooltip-bottom:after {
+				margin-top: 23px;
+			}
 		.icon.authenticate {
 			background: url('../images/icons/icon-authenticate.png') center no-repeat / 100%;
 		}
@@ -236,7 +249,6 @@ label {
 }
 	.checkbox:hover {
 		border-color: #fff;
-		opacity: 0.7;
 	}
 	.checkbox[checked] {
 		background: url('../images/icons/icon-check.png') #fff center no-repeat / 100%;
@@ -360,3 +372,6 @@ label {
 	border-top: none;
 	padding-top: 105px;
 }
+	.proxy-configuration-container .proxy-controls-container.scrolling .item-header {
+		border-top: none !important;
+	}

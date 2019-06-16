@@ -56,9 +56,11 @@ class OrdersModel extends App {
 			});
 		}
 
-		$conditions = array(
-			($data['match_all_search'] ? 'AND' : 'OR') => $conditions
-		);
+		if (!empty($conditions)) {
+			$conditions = array(
+				($data['match_all_search'] ? 'AND' : 'OR') => $conditions
+			);
+		}
 
 		if (!empty($data['exclude_search'])) {
 			$conditions = array(

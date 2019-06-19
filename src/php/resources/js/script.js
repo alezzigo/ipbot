@@ -127,6 +127,24 @@ String.prototype.trim = (charlist) => {
 	return this.replace(new RegExp("[" + charlist + "]+$"), "").replace(new RegExp("^[" + charlist + "]+"), "");
 };
 
+if (
+	(
+		typeof Element.prototype.addEventListener === 'undefined' ||
+		typeof Element.prototype.removeEventListener === 'undefined'
+	) &&
+	(this.attachEvent && this.detachEvent)
+) {
+	Element.prototype.addEventListener = function (event, callback) {
+		event = 'on' + event;
+		return this.attachEvent(event, callback);
+	};
+
+	Element.prototype.removeEventListener = function (event, callback) {
+		event = 'on' + event;
+		return this.detachEvent(event, callback);
+	};
+}
+
 onLoad(() => {
 	elements.removeClass('.proxy-configuration', 'hidden');
 	elements.addClass('.loading', 'hidden');

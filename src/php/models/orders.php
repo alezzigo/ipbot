@@ -25,6 +25,72 @@ class OrdersModel extends App {
 	}
 
 /**
+ * Process replace requests
+ *
+ * @param array $data Request data
+ * @param integer $orderId Order ID
+ *
+ * @return array $response Response data
+ */
+	protected function _processReplace($data, $orderId) {
+		if (empty($data['proxies'])) {
+			return false;
+		}
+
+		$processingNodesDirectory = $_SERVER['DOCUMENT_ROOT'] . $this->config['base_url'] . 'temp/nodes/';
+		$proxies = $this->find('proxies', array(
+			'fields' => array(
+				'id',
+				'node_id'
+			)
+		));
+		$response = array(
+			'message' => ''
+		);
+		$proxiesToReplace = explode(',', $data['proxies']);
+
+		if (!is_dir($processingNodesDirectory)) {
+			mkdir($processingNodesDirectory, 0777, true);
+		}
+
+		$processingNodes = explode(',', implode(',', array_map(function($fileName) use ($processingNodesDirectory) {
+			$file = $processingNodesDirectory . $fileName;
+			$nodes = file_get_contents($file);
+			return time() - filemtime($file) > 10 ? (unlink($file) && (true === false)) : $nodes;
+		}, array_diff(scandir($processingNodesDirectory), array('.', '..', '.DS_Store')))));
+		$nodes = $this->find('nodes', array(
+			'conditions' => array(
+				'NOT' => array(
+					'id' => array_merge($this->_extract($proxies, 'node_id', true), array_filter(array_unique($processingNodes)))
+				)
+			),
+			'fields' => array(
+				'id',
+				'ip',
+				'asn',
+				'isp',
+				'city',
+				'region',
+				'country_name',
+				'country_code'
+			),
+			'limit' => count($proxiesToReplace),
+			'order' => 'RAND()'
+		));
+
+		file_put_contents($processingNodesDirectory . $orderId, implode(',', $this->_extract($nodes, 'id', true)));
+
+		if (!empty($nodes)) {
+			foreach ($proxiesToReplace as $proxy) {
+				// ...
+			}
+		}
+
+		unlink($processingNodesDirectory . $orderId);
+		return $response;
+	}
+
+/**
  * Process search requests
  *
  * @param array $data Request data
@@ -289,15 +355,16 @@ class OrdersModel extends App {
  * Process order configuration requests
  *
  * @param array $data Request data
+ * @param integer $orderId Order ID
  *
  * @return array $response Response data
  */
-	public function processConfiguration($data) {
+	public function processConfiguration($data, $orderId) {
 		if (!method_exists($this, $configurationActionMethod = '_process' . preg_replace('/\s+/', '', ucwords(str_replace('_', ' ', $data['configuration_action']))))) {
 			return false;
 		}
 
-		return $this->$configurationActionMethod($data);
+		return $this->$configurationActionMethod($data, $orderId);
 	}
 
 }

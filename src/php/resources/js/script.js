@@ -194,17 +194,21 @@ onLoad(() => {
 		element[1].addEventListener('click', (element) => {
 			var form = '.window-container[window="' + element.target.getAttribute('form') + '"]';
 			elements.loop(form + ' input, ' + form + ' select, ' + form + ' textarea', (index, element) => {
-				document.querySelector('input[name="' + element.getAttribute('name') + '"][type="hidden"]').value = element.value;
+				var value = element.closest('.checkbox-option-container') && element.closest('.checkbox-option-container').classList.contains('hidden') ? '' : element.value;
+				document.querySelector('input[name="' + element.getAttribute('name') + '"][type="hidden"]').value = value;
 			});
 			document.querySelector('input[name="proxies"][type="hidden"]').value = proxies;
-			document.querySelector('.proxy-configuration form').submit(); // TODO: Chunk post data and send to dynamic JSON API instead of submitting HTML form
+			document.querySelector('.proxy-configuration form').submit();
 		});
 	});
 	selectAllElements('.window .checkbox, .window label.custom-checkbox-label').map((element) => {
 		element[1].addEventListener('click', (element) => {
-			checkbox = document.querySelector('.checkbox[name="' + element.target.getAttribute('name') + '"]');
+			var	checkbox = document.querySelector('.checkbox[name="' + element.target.getAttribute('name') + '"]'),
+				hiddenField = document.querySelector('div[field="' + element.target.getAttribute('name') + '"]'),
+				hiddenInput = document.querySelector('input[name="' + element.target.getAttribute('name') + '"][type="hidden"]');
 			checkbox.hasAttribute('checked') ? checkbox.removeAttribute('checked') : checkbox.setAttribute('checked', 'checked');
-			document.querySelector('input[name="' + element.target.getAttribute('name') + '"][type="hidden"]').value = +checkbox.hasAttribute('checked');
+			hiddenField ? (hiddenField.classList.contains('hidden') ? hiddenField.classList.remove('hidden') : hiddenField.classList.add('hidden')) : null;
+			hiddenInput ? hiddenInput.value = +checkbox.hasAttribute('checked') : null;
 		});
 	});
 	// ...

@@ -28,8 +28,10 @@ button,
 div,
 input,
 label,
+select,
 span,
 textarea {
+	font-family: 'Courier New', arial, serif !important;
 	transition: all 100ms ease;
 		-webkit-transition: all 100ms ease;
 		-o-transition: all 100ms ease;
@@ -70,6 +72,52 @@ label {
 	padding: 2px 0;
 	width: 100%;
 }
+select {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	background: url('../images/icons/icon-select-arrow.png') right center no-repeat / auto 100%;
+	border: 1px solid #3d414b;
+	border-radius: 0;
+	color: #fff;
+	cursor: pointer;
+	display: block;
+	font-size: 14px;
+	outline: none;
+	padding: 7px 25px 7px 11px;
+}
+	select:hover {
+		border-color: #fff;
+	}
+.field-group {
+	float: left;
+	margin-bottom: 23px;
+	width: 100%;
+}
+	.field-group input,
+	.field-group select,
+	.field-group span,
+	.field-group textarea {
+		float: left;
+		margin-left: -1px;
+		position: relative;
+	}
+	.field-group input,
+	.field-group select,
+	.field-group textarea {
+		z-index: 2;
+	}
+		.field-group input:hover,
+		.field-group select:hover,
+		.field-group textarea:hover {
+			z-index: 3;
+		}
+	.field-group span {
+		border: 1px solid #2a2f3e;
+		cursor: default;
+		padding: 4px 11px 3px;
+	}
+
 .table {
 	border-left: 1px solid #3d414b;
 	border-right: 1px solid #3d414b;
@@ -285,7 +333,6 @@ label {
 				box-sizing: border-box;
 				color: #616671;
 				display: block;
-				font-family: 'Courier New', arial, serif !important;
 				font-size: 14px;
 				margin-bottom: 17px;
 				outline: none;
@@ -309,6 +356,7 @@ label {
 				}
 			.window-container .window .checkbox-container {
 				margin-bottom: 10px;
+				margin-top: 5px;
 			}
 				.window-container .window .checkbox-container .checkbox {
 					float: left;
@@ -321,8 +369,12 @@ label {
 				}
 					.window-container .window .checkbox-container .custom-checkbox-label:hover {
 						color: #fff;
-						opacity: 0.7;
+						opacity: 1;
 					}
+			.window-container .window .checkbox-option-container {
+				margin-bottom: 18px;
+				padding-left: 32px;
+			}
 		.window-container .window-overlay {
 			background: #222631;
 			z-index: 2;
@@ -342,20 +394,17 @@ label {
 				position: relative;
 			}
 				.window-container .window .item-footer button {
-					background: #fff;
-					border: none;
-					color: #181b23;
+					background: none;
+					border: 1px solid #3d414b;
+					color: #fff;
 					cursor: pointer;
-					font-family: 'Courier New', arial, serif !important;
 					font-size: 14px;
-					font-weight: 600;
 					margin: 0 6px 4px 0;
-					opacity: 0.7;
 					outline: none;
-					padding: 10px 15px;
+					padding: 7px 10px;
 				}
 					.window-container .window .item-footer button:hover {
-						opacity: 1;
+						border-color: #fff;
 					}
 .scrollable {
 	left: 0;

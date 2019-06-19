@@ -14,10 +14,11 @@ class App extends Config {
  *
  * @param array $data Data
  * @param string $key Key
+ * @param boolean $unique Extract only unique values
  *
  * @return array $data Flattened array of values
  */
-	protected function _extract($data, $key) {
+	protected function _extract($data, $key, $unique = false) {
 		if (!is_array($data)) {
 			return;
 		}
@@ -25,6 +26,10 @@ class App extends Config {
 		array_walk($data, function(&$value, $index, $key) {
 			$value = !empty($value[$key]) ? $value[$key] : null;
 		}, $key);
+
+		if ($unique === true) {
+			$data = array_unique($data);
+		}
 
 		return array_filter($data);
 	}
@@ -113,6 +118,10 @@ class App extends Config {
 
 		if (!empty($parameters['order'])) {
 			$query .= ' ORDER BY ' . $parameters['order'];
+		}
+
+		if (!empty($parameters['limit'])) {
+			$query .= ' LIMIT ' . $parameters['limit'];
 		}
 
 		return $this->_query($query);

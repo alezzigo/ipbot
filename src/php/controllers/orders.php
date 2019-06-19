@@ -41,7 +41,7 @@ class OrdersController extends OrdersModel {
 			!empty($_POST['configuration_action']) &&
 			strtolower($_SERVER['REQUEST_METHOD']) == 'post'
 		) {
-			$response = $this->processConfiguration($_POST);
+			$response = $this->processConfiguration($_POST, $orderId);
 			$proxyIds = !empty($response['results']) ? $response['results'] : array();
 		}
 

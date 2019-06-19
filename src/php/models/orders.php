@@ -259,7 +259,10 @@ class OrdersModel extends App {
 			'order_id' => $id
 		);
 
-		if (is_array($proxyIds)) {
+		if (
+			is_array($proxyIds) &&
+			!empty($proxyIds)
+		) {
 			$proxyConditions['id'] = $proxyIds;
 		}
 

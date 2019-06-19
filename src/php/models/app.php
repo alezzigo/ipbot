@@ -176,13 +176,6 @@ class App extends Config {
 			foreach ($rows as &$row) {
 				$fields = array_keys($row);
 				$values = array_values($row);
-
-				if (!in_array('id', $fields)) {
-					array_unshift($fields, 'id');
-					array_unshift($values, $this->_generateId());
-				}
-
-				$ids[] = $values[array_search('id', $fields)];
 				$groupValues[implode(',', $fields)][] = implode("','", $values);
 			}
 

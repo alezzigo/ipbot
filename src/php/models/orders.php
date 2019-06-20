@@ -237,7 +237,7 @@ class OrdersModel extends App {
 
 /**
  * Get order data
- * @todo Pagination, format timer countdowns with Javascript on front end
+ * @todo Retrieve pagination results with javascript, format timer countdowns with Javascript on front end
  *
  * @param string $id Order ID
  * @param array $proxyIds Proxy IDs
@@ -298,35 +298,6 @@ class OrdersModel extends App {
 			),
 			'order' => 'ip DESC'
 		));
-		$nodes = $this->find('nodes', array(
-			'conditions' => array(
-				'id' => $this->_extract($proxies, 'node_id')
-			),
-			'fields' => array(
-				'id',
-				'server_id',
-				'ip'
-			),
-			'order' => 'ip DESC'
-		));
-		$servers = $this->find('servers', array(
-			'conditions' => array(
-				'id' => array_unique($this->_extract($nodes, 'server_id'))
-			),
-			'fields' => array(
-				'id',
-				'ip',
-				'asn',
-				'isp',
-				'city',
-				'region',
-				'country_name',
-				'country_code',
-				'timezone',
-				'status',
-				'created'
-			)
-		));
 
 		$proxyData = array(
 			'current_page' => 1,
@@ -334,7 +305,7 @@ class OrdersModel extends App {
 			'results_per_page' => 100
 		);
 
-		foreach ($nodes as $index => $node) {
+		foreach ($proxies as $index => $proxy) {
 			if ($proxyData['pagination_index'] >= $proxyData['results_per_page']) {
 				$proxyData['pagination_index'] = 0;
 				$proxyData['current_page']++;
@@ -349,8 +320,7 @@ class OrdersModel extends App {
 		return array(
 			'order' => $order[0],
 			'proxies' => $proxies,
-			'results_per_page' => $proxyData['results_per_page'],
-			'servers' => $servers
+			'results_per_page' => $proxyData['results_per_page']
 		);
 	}
 

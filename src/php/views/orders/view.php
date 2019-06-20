@@ -34,8 +34,8 @@
 										<span class="align-left results">
 											<span class="first-result">1</span> - <span class="last-result"><?php echo (count($data['proxies']) >= $data['results_per_page'] ? $data['results_per_page'] : count($data['proxies'])); ?></span> of <span class="total-results"><?php echo count($data['proxies']); ?></span>
 										</span>
-										<span title="Previous <?php echo $data['results_per_page']; ?> proxies" class="icon button previous align-left tooltip tooltip-bottom"></span>
-										<span title="Next <?php echo $data['results_per_page']; ?> proxies" class="icon button next align-left tooltip tooltip-bottom"></span>
+										<span class="icon button previous align-left"></span>
+										<span class="icon button next align-left"></span>
 									</span>
 								</div>
 								<div class="align-left">

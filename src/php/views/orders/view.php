@@ -43,10 +43,10 @@
 									<div class="search-container align-left">
 										<span class="icon search button window tooltip tooltip-bottom" data-title="Advanced proxy search and filter" window="search"></span>
 									</div>
-									<span class="icon replace button window tooltip tooltip-bottom" data-title="Configure proxy replacement settings" window="replace"></span>
-									<span class="icon authenticate button window tooltip tooltip-bottom" data-title="Configure authentication settings" window="authenticate"></span>
-									<span class="icon group button window tooltip tooltip-bottom" data-title="Create group from selected proxies" window="group"></span>
-									<span class="icon copy button window tooltip tooltip-bottom" data-title="Copy selected proxies to clipboard" window="copy"></span>
+									<span class="icon replace button window tooltip tooltip-bottom hidden" data-title="Configure proxy replacement settings" proxy-function window="replace"></span>
+									<span class="icon authenticate button window tooltip tooltip-bottom hidden" data-title="Configure authentication settings" proxy-function window="authenticate"></span>
+									<span class="icon group button window tooltip tooltip-bottom hidden" data-title="Create group from selected proxies" proxy-function window="group"></span>
+									<span class="icon copy button window tooltip tooltip-bottom hidden" data-title="Copy selected proxies to clipboard" proxy-function window="copy"></span>
 								</div>
 								<div class="clear"></div>
 								<p class="no-margin-bottom"><span class="checked-container pull-left"><span class="total-checked">0</span> of <span class="total-results"><?php echo count($data['proxies']); ?></span> proxies selected</span><span class="check-action"></span>.</p>

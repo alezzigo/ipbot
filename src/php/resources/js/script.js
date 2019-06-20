@@ -82,8 +82,6 @@ var processPagination = (currentPage, pagination) => {
 };
 
 var processChecked = (checkboxes, checkboxState, all = false) => {
-	var totalResults = document.querySelector('.total-results').innerHTML;
-
 	checkboxes.map((checkbox, checkboxIndex) => {
 		var checkboxElement = document.querySelector('.checkbox[index="' + checkbox + '"]');
 		var isChecked = ((checkboxes.length > 1 || all) && checkboxState) || ((checkboxes.length === 1 && !all) && !checkboxState) ? +Boolean(checkboxElement.setAttribute('checked', 'checked')) + 1 : +Boolean(checkboxElement.removeAttribute('checked') + 0);
@@ -91,7 +89,11 @@ var processChecked = (checkboxes, checkboxState, all = false) => {
 		isChecked ? proxies[checkbox] = proxyId : proxies.splice(proxies.indexOf(proxyId), 1);
 	});
 
-	document.querySelector('.total-checked').innerHTML = selectAllElements('.checkbox:not(.all)[checked]').length;
+	var totalChecked = selectAllElements('.checkbox:not(.all)[checked]').length,
+		totalResults = document.querySelector('.total-results').innerHTML;
+
+	document.querySelector('.total-checked').innerHTML = totalChecked;
+	totalChecked ? elements.removeClass('span.icon[proxy-function]', 'hidden') : elements.addClass('span.icon[proxy-function]', 'hidden');
 	// ...
 };
 

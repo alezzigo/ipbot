@@ -1,7 +1,7 @@
-.align-left { float: left; }
-.align-right { float: right; }
-.clear { clear: both; }
-.hidden { display: none; }
+.align-left { float: left !important; }
+.align-right { float: right !important; }
+.clear { clear: both !important; }
+.hidden { display: none !important; }
 .no-margin { margin: 0 !important; }
 .no-margin-left { margin-left: 0 !important; }
 .no-margin-bottom { margin-bottom: 0 !important; }

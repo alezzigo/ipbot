@@ -5,9 +5,9 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
-require_once('../../config/config.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/config/config.php');
 
-class App extends Config {
+class AppModel extends Config {
 
 /**
  * Helper method for extracting values from a specific key in a multidimensional array
@@ -75,6 +75,21 @@ class App extends Config {
 	}
 
 /**
+ * Parse and filter IPv4 address list.
+ *
+ * @param array $ips Unfiltered IPv4 address list
+ *
+ * @return array $ips Filtered IPv4 address list
+ */
+	protected function _parseIps($ips = array()) {
+		$ips = implode("\n", array_map(function($ip) {
+			return trim($ip, '.');
+		}, array_filter(preg_split("/[](\r\n|\n|\r) @#$+,[;:_-]/", $ips))));
+		$ips = $this->_validateIps($ips);
+		return explode("\n", $ips);
+	}
+
+/**
  * Construct and execute database queries
  *
  * @param string $query Query string
@@ -96,6 +111,41 @@ class App extends Config {
 		$result = $connection->fetchAll(PDO::FETCH_ASSOC);
 		$connection->closeCursor();
 		return !empty($result) ? $result : $execute;
+	}
+
+/**
+ * Validate IPv4 address/subnet list
+ *
+ * @param array $ips Filtered IPv4 address/subnet list
+ *
+ * @return array $ips Validated IPv4 address/subnet list
+ */
+	protected function _validateIps($ips) {
+		$ips = array_values(array_filter(explode("\n", $ips)));
+
+		foreach ($ips as $key => $ip) {
+			$splitIpSubnets = array_map('trim', explode('.', trim($ip)));
+
+			if (count($splitIpSubnets) != 4) {
+				unset($ips[$key]);
+				continue;
+			}
+
+			foreach ($splitIpSubnets as $splitIpSubnet) {
+				if (
+					!is_numeric($splitIpSubnet) ||
+					strlen($splitIpSubnet) > 3 ||
+					$splitIpSubnet > 255 ||
+					$splitIpSubnet < 0
+				) {
+					unset($ips[$key]);
+					continue;
+				}
+			}
+
+			$ips[$key] = $splitIpSubnets[0] . '.' . $splitIpSubnets[1] . '.' . $splitIpSubnets[2] . '.' . $splitIpSubnets[3];
+		}
+		return implode("\n", array_unique($ips));
 	}
 
 /**

@@ -7,22 +7,7 @@
  */
 require_once('../../models/app.php');
 
-class OrdersModel extends App {
-
-/**
- * Parse and filter IPv4 address list.
- *
- * @param array $ips Unfiltered IPv4 address list
- *
- * @return array $ips Filtered IPv4 address list
- */
-	protected function _parseIps($ips = array()) {
-		$ips = implode("\n", array_map(function($ip) {
-			return trim($ip, '.');
-		}, array_filter(preg_split("/[](\r\n|\n|\r) @#$+,[;:_-]/", $ips))));
-		$ips = $this->_validateIps($ips);
-		return explode("\n", $ips);
-	}
+class OrdersModel extends AppModel {
 
 /**
  * Process replace requests
@@ -145,41 +130,6 @@ class OrdersModel extends App {
 	}
 
 /**
- * Validate IPv4 address/subnet list
- *
- * @param array $ips Filtered IPv4 address/subnet list
- *
- * @return array $ips Validated IPv4 address/subnet list
- */
-	protected function _validateIps($ips) {
-		$ips = array_values(array_filter(explode("\n", $ips)));
-
-		foreach ($ips as $key => $ip) {
-			$splitIpSubnets = array_map('trim', explode('.', trim($ip)));
-
-			if (count($splitIpSubnets) != 4) {
-				unset($ips[$key]);
-				continue;
-			}
-
-			foreach ($splitIpSubnets as $splitIpSubnet) {
-				if (
-					!is_numeric($splitIpSubnet) ||
-					strlen($splitIpSubnet) > 3 ||
-					$splitIpSubnet > 255 ||
-					$splitIpSubnet < 0
-				) {
-					unset($ips[$key]);
-					continue;
-				}
-			}
-
-			$ips[$key] = $splitIpSubnets[0] . '.' . $splitIpSubnets[1] . '.' . $splitIpSubnets[2] . '.' . $splitIpSubnets[3];
-		}
-		return implode("\n", array_unique($ips));
-	}
-
-/**
 * Format timestamps to custom countdown timer format ([days]d [minutes]m, [hours]h)
 *
 * @param string $timestamp Timestamp
@@ -266,6 +216,12 @@ class OrdersModel extends App {
 			$proxyConditions['id'] = $proxyIds;
 		}
 
+		$proxyData = array(
+			'current_page' => 1,
+			'pagination_index' => 0,
+			'results_per_page' => 100
+		);
+
 		$proxies = $this->find('proxies', array(
 			'conditions' => $proxyConditions,
 			'fields' => array(
@@ -298,12 +254,6 @@ class OrdersModel extends App {
 			),
 			'order' => 'ip DESC'
 		));
-
-		$proxyData = array(
-			'current_page' => 1,
-			'pagination_index' => 0,
-			'results_per_page' => 100
-		);
 
 		foreach ($proxies as $index => $proxy) {
 			if ($proxyData['pagination_index'] >= $proxyData['results_per_page']) {

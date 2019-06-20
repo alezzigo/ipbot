@@ -1,6 +1,6 @@
 <?php
-	require_once('../../controllers/orders.php');
-	include('../layouts/default/header.php');
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/controllers/orders.php');
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/views/layouts/default/header.php');
 ?>
 <main class="section">
 	<div class="container small">
@@ -35,4 +35,4 @@
 			endif;
 		?></div>
 </div>
-<?php include('../layouts/default/footer.php'); ?>
+<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/views/layouts/default/footer.php'); ?>

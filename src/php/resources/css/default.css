@@ -189,7 +189,7 @@ select {
 		border: 1px solid #3d414b;
 	}
 		.item-container.item-button:hover {
-			border-color: #58ce79;
+			border-color: #fff;
 		}
 	.item-container .item {
 		display: block;

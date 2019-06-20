@@ -1,11 +1,11 @@
 <?php
-	require_once('../../controllers/orders.php');
-	include('../layouts/default/header.php');
-	require_once('../../views/includes/forms/search.php');
-	require_once('../../views/includes/forms/replace.php');
-	require_once('../../views/includes/forms/authenticate.php');
-	require_once('../../views/includes/forms/group.php');
-	require_once('../../views/includes/forms/copy.php');
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/controllers/orders.php');
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/views/layouts/default/header.php');
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/views/includes/forms/search.php');
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/views/includes/forms/replace.php');
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/views/includes/forms/authenticate.php');
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/views/includes/forms/group.php');
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/views/includes/forms/copy.php');
 ?>
 <main class="section">
 	<div class="container small">
@@ -55,6 +55,7 @@
 					</div>
 					<div class="item-body">
 						<form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
+							<div class="checked-proxies"></div>
 							<?php
 								$hiddenFields = array(
 									'broad_search' => '',
@@ -118,4 +119,4 @@
 		<?php endif; ?>
 	</div>
 </div>
-<?php include('../layouts/default/footer.php'); ?>
+<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/views/layouts/default/footer.php'); ?>

@@ -5,18 +5,9 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
-require_once('../../models/orders.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/models/orders.php');
 
 class OrdersController extends OrdersModel {
-
-/**
- * API for orders
- *
- * @return array Orders data, status code
- */
-	public function api() {
-		// ...
-	}
 
 /**
  * List orders

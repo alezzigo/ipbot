@@ -36,6 +36,7 @@ class AppModel extends Config {
 
 /**
  * Format array of conditions to SQL query
+ * @todo Run all SQL attack methods and sanitize queries
  *
  * @param array $conditions Conditions
  * @param string $condition Condition
@@ -66,15 +67,6 @@ class AppModel extends Config {
 	}
 
 /**
- * Generate 36-character unique ID
- *
- * @return string Unique ID
- */
-	protected function _generateId() {
-		return uniqid() . '-' . mt_rand(1000, 9999) . '-' . mt_rand(100000, 999999) . '-' . time();
-	}
-
-/**
  * Parse and filter IPv4 address list.
  *
  * @param array $ips Unfiltered IPv4 address list
@@ -98,6 +90,7 @@ class AppModel extends Config {
  */
 	protected function _query($query) {
 		$database = new PDO($this->config['database']['type'] . ':host=' . $this->config['database']['hostname'] . '; dbname=' . $this->config['database']['name'] . '; charset=' . $this->config['database']['charset'], $this->config['database']['username'], $this->config['database']['password']);
+
 		$connection = $database->prepare($query);
 
 		if (
@@ -150,6 +143,7 @@ class AppModel extends Config {
 
 /**
  * Database helper method for retrieving data
+ * @todo Run all SQL attack methods and sanitize queries
  *
  * @param string $table Table name
  * @param array $parameters Query parameters
@@ -157,7 +151,7 @@ class AppModel extends Config {
  * @return array $result Return associative array if it exists, otherwise return boolean ($execute)
  */
 	public function find($table, $parameters = array()) {
-		$query = 'SELECT ' . (!empty($parameters['fields']) && is_array($parameters['fields']) ? implode(',', $parameters['fields']) : '*') . ' FROM ' . $table;
+		$query = 'SELECT ' . (!empty($parameters['count']) && $parameters['count'] === true ? 'COUNT(*) ' : (!empty($parameters['fields']) && is_array($parameters['fields']) ? implode(',', $parameters['fields']) : '*')) . ' FROM ' . $table;
 
 		if (
 			!empty($parameters['conditions']) &&
@@ -167,11 +161,15 @@ class AppModel extends Config {
 		}
 
 		if (!empty($parameters['order'])) {
-			$query .= ' ORDER BY ' . $parameters['order'];
+			$query .= ' ORDER BY ' . (string) $parameters['order'];
 		}
 
 		if (!empty($parameters['limit'])) {
-			$query .= ' LIMIT ' . $parameters['limit'];
+			$query .= ' LIMIT ' . (integer) $parameters['limit'];
+		}
+
+		if (!empty($parameters['offset'])) {
+			$query .= ' OFFSET ' . (integer) $parameters['offset'];
 		}
 
 		return $this->_query($query);
@@ -208,7 +206,7 @@ class AppModel extends Config {
 
 /**
  * Database helper method for saving data
- * @todo If third parameter is passed, return modified rows with all fields
+ * @todo If third parameter is passed, return modified rows with all fields, run all SQL attack methods and sanitize queries
  *
  * @param string $table Table name
  * @param array $rows Data to save
@@ -256,12 +254,12 @@ class AppModel extends Config {
  * @param string $id ID
  * @param string $table Table name
  *
- * @return boolean True if ID exists and is formatted correctly (alphanumeric [xxxxxxxxxxxxx-xxxx-xxxxxx-xxxxxxxxxx]).
+ * @return boolean True if ID exists and is formatted correctly (integer).
  */
 	public function validateId($id, $table) {
 		return !empty($this->find($table, array(
 			'conditions' => array(
-				'id' => preg_replace("/[^a-zA-Z0-9-]+/", '', $id)
+				'id' => (integer) $id
 			)
 		)));
 	}

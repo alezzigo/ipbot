@@ -4,6 +4,7 @@
 		public static $config;
 
 		public function __construct() {
+
 			$this->config = array(
 				'database' => array(
 					'charset' => 'utf8',
@@ -14,6 +15,39 @@
 					'username' => 'root'
 				),
 				'base_url' => '/src/php/'
+			);
+
+			$this->permissions = array(
+				'api' => array(
+					'orders' => array(
+						'find' => array(
+							'fields' => array()
+						)
+					),
+					'proxies' => array(
+						'find' => array(
+							'fields' => array(
+								'id',
+								'order_id',
+								'ip',
+								'http_port',
+								'asn',
+								'isp',
+								'city',
+								'region',
+								'country_name',
+								'country_code',
+								'timezone',
+								'whitelisted_ips',
+								'username',
+								'password',
+								'next_replacement_available',
+								'replacement_removal_date',
+								'status'
+							)
+						)
+					)
+				)
 			);
 		}
 

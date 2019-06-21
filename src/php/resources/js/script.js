@@ -16,6 +16,11 @@ var elements = {
 			element[1].classList.remove(className);
 		});
 	},
+	html: (selector, value = null) => {
+		return selectAllElements(selector).map((element) => {
+			return value !== null ? element[1].innerHTML = value : element[1].innerHTML;
+		})[0];
+	},
 	setAttribute: (selector, attribute, value) => {
 		selectAllElements(selector).map((element) => {
 			element[1].setAttribute(attribute, value);
@@ -29,9 +34,8 @@ var onLoad = (callback) => {
 
 var processPagination = (currentPage, pagination) => {
 	var checkboxAll = document.querySelector('.checkbox.all'),
-		items = document.querySelector('.proxy-configuration table'),
-		resultsPerPage = +pagination.getAttribute('results'),
-		totalResults = +pagination.querySelector('.total-results').innerHTML;
+		items = document.querySelector('.proxy-configuration .proxy-table'),
+		resultsPerPage = +pagination.getAttribute('results');
 
 	var toggle = (checkbox) => {
 		var index = checkbox.target.getAttribute('index');
@@ -42,59 +46,118 @@ var processPagination = (currentPage, pagination) => {
 	}
 	var toggleAll = (checkbox = null) => {
 		if (!checkbox) {
-			return (selectAllElements('.proxy-configuration tr:not(.hidden)').length === selectAllElements('.proxy-configuration tr:not(.hidden) .checkbox[checked]').length ? checkboxAll.setAttribute('checked', 'checked') : checkboxAll.removeAttribute('checked'));
+			if (checkboxField = document.querySelector('input[name="checked[]"][group="' + Math.ceil((currentPage * +document.querySelector('.pagination').getAttribute('results')) / 1000) + '"]')) {
+				(checkboxField ? checkboxField.value.split(',') : []).map((checkedItem, checkedItemIndex) => {
+					var checkedItem = document.querySelector('.checkbox[proxy_id="' + checkedItem + '"]');
+					checkedItem ? checkedItem.setAttribute('checked', 'checked') : null;
+				});
+			}
+
+			return (selectAllElements('.proxy-configuration tr').length === selectAllElements('.proxy-configuration tr .checkbox[checked]').length ? checkboxAll.setAttribute('checked', 'checked') : checkboxAll.removeAttribute('checked'));
 		}
 
 		checkbox.target.hasAttribute('checked') ? checkbox.target.removeAttribute('checked') : checkbox.target.setAttribute('checked', null);
-		processChecked(selectAllElements('.proxy-configuration tr' + (checkbox.target.hasAttribute('visible-only') ? ':not(.hidden)' : null) + ' .checkbox').map((checkbox) => {
+		processChecked(selectAllElements('.proxy-configuration tr .checkbox').map((checkbox) => {
 			return checkbox[1].getAttribute('index');
 		}), checkbox.target.hasAttribute('checked'), true);
 	};
 
-	pagination.setAttribute('current', currentPage);
-	pagination.querySelector('.next').setAttribute('page', selectAllElements('.proxy-configuration tr[page="' + (currentPage + 1) + '"]').length ? currentPage + 1 : 0);
-	pagination.querySelector('.previous').setAttribute('page', currentPage <= 0 ? 0 : currentPage - 1);
-	pagination.querySelector('.first-result').innerHTML = currentPage === 1 ? currentPage : ((currentPage * resultsPerPage) - resultsPerPage) + 1;
-	pagination.querySelector('.last-result').innerHTML = (lastResult = currentPage * resultsPerPage) >= totalResults ? totalResults : lastResult;
+	pagination.querySelector('.next').setAttribute('page', 0);
+	pagination.querySelector('.previous').setAttribute('page', 0);
+	items.innerHTML = '<p>Loading ...</p>';
+	var xhr = new XMLHttpRequest();
+	var request = {
+		action: 'find',
+		conditions: {
+			order_id: document.querySelector('input[name="order_id"]').value
+		},
+		fields: [
+			'id',
+			'order_id',
+			'ip',
+			'http_port',
+			'asn',
+			'isp',
+			'city',
+			'region',
+			'country_name',
+			'country_code',
+			'timezone',
+			'whitelisted_ips',
+			'username',
+			'password',
+			'next_replacement_available',
+			'replacement_removal_date',
+			'status'
+		],
+		group: 'proxies',
+		limit: resultsPerPage,
+		offset: (currentPage * resultsPerPage) - resultsPerPage
+	};
+	xhr.open('POST', '/src/php/views/api.php', true);
+	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	xhr.send('json=' + JSON.stringify(request));
+	xhr.onload = function(response) {
+		if (response.target.status === 200) {
+			var response = JSON.parse(response.target.response);
+			items.innerHTML = '<table class="table"></table>';
 
-	elements.addClass('.proxy-configuration tr:not(.hidden)', 'hidden');
-	elements.removeClass('.proxy-configuration tr[page="' + currentPage + '"]', 'hidden');
+			response.data.map((proxy, index) => {
+				items.querySelector('table').innerHTML += '<tr page="' + currentPage + '" proxy_id="' + proxy.id + '" class=""><td style="width: 1px;"><span class="checkbox" index="' + index + '" proxy_id="' + proxy.id + '"></span></td><td><span class="details-container"><span class="details">' + proxy.status + ' Proxy IP ' + proxy.ip + ' Location ' + proxy.city + ', ' + proxy.region + ' ' + proxy.country_code + ' <span class="icon-container"><img src="../../resources/images/icons/flags/' + proxy.country_code.toLowerCase() + '.png" class="flag" alt="' + proxy.country_code + ' flag"></span> ISP ' + proxy.asn + ' Timezone ' + proxy.timezone + ' HTTP + HTTPS Port ' + (proxy.disable_http == 1 ? 'Disabled' : '80') + ' Whitelisted IPs ' + (proxy.whitelisted_ips ? '<textarea>' + proxy.whitelisted_ips + '</textarea>' : 'N/A') + ' Username ' + (proxy.username ? proxy.username : 'N/A') + ' Password ' + (proxy.password ? proxy.password : 'N/A') + '</span></span><span class="table-text">' + proxy.ip + '</span></td>';
+			});
 
-	elements.loop('.proxy-configuration tr:not(.hidden)', (index, element) => {
-		var checkbox = element.querySelector('.checkbox'),
-			proxyData = JSON.parse(element.getAttribute('data')),
-			proxyStatusDisplay = 'Next IP Replacement ' + proxyData.next_replacement_available_formatted + ' Auto Replacements ' + (proxyData.auto_replacement_interval_value == '0' ? 'Disabled' : 'Enabled') + '';
+			elements.html('.total-results', response.count);
+			elements.html('.first-result', currentPage === 1 ? currentPage : ((currentPage * resultsPerPage) - resultsPerPage) + 1);
+			elements.html('.last-result', (lastResult = currentPage * resultsPerPage) >= response.count ? response.count : lastResult);
+			pagination.setAttribute('current', currentPage);
+			pagination.querySelector('.next').setAttribute('page', +elements.html('.last-result') < response.count ? currentPage + 1 : 0);
+			pagination.querySelector('.previous').setAttribute('page', currentPage <= 0 ? 0 : currentPage - 1);
 
-		if (proxyData.status.toLowerCase() == 'replaced') {
-			proxyStatusDisplay = 'Time to Removal ' + proxyData.replacement_removal_date_formatted;
+			elements.loop('.proxy-configuration tr', (index, row) => {
+				var checkbox = row.querySelector('.checkbox');
+				checkbox.removeEventListener('click', checkbox.listener);
+				checkbox.listener = toggle;
+				checkbox.addEventListener('click', toggle);
+			});
+
+			checkboxAll.removeEventListener('click', checkboxAll.listener);
+			checkboxAll.listener = toggleAll;
+			checkboxAll.addEventListener('click', toggleAll);
+			toggleAll();
 		}
-
-		element.querySelector('.details-container').innerHTML = '<span class="details">' + proxyData.status + ' Proxy IP ' + proxyData.ip + ' Location ' + proxyData.city + ', ' + proxyData.region + ' ' + proxyData.country_code + ' <span class="icon-container"><img src="../../resources/images/icons/flags/' + proxyData.country_code.toLowerCase() + '.png" class="flag" alt="' + proxyData.country_code + ' flag"></span> ISP ' + proxyData.asn + ' Timezone ' + proxyData.timezone + ' ' + proxyStatusDisplay + ' HTTP + HTTPS Port ' + (proxyData.disable_http == 1 ? 'Disabled' : '80') + ' Whitelisted IPs ' + (proxyData.whitelisted_ips ? '<textarea>' + proxyData.whitelisted_ips + '</textarea>' : 'N/A') + ' Username ' + (proxyData.username ? proxyData.username : 'N/A') + ' Password ' + (proxyData.password ? proxyData.password : 'N/A') + '</span>';
-		checkbox.removeEventListener('click', checkbox.listener);
-		checkbox.listener = toggle;
-		checkbox.addEventListener('click', toggle);
-	});
-
-	checkboxAll.removeEventListener('click', checkboxAll.listener);
-	checkboxAll.listener = toggleAll;
-	checkboxAll.addEventListener('click', toggleAll);
-	toggleAll();
+	}
 };
 
 var processChecked = (checkboxes, checkboxState, all = false) => {
+	var currentPage = +document.querySelector('.pagination').getAttribute('current');
+	var group = Math.ceil((currentPage * +document.querySelector('.pagination').getAttribute('results')) / 1000);
+	var checkboxField = document.querySelector('input[name="checked[]"][group="' + group + '"]');
+	var checkedItems = checkboxField ? checkboxField.value.split(',') : [];
+
 	checkboxes.map((checkbox, checkboxIndex) => {
 		var checkboxElement = document.querySelector('.checkbox[index="' + checkbox + '"]');
 		var isChecked = ((checkboxes.length > 1 || all) && checkboxState) || ((checkboxes.length === 1 && !all) && !checkboxState) ? +Boolean(checkboxElement.setAttribute('checked', 'checked')) + 1 : +Boolean(checkboxElement.removeAttribute('checked') + 0);
 		var proxyId = checkboxElement.getAttribute('proxy_id');
-		isChecked ? proxies[checkbox] = proxyId : proxies.splice(proxies.indexOf(proxyId), 1);
+		checkedItems.indexOf(proxyId) >= 0 ? checkedItems.splice(checkedItems.indexOf(proxyId), 1) : null;
+		isChecked ? checkedItems.push(proxyId) : null;
 	});
 
-	var totalChecked = selectAllElements('.checkbox:not(.all)[checked]').length,
-		totalResults = document.querySelector('.total-results').innerHTML;
+	if (checkboxField === null) {
+		checkboxField = document.createElement('input');
+			checkboxField.setAttribute('group', group);
+			checkboxField.setAttribute('name', 'checked[]');
+			checkboxField.setAttribute('type', 'hidden');
+		document.querySelector('.checked-items').prepend(checkboxField);
+	}
 
-	document.querySelector('.total-checked').innerHTML = totalChecked;
-	totalChecked ? elements.removeClass('span.icon[proxy-function]', 'hidden') : elements.addClass('span.icon[proxy-function]', 'hidden');
-	// ...
+	checkboxField.value = checkedItems.filter(checkedItem => checkedItem.length);
+	elements.html('.total-checked', 0);
+
+	elements.loop('input[name="checked[]"]', function(checkboxFieldIndex, checkboxField) {
+		elements.html('.total-checked', +elements.html('.total-checked') + (+Boolean(checkboxField.value.length) + (checkboxField.value.match(/,/g) || []).length));
+	});
+
+	elements.html('.total-checked') ? elements.removeClass('span.icon[proxy-function]', 'hidden') : elements.addClass('span.icon[proxy-function]', 'hidden');
 };
 
 var range = (low, high, step = 1) => {
@@ -194,6 +257,11 @@ onLoad(() => {
 	});
 	selectAllElements('.window .button.submit').map((element) => {
 		element[1].addEventListener('click', (element) => {
+			// ...
+			alert('Actions temporarily disabled to implement finding/saving via API.');
+			return;
+			// ...
+
 			var form = '.window-container[window="' + element.target.getAttribute('form') + '"]';
 			elements.loop(form + ' input, ' + form + ' select, ' + form + ' textarea', (index, element) => {
 				var value = element.closest('.checkbox-option-container') && element.closest('.checkbox-option-container').classList.contains('hidden') ? '' : element.value;

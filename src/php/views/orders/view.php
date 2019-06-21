@@ -10,11 +10,6 @@
 <main class="section">
 	<div class="container small">
 		<h1><?php echo $data['order']['name']; ?></h1>
-		<?php
-			if (empty($data['proxies'])) :
-				echo 'There are no proxies in this order.';
-			else:
-		?>
 		<div class="item-container proxy-configuration-container">
 			<div class="item">
 				<?php
@@ -30,9 +25,9 @@
 						<div class="item-header">
 							<div class="proxy-controls">
 								<div class="align-right">
-									<span class="pagination" current="1" results="<?php echo $data['results_per_page']; ?>">
+									<span class="pagination" current="<?php echo $data['pagination']['current_page']; ?>" results="<?php echo $data['pagination']['results_per_page']; ?>">
 										<span class="align-left results">
-											<span class="first-result">1</span> - <span class="last-result"><?php echo (count($data['proxies']) >= $data['results_per_page'] ? $data['results_per_page'] : count($data['proxies'])); ?></span> of <span class="total-results"><?php echo count($data['proxies']); ?></span>
+											<span class="first-result">1</span> - <span class="last-result"></span> of <span class="total-results"></span>
 										</span>
 										<span class="icon button previous align-left"></span>
 										<span class="icon button next align-left"></span>
@@ -49,13 +44,13 @@
 									<span class="icon copy button window tooltip tooltip-bottom hidden" data-title="Copy selected proxies to clipboard" proxy-function window="copy"></span>
 								</div>
 								<div class="clear"></div>
-								<p class="no-margin-bottom"><span class="checked-container pull-left"><span class="total-checked">0</span> of <span class="total-results"><?php echo count($data['proxies']); ?></span> proxies selected</span><span class="check-action"></span>.</p>
+								<p class="no-margin-bottom"><span class="checked-container pull-left"><span class="total-checked">0</span> of <span class="total-results"></span> proxies selected</span><span class="check-action"></span>.</p>
 							</div>
 						</div>
 					</div>
 					<div class="item-body">
 						<form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
-							<div class="checked-proxies"></div>
+							<div class="checked-items"></div>
 							<?php
 								$hiddenFields = array(
 									'broad_search' => '',
@@ -67,6 +62,7 @@
 									'auto_replacement_interval_value' => '0',
 									'leave_replacement_online_hours' => '0',
 									'location_replacements' => '',
+									'order_id' => $data['order']['id'],
 									'preferred_subnet' => '',
 									'generate_unique' => '0',
 									'disable_http' => '0',
@@ -81,42 +77,13 @@
 								foreach ($hiddenFields as $fieldName => $fieldValue) {
 									echo '<input class="' . str_replace('_', '-', $fieldName) . '" name="' . $fieldName . '" type="hidden" value="' . $fieldValue . '">';
 								}
-
-								if (!empty($search)) {
-									$proxyCount = count($order['Proxy']);
-
-									if (!empty($proxyCount)) {
-										echo $this->Html->tag('div', '<strong>' . $proxyCount . ' proxy ' . ($proxyCount == 1 ? 'result' : 'results') . '</strong> found with your search criteria. ' . $this->Html->link('Clear search filter', '/orders/view/' . $order['Order']['id']), array(
-											'class' => 'alert custom-alert'
-										));
-									}
-								}
 							?>
-							<div class="proxy-table">
-								<table class="table" previous_checked="0">
-									<tbody>
-										<?php foreach (array_values($data['proxies']) as $index => $proxy): ?>
-											<tr data='<?php echo json_encode($proxy); // TODO: retrieve with API call during pagination ?>'
-												page="<?php echo $proxy['current_page']; ?>"
-												proxy_id="<?php echo $proxy['id']; ?>">
-												<td style="width: 1px;">
-													<span class="checkbox" index="<?php echo $index; ?>" proxy_id="<?php echo $proxy['id']; ?>"></span>
-												</td>
-												<td>
-													<span class="details-container"></span>
-													<span class="table-text"><?php echo $proxy['ip']; ?></span>
-												</td>
-											</tr>
-										<?php endforeach; ?>
-									</tbody>
-								</table>
-							</div>
+							<div class="proxy-table" previous_checked="0"></div>
 						</form>
 					</div>
 				</div>
 			</div>
 		</div>
-		<?php endif; ?>
 	</div>
 </div>
 <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/views/layouts/default/footer.php'); ?>

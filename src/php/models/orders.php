@@ -205,72 +205,15 @@ class OrdersModel extends AppModel {
 				'status'
 			)
 		));
-		$proxyConditions = array(
-			'order_id' => $id
-		);
 
-		if (
-			is_array($proxyIds) &&
-			!empty($proxyIds)
-		) {
-			$proxyConditions['id'] = $proxyIds;
-		}
-
-		$proxyData = array(
+		$pagination = array(
 			'current_page' => 1,
-			'pagination_index' => 0,
-			'results_per_page' => 100
+			'results_per_page' => 50
 		);
-
-		$proxies = $this->find('proxies', array(
-			'conditions' => $proxyConditions,
-			'fields' => array(
-				'id',
-				'user_id',
-				'order_id',
-				'node_id',
-				'ip',
-				'http_port',
-				'asn',
-				'isp',
-				'city',
-				'region',
-				'country_name',
-				'country_code',
-				'timezone',
-				'whitelisted_ips',
-				'username',
-				'password',
-				'disable_http',
-				'require_authentication',
-				'group_name',
-				'next_replacement_available',
-				'replacement_removal_date',
-				'last_replacement_date',
-				'auto_replacement_interval_type',
-				'auto_replacement_interval_value',
-				'status',
-				'created'
-			),
-			'order' => 'ip DESC'
-		));
-
-		foreach ($proxies as $index => $proxy) {
-			if ($proxyData['pagination_index'] >= $proxyData['results_per_page']) {
-				$proxyData['pagination_index'] = 0;
-				$proxyData['current_page']++;
-			}
-
-			$proxyData['pagination_index']++;
-			$proxyData['next_replacement_available_formatted'] = 'Available' . (!empty($proxies[$index]['next_replacement_available']) ? ' in ' . $this->formatTimestampToCountdown($proxies[$index]['next_replacement_available']) : '');
-			$proxyData['replacement_removal_date_formatted'] = $proxies[$index]['status'] == 'replaced' ? 'Removal in ' . $this->formatTimestampToCountdown($proxies[$index]['replacement_removal_date']) : '';
-			$proxies[$index] = array_merge($proxies[$index], $proxyData);
-		}
 
 		return array(
 			'order' => $order[0],
-			'proxies' => $proxies,
-			'results_per_page' => $proxyData['results_per_page']
+			'pagination' => $pagination
 		);
 	}
 

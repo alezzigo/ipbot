@@ -40,7 +40,7 @@ var processPagination = (currentPage, pagination) => {
 	var toggle = (checkbox) => {
 		var index = checkbox.target.getAttribute('index');
 		items.setAttribute('current_checked', index);
-		processChecked((!!event.shiftKey ? range(items.getAttribute('previous_checked'), index) : [index]), document.querySelector('.checkbox[index="' + (!!event.shiftKey ? items.getAttribute('previous_checked') : index) + '"]').hasAttribute('checked'));
+		processChecked((window.event.shiftKey ? range(items.getAttribute('previous_checked'), index) : [index]), document.querySelector('.checkbox[index="' + (window.event.shiftKey ? items.getAttribute('previous_checked') : index) + '"]').hasAttribute('checked'));
 		items.setAttribute('previous_checked', index);
 		toggleAll();
 	}

@@ -100,7 +100,7 @@ class OrdersModel extends AppModel {
 
 		if (
 			!empty($data['granular_search']) &&
-			($conditions['ip'] = $this->_parseIps($data['granular_search']))
+			($conditions['ip'] = $this->_parseIps($data['granular_search'], true))
 		) {
 			array_walk($conditions['ip'], function(&$value, $key) use ($data) {
 				$value .= '%'; // Add trailing wildcard for A/B/C class subnet search

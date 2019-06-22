@@ -36,7 +36,6 @@ class AppModel extends Config {
 
 /**
  * Format array of conditions to SQL query
- * @todo Run all SQL attack methods and sanitize queries
  *
  * @param array $conditions Conditions
  * @param string $condition Condition
@@ -51,10 +50,10 @@ class AppModel extends Config {
 				if (is_array($value)) {
 					$key = (strlen($key) > 1 && is_string($key) ? $key : null);
 					array_walk($value, function(&$fieldValue, $fieldKey) use ($key) {
-						$fieldValue = (strlen($fieldKey) > 1 && is_string($fieldKey) ? $fieldKey : $key) . " LIKE '" . $fieldValue . "'";
+						$fieldValue = (strlen($fieldKey) > 1 && is_string($fieldKey) ? $fieldKey : $key) . ' LIKE ' . $this->sanitizeKeys['start'] . $fieldValue . $this->sanitizeKeys['end'];
 					});
 				} else {
-					$value = array($key . " LIKE '" . $value . "'");
+					$value = array($key . ' LIKE ' . $this->sanitizeKeys['start'] . $value . $this->sanitizeKeys['end']);
 				}
 
 				$conditions[$key] = '(' . implode(' ' . $condition . ' ', $value) . ')';
@@ -70,14 +69,15 @@ class AppModel extends Config {
  * Parse and filter IPv4 address list.
  *
  * @param array $ips Unfiltered IPv4 address list
+ * @param boolean $subnets Allow partial IPv4 subnets instead of full /32 mask
  *
  * @return array $ips Filtered IPv4 address list
  */
-	protected function _parseIps($ips = array()) {
+	protected function _parseIps($ips = array(), $subnets = false) {
 		$ips = implode("\n", array_map(function($ip) {
 			return trim($ip, '.');
 		}, array_filter(preg_split("/[](\r\n|\n|\r) @#$+,[;:_-]/", $ips))));
-		$ips = $this->_validateIps($ips);
+		$ips = $this->_validateIps($ips, $subnets);
 		return explode("\n", $ips);
 	}
 
@@ -91,7 +91,19 @@ class AppModel extends Config {
 	protected function _query($query) {
 		$database = new PDO($this->config['database']['type'] . ':host=' . $this->config['database']['hostname'] . '; dbname=' . $this->config['database']['name'] . '; charset=' . $this->config['database']['charset'], $this->config['database']['username'], $this->config['database']['password']);
 
-		$connection = $database->prepare($query);
+		$sanitized = $this->_sanitizeSQL($query);
+
+		if (empty($sanitized['sanitizedQuery'])) {
+			return false;
+		}
+
+		$connection = $database->prepare($sanitized['sanitizedQuery']);
+
+		if (!empty($sanitized['sanitizedValues'])) {
+			foreach ($sanitized['sanitizedValues'] as $index => $value) {
+				$connection->bindValue($index + 1, $value);
+			}
+		}
 
 		if (
 			empty($connection) ||
@@ -107,19 +119,50 @@ class AppModel extends Config {
 	}
 
 /**
+ * Sanitize SQL query and user input values
+ *
+ * @param string $query Query
+ *
+ * @return array Prepared SQL query and values for binding
+ */
+	protected function _sanitizeSQL($query) {
+		$queryChunks = explode($this->sanitizeKeys['start'], $query);
+		$parameterValues = array();
+
+		foreach ($queryChunks as &$queryChunk) {
+			if (
+				($position = strpos($queryChunk, $this->sanitizeKeys['end'])) !== false &&
+				$queryChunk = str_replace($this->sanitizeKeys['end'], '?', $queryChunk)
+			) {
+				$queryChunk = str_replace(($between = substr($queryChunk, 0, $position)), '', $queryChunk);
+				$parameterValues[] = $between;
+			}
+		}
+
+		return array(
+			'sanitizedQuery' => implode('', $queryChunks),
+			'sanitizedValues' => $parameterValues
+		);
+	}
+
+/**
  * Validate IPv4 address/subnet list
  *
  * @param array $ips Filtered IPv4 address/subnet list
+ * @param boolean $subnets Allow partial IPv4 subnets instead of full /32 mask
  *
  * @return array $ips Validated IPv4 address/subnet list
  */
-	protected function _validateIps($ips) {
+	protected function _validateIps($ips, $subnets = false) {
 		$ips = array_values(array_filter(explode("\n", $ips)));
 
 		foreach ($ips as $key => $ip) {
 			$splitIpSubnets = array_map('trim', explode('.', trim($ip)));
 
-			if (count($splitIpSubnets) != 4) {
+			if (
+				count($splitIpSubnets) != 4 &&
+				$subnets === false
+			) {
 				unset($ips[$key]);
 				continue;
 			}
@@ -143,7 +186,6 @@ class AppModel extends Config {
 
 /**
  * Database helper method for retrieving data
- * @todo Run all SQL attack methods and sanitize queries
  *
  * @param string $table Table name
  * @param array $parameters Query parameters
@@ -206,7 +248,6 @@ class AppModel extends Config {
 
 /**
  * Database helper method for saving data
- * @todo If third parameter is passed, return modified rows with all fields, run all SQL attack methods and sanitize queries
  *
  * @param string $table Table name
  * @param array $rows Data to save
@@ -218,22 +259,25 @@ class AppModel extends Config {
 		$queries = array();
 		$success = true;
 
-		foreach (array_chunk($rows, 88) as $rows) {
+		foreach (array_chunk($rows, (!empty($this->config['database']['saveDataRowChunkSize']) ? (integer) $this->config['database']['saveDataRowChunkSize'] : 100)) as $rows) {
 			$groupValues = array();
 
 			foreach ($rows as &$row) {
 				$fields = array_keys($row);
 				$values = array_values($row);
-				$groupValues[implode(',', $fields)][] = implode("','", $values);
+				array_walk($values, function(&$value, $index) {
+					$value = $this->sanitizeKeys['start'] . $value . $this->sanitizeKeys['end'];
+				});
+				$groupValues[implode(',', $fields)][] = implode(',', $values);
 			}
 
 			foreach ($groupValues as $fields => $values) {
 				$updateFields = explode(',', $fields);
-				array_walk($updateFields, function(&$value, $index) {
-					$value = $value . '=' . $value;
+				array_walk($updateFields, function(&$field, $index) {
+					$field = $field . '=' . $field;
 				});
 
-				$queries[] = 'INSERT INTO ' . $table . '(' . $fields . ") VALUES ('" . implode("'),('", $values) . "') ON DUPLICATE KEY UPDATE " . implode(',', $updateFields);
+				$queries[] = 'INSERT INTO ' . $table . '(' . $fields . ') VALUES (' . implode('),(', $values) . ') ON DUPLICATE KEY UPDATE ' . implode(',', $updateFields);
 			}
 		}
 

@@ -2,6 +2,8 @@
 	class Config {
 
 		public static $config;
+		public static $permissions;
+		public static $sanitizeKeys;
 
 		public function __construct() {
 
@@ -12,18 +14,19 @@
 					'name' => 'database_name',
 					'password' => '',
 					'type' => 'mysql',
-					'username' => 'root'
+					'username' => 'root',
+					'sanitizeKeys' => array(
+						'hashEnd' => 'k84jru42our7ji484s$j8r92!jw7jue_4j83-rk984%6^39nG',
+						'hashSalt' => '_-.-_-.-_',
+						'hashStart' => 'i9r8302-jod8^%4i39774j84$57420@38476$386c@198i94'
+					),
+					'saveDataRowChunkSize' => 100
 				),
 				'base_url' => '/src/php/'
 			);
 
 			$this->permissions = array(
 				'api' => array(
-					'orders' => array(
-						'find' => array(
-							'fields' => array()
-						)
-					),
 					'proxies' => array(
 						'find' => array(
 							'fields' => array(
@@ -48,6 +51,11 @@
 						)
 					)
 				)
+			);
+
+			$this->sanitizeKeys = array(
+				'end' => $this->config['database']['sanitizeKeys']['hashSalt'] . '-' . sha1($this->config['database']['sanitizeKeys']['hashEnd'] . ($this->config['database']['sanitizeKeys']['hashEnd'] == $this->config['database']['sanitizeKeys']['hashStart'] ? '-' : '')) . '-' . $this->config['database']['sanitizeKeys']['hashSalt'],
+				'start' => $this->config['database']['sanitizeKeys']['hashSalt'] . '-' . sha1($this->config['database']['sanitizeKeys']['hashStart']) . '-' . $this->config['database']['sanitizeKeys']['hashSalt']
 			);
 		}
 

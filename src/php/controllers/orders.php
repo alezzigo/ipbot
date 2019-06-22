@@ -20,7 +20,7 @@ class OrdersController extends OrdersModel {
 
 /**
  * View order
- * @todo Move data processing and retrieval to API, set/remove search results with _session, add success / error messages
+ * @todo Set/remove search results with _session, add success / error messages
  *
  * @return array Order data
  */

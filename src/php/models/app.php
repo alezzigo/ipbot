@@ -50,10 +50,10 @@ class AppModel extends Config {
 				if (is_array($value)) {
 					$key = (strlen($key) > 1 && is_string($key) ? $key : null);
 					array_walk($value, function(&$fieldValue, $fieldKey) use ($key) {
-						$fieldValue = (strlen($fieldKey) > 1 && is_string($fieldKey) ? $fieldKey : $key) . ' LIKE ' . $this->sanitizeKeys['start'] . $fieldValue . $this->sanitizeKeys['end'];
+						$fieldValue = (strlen($fieldKey) > 1 && is_string($fieldKey) ? $fieldKey : $key) . ' LIKE ' . $this->_prepareValue($fieldValue);
 					});
 				} else {
-					$value = array($key . ' LIKE ' . $this->sanitizeKeys['start'] . $value . $this->sanitizeKeys['end']);
+					$value = array($key . ' LIKE ' . $this->_prepareValue($value));
 				}
 
 				$conditions[$key] = '(' . implode(' ' . $condition . ' ', $value) . ')';
@@ -63,6 +63,33 @@ class AppModel extends Config {
 		}
 
 		return $conditions;
+	}
+
+/**
+ * Retrieve parameterized SQL query and array of values
+ *
+ * @param string $query Query
+ *
+ * @return array Parameterized SQL query and array of values
+ */
+	protected function _parameterizeSQL($query) {
+		$queryChunks = explode($this->sanitizeKeys['start'], $query);
+		$parameterValues = array();
+
+		foreach ($queryChunks as &$queryChunk) {
+			if (
+				($position = strpos($queryChunk, $this->sanitizeKeys['end'])) !== false &&
+				$queryChunk = str_replace($this->sanitizeKeys['end'], '?', $queryChunk)
+			) {
+				$queryChunk = str_replace(($between = substr($queryChunk, 0, $position)), '', $queryChunk);
+				$parameterValues[] = $between;
+			}
+		}
+
+		return array(
+			'parameterizedQuery' => implode('', $queryChunks),
+			'parameterizedValues' => $parameterValues
+		);
 	}
 
 /**
@@ -82,6 +109,17 @@ class AppModel extends Config {
 	}
 
 /**
+ * Prepare user input value for SQL parameterization parsing with hash strings
+ *
+ * @param string $value Value
+ *
+ * @return string Prepared value
+ */
+	protected function _prepareValue($value) {
+		return $this->sanitizeKeys['start'] . $value . $this->sanitizeKeys['end'];
+	}
+
+/**
  * Construct and execute database queries
  *
  * @param string $query Query string
@@ -90,17 +128,17 @@ class AppModel extends Config {
  */
 	protected function _query($query) {
 		$database = new PDO($this->config['database']['type'] . ':host=' . $this->config['database']['hostname'] . '; dbname=' . $this->config['database']['name'] . '; charset=' . $this->config['database']['charset'], $this->config['database']['username'], $this->config['database']['password']);
+		$database->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+		$parameterized = $this->_parameterizeSQL($query);
 
-		$sanitized = $this->_sanitizeSQL($query);
-
-		if (empty($sanitized['sanitizedQuery'])) {
+		if (empty($parameterized['parameterizedQuery'])) {
 			return false;
 		}
 
-		$connection = $database->prepare($sanitized['sanitizedQuery']);
+		$connection = $database->prepare($parameterized['parameterizedQuery']);
 
-		if (!empty($sanitized['sanitizedValues'])) {
-			foreach ($sanitized['sanitizedValues'] as $index => $value) {
+		if (!empty($parameterized['parameterizedValues'])) {
+			foreach ($parameterized['parameterizedValues'] as $index => $value) {
 				$connection->bindValue($index + 1, $value);
 			}
 		}
@@ -116,33 +154,6 @@ class AppModel extends Config {
 		$result = $connection->fetchAll(PDO::FETCH_ASSOC);
 		$connection->closeCursor();
 		return !empty($result) ? $result : $execute;
-	}
-
-/**
- * Sanitize SQL query and user input values
- *
- * @param string $query Query
- *
- * @return array Prepared SQL query and values for binding
- */
-	protected function _sanitizeSQL($query) {
-		$queryChunks = explode($this->sanitizeKeys['start'], $query);
-		$parameterValues = array();
-
-		foreach ($queryChunks as &$queryChunk) {
-			if (
-				($position = strpos($queryChunk, $this->sanitizeKeys['end'])) !== false &&
-				$queryChunk = str_replace($this->sanitizeKeys['end'], '?', $queryChunk)
-			) {
-				$queryChunk = str_replace(($between = substr($queryChunk, 0, $position)), '', $queryChunk);
-				$parameterValues[] = $between;
-			}
-		}
-
-		return array(
-			'sanitizedQuery' => implode('', $queryChunks),
-			'sanitizedValues' => $parameterValues
-		);
 	}
 
 /**
@@ -203,15 +214,15 @@ class AppModel extends Config {
 		}
 
 		if (!empty($parameters['order'])) {
-			$query .= ' ORDER BY ' . (string) $parameters['order'];
+			$query .= ' ORDER BY ' . $this->_prepareValue($parameters['order']);
 		}
 
 		if (!empty($parameters['limit'])) {
-			$query .= ' LIMIT ' . (integer) $parameters['limit'];
+			$query .= ' LIMIT ' . $this->_prepareValue($parameters['limit']);
 		}
 
 		if (!empty($parameters['offset'])) {
-			$query .= ' OFFSET ' . (integer) $parameters['offset'];
+			$query .= ' OFFSET ' . $this->_prepareValue($parameters['offset']);
 		}
 
 		return $this->_query($query);
@@ -266,7 +277,7 @@ class AppModel extends Config {
 				$fields = array_keys($row);
 				$values = array_values($row);
 				array_walk($values, function(&$value, $index) {
-					$value = $this->sanitizeKeys['start'] . $value . $this->sanitizeKeys['end'];
+					$value = $this->_prepareValue($value);
 				});
 				$groupValues[implode(',', $fields)][] = implode(',', $values);
 			}

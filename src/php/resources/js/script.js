@@ -91,7 +91,8 @@ var processPagination = (currentPage, pagination) => {
 		],
 		group: 'proxies',
 		limit: resultsPerPage,
-		offset: (currentPage * resultsPerPage) - resultsPerPage
+		offset: ((currentPage * resultsPerPage) - resultsPerPage),
+		order: 'modified DESC'
 	};
 	xhr.open('POST', '/src/php/views/api.php', true);
 	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -103,21 +104,18 @@ var processPagination = (currentPage, pagination) => {
 			response.data.map((proxy, index) => {
 				items.querySelector('table').innerHTML += '<tr page="' + currentPage + '" proxy_id="' + proxy.id + '" class=""><td style="width: 1px;"><span class="checkbox" index="' + index + '" proxy_id="' + proxy.id + '"></span></td><td><span class="details-container"><span class="details">' + proxy.status + ' Proxy IP ' + proxy.ip + ' Location ' + proxy.city + ', ' + proxy.region + ' ' + proxy.country_code + ' <span class="icon-container"><img src="../../resources/images/icons/flags/' + proxy.country_code.toLowerCase() + '.png" class="flag" alt="' + proxy.country_code + ' flag"></span> ISP ' + proxy.asn + ' Timezone ' + proxy.timezone + ' HTTP + HTTPS Port ' + (proxy.disable_http == 1 ? 'Disabled' : '80') + ' Whitelisted IPs ' + (proxy.whitelisted_ips ? '<textarea>' + proxy.whitelisted_ips + '</textarea>' : 'N/A') + ' Username ' + (proxy.username ? proxy.username : 'N/A') + ' Password ' + (proxy.password ? proxy.password : 'N/A') + '</span></span><span class="table-text">' + proxy.ip + '</span></td>';
 			});
-
 			elements.html('.total-results', response.count);
 			elements.html('.first-result', currentPage === 1 ? currentPage : ((currentPage * resultsPerPage) - resultsPerPage) + 1);
 			elements.html('.last-result', (lastResult = currentPage * resultsPerPage) >= response.count ? response.count : lastResult);
 			pagination.setAttribute('current', currentPage);
 			pagination.querySelector('.next').setAttribute('page', +elements.html('.last-result') < response.count ? currentPage + 1 : 0);
 			pagination.querySelector('.previous').setAttribute('page', currentPage <= 0 ? 0 : currentPage - 1);
-
 			elements.loop('.proxy-configuration tr', (index, row) => {
 				var checkbox = row.querySelector('.checkbox');
 				checkbox.removeEventListener('click', checkbox.listener);
 				checkbox.listener = toggle;
 				checkbox.addEventListener('click', toggle);
 			});
-
 			checkboxAll.removeEventListener('click', checkboxAll.listener);
 			checkboxAll.listener = toggleAll;
 			checkboxAll.addEventListener('click', toggleAll);
@@ -131,7 +129,6 @@ var processChecked = (checkboxes, checkboxState, all = false) => {
 	var group = Math.ceil((currentPage * +document.querySelector('.pagination').getAttribute('results')) / 1000);
 	var checkboxField = document.querySelector('input[name="checked[]"][group="' + group + '"]');
 	var checkedItems = checkboxField ? checkboxField.value.split(',') : [];
-
 	checkboxes.map((checkbox, checkboxIndex) => {
 		var checkboxElement = document.querySelector('.checkbox[index="' + checkbox + '"]');
 		var isChecked = ((checkboxes.length > 1 || all) && checkboxState) || ((checkboxes.length === 1 && !all) && !checkboxState) ? +Boolean(checkboxElement.setAttribute('checked', 'checked')) + 1 : +Boolean(checkboxElement.removeAttribute('checked') + 0);
@@ -150,11 +147,9 @@ var processChecked = (checkboxes, checkboxState, all = false) => {
 
 	checkboxField.value = checkedItems.filter(checkedItem => checkedItem.length);
 	elements.html('.total-checked', 0);
-
 	elements.loop('input[name="checked[]"]', function(checkboxFieldIndex, checkboxField) {
 		elements.html('.total-checked', +elements.html('.total-checked') + (+Boolean(checkboxField.value.length) + (checkboxField.value.match(/,/g) || []).length));
 	});
-
 	elements.html('.total-checked') ? elements.removeClass('span.icon[proxy-function]', 'hidden') : elements.addClass('span.icon[proxy-function]', 'hidden');
 };
 

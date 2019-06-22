@@ -1,5 +1,4 @@
 'use_strict';
-var proxies = [];
 var elements = {
 	addClass: (selector, className) => {
 		selectAllElements(selector).map((element) => {
@@ -101,7 +100,6 @@ var processPagination = (currentPage, pagination) => {
 		if (response.target.status === 200) {
 			var response = JSON.parse(response.target.response);
 			items.innerHTML = '<table class="table"></table>';
-
 			response.data.map((proxy, index) => {
 				items.querySelector('table').innerHTML += '<tr page="' + currentPage + '" proxy_id="' + proxy.id + '" class=""><td style="width: 1px;"><span class="checkbox" index="' + index + '" proxy_id="' + proxy.id + '"></span></td><td><span class="details-container"><span class="details">' + proxy.status + ' Proxy IP ' + proxy.ip + ' Location ' + proxy.city + ', ' + proxy.region + ' ' + proxy.country_code + ' <span class="icon-container"><img src="../../resources/images/icons/flags/' + proxy.country_code.toLowerCase() + '.png" class="flag" alt="' + proxy.country_code + ' flag"></span> ISP ' + proxy.asn + ' Timezone ' + proxy.timezone + ' HTTP + HTTPS Port ' + (proxy.disable_http == 1 ? 'Disabled' : '80') + ' Whitelisted IPs ' + (proxy.whitelisted_ips ? '<textarea>' + proxy.whitelisted_ips + '</textarea>' : 'N/A') + ' Username ' + (proxy.username ? proxy.username : 'N/A') + ' Password ' + (proxy.password ? proxy.password : 'N/A') + '</span></span><span class="table-text">' + proxy.ip + '</span></td>';
 			});
@@ -267,7 +265,6 @@ onLoad(() => {
 				var value = element.closest('.checkbox-option-container') && element.closest('.checkbox-option-container').classList.contains('hidden') ? '' : element.value;
 				document.querySelector('input[name="' + element.getAttribute('name') + '"][type="hidden"]').value = value;
 			});
-			document.querySelector('input[name="proxies"][type="hidden"]').value = proxies;
 			document.querySelector('.proxy-configuration form').submit();
 		});
 	});

@@ -213,7 +213,19 @@ class OrdersModel extends AppModel {
 
 		return array(
 			'order' => $order[0],
-			'pagination' => $pagination
+			'pagination' => $pagination,
+			'tokens' => array(
+				'results' => implode('_', array(
+					sha1(json_encode($this->find('proxies', array(
+						'conditions' => array(
+							'order_id' => $id
+						),
+						'fields' => array(
+							'id'
+						)
+					)))), time()
+				))
+			)
 		);
 	}
 

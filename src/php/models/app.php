@@ -76,12 +76,12 @@ class AppModel extends Config {
 		$queryChunks = explode($this->sanitizeKeys['start'], $query);
 		$parameterValues = array();
 
-		foreach ($queryChunks as &$queryChunk) {
+		foreach ($queryChunks as $key => $queryChunk) {
 			if (
 				($position = strpos($queryChunk, $this->sanitizeKeys['end'])) !== false &&
 				$queryChunk = str_replace($this->sanitizeKeys['end'], '?', $queryChunk)
 			) {
-				$queryChunk = str_replace(($between = substr($queryChunk, 0, $position)), '', $queryChunk);
+				$queryChunks[$key] = str_replace(($between = substr($queryChunk, 0, $position)), '', $queryChunk);
 				$parameterValues[] = $between;
 			}
 		}
@@ -137,12 +137,6 @@ class AppModel extends Config {
 
 		$connection = $database->prepare($parameterized['parameterizedQuery']);
 
-		if (!empty($parameterized['parameterizedValues'])) {
-			foreach ($parameterized['parameterizedValues'] as $index => $value) {
-				$connection->bindValue($index + 1, $value);
-			}
-		}
-
 		if (
 			empty($connection) ||
 			!is_object($connection)
@@ -150,7 +144,7 @@ class AppModel extends Config {
 			return false;
 		}
 
-		$execute = $connection->execute();
+		$execute = $connection->execute(!empty($parameterized['parameterizedValues']) ? $parameterized['parameterizedValues'] : array());
 		$result = $connection->fetchAll(PDO::FETCH_ASSOC);
 		$connection->closeCursor();
 		return !empty($result) ? $result : $execute;
@@ -273,13 +267,10 @@ class AppModel extends Config {
 		foreach (array_chunk($rows, (!empty($this->config['database']['saveDataRowChunkSize']) ? (integer) $this->config['database']['saveDataRowChunkSize'] : 100)) as $rows) {
 			$groupValues = array();
 
-			foreach ($rows as &$row) {
+			foreach ($rows as $row) {
 				$fields = array_keys($row);
 				$values = array_values($row);
-				array_walk($values, function(&$value, $index) {
-					$value = $this->_prepareValue($value);
-				});
-				$groupValues[implode(',', $fields)][] = implode(',', $values);
+				$groupValues[implode(',', $fields)][] = $this->sanitizeKeys['start'] . implode($this->sanitizeKeys['end'] . ',' . $this->sanitizeKeys['start'], $values) . $this->sanitizeKeys['end'];
 			}
 
 			foreach ($groupValues as $fields => $values) {

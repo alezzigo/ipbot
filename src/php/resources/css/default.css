@@ -298,12 +298,12 @@ select {
 	.checkbox:hover {
 		border-color: #fff;
 	}
-	.checkbox[checked] {
+	.checkbox[checked="1"] {
 		background: url('../images/icons/icon-check.png') #fff center no-repeat / 100%;
 		border-color: #fff;
 		opacity: 0.7;
 	}
-	.checkbox[checked]:hover {
+	.checkbox[checked="1"]:hover {
 		opacity: 1;
 	}
 .window-container,

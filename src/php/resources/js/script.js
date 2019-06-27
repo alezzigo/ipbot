@@ -1,4 +1,5 @@
 'use_strict';
+
 var elements = {
 	addClass: (selector, className) => {
 		selectAllElements(selector).map((element) => {
@@ -26,41 +27,81 @@ var elements = {
 		});
 	}
 };
-
+var itemGrid = [],
+	itemGridCount = 0;
 var onLoad = (callback) => {
 	document.readyState != 'complete' ? setTimeout('onLoad(' + callback + ')', 1) : callback();
 };
-
 var processPagination = (currentPage, pagination) => {
-	var checkboxAll = document.querySelector('.checkbox.all'),
-		items = document.querySelector('.proxy-configuration .proxy-table'),
+	var items = document.querySelector('.proxy-configuration .proxy-table'),
 		resultsPerPage = +pagination.getAttribute('results');
+	var itemToggle = (checkbox) => {
+		items.setAttribute('current_checked', checkbox.target.getAttribute('index'));
+		processItemGrid(window.event.shiftKey ? range(items.getAttribute('previous_checked'), checkbox.target.getAttribute('index')) : [checkbox.target.getAttribute('index')], window.event.shiftKey ? +document.querySelector('.checkbox[index="' + items.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +checkbox.target.getAttribute('checked') === 0);
+		items.setAttribute('previous_checked', checkbox.target.getAttribute('index'));
+	};
+	var itemToggleAllVisible = (checkbox) => {
+		items.setAttribute('current_checked', 0);
+		items.setAttribute('previous_checked', 0);
+		processItemGrid(range(0, selectAllElements('tr .checkbox').length - 1), +checkbox.target.getAttribute('checked') === 0);
+	};
+	var processItemGrid = (itemIndexes, itemState) => {
+		var itemCount = 0;
+			itemGridLineSize = +('1' + repeat(Math.min(elements.html('.total-results').length, 4), '0'));
 
-	var toggle = (checkbox) => {
-		var index = checkbox.target.getAttribute('index');
-		items.setAttribute('current_checked', index);
-		processChecked((window.event.shiftKey ? range(items.getAttribute('previous_checked'), index) : [index]), document.querySelector('.checkbox[index="' + (window.event.shiftKey ? items.getAttribute('previous_checked') : index) + '"]').hasAttribute('checked'));
-		items.setAttribute('previous_checked', index);
-		toggleAll();
-	}
-	var toggleAll = (checkbox = null) => {
-		if (!checkbox) {
-			if (checkboxField = document.querySelector('input[name="checked[]"][group="' + Math.ceil((currentPage * +document.querySelector('.pagination').getAttribute('results')) / 1000) + '"]')) {
-				(checkboxField ? checkboxField.value.split(',') : []).map((checkedItem, checkedItemIndex) => {
-					var checkedItem = document.querySelector('.checkbox[proxy_id="' + checkedItem + '"]');
-					checkedItem ? checkedItem.setAttribute('checked', 'checked') : null;
+		itemIndexes.map((itemIndex) => {
+			var index = ((currentPage * resultsPerPage) - resultsPerPage) + +itemIndex,
+				item = document.querySelector('.checkbox[index="' + itemIndex + '"]'),
+				serializeCount = 1;
+			var key = Math.floor((index + 1) / itemGridLineSize),
+				serializedGridLineItems = [];
+
+			if (!itemGrid[key]) {
+				itemGrid[key] = repeat(Math.min(itemGridLineSize, +elements.html('.total-results') - (key * itemGridLineSize)), '0');
+			} else {
+				itemGrid[key] = itemGrid[key].split('_');
+				itemGrid[key].map((itemStatus, itemStatusIndex) => {
+					itemStatusCount = itemStatus.substr(1);
+					itemStatus = itemStatus.substr(0, 1);
+					itemGrid[key][itemStatusIndex] = repeat(itemStatusCount, itemStatus);
 				});
+				itemGrid[key] = itemGrid[key].join("");
 			}
 
-			return (selectAllElements('.proxy-configuration tr').length === selectAllElements('.proxy-configuration tr .checkbox[checked]').length ? checkboxAll.setAttribute('checked', 'checked') : checkboxAll.removeAttribute('checked'));
+			if (typeof itemState === 'boolean') {
+				itemGrid[key] = replaceCharacter(itemGrid[key], index, +itemState);
+			}
+
+			itemGrid[key] = itemGrid[key].split("");
+			itemGrid[key].map((itemStatus, itemStatusIndex) => {
+				if (itemStatus != itemGrid[key][itemStatusIndex + 1]) {
+					serializedGridLineItems.push(itemStatus + serializeCount);
+					serializeCount = 0;
+				}
+
+				serializeCount++;
+			});
+
+			item.setAttribute('checked', +itemGrid[key][index]);
+			itemGrid[key] = serializedGridLineItems.join('_');
+		});
+
+		range(0, resultsPerPage - 1).map((itemIndex) => {
+			var item = document.querySelector('.checkbox[index="' + itemIndex + '"]');
+
+			if (+(item.getAttribute('checked'))) {
+				itemCount++;
+			}
+		});
+
+		if (typeof itemState === 'boolean') {
+			elements.html('.total-checked', +elements.html('.total-checked') + (itemCount - itemGridCount));
 		}
 
-		checkbox.target.hasAttribute('checked') ? checkbox.target.removeAttribute('checked') : checkbox.target.setAttribute('checked', null);
-		processChecked(selectAllElements('.proxy-configuration tr .checkbox').map((checkbox) => {
-			return checkbox[1].getAttribute('index');
-		}), checkbox.target.hasAttribute('checked'), true);
+		+elements.html('.total-checked') ? elements.removeClass('span.icon[proxy-function]', 'hidden') : elements.addClass('span.icon[proxy-function]', 'hidden');
+		document.querySelector('.checkbox[index="all-visible"]').setAttribute('checked', +(itemCount === resultsPerPage));
+		itemGridCount = itemCount;
 	};
-
 	pagination.querySelector('.next').setAttribute('page', 0);
 	pagination.querySelector('.previous').setAttribute('page', 0);
 	items.innerHTML = '<p>Loading ...</p>';
@@ -91,8 +132,7 @@ var processPagination = (currentPage, pagination) => {
 		],
 		group: 'proxies',
 		limit: resultsPerPage,
-		offset: ((currentPage * resultsPerPage) - resultsPerPage),
-		order: 'modified DESC'
+		offset: ((currentPage * resultsPerPage) - resultsPerPage)
 	};
 	xhr.open('POST', '/src/php/views/api.php', true);
 	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -102,7 +142,7 @@ var processPagination = (currentPage, pagination) => {
 			var response = JSON.parse(response.target.response);
 			items.innerHTML = '<table class="table"></table>';
 			response.data.map((proxy, index) => {
-				items.querySelector('table').innerHTML += '<tr page="' + currentPage + '" proxy_id="' + proxy.id + '" class=""><td style="width: 1px;"><span class="checkbox" index="' + index + '" proxy_id="' + proxy.id + '"></span></td><td><span class="details-container"><span class="details">' + proxy.status + ' Proxy IP ' + proxy.ip + ' Location ' + proxy.city + ', ' + proxy.region + ' ' + proxy.country_code + ' <span class="icon-container"><img src="../../resources/images/icons/flags/' + proxy.country_code.toLowerCase() + '.png" class="flag" alt="' + proxy.country_code + ' flag"></span> ISP ' + proxy.asn + ' Timezone ' + proxy.timezone + ' HTTP + HTTPS Port ' + (proxy.disable_http == 1 ? 'Disabled' : '80') + ' Whitelisted IPs ' + (proxy.whitelisted_ips ? '<textarea>' + proxy.whitelisted_ips + '</textarea>' : 'N/A') + ' Username ' + (proxy.username ? proxy.username : 'N/A') + ' Password ' + (proxy.password ? proxy.password : 'N/A') + '</span></span><span class="table-text">' + proxy.ip + '</span></td>';
+				items.querySelector('table').innerHTML += '<tr page="' + currentPage + '" proxy_id="' + proxy.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" proxy_id="' + proxy.id + '"></span></td><td><span class="details-container"><span class="details">' + proxy.status + ' Proxy IP ' + proxy.ip + ' Location ' + proxy.city + ', ' + proxy.region + ' ' + proxy.country_code + ' <span class="icon-container"><img src="../../resources/images/icons/flags/' + proxy.country_code.toLowerCase() + '.png" class="flag" alt="' + proxy.country_code + ' flag"></span> ISP ' + proxy.asn + ' Timezone ' + proxy.timezone + ' HTTP + HTTPS Port ' + (proxy.disable_http == 1 ? 'Disabled' : '80') + ' Whitelisted IPs ' + (proxy.whitelisted_ips ? '<textarea>' + proxy.whitelisted_ips + '</textarea>' : 'N/A') + ' Username ' + (proxy.username ? proxy.username : 'N/A') + ' Password ' + (proxy.password ? proxy.password : 'N/A') + '</span></span><span class="table-text">' + proxy.ip + '</span></td>';
 			});
 			elements.html('.total-results', response.count);
 			elements.html('.first-result', currentPage === 1 ? currentPage : ((currentPage * resultsPerPage) - resultsPerPage) + 1);
@@ -111,48 +151,19 @@ var processPagination = (currentPage, pagination) => {
 			pagination.querySelector('.next').setAttribute('page', +elements.html('.last-result') < response.count ? currentPage + 1 : 0);
 			pagination.querySelector('.previous').setAttribute('page', currentPage <= 0 ? 0 : currentPage - 1);
 			elements.loop('.proxy-configuration tr', (index, row) => {
-				var checkbox = row.querySelector('.checkbox');
-				checkbox.removeEventListener('click', checkbox.listener);
-				checkbox.listener = toggle;
-				checkbox.addEventListener('click', toggle);
+				var item = row.querySelector('.checkbox');
+				item.removeEventListener('click', item.listener);
+				item.listener = itemToggle;
+				item.addEventListener('click', itemToggle);
 			});
-			checkboxAll.removeEventListener('click', checkboxAll.listener);
-			checkboxAll.listener = toggleAll;
-			checkboxAll.addEventListener('click', toggleAll);
-			toggleAll();
+			var itemAllVisible = document.querySelector('.checkbox[index="all-visible"]');
+			itemAllVisible.removeEventListener('click', itemAllVisible.listener);
+			itemAllVisible.listener = itemToggleAllVisible;
+			itemAllVisible.addEventListener('click', itemToggleAllVisible);
+			processItemGrid(range(0, response.data.length - 1));
 		}
 	}
 };
-
-var processChecked = (checkboxes, checkboxState, all = false) => {
-	var currentPage = +document.querySelector('.pagination').getAttribute('current');
-	var group = Math.ceil((currentPage * +document.querySelector('.pagination').getAttribute('results')) / 1000);
-	var checkboxField = document.querySelector('input[name="checked[]"][group="' + group + '"]');
-	var checkedItems = checkboxField ? checkboxField.value.split(',') : [];
-	checkboxes.map((checkbox, checkboxIndex) => {
-		var checkboxElement = document.querySelector('.checkbox[index="' + checkbox + '"]');
-		var isChecked = ((checkboxes.length > 1 || all) && checkboxState) || ((checkboxes.length === 1 && !all) && !checkboxState) ? +Boolean(checkboxElement.setAttribute('checked', 'checked')) + 1 : +Boolean(checkboxElement.removeAttribute('checked') + 0);
-		var proxyId = checkboxElement.getAttribute('proxy_id');
-		checkedItems.indexOf(proxyId) >= 0 ? checkedItems.splice(checkedItems.indexOf(proxyId), 1) : null;
-		isChecked ? checkedItems.push(proxyId) : null;
-	});
-
-	if (checkboxField === null) {
-		checkboxField = document.createElement('input');
-			checkboxField.setAttribute('group', group);
-			checkboxField.setAttribute('name', 'checked[]');
-			checkboxField.setAttribute('type', 'hidden');
-		document.querySelector('.checked-items').prepend(checkboxField);
-	}
-
-	checkboxField.value = checkedItems.filter(checkedItem => checkedItem.length);
-	elements.html('.total-checked', 0);
-	elements.loop('input[name="checked[]"]', function(checkboxFieldIndex, checkboxField) {
-		elements.html('.total-checked', +elements.html('.total-checked') + (+Boolean(checkboxField.value.length) + (checkboxField.value.match(/,/g) || []).length));
-	});
-	elements.html('.total-checked') ? elements.removeClass('span.icon[proxy-function]', 'hidden') : elements.addClass('span.icon[proxy-function]', 'hidden');
-};
-
 var range = (low, high, step = 1) => {
 	var array = [],
 		high = +high,
@@ -172,17 +183,25 @@ var range = (low, high, step = 1) => {
 
 	return array;
 }
+var repeat = (count, pattern) => {
+	if (count < 1) return '';
+	var result = '';
 
+	while (count > 1) {
+		if (count & 1) result += pattern;
+		count >>= 1, pattern += pattern;
+	}
+
+	return result + pattern;
+};
+var replaceCharacter = (string, index, character) => {
+	return string.substr(0, index) + character + string.substr(index + ('' + character).length);
+};
 var selectAllElements = (selector) => {
 	return Object.entries(document.querySelectorAll(selector));
 };
-
 var unique = (value, index, self) => {
 	return self.indexOf(value) === index;
-};
-
-String.prototype.trim = (charlist) => {
-	return this.replace(new RegExp("[" + charlist + "]+$"), "").replace(new RegExp("^[" + charlist + "]+"), "");
 };
 
 if (
@@ -208,7 +227,7 @@ onLoad(() => {
 	elements.addClass('.loading', 'hidden');
 
 	if (pagination = document.querySelector('.pagination')) {
-		processPagination(+pagination.getAttribute('current'), pagination)
+		processPagination(+pagination.getAttribute('current'), pagination);
 		selectAllElements('.pagination .button').map((element) => {
 			element[1].addEventListener('click', (element) => {
 				if ((page = +element.target.getAttribute('page')) > 0) {

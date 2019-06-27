@@ -34,7 +34,7 @@
 									</span>
 								</div>
 								<div class="align-left">
-									<span class="align-left all checkbox icon no-margin-left tooltip tooltip-bottom" data-title="Check all" visible-only></span>
+									<span checked="0" class="align-left checkbox icon no-margin-left tooltip tooltip-bottom" data-title="Check all" index="all-visible"></span>
 									<div class="search-container align-left">
 										<span class="icon search button window tooltip tooltip-bottom" data-title="Advanced proxy search and filter" window="search"></span>
 									</div>
@@ -50,7 +50,6 @@
 					</div>
 					<div class="item-body">
 						<form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
-							<div class="checked-items"></div>
 							<?php
 								$hiddenFields = array(
 									'broad_search' => '',

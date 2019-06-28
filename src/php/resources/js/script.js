@@ -213,6 +213,10 @@ var selectAllElements = (selector) => {
 var unique = (value, index, self) => {
 	return self.indexOf(value) === index;
 };
+var windowEvents = {
+	onscroll: [],
+	onresize: []
+};
 
 if (
 	(
@@ -249,15 +253,14 @@ onLoad(() => {
 
 	if ((scrollableElements = selectAllElements('.scrollable')).length) {
 		scrollableElements.map((element) => {
-			elementDetails = element[1].getBoundingClientRect();
-			window.onscroll = () => {
-				if (window.pageYOffset >= elementDetails.top) {
-					element[1].classList.add('scrolling');
-					element[1].setAttribute('style', 'max-width: ' + elementDetails.width + 'px;');
-				} else {
-					element[1].classList.remove('scrolling');
-				}
+			var scrollEvent = () => {
+				var elementContainerDetails = element[1].parentNode.getBoundingClientRect();
+				element[1].parentNode.querySelector('.item-body').setAttribute('style', 'padding-top: ' + (element[1].querySelector('.item-header').clientHeight + 20) + 'px');
+				element[1].setAttribute('style', 'max-width: ' + elementContainerDetails.width + 'px;');
+				element[1].setAttribute('scrolling', +(window.pageYOffset >= (elementContainerDetails.top + window.pageYOffset)));
 			};
+			windowEvents.onresize.push(scrollEvent);
+			windowEvents.onscroll.push(scrollEvent);
 		});
 	}
 
@@ -301,6 +304,13 @@ onLoad(() => {
 			hiddenField ? (hiddenField.classList.contains('hidden') ? hiddenField.classList.remove('hidden') : hiddenField.classList.add('hidden')) : null;
 			hiddenInput ? hiddenInput.value = +checkbox.hasAttribute('checked') : null;
 		});
+	});
+	Object.entries(windowEvents).map((windowEvents) => {
+		window[windowEvents[0]] = () => {
+			windowEvents[1].map((windowEvent) => {
+				windowEvent();
+			});
+		};
 	});
 	// ...
 });

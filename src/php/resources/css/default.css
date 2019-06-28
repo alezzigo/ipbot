@@ -411,16 +411,17 @@ select {
 	position: absolute;
 	right: 0;
 	top: 0;
+	z-index: 2;
 }
-.scrollable.scrolling {
+.scrollable[scrolling="1"] {
 	margin: auto;
 	position: fixed;
 	z-index: 2;
+}
+.proxy-configuration-container .proxy-controls-container.scrolling .item-header {
+	border-top: none !important;
 }
 .proxy-configuration-container .item-body {
 	border-top: none;
 	padding-top: 106px;
 }
-	.proxy-configuration-container .proxy-controls-container.scrolling .item-header {
-		border-top: none !important;
-	}

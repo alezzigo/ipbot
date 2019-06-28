@@ -62,13 +62,13 @@ var processPagination = (currentPage, pagination) => {
 	var processItemGrid = (itemIndexes, itemState) => {
 		var itemCount = 0;
 			itemGridLineSize = +('1' + repeat(Math.min(elements.html('.total-results').length, 4), '0'));
-
 		itemIndexes.map((itemIndex) => {
 			var index = ((currentPage * resultsPerPage) - resultsPerPage) + +itemIndex,
 				item = document.querySelector('.checkbox[index="' + itemIndex + '"]'),
 				serializeCount = 1;
-			var key = Math.floor((index + 1) / itemGridLineSize),
+			var key = Math.floor(index / itemGridLineSize),
 				serializedGridLineItems = [];
+			var itemGridLineIndex = index - (key * itemGridLineSize);
 
 			if (!itemGrid[key]) {
 				itemGrid[key] = repeat(Math.min(itemGridLineSize, +elements.html('.total-results') - (key * itemGridLineSize)), '0');
@@ -83,7 +83,7 @@ var processPagination = (currentPage, pagination) => {
 			}
 
 			if (typeof itemState === 'boolean') {
-				itemGrid[key] = replaceCharacter(itemGrid[key], index, +itemState);
+				itemGrid[key] = replaceCharacter(itemGrid[key], itemGridLineIndex, +itemState);
 			}
 
 			itemGrid[key] = itemGrid[key].split("");
@@ -95,8 +95,7 @@ var processPagination = (currentPage, pagination) => {
 
 				serializeCount++;
 			});
-
-			item.setAttribute('checked', +itemGrid[key][index]);
+			item.setAttribute('checked', +itemGrid[key][itemGridLineIndex]);
 			itemGrid[key] = serializedGridLineItems.join('_');
 		});
 

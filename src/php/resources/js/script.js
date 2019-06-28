@@ -184,15 +184,18 @@ var range = (low, high, step = 1) => {
 	return array;
 }
 var repeat = (count, pattern) => {
-	if (count < 1) return '';
 	var result = '';
 
 	while (count > 1) {
-		if (count & 1) result += pattern;
-		count >>= 1, pattern += pattern;
+		if (count & 1) {
+			result += pattern;
+		}
+
+		count >>= 1;
+		pattern += pattern;
 	}
 
-	return result + pattern;
+	return result + (count < 1 ? '' : pattern);
 };
 var replaceCharacter = (string, index, character) => {
 	return string.substr(0, index) + character + string.substr(index + ('' + character).length);

@@ -1,5 +1,19 @@
 'use_strict';
 
+var apiRequest = (requestUrl, requestParameters, callback) => {
+	var request = new XMLHttpRequest();
+	request.open('POST', requestUrl, true);
+	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	request.send('json=' + JSON.stringify(requestParameters));
+	request.onload = function(response) {
+		if (response.target.status !== 200) {
+			alert('There was an error processing your request.' + (response.target.responseText ? ' ' + response.target.responseText + '.' : ''));
+			return;
+		}
+
+		callback(response);
+	};
+};
 var elements = {
 	addClass: (selector, className) => {
 		selectAllElements(selector).map((element) => {
@@ -105,8 +119,7 @@ var processPagination = (currentPage, pagination) => {
 	pagination.querySelector('.next').setAttribute('page', 0);
 	pagination.querySelector('.previous').setAttribute('page', 0);
 	items.innerHTML = '<p>Loading ...</p>';
-	var xhr = new XMLHttpRequest();
-	var request = {
+	apiRequest('/src/php/views/api.php', {
 		action: 'find',
 		conditions: {
 			order_id: document.querySelector('input[name="order_id"]').value
@@ -133,36 +146,30 @@ var processPagination = (currentPage, pagination) => {
 		group: 'proxies',
 		limit: resultsPerPage,
 		offset: ((currentPage * resultsPerPage) - resultsPerPage)
-	};
-	xhr.open('POST', '/src/php/views/api.php', true);
-	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	xhr.send('json=' + JSON.stringify(request));
-	xhr.onload = function(response) {
-		if (response.target.status === 200) {
-			var response = JSON.parse(response.target.response);
-			items.innerHTML = '<table class="table"></table>';
-			response.data.map((proxy, index) => {
-				items.querySelector('table').innerHTML += '<tr page="' + currentPage + '" proxy_id="' + proxy.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" proxy_id="' + proxy.id + '"></span></td><td><span class="details-container"><span class="details">' + proxy.status + ' Proxy IP ' + proxy.ip + ' Location ' + proxy.city + ', ' + proxy.region + ' ' + proxy.country_code + ' <span class="icon-container"><img src="../../resources/images/icons/flags/' + proxy.country_code.toLowerCase() + '.png" class="flag" alt="' + proxy.country_code + ' flag"></span> ISP ' + proxy.asn + ' Timezone ' + proxy.timezone + ' HTTP + HTTPS Port ' + (proxy.disable_http == 1 ? 'Disabled' : '80') + ' Whitelisted IPs ' + (proxy.whitelisted_ips ? '<textarea>' + proxy.whitelisted_ips + '</textarea>' : 'N/A') + ' Username ' + (proxy.username ? proxy.username : 'N/A') + ' Password ' + (proxy.password ? proxy.password : 'N/A') + '</span></span><span class="table-text">' + proxy.ip + '</span></td>';
-			});
-			elements.html('.total-results', response.count);
-			elements.html('.first-result', currentPage === 1 ? currentPage : ((currentPage * resultsPerPage) - resultsPerPage) + 1);
-			elements.html('.last-result', (lastResult = currentPage * resultsPerPage) >= response.count ? response.count : lastResult);
-			pagination.setAttribute('current', currentPage);
-			pagination.querySelector('.next').setAttribute('page', +elements.html('.last-result') < response.count ? currentPage + 1 : 0);
-			pagination.querySelector('.previous').setAttribute('page', currentPage <= 0 ? 0 : currentPage - 1);
-			elements.loop('.proxy-configuration tr', (index, row) => {
-				var item = row.querySelector('.checkbox');
-				item.removeEventListener('click', item.listener);
-				item.listener = itemToggle;
-				item.addEventListener('click', itemToggle);
-			});
-			var itemAllVisible = document.querySelector('.checkbox[index="all-visible"]');
-			itemAllVisible.removeEventListener('click', itemAllVisible.listener);
-			itemAllVisible.listener = itemToggleAllVisible;
-			itemAllVisible.addEventListener('click', itemToggleAllVisible);
-			processItemGrid(range(0, response.data.length - 1));
-		}
-	}
+	}, (response) => {
+		var response = JSON.parse(response.target.response);
+		items.innerHTML = '<table class="table"></table>';
+		response.data.map((proxy, index) => {
+			items.querySelector('table').innerHTML += '<tr page="' + currentPage + '" proxy_id="' + proxy.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" proxy_id="' + proxy.id + '"></span></td><td><span class="details-container"><span class="details">' + proxy.status + ' Proxy IP ' + proxy.ip + ' Location ' + proxy.city + ', ' + proxy.region + ' ' + proxy.country_code + ' <span class="icon-container"><img src="../../resources/images/icons/flags/' + proxy.country_code.toLowerCase() + '.png" class="flag" alt="' + proxy.country_code + ' flag"></span> ISP ' + proxy.asn + ' Timezone ' + proxy.timezone + ' HTTP + HTTPS Port ' + (proxy.disable_http == 1 ? 'Disabled' : '80') + ' Whitelisted IPs ' + (proxy.whitelisted_ips ? '<textarea>' + proxy.whitelisted_ips + '</textarea>' : 'N/A') + ' Username ' + (proxy.username ? proxy.username : 'N/A') + ' Password ' + (proxy.password ? proxy.password : 'N/A') + '</span></span><span class="table-text">' + proxy.ip + '</span></td>';
+		});
+		elements.html('.total-results', response.count);
+		elements.html('.first-result', currentPage === 1 ? currentPage : ((currentPage * resultsPerPage) - resultsPerPage) + 1);
+		elements.html('.last-result', (lastResult = currentPage * resultsPerPage) >= response.count ? response.count : lastResult);
+		pagination.setAttribute('current', currentPage);
+		pagination.querySelector('.next').setAttribute('page', +elements.html('.last-result') < response.count ? currentPage + 1 : 0);
+		pagination.querySelector('.previous').setAttribute('page', currentPage <= 0 ? 0 : currentPage - 1);
+		elements.loop('.proxy-configuration tr', (index, row) => {
+			var item = row.querySelector('.checkbox');
+			item.removeEventListener('click', item.listener);
+			item.listener = itemToggle;
+			item.addEventListener('click', itemToggle);
+		});
+		var itemAllVisible = document.querySelector('.checkbox[index="all-visible"]');
+		itemAllVisible.removeEventListener('click', itemAllVisible.listener);
+		itemAllVisible.listener = itemToggleAllVisible;
+		itemAllVisible.addEventListener('click', itemToggleAllVisible);
+		processItemGrid(range(0, response.data.length - 1));
+	});
 };
 var range = (low, high, step = 1) => {
 	var array = [],

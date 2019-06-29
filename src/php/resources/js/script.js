@@ -142,9 +142,11 @@ var processPagination = (currentPage, pagination) => {
 			'replacement_removal_date',
 			'status'
 		],
+		grid: itemGrid,
 		group: 'proxies',
 		limit: resultsPerPage,
-		offset: ((currentPage * resultsPerPage) - resultsPerPage)
+		offset: ((currentPage * resultsPerPage) - resultsPerPage),
+		order: 'modified DESC',
 	}, (response) => {
 		var response = JSON.parse(response.target.response);
 		items.innerHTML = '<table class="table"></table>';

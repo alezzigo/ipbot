@@ -151,6 +151,91 @@ class AppModel extends Config {
 	}
 
 /**
+ * Validate and structure API request based on parameters
+ *
+ * @param array $request Request data
+ *
+ * @return array $response Response data
+ */
+	protected function _request($request) {
+		$response = array(
+			'code' => 400,
+			'message' => 'Request parameters are required for API.'
+		);
+
+		if (
+			!empty($request['json']) &&
+			is_string($request['json'])
+		) {
+			$parameters = json_decode($request['json'], true);
+			$response['message'] = 'Failed to retrieve request data, please try again';
+
+			if (
+				empty($parameters['group']) ||
+				empty($this->permissions['api'][$parameters['group']])
+			) {
+				$response['message'] = 'Invalid request group, please try again.';
+			} else {
+				if (
+					($parameters['action'] = $action = (!empty($parameters['action']) ? $parameters['action'] : 'find')) &&
+					(
+						empty($this->permissions['api'][$parameters['group']][$action]) ||
+						!method_exists($this, $parameters['action'])
+					)
+				) {
+					$response['message'] = 'Invalid request action, please try again.';
+				} else {
+					if (
+						($fieldPermissions = $this->permissions['api'][$parameters['group']][$action]['fields']) &&
+						($parameters['fields'] = $fields = !empty($parameters['fields']) ? $parameters['fields'] : $fieldPermissions) &&
+						count(array_intersect($fields, $fieldPermissions)) !== count($fields)
+					) {
+						$response['message'] = 'Invalid request fields, please try again.';
+					} else {
+						if (
+							(
+								empty($parameters['conditions']) ||
+								!is_array($parameters['conditions'])
+							) ||
+							(
+								!isset($parameters['limit']) ||
+								!is_int($parameters['limit'])
+							) ||
+							(
+								!isset($parameters['offset']) ||
+								!is_int($parameters['offset'])
+							) ||
+							(
+								empty($parameters['order']) ||
+								!is_string($parameters['order'])
+							)
+						) {
+							$response['message'] = 'Invalid request parameters, please try again.';
+						} else {
+							$data = $this->$action($parameters['group'], $parameters);
+
+							if (!empty($data)) {
+								$count = current(array_shift($this->find($parameters['group'], array(
+									'conditions' => $parameters['conditions'],
+									'count' => true
+								))));
+								$response = array(
+									'code' => 200,
+									'count' => $count,
+									'data' => $data,
+									'message' => 'API request successful.'
+								);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return $response;
+	}
+
+/**
  * Validate IPv4 address/subnet list
  *
  * @param array $ips Filtered IPv4 address/subnet list

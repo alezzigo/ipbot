@@ -254,9 +254,13 @@ onLoad(() => {
 		scrollableElements.map((element) => {
 			var scrollEvent = () => {
 				var elementContainerDetails = element[1].parentNode.getBoundingClientRect();
-				element[1].parentNode.querySelector('.item-body').setAttribute('style', 'padding-top: ' + (element[1].querySelector('.item-header').clientHeight + 20) + 'px');
-				element[1].setAttribute('style', 'max-width: ' + elementContainerDetails.width + 'px;');
-				element[1].setAttribute('scrolling', +(window.pageYOffset >= (elementContainerDetails.top + window.pageYOffset)));
+
+				if (elementContainerDetails.width) {
+					element[1].parentNode.querySelector('.item-body').setAttribute('style', 'padding-top: ' + (element[1].querySelector('.item-header').clientHeight + 20) + 'px');
+					element[1].setAttribute('style', 'max-width: ' + elementContainerDetails.width + 'px;');
+				}
+
+				element[1].setAttribute('scrolling', +(window.pageYOffset > (elementContainerDetails.top + window.pageYOffset)));
 			};
 			windowEvents.onresize.push(scrollEvent);
 			windowEvents.onscroll.push(scrollEvent);

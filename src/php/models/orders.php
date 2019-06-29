@@ -130,51 +130,6 @@ class OrdersModel extends AppModel {
 	}
 
 /**
-* Format timestamps to custom countdown timer format ([days]d [minutes]m, [hours]h)
-*
-* @param string $timestamp Timestamp
-*
-* @return string $countdown Countdown format, boolean false if current time exceeds timestamp
-*/
-	public function formatTimestampToCountdown($timestamp) {
-		$countdown = (strtotime($timestamp) - time());
-
-		if ($countdown <= 0) {
-			return false;
-		}
-
-		$countdown = str_replace(';', 'd ', str_replace('!', 'm', str_replace(':', 'h ', gmdate('d;H:i!', $countdown))));
-		$splitCountdown = explode(' ', $countdown);
-		$countdown = '';
-
-		if (!empty($splitCountdown[0])) {
-			$day = (integer) str_replace('d', '', $splitCountdown[0]) - 1;
-
-			if (!empty($day)) {
-				$countdown .= $day . 'd ';
-			}
-		}
-
-		if (!empty($splitCountdown[1])) {
-			$hour = (integer) str_replace('h', '', $splitCountdown[1]);
-
-			if (
-				!empty($day) ||
-				!empty($hour)
-			) {
-				$countdown .= $hour . 'h ';
-			}
-		}
-
-		if (!empty($splitCountdown[2])) {
-			$minute = (integer) str_replace('m', '', $splitCountdown[2]);
-			$countdown .= $minute . 'm';
-		}
-
-		return $countdown;
-	}
-
-/**
  * Get orders data
  *
  * @return array Orders data

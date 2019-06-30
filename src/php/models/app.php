@@ -281,7 +281,7 @@ class AppModel extends Config {
 				}
 			}
 
-			$ips[$key] = $splitIpSubnets[0] . '.' . $splitIpSubnets[1] . '.' . $splitIpSubnets[2] . '.' . $splitIpSubnets[3];
+			$ips[$key] = implode('.', $splitIpSubnets);
 		}
 		return implode("\n", array_unique($ips));
 	}

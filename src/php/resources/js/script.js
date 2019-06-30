@@ -46,22 +46,23 @@ var processItems = (currentPage = 1) => {
 		processItemGrid(window.event.shiftKey ? range(items.getAttribute('previous_checked'), item.getAttribute('index')) : [item.getAttribute('index')], window.event.shiftKey ? +document.querySelector('.checkbox[index="' + items.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +item.getAttribute('checked') === 0);
 		items.setAttribute('previous_checked', item.getAttribute('index'));
 	};
-	var itemToggleAllVisible = (item) => {
-		items.setAttribute('current_checked', 0);
-		items.setAttribute('previous_checked', 0);
-		processItemGrid(range(0, selectAllElements('tr .checkbox').length - 1), +item.getAttribute('checked') === 0);
-	};
+	var itemAllVisible = document.querySelector('.checkbox[index="all-visible"]'),
+		itemToggleAllVisible = (item) => {
+			items.setAttribute('current_checked', 0);
+			items.setAttribute('previous_checked', 0);
+			processItemGrid(range(0, selectAllElements('tr .checkbox').length - 1), +item.getAttribute('checked') === 0);
+		};
 	var processItemGrid = (itemIndexes, itemState) => {
 		var itemCount = 0;
 			itemGridLineSizeMaximum = +('1' + repeat(Math.min(elements.html('.total-results').length, 4), '0')),
-			resultCount = (+elements.html('.last-result') - +elements.html('.first-result') + 1);
+			pageResultCount = (+elements.html('.last-result') - +elements.html('.first-result') + 1),
+			totalResults = +elements.html('.total-results');
 		var itemGridLineSize = (key) => {
-			return Math.min(itemGridLineSizeMaximum, +elements.html('.total-results') - (key * itemGridLineSizeMaximum)).toString();
+			return Math.min(itemGridLineSizeMaximum, totalResults - (key * itemGridLineSizeMaximum)).toString();
 		}
 		var processItemGridSelection = (item) => {
-			var keyIndexes = range(0, Math.floor(+elements.html('.total-results') / itemGridLineSizeMaximum));
-			elements.html('.total-checked', (selectionStatus = +item.getAttribute('status')) ? +elements.html('.total-results') : 0);
-			itemAll.classList.add('hidden');
+			var keyIndexes = range(0, Math.floor(totalResults / itemGridLineSizeMaximum));
+			elements.html('.total-checked', (selectionStatus = +item.getAttribute('status')) ? totalResults : 0);
 			item.querySelector('.action').innerText = (selectionStatus ? 'Unselect' : 'Select');
 			item.setAttribute('status', +(selectionStatus === 0));
 			keyIndexes.map((key) => {
@@ -107,7 +108,7 @@ var processItems = (currentPage = 1) => {
 			itemGrid[key] = serializedGridLineItems.join('_');
 		});
 
-		range(0, resultCount - 1).map((itemIndex) => {
+		range(0, pageResultCount - 1).map((itemIndex) => {
 			var item = document.querySelector('.checkbox[index="' + itemIndex + '"]');
 
 			if (+(item.getAttribute('checked'))) {
@@ -119,31 +120,35 @@ var processItems = (currentPage = 1) => {
 			elements.html('.total-checked', +elements.html('.total-checked') + (itemCount - itemGridCount));
 		}
 
-		+elements.html('.total-checked') ? elements.removeClass('span.icon[proxy-function]', 'hidden') : elements.addClass('span.icon[proxy-function]', 'hidden');
-		elements.addClass('.item-details .item-action', 'hidden');
-		document.querySelector('.checkbox[index="all-visible"]').setAttribute('checked', +(allVisibleChecked = (itemCount === resultCount)));
-
 		var itemAll = document.querySelector('.item-action[index="all"]');
+		itemAll.classList.add('hidden');
 		itemAll.removeEventListener('click', itemAll.listener);
 		itemAll.listener = () => {
 			processItemGridSelection(itemAll)
 		};
 		itemAll.addEventListener('click', itemAll.listener);
+		itemAllVisible.setAttribute('checked', +(allVisibleChecked = (itemCount === pageResultCount)));
+		itemAllVisible.removeEventListener('click', itemAllVisible.listener);
+		itemAllVisible.listener = () => {
+			itemToggleAllVisible(itemAllVisible);
+		};
+		itemAllVisible.addEventListener('click', itemAllVisible.listener);
 
 		if (
-			resultCount != +elements.html('.total-results') &&
+			pageResultCount != totalResults &&
 			(
 				(
 					allVisibleChecked &&
-					+elements.html('.total-checked') < +elements.html('.total-results')
+					+elements.html('.total-checked') < totalResults
 				) ||
-				+elements.html('.total-checked') === +elements.html('.total-results')
+				+elements.html('.total-checked') === totalResults
 			)
 		) {
 			itemAll.classList.remove('hidden');
 		}
 
 		processWindowEvents(windowEvents, 'resize');
+		+elements.html('.total-checked') ? elements.removeClass('span.icon[proxy-function]', 'hidden') : elements.addClass('span.icon[proxy-function]', 'hidden');
 		itemGridCount = itemCount;
 	};
 	pagination.querySelector('.next').setAttribute('page', 0);
@@ -181,12 +186,6 @@ var processItems = (currentPage = 1) => {
 			};
 			item.addEventListener('click', item.listener);
 		});
-		var itemAllVisible = document.querySelector('.checkbox[index="all-visible"]');
-		itemAllVisible.removeEventListener('click', itemAllVisible.listener);
-		itemAllVisible.listener = () => {
-			itemToggleAllVisible(itemAllVisible);
-		};
-		itemAllVisible.addEventListener('click', itemAllVisible.listener);
 		processItemGrid(range(0, response.data.length - 1));
 		requestParameters.previous = requestParameters.current;
 	});

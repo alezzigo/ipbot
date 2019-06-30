@@ -131,11 +131,14 @@ var processItems = (currentPage = 1) => {
 		itemAll.addEventListener('click', itemAll.listener);
 
 		if (
+			resultCount != +elements.html('.total-results') &&
 			(
-				allVisibleChecked &&
-				+elements.html('.total-checked') < +elements.html('.total-results')
-			) ||
-			+elements.html('.total-checked') === +elements.html('.total-results')
+				(
+					allVisibleChecked &&
+					+elements.html('.total-checked') < +elements.html('.total-results')
+				) ||
+				+elements.html('.total-checked') === +elements.html('.total-results')
+			)
 		) {
 			itemAll.classList.remove('hidden');
 		}

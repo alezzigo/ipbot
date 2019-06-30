@@ -41,30 +41,45 @@ var processItems = (currentPage = 1) => {
 	var items = document.querySelector('.proxy-configuration .proxy-table'),
 		pagination = document.querySelector('.pagination');
 	var resultsPerPage = +pagination.getAttribute('results');
-	var itemToggle = (checkbox) => {
-		items.setAttribute('current_checked', checkbox.target.getAttribute('index'));
-		processItemGrid(window.event.shiftKey ? range(items.getAttribute('previous_checked'), checkbox.target.getAttribute('index')) : [checkbox.target.getAttribute('index')], window.event.shiftKey ? +document.querySelector('.checkbox[index="' + items.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +checkbox.target.getAttribute('checked') === 0);
-		items.setAttribute('previous_checked', checkbox.target.getAttribute('index'));
+	var itemToggle = (item) => {
+		items.setAttribute('current_checked', item.getAttribute('index'));
+		processItemGrid(window.event.shiftKey ? range(items.getAttribute('previous_checked'), item.getAttribute('index')) : [item.getAttribute('index')], window.event.shiftKey ? +document.querySelector('.checkbox[index="' + items.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +item.getAttribute('checked') === 0);
+		items.setAttribute('previous_checked', item.getAttribute('index'));
 	};
-	var itemToggleAllVisible = (checkbox) => {
+	var itemToggleAllVisible = (item) => {
 		items.setAttribute('current_checked', 0);
 		items.setAttribute('previous_checked', 0);
-		processItemGrid(range(0, selectAllElements('tr .checkbox').length - 1), +checkbox.target.getAttribute('checked') === 0);
+		processItemGrid(range(0, selectAllElements('tr .checkbox').length - 1), +item.getAttribute('checked') === 0);
 	};
 	var processItemGrid = (itemIndexes, itemState) => {
 		var itemCount = 0;
-			itemGridLineSize = +('1' + repeat(Math.min(elements.html('.total-results').length, 4), '0')),
+			itemGridLineSizeMaximum = +('1' + repeat(Math.min(elements.html('.total-results').length, 4), '0')),
 			resultCount = (+elements.html('.last-result') - +elements.html('.first-result') + 1);
+		var itemGridLineSize = (key) => {
+			return Math.min(itemGridLineSizeMaximum, +elements.html('.total-results') - (key * itemGridLineSizeMaximum)).toString();
+		}
+		var processItemGridSelection = (item) => {
+			var keyIndexes = range(0, Math.floor(+elements.html('.total-results') / itemGridLineSizeMaximum));
+			elements.html('.total-checked', (selectionStatus = +item.getAttribute('status')) ? +elements.html('.total-results') : 0);
+			itemAll.classList.add('hidden');
+			item.querySelector('.action').innerText = (selectionStatus ? 'Unselect' : 'Select');
+			item.setAttribute('status', +(selectionStatus === 0));
+			keyIndexes.map((key) => {
+				itemGrid[key] = selectionStatus + itemGridLineSize(key);
+			});
+			itemGrid = selectionStatus ? itemGrid : [];
+			processItemGrid(range(0, selectAllElements('tr .checkbox').length - 1));
+		};
 		itemIndexes.map((itemIndex) => {
 			var index = ((currentPage * resultsPerPage) - resultsPerPage) + +itemIndex,
 				item = document.querySelector('.checkbox[index="' + itemIndex + '"]'),
 				serializeCount = 1;
-			var key = Math.floor(index / itemGridLineSize),
+			var key = Math.floor(index / itemGridLineSizeMaximum),
 				serializedGridLineItems = [];
-			var itemGridLineIndex = index - (key * itemGridLineSize);
+			var itemGridLineIndex = index - (key * itemGridLineSizeMaximum);
 
 			if (!itemGrid[key]) {
-				itemGrid[key] = repeat(Math.min(itemGridLineSize, +elements.html('.total-results') - (key * itemGridLineSize)), '0');
+				itemGrid[key] = repeat(itemGridLineSize(key), '0');
 			} else {
 				itemGrid[key] = itemGrid[key].split('_');
 				itemGrid[key].map((itemStatus, itemStatusIndex) => {
@@ -105,7 +120,27 @@ var processItems = (currentPage = 1) => {
 		}
 
 		+elements.html('.total-checked') ? elements.removeClass('span.icon[proxy-function]', 'hidden') : elements.addClass('span.icon[proxy-function]', 'hidden');
-		document.querySelector('.checkbox[index="all-visible"]').setAttribute('checked', +(itemCount === resultCount));
+		elements.addClass('.item-details .item-action', 'hidden');
+		document.querySelector('.checkbox[index="all-visible"]').setAttribute('checked', +(allVisibleChecked = (itemCount === resultCount)));
+
+		var itemAll = document.querySelector('.item-action[index="all"]');
+		itemAll.removeEventListener('click', itemAll.listener);
+		itemAll.listener = () => {
+			processItemGridSelection(itemAll)
+		};
+		itemAll.addEventListener('click', itemAll.listener);
+
+		if (
+			(
+				allVisibleChecked &&
+				+elements.html('.total-checked') < +elements.html('.total-results')
+			) ||
+			+elements.html('.total-checked') === +elements.html('.total-results')
+		) {
+			itemAll.classList.remove('hidden');
+		}
+
+		processWindowEvents(windowEvents, 'resize');
 		itemGridCount = itemCount;
 	};
 	pagination.querySelector('.next').setAttribute('page', 0);
@@ -138,16 +173,40 @@ var processItems = (currentPage = 1) => {
 		elements.loop('.proxy-configuration tr', (index, row) => {
 			var item = row.querySelector('.checkbox');
 			item.removeEventListener('click', item.listener);
-			item.listener = itemToggle;
-			item.addEventListener('click', itemToggle);
+			item.listener = () => {
+				itemToggle(item);
+			};
+			item.addEventListener('click', item.listener);
 		});
 		var itemAllVisible = document.querySelector('.checkbox[index="all-visible"]');
 		itemAllVisible.removeEventListener('click', itemAllVisible.listener);
-		itemAllVisible.listener = itemToggleAllVisible;
-		itemAllVisible.addEventListener('click', itemToggleAllVisible);
+		itemAllVisible.listener = () => {
+			itemToggleAllVisible(itemAllVisible);
+		};
+		itemAllVisible.addEventListener('click', itemAllVisible.listener);
 		processItemGrid(range(0, response.data.length - 1));
 		requestParameters.previous = requestParameters.current;
 	});
+};
+var processWindowEvents = (windowEvents, event = null) => {
+	var runWindowEvents = (windowEvents) => {
+		windowEvents.map((windowEvent) => {
+			windowEvent();
+		});
+	};
+
+	if (
+		event &&
+		windowEvents[event]
+	) {
+		runWindowEvents(windowEvents[event]);
+	} else {
+		Object.entries(windowEvents).map((windowEvents) => {
+			window['on' + windowEvents[0]] = () => {
+				runWindowEvents(windowEvents[1]);
+			};
+		});
+	}
 };
 var range = (low, high, step = 1) => {
 	var array = [],
@@ -209,8 +268,8 @@ var unique = (value, index, self) => {
 	return self.indexOf(value) === index;
 };
 var windowEvents = {
-	onscroll: [],
-	onresize: []
+	resize: [],
+	scroll: []
 };
 
 if (
@@ -258,8 +317,8 @@ onLoad(() => {
 
 				element[1].setAttribute('scrolling', +(window.pageYOffset > (elementContainerDetails.top + window.pageYOffset)));
 			};
-			windowEvents.onresize.push(scrollEvent);
-			windowEvents.onscroll.push(scrollEvent);
+			windowEvents.resize.push(scrollEvent);
+			windowEvents.scroll.push(scrollEvent);
 		});
 	}
 
@@ -297,11 +356,5 @@ onLoad(() => {
 			hiddenField ? (hiddenField.classList.contains('hidden') ? hiddenField.classList.remove('hidden') : hiddenField.classList.add('hidden')) : null;
 		});
 	});
-	Object.entries(windowEvents).map((windowEvents) => {
-		window[windowEvents[0]] = () => {
-			windowEvents[1].map((windowEvent) => {
-				windowEvent();
-			});
-		};
-	});
+	processWindowEvents(windowEvents);
 });

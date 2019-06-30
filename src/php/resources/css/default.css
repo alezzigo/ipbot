@@ -211,7 +211,6 @@ select {
 		.item-container .item-header {
 			background: #222631;
 			border: 1px solid #3d414b;
-			margin-bottom: -1px;
 		}
 	.item-container .item-link-container {
 		height: 100%;
@@ -417,6 +416,10 @@ select {
 	margin: auto;
 	position: fixed;
 	z-index: 2;
+}
+.proxy-configuration-container .checked-container {
+	display: block;
+	width: 100%;
 }
 .proxy-configuration-container .proxy-controls-container.scrolling .item-header {
 	border-top: none !important;

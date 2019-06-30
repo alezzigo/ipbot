@@ -53,7 +53,8 @@ var processItems = (currentPage = 1) => {
 	};
 	var processItemGrid = (itemIndexes, itemState) => {
 		var itemCount = 0;
-			itemGridLineSize = +('1' + repeat(Math.min(elements.html('.total-results').length, 4), '0'));
+			itemGridLineSize = +('1' + repeat(Math.min(elements.html('.total-results').length, 4), '0')),
+			resultCount = (+elements.html('.last-result') - +elements.html('.first-result') + 1);
 		itemIndexes.map((itemIndex) => {
 			var index = ((currentPage * resultsPerPage) - resultsPerPage) + +itemIndex,
 				item = document.querySelector('.checkbox[index="' + itemIndex + '"]'),
@@ -91,7 +92,7 @@ var processItems = (currentPage = 1) => {
 			itemGrid[key] = serializedGridLineItems.join('_');
 		});
 
-		range(0, resultsPerPage - 1).map((itemIndex) => {
+		range(0, resultCount - 1).map((itemIndex) => {
 			var item = document.querySelector('.checkbox[index="' + itemIndex + '"]');
 
 			if (+(item.getAttribute('checked'))) {
@@ -104,7 +105,7 @@ var processItems = (currentPage = 1) => {
 		}
 
 		+elements.html('.total-checked') ? elements.removeClass('span.icon[proxy-function]', 'hidden') : elements.addClass('span.icon[proxy-function]', 'hidden');
-		document.querySelector('.checkbox[index="all-visible"]').setAttribute('checked', +(itemCount === resultsPerPage));
+		document.querySelector('.checkbox[index="all-visible"]').setAttribute('checked', +(itemCount === resultCount));
 		itemGridCount = itemCount;
 	};
 	pagination.querySelector('.next').setAttribute('page', 0);
@@ -128,9 +129,9 @@ var processItems = (currentPage = 1) => {
 		response.data.map((item, index) => {
 			items.querySelector('table').innerHTML += '<tr page="' + currentPage + '" proxy_id="' + item.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" proxy_id="' + item.id + '"></span></td><td><span class="details-container"><span class="details">' + item.status + ' Proxy IP ' + item.ip + ' Location ' + item.city + ', ' + item.region + ' ' + item.country_code + ' <span class="icon-container"><img src="../../resources/images/icons/flags/' + item.country_code.toLowerCase() + '.png" class="flag" alt="' + item.country_code + ' flag"></span> ISP ' + item.asn + ' Timezone ' + item.timezone + ' HTTP + HTTPS Port ' + (item.disable_http == 1 ? 'Disabled' : '80') + ' Whitelisted IPs ' + (item.whitelisted_ips ? '<textarea>' + item.whitelisted_ips + '</textarea>' : 'N/A') + ' Username ' + (item.username ? item.username : 'N/A') + ' Password ' + (item.password ? item.password : 'N/A') + '</span></span><span class="table-text">' + item.ip + '</span></td>';
 		});
-		elements.html('.total-results', response.count);
 		elements.html('.first-result', currentPage === 1 ? currentPage : ((currentPage * resultsPerPage) - resultsPerPage) + 1);
 		elements.html('.last-result', (lastResult = currentPage * resultsPerPage) >= response.count ? response.count : lastResult);
+		elements.html('.total-results', response.count);
 		pagination.setAttribute('current_page', currentPage);
 		pagination.querySelector('.next').setAttribute('page', +elements.html('.last-result') < response.count ? currentPage + 1 : 0);
 		pagination.querySelector('.previous').setAttribute('page', currentPage <= 0 ? 0 : currentPage - 1);

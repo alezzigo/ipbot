@@ -120,6 +120,22 @@ class AppModel extends Config {
 	}
 
 /**
+ * Process API action requests
+ *
+ * @param string $table Table name
+ * @param array $parameters Action query parameters
+ *
+ * @return array Response data
+ */
+	protected function _processAction($table, $parameters) {
+		if (!method_exists($this, $actionMethod = $parameters['action'])) {
+			return $parameters;
+		}
+
+		return $this->$actionMethod($table, $parameters);
+	}
+
+/**
  * Construct and execute database queries
  *
  * @param string $query Query string
@@ -171,58 +187,54 @@ class AppModel extends Config {
 			$response['message'] = 'Failed to retrieve request data, please try again';
 
 			if (
-				empty($parameters['group']) ||
-				empty($this->permissions['api'][$parameters['group']])
+				empty($parameters['current']['table']) ||
+				empty($this->permissions['api'][$parameters['current']['table']])
 			) {
-				$response['message'] = 'Invalid request group, please try again.';
+				$response['message'] = 'Invalid request table, please try again.';
 			} else {
 				if (
-					($parameters['action'] = $action = (!empty($parameters['action']) ? $parameters['action'] : 'find')) &&
+					($parameters['current']['action'] = $action = (!empty($parameters['current']['action']) ? $parameters['current']['action'] : 'find')) &&
 					(
-						empty($this->permissions['api'][$parameters['group']][$action]) ||
-						!method_exists($this, $parameters['action'])
+						empty($this->permissions['api'][$parameters['current']['table']][$action]) ||
+						!method_exists($this, $parameters['current']['action'])
 					)
 				) {
 					$response['message'] = 'Invalid request action, please try again.';
 				} else {
 					if (
-						($fieldPermissions = $this->permissions['api'][$parameters['group']][$action]['fields']) &&
-						($parameters['fields'] = $fields = !empty($parameters['fields']) ? $parameters['fields'] : $fieldPermissions) &&
+						($fieldPermissions = $this->permissions['api'][$parameters['current']['table']][$action]['fields']) &&
+						($parameters['current']['fields'] = $fields = !empty($parameters['current']['fields']) ? $parameters['current']['fields'] : $fieldPermissions) &&
 						count(array_intersect($fields, $fieldPermissions)) !== count($fields)
 					) {
 						$response['message'] = 'Invalid request fields, please try again.';
 					} else {
 						if (
 							(
-								empty($parameters['conditions']) ||
-								!is_array($parameters['conditions'])
+								empty($parameters['current']['conditions']) ||
+								!is_array($parameters['current']['conditions'])
 							) ||
 							(
-								!isset($parameters['limit']) ||
-								!is_int($parameters['limit'])
+								!isset($parameters['current']['limit']) ||
+								!is_int($parameters['current']['limit'])
 							) ||
 							(
-								!isset($parameters['offset']) ||
-								!is_int($parameters['offset'])
+								!isset($parameters['current']['offset']) ||
+								!is_int($parameters['current']['offset'])
 							) ||
 							(
-								empty($parameters['order']) ||
-								!is_string($parameters['order'])
+								empty($parameters['current']['order']) ||
+								!is_string($parameters['current']['order'])
 							)
 						) {
 							$response['message'] = 'Invalid request parameters, please try again.';
 						} else {
-							$data = $this->$action($parameters['group'], $parameters);
+							$queryResponse = $this->_processAction($parameters['current']['table'], $parameters['current']);
 
-							if (!empty($data)) {
-								$count = current(array_shift($this->find($parameters['group'], array(
-									'conditions' => $parameters['conditions'],
-									'count' => true
-								))));
+							if (!empty($queryResponse)) {
 								$response = array(
 									'code' => 200,
-									'count' => $count,
-									'data' => $data,
+									'count' => $queryResponse['count'],
+									'data' => $queryResponse['data'],
 									'message' => 'API request successful.'
 								);
 							}
@@ -278,12 +290,12 @@ class AppModel extends Config {
  * Database helper method for retrieving data
  *
  * @param string $table Table name
- * @param array $parameters Query parameters
+ * @param array $parameters Find query parameters
  *
  * @return array $result Return associative array if it exists, otherwise return boolean ($execute)
  */
 	public function find($table, $parameters = array()) {
-		$query = 'SELECT ' . (!empty($parameters['count']) && $parameters['count'] === true ? 'COUNT(*) ' : (!empty($parameters['fields']) && is_array($parameters['fields']) ? implode(',', $parameters['fields']) : '*')) . ' FROM ' . $table;
+		$query = ' FROM ' . $table;
 
 		if (
 			!empty($parameters['conditions']) &&
@@ -291,6 +303,8 @@ class AppModel extends Config {
 		) {
 			$query .= ' WHERE ' . implode(' AND ', $this->_formatConditionsToSQL($parameters['conditions']));
 		}
+
+		$count = $this->_query('SELECT COUNT(id)' . $query);
 
 		if (!empty($parameters['order'])) {
 			$query .= ' ORDER BY ' . $this->_prepareValue($parameters['order']);
@@ -304,7 +318,10 @@ class AppModel extends Config {
 			$query .= ' OFFSET ' . $this->_prepareValue($parameters['offset']);
 		}
 
-		return $this->_query($query);
+		return array(
+			'count' => !empty($count[0]['COUNT(id)']) ? $count[0]['COUNT(id)'] : 0,
+			'data' => $this->_query('SELECT ' . (!empty($parameters['fields']) && is_array($parameters['fields']) ? implode(',', $parameters['fields']) : '*') . $query)
+		);
 	}
 
 /**
@@ -377,6 +394,51 @@ class AppModel extends Config {
 		}
 
 		return $success;
+	}
+
+/**
+ * Process search requests
+ *
+ * @param string $table Table name
+ * @param array $parameters Search query parameters
+ *
+ * @return array $response Response data
+ */
+	public function search($table, $parameters) {
+		$broadSearchFields = $this->permissions['api'][$table]['search']['fields'];
+		$conditions = array();
+
+		if (!empty($broadSearchTerms = array_filter(explode(' ', $parameters['data']['broad_search'])))) {
+			$conditions = array_map(function($broadSearchTerm) use ($broadSearchFields) {
+				return array(
+					'OR' => array_fill_keys($broadSearchFields, '%' . $broadSearchTerm . '%')
+				);
+			}, $broadSearchTerms);
+		}
+
+		if (
+			!empty($parameters['data']['granular_search']) &&
+			($conditions['ip'] = $this->_parseIps($parameters['data']['granular_search'], true))
+		) {
+			array_walk($conditions['ip'], function(&$value, $key) {
+				$value .= '%'; // Add trailing wildcard for A/B/C class subnet search
+			});
+		}
+
+		if (!empty($conditions)) {
+			$conditions = array(
+				($parameters['data']['match_all_search'] ? 'AND' : 'OR') => $conditions
+			);
+		}
+
+		if (!empty($parameters['data']['exclude_search'])) {
+			$conditions = array(
+				'NOT' => $conditions
+			);
+		}
+
+		$parameters['conditions'] = array_merge($conditions, $parameters['conditions']);
+		return $this->find($table, $parameters, true);
 	}
 
 /**

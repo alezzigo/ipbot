@@ -26,17 +26,7 @@ class OrdersController extends OrdersModel {
  */
 	public function view() {
 		$orderId = $this->validateId(!empty($_GET['id']) ? $_GET['id'] : '', 'orders') ? $_GET['id'] : $this->redirect($this->config['base_url']);
-		$proxyIds = null;
-
-		if (
-			!empty($_POST['configuration_action']) &&
-			strtolower($_SERVER['REQUEST_METHOD']) == 'post'
-		) {
-			$response = $this->processConfiguration($_POST, $orderId);
-			$proxyIds = !empty($response['results']) ? $response['results'] : array();
-		}
-
-		return $this->getOrder($orderId, $proxyIds);
+		return $this->getOrder($orderId);
 	}
 
 }

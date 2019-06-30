@@ -25,7 +25,7 @@
 						<div class="item-header">
 							<div class="proxy-controls">
 								<div class="align-right">
-									<span class="pagination" current="<?php echo $data['pagination']['current_page']; ?>" results="<?php echo $data['pagination']['results_per_page']; ?>">
+									<span class="pagination" current_page="1" results="<?php echo $data['pagination']['results_per_page']; ?>">
 										<span class="align-left results">
 											<span class="first-result">1</span> - <span class="last-result"></span> of <span class="total-results"></span>
 										</span>

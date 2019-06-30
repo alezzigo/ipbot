@@ -1,18 +1,9 @@
 'use_strict';
 
-var apiRequest = (requestUrl, requestParameters, callback) => {
-	var request = new XMLHttpRequest();
-	request.open('POST', requestUrl, true);
-	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	request.send('json=' + JSON.stringify(requestParameters));
-	request.onload = function(response) {
-		if (response.target.status !== 200) {
-			alert('There was an error processing your request.' + (response.target.responseText ? ' ' + response.target.responseText + '.' : ''));
-			return;
-		}
-
-		callback(response);
-	};
+var closeWindows = () => {
+	document.querySelector('main').classList.remove('hidden');
+	elements.addClass('.window-container', 'hidden');
+	requestParameters.current.data = {};
 };
 var elements = {
 	addClass: (selector, className) => {
@@ -46,9 +37,10 @@ var itemGrid = [],
 var onLoad = (callback) => {
 	document.readyState != 'complete' ? setTimeout('onLoad(' + callback + ')', 1) : callback();
 };
-var processPagination = (currentPage, pagination) => {
+var processItems = (currentPage = 1) => {
 	var items = document.querySelector('.proxy-configuration .proxy-table'),
-		resultsPerPage = +pagination.getAttribute('results');
+		pagination = document.querySelector('.pagination');
+	var resultsPerPage = +pagination.getAttribute('results');
 	var itemToggle = (checkbox) => {
 		items.setAttribute('current_checked', checkbox.target.getAttribute('index'));
 		processItemGrid(window.event.shiftKey ? range(items.getAttribute('previous_checked'), checkbox.target.getAttribute('index')) : [checkbox.target.getAttribute('index')], window.event.shiftKey ? +document.querySelector('.checkbox[index="' + items.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +checkbox.target.getAttribute('checked') === 0);
@@ -118,45 +110,28 @@ var processPagination = (currentPage, pagination) => {
 	pagination.querySelector('.next').setAttribute('page', 0);
 	pagination.querySelector('.previous').setAttribute('page', 0);
 	items.innerHTML = '<p>Loading ...</p>';
-	apiRequest('/src/php/views/api.php', {
-		action: 'find',
-		conditions: {
-			order_id: document.querySelector('input[name="order_id"]').value
-		},
-		fields: [
-			'id',
-			'order_id',
-			'ip',
-			'http_port',
-			'asn',
-			'isp',
-			'city',
-			'region',
-			'country_name',
-			'country_code',
-			'timezone',
-			'whitelisted_ips',
-			'username',
-			'password',
-			'next_replacement_available',
-			'replacement_removal_date',
-			'status'
-		],
-		grid: itemGrid,
-		group: 'proxies',
-		limit: resultsPerPage,
-		offset: ((currentPage * resultsPerPage) - resultsPerPage),
-		order: 'modified DESC',
-	}, (response) => {
-		var response = JSON.parse(response.target.response);
+	requestParameters.current.conditions = {
+		order_id: document.querySelector('input[name="order_id"]').value
+	},
+		requestParameters.current.grid = itemGrid,
+		requestParameters.current.limit = resultsPerPage,
+		requestParameters.current.offset = ((currentPage * resultsPerPage) - resultsPerPage);
+	sendRequest(requestParameters, (response) => {
+		response = JSON.parse(response.target.response);
+
+		if (response.code !== 200) {
+			alert('There was an error processing your request.' + (response.message ? ' ' + response.message + '.' : ''));
+			return;
+		}
+
 		items.innerHTML = '<table class="table"></table>';
-		response.data.map((proxy, index) => {
-			items.querySelector('table').innerHTML += '<tr page="' + currentPage + '" proxy_id="' + proxy.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" proxy_id="' + proxy.id + '"></span></td><td><span class="details-container"><span class="details">' + proxy.status + ' Proxy IP ' + proxy.ip + ' Location ' + proxy.city + ', ' + proxy.region + ' ' + proxy.country_code + ' <span class="icon-container"><img src="../../resources/images/icons/flags/' + proxy.country_code.toLowerCase() + '.png" class="flag" alt="' + proxy.country_code + ' flag"></span> ISP ' + proxy.asn + ' Timezone ' + proxy.timezone + ' HTTP + HTTPS Port ' + (proxy.disable_http == 1 ? 'Disabled' : '80') + ' Whitelisted IPs ' + (proxy.whitelisted_ips ? '<textarea>' + proxy.whitelisted_ips + '</textarea>' : 'N/A') + ' Username ' + (proxy.username ? proxy.username : 'N/A') + ' Password ' + (proxy.password ? proxy.password : 'N/A') + '</span></span><span class="table-text">' + proxy.ip + '</span></td>';
+		response.data.map((item, index) => {
+			items.querySelector('table').innerHTML += '<tr page="' + currentPage + '" proxy_id="' + item.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" proxy_id="' + item.id + '"></span></td><td><span class="details-container"><span class="details">' + item.status + ' Proxy IP ' + item.ip + ' Location ' + item.city + ', ' + item.region + ' ' + item.country_code + ' <span class="icon-container"><img src="../../resources/images/icons/flags/' + item.country_code.toLowerCase() + '.png" class="flag" alt="' + item.country_code + ' flag"></span> ISP ' + item.asn + ' Timezone ' + item.timezone + ' HTTP + HTTPS Port ' + (item.disable_http == 1 ? 'Disabled' : '80') + ' Whitelisted IPs ' + (item.whitelisted_ips ? '<textarea>' + item.whitelisted_ips + '</textarea>' : 'N/A') + ' Username ' + (item.username ? item.username : 'N/A') + ' Password ' + (item.password ? item.password : 'N/A') + '</span></span><span class="table-text">' + item.ip + '</span></td>';
 		});
 		elements.html('.total-results', response.count);
 		elements.html('.first-result', currentPage === 1 ? currentPage : ((currentPage * resultsPerPage) - resultsPerPage) + 1);
 		elements.html('.last-result', (lastResult = currentPage * resultsPerPage) >= response.count ? response.count : lastResult);
-		pagination.setAttribute('current', currentPage);
+		pagination.setAttribute('current_page', currentPage);
 		pagination.querySelector('.next').setAttribute('page', +elements.html('.last-result') < response.count ? currentPage + 1 : 0);
 		pagination.querySelector('.previous').setAttribute('page', currentPage <= 0 ? 0 : currentPage - 1);
 		elements.loop('.proxy-configuration tr', (index, row) => {
@@ -170,6 +145,7 @@ var processPagination = (currentPage, pagination) => {
 		itemAllVisible.listener = itemToggleAllVisible;
 		itemAllVisible.addEventListener('click', itemToggleAllVisible);
 		processItemGrid(range(0, response.data.length - 1));
+		requestParameters.previous = requestParameters.current;
 	});
 };
 var range = (low, high, step = 1) => {
@@ -208,8 +184,25 @@ var repeat = (count, pattern) => {
 var replaceCharacter = (string, index, character) => {
 	return string.substr(0, index) + character + string.substr(index + ('' + character).length);
 };
+var requestParameters = {
+	current: {
+		action: 'find',
+		order: 'modified DESC',
+		table: 'proxies',
+	},
+	url: '/src/php/views/api.php'
+};
 var selectAllElements = (selector) => {
 	return Object.entries(document.querySelectorAll(selector));
+};
+var sendRequest = (requestParameters, callback) => {
+	var request = new XMLHttpRequest();
+	request.open('POST', requestParameters.url, true);
+	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	request.send('json=' + JSON.stringify(requestParameters));
+	request.onload = function(response) {
+		callback(response);
+	};
 };
 var unique = (value, index, self) => {
 	return self.indexOf(value) === index;
@@ -241,12 +234,12 @@ onLoad(() => {
 	elements.removeClass('.proxy-configuration', 'hidden');
 	elements.addClass('.loading', 'hidden');
 
-	if (pagination = document.querySelector('.pagination')) {
-		processPagination(+pagination.getAttribute('current'), pagination);
+	if (document.querySelector('.pagination')) {
+		processItems();
 		selectAllElements('.pagination .button').map((element) => {
 			element[1].addEventListener('click', (element) => {
 				if ((page = +element.target.getAttribute('page')) > 0) {
-					processPagination(page, pagination);
+					processItems(page);
 				}
 			});
 		});
@@ -271,43 +264,36 @@ onLoad(() => {
 
 	selectAllElements('.button.window').map((element) => {
 		element[1].addEventListener('click', (element) => {
-			elements.removeClass('.window-container[window="' + element.target.getAttribute('window') + '"]', 'hidden');
-			document.querySelector('input[name="configuration_action"]').value = element.target.getAttribute('window');
 			document.querySelector('main').classList.add('hidden');
+			elements.removeClass('.window-container[window="' + element.target.getAttribute('window') + '"]', 'hidden');
 		});
 	});
 	selectAllElements('.window .button.close').map((element) => {
 		element[1].addEventListener('click', (element) => {
-			elements.loop('.window input', (index, input) => {
-				input.value = '';
-			});
-			elements.addClass('.window-container', 'hidden');
-			document.querySelector('main').classList.remove('hidden');
+			closeWindows();
 		});
 	});
 	selectAllElements('.window .button.submit').map((element) => {
 		element[1].addEventListener('click', (element) => {
-			// ...
-			alert('Actions temporarily disabled to implement finding/saving via API.');
-			return;
-			// ...
-
-			var form = '.window-container[window="' + element.target.getAttribute('form') + '"]';
+			var action = element.target.getAttribute('form');
+			var form = '.window-container[window="' + action + '"]';
+			closeWindows();
 			elements.loop(form + ' input, ' + form + ' select, ' + form + ' textarea', (index, element) => {
-				var value = element.closest('.checkbox-option-container') && element.closest('.checkbox-option-container').classList.contains('hidden') ? '' : element.value;
-				document.querySelector('input[name="' + element.getAttribute('name') + '"][type="hidden"]').value = value;
+				requestParameters.current.data[element.getAttribute('name')] = element.value;
 			});
-			document.querySelector('.proxy-configuration form').submit();
+			elements.loop(form + ' .checkbox', (index, element) => {
+				requestParameters.current.data[element.getAttribute('name')] = +element.getAttribute('checked');
+			});
+			requestParameters.current.action = action;
+			processItems();
 		});
 	});
 	selectAllElements('.window .checkbox, .window label.custom-checkbox-label').map((element) => {
 		element[1].addEventListener('click', (element) => {
-			var	checkbox = document.querySelector('.checkbox[name="' + element.target.getAttribute('name') + '"]'),
-				hiddenField = document.querySelector('div[field="' + element.target.getAttribute('name') + '"]'),
-				hiddenInput = document.querySelector('input[name="' + element.target.getAttribute('name') + '"][type="hidden"]');
-			checkbox.hasAttribute('checked') ? checkbox.removeAttribute('checked') : checkbox.setAttribute('checked', 'checked');
+			var hiddenField = document.querySelector('div[field="' + element.target.getAttribute('name') + '"]'),
+				item = document.querySelector('.checkbox[name="' + element.target.getAttribute('name') + '"]');
+			item.setAttribute('checked', +!+item.getAttribute('checked'));
 			hiddenField ? (hiddenField.classList.contains('hidden') ? hiddenField.classList.remove('hidden') : hiddenField.classList.add('hidden')) : null;
-			hiddenInput ? hiddenInput.value = +checkbox.hasAttribute('checked') : null;
 		});
 	});
 	Object.entries(windowEvents).map((windowEvents) => {
@@ -317,5 +303,4 @@ onLoad(() => {
 			});
 		};
 	});
-	// ...
 });

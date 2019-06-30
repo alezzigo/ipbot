@@ -76,80 +76,26 @@ class OrdersModel extends AppModel {
 	}
 
 /**
- * Process search requests
- *
- * @param array $data Request data
- *
- * @return array $response Response data
- */
-	protected function _processSearch($data) {
-		$broadSearchConditions = array();
-		$broadSearchFields = array('ip', 'asn', 'isp', 'city', 'region', 'country_name', 'country_code', 'timezone', 'status', 'whitelisted_ips', 'username', 'password', 'group_name');
-		$conditions = array();
-		$response = array(
-			'message' => ''
-		);
-
-		if (!empty($broadSearchTerms = array_filter(explode(' ', $data['broad_search'])))) {
-			$conditions = array_map(function($broadSearchTerm) use ($broadSearchFields, $data) {
-				return array(
-					'OR' => array_fill_keys($broadSearchFields, '%' . $broadSearchTerm . '%')
-				);
-			}, $broadSearchTerms);
-		}
-
-		if (
-			!empty($data['granular_search']) &&
-			($conditions['ip'] = $this->_parseIps($data['granular_search'], true))
-		) {
-			array_walk($conditions['ip'], function(&$value, $key) use ($data) {
-				$value .= '%'; // Add trailing wildcard for A/B/C class subnet search
-			});
-		}
-
-		if (!empty($conditions)) {
-			$conditions = array(
-				($data['match_all_search'] ? 'AND' : 'OR') => $conditions
-			);
-		}
-
-		if (!empty($data['exclude_search'])) {
-			$conditions = array(
-				'NOT' => $conditions
-			);
-		}
-
-		$response['results'] = $this->_extract($this->find('proxies', array(
-			'conditions' => $conditions,
-			'fields' => array(
-				'id'
-			)
-		)), 'id');
-
-		return $response;
-	}
-
-/**
  * Get orders data
  *
  * @return array Orders data
  */
 	public function getOrders() {
+		$orders = $this->find('orders');
 		return array(
-			'orders' => $this->find('orders')
+			'orders' => $orders['data']
 		);
 	}
 
 /**
  * Get order data
- * @todo Retrieve pagination results with javascript, format timer countdowns with Javascript on front end
+ * @todo Format timer countdowns with Javascript on front end
  *
  * @param string $id Order ID
- * @param array $proxyIds Proxy IDs
  *
  * @return array Order data
  */
-	public function getOrder($id, $proxyIds) {
+	public function getOrder($id) {
 		$order = $this->find('orders', array(
 			'conditions' => array(
 				'id' => $id
@@ -162,42 +108,13 @@ class OrdersModel extends AppModel {
 		));
 
 		$pagination = array(
-			'current_page' => 1,
 			'results_per_page' => 50
 		);
 
 		return array(
-			'order' => $order[0],
-			'pagination' => $pagination,
-			'tokens' => array(
-				'results' => implode('_', array(
-					sha1(json_encode($this->find('proxies', array(
-						'conditions' => array(
-							'order_id' => $id
-						),
-						'fields' => array(
-							'id'
-						)
-					)))), time()
-				))
-			)
+			'order' => $order['data'][0],
+			'pagination' => $pagination
 		);
-	}
-
-/**
- * Process order configuration requests
- *
- * @param array $data Request data
- * @param integer $orderId Order ID
- *
- * @return array $response Response data
- */
-	public function processConfiguration($data, $orderId) {
-		if (!method_exists($this, $configurationActionMethod = '_process' . preg_replace('/\s+/', '', ucwords(str_replace('_', ' ', $data['configuration_action']))))) {
-			return false;
-		}
-
-		return $this->$configurationActionMethod($data, $orderId);
 	}
 
 }

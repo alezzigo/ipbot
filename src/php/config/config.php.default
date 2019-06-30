@@ -16,11 +16,11 @@
 					'type' => 'mysql',
 					'username' => 'root',
 					'sanitizeKeys' => array(
-						'hashEnd' => 'k84jru42our7ji484s$j8r92!jw7jue_4j83-rk984%6^39nG',
-						'hashSalt' => '_-.-_-.-_',
-						'hashStart' => 'i9r8302-jod8^%4i39774j84$57420@38476$386c@198i94'
+						'hashEnd' => 'k84jru42our7ji484s$G',
+						'hashSalt' => '_-.-_-',
+						'hashStart' => 'i9r8302-jod8^%4i397744'
 					),
-					'saveDataRowChunkSize' => 100
+					'saveDataRowChunkSize' => 1000
 				),
 				'base_url' => '/src/php/'
 			);
@@ -94,8 +94,8 @@
 			);
 
 			$this->sanitizeKeys = array(
-				'end' => $this->config['database']['sanitizeKeys']['hashSalt'] . '-' . sha1($this->config['database']['sanitizeKeys']['hashEnd'] . ($this->config['database']['sanitizeKeys']['hashEnd'] == $this->config['database']['sanitizeKeys']['hashStart'] ? '-' : '')) . '-' . $this->config['database']['sanitizeKeys']['hashSalt'],
-				'start' => $this->config['database']['sanitizeKeys']['hashSalt'] . '-' . sha1($this->config['database']['sanitizeKeys']['hashStart']) . '-' . $this->config['database']['sanitizeKeys']['hashSalt']
+				'end' => $this->config['database']['sanitizeKeys']['hashSalt'] . '-' . $this->config['database']['sanitizeKeys']['hashEnd'] . '-' . $this->config['database']['sanitizeKeys']['hashSalt'],
+				'start' => $this->config['database']['sanitizeKeys']['hashSalt'] . '-' . $this->config['database']['sanitizeKeys']['hashStart'] . '-' . $this->config['database']['sanitizeKeys']['hashSalt']
 			);
 		}
 

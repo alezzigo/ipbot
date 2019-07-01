@@ -35,7 +35,7 @@ var elements = {
 var itemGrid = [],
 	itemGridCount = 0;
 var onLoad = (callback) => {
-	document.readyState != 'complete' ? setTimeout('onLoad(' + callback + ')', 1) : callback();
+	document.readyState != 'complete' ? setTimeout('onLoad(' + callback + ')', 10) : callback();
 };
 var processItems = (currentPage = 1) => {
 	var items = document.querySelector('.proxy-configuration .proxy-table'),

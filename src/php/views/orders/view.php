@@ -34,7 +34,7 @@
 									</span>
 								</div>
 								<div class="align-left">
-									<span checked="0" class="align-left checkbox icon no-margin-left tooltip tooltip-bottom" data-title="Select all" index="all-visible"></span>
+									<span checked="0" class="align-left checkbox icon no-margin-left tooltip tooltip-bottom" data-title="Select all results on page" index="all-visible"></span>
 									<div class="search-container align-left">
 										<span class="icon search button window tooltip tooltip-bottom" data-title="Advanced proxy search and filter" window="search"></span>
 									</div>

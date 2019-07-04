@@ -161,10 +161,8 @@ var processItems = (currentPage = 1) => {
 		requestParameters.current.limit = resultsPerPage,
 		requestParameters.current.offset = ((currentPage * resultsPerPage) - resultsPerPage);
 	sendRequest(requestParameters, (response) => {
-		response = JSON.parse(response.target.response);
-
 		if (response.code !== 200) {
-			alert('There was an error processing your request.' + (response.message ? ' ' + response.message + '.' : ''));
+			alert('There was an error processing your request.' + (response.message ? ' ' + response.message : ''));
 			return;
 		}
 
@@ -186,6 +184,8 @@ var processItems = (currentPage = 1) => {
 			};
 			item.addEventListener('click', item.listener);
 		});
+		itemGrid = response.grid;
+		requestParameters.current.token = response.token;
 		processItemGrid(range(0, response.data.length - 1));
 		requestParameters.previous = requestParameters.current;
 	});
@@ -263,7 +263,7 @@ var sendRequest = (requestParameters, callback) => {
 	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	request.send('json=' + JSON.stringify(requestParameters));
 	request.onload = function(response) {
-		callback(response);
+		callback(JSON.parse(response.target.response));
 	};
 };
 var unique = (value, index, self) => {

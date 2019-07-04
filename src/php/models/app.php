@@ -10,6 +10,24 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/config/config.php');
 class AppModel extends Config {
 
 /**
+ * Create token string from parameters and results
+ *
+ * @param array $parameters Parameters
+ *
+ * @return array Token string
+ */
+	protected function _createTokenString($parameters) {
+		return sha1($this->config['database']['sanitizeKeys']['hashSalt'] . json_encode($this->find($parameters['current']['table'], array(
+			'conditions' => $parameters['current']['conditions'],
+			'fields' => array(
+				'id'
+			),
+			'limit' => 1,
+			'order' => 'modified DESC'
+		))));
+	}
+
+/**
  * Helper method for extracting values from a specific key in a multidimensional array
  *
  * @param array $data Data
@@ -63,6 +81,54 @@ class AppModel extends Config {
 		}
 
 		return $conditions;
+	}
+
+/**
+ * Save and retrieve database token based on parameters
+ *
+ * @param array $parameters Parameters
+ *
+ * @return array $token Token
+ */
+	protected function _getToken($parameters) {
+		$tokenParameters = array(
+			'foreign_table' => $parameters['current']['table'],
+			'foreign_key' => $key = key($parameters['current']['conditions']),
+			'foreign_value' => $parameters['current']['conditions'][$key],
+			'string' => $tokenString = $this->_createTokenString($parameters)
+		);
+
+		$existingToken = $this->find('tokens', array(
+			'conditions' => $tokenParameters,
+			'fields' => array(
+				'id'
+			),
+			'limit' => 1,
+			'order' => 'modified DESC'
+		));
+
+		if (!empty($existingToken['data'][0])) {
+			$tokenParameters['id'] = $existingToken['data'][0];
+
+			if (empty($parameters['previous'])) {
+				$tokenParameters['modified'] = date('Y-m-d H:i:s', time());
+			}
+		}
+
+		$this->save('tokens', array(
+			$tokenParameters
+		));
+		$token = $this->find('tokens', array(
+			'conditions' => $tokenParameters,
+			'fields' => array(
+				'id',
+				'string',
+				'created'
+			),
+			'order' => 'modified DESC'
+		));
+
+		return !empty($token['data'][0]) ? $token['data'][0] : array();
 	}
 
 /**
@@ -125,24 +191,42 @@ class AppModel extends Config {
  * @param string $table Table name
  * @param array $parameters Action query parameters
  *
- * @return array Response data
+ * @return array $response Response data
  */
 	protected function _processAction($table, $parameters) {
-		if (!method_exists($this, $actionMethod = $parameters['action'])) {
-			return $parameters;
+		if (!method_exists($this, $actionMethod = $parameters['current']['action'])) {
+			return false;
 		}
 
-		return $this->$actionMethod($table, $parameters);
+		$token = $this->_getToken($parameters);
+
+		if (empty($token['string'])) {
+			return false;
+		}
+
+		$parameters['current']['token'] = $token;
+
+		if (!empty($parameters['current']['grid'])) {
+			$parameters['current']['unserialized_grid'] = $this->_unserializeGrid($parameters);
+		}
+
+		$response = array_merge($this->$actionMethod($table, $parameters['current']), array(
+			'grid' => $parameters['current']['grid'],
+			'token' => $parameters['current']['token']
+		));
+
+		return $response;
 	}
 
 /**
  * Construct and execute database queries
  *
  * @param string $query Query string
+ * @param boolean $associative True to fetch associative data, false to fetch list of values
  *
  * @return array $result Return associative array if data exists, otherwise return boolean ($execute)
  */
-	protected function _query($query) {
+	protected function _query($query, $associative = true) {
 		$database = new PDO($this->config['database']['type'] . ':host=' . $this->config['database']['hostname'] . '; dbname=' . $this->config['database']['name'] . '; charset=' . $this->config['database']['charset'], $this->config['database']['username'], $this->config['database']['password']);
 		$database->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 		$parameterized = $this->_parameterizeSQL($query);
@@ -161,7 +245,7 @@ class AppModel extends Config {
 		}
 
 		$execute = $connection->execute(!empty($parameterized['parameterizedValues']) ? $parameterized['parameterizedValues'] : array());
-		$result = $connection->fetchAll(PDO::FETCH_ASSOC);
+		$result = $connection->fetchAll($associative ? PDO::FETCH_ASSOC : PDO::FETCH_COLUMN);
 		$connection->closeCursor();
 		return !empty($result) ? $result : $execute;
 	}
@@ -184,7 +268,7 @@ class AppModel extends Config {
 			is_string($request['json'])
 		) {
 			$parameters = json_decode($request['json'], true);
-			$response['message'] = 'Failed to retrieve request data, please try again';
+			$response['message'] = 'Failed to retrieve request data, please try again.';
 
 			if (
 				empty($parameters['current']['table']) ||
@@ -228,15 +312,13 @@ class AppModel extends Config {
 						) {
 							$response['message'] = 'Invalid request parameters, please try again.';
 						} else {
-							$queryResponse = $this->_processAction($parameters['current']['table'], $parameters['current']);
+							$queryResponse = $this->_processAction($parameters['current']['table'], $parameters);
 
 							if (!empty($queryResponse)) {
-								$response = array(
+								$response = array_merge($queryResponse, array(
 									'code' => 200,
-									'count' => $queryResponse['count'],
-									'data' => $queryResponse['data'],
 									'message' => 'API request successful.'
-								);
+								));
 							}
 						}
 					}
@@ -245,6 +327,56 @@ class AppModel extends Config {
 		}
 
 		return $response;
+	}
+
+/**
+ * Unserialize grid indexes and map to IDs based on previous and current tokens
+ *
+ * @param array $parameters Parameters
+ *
+ * @return array $grid Grid
+ */
+	protected function _unserializeGrid($parameters) {
+		$grid = array();
+		$gridLines = $parameters['current']['grid'];
+		$index = 0;
+
+		if (
+			!empty($parameters['previous']['token']) &&
+			$parameters['previous']['token'] === $parameters['current']['token']
+		) {
+			foreach ($gridLines as $gridLineKey => $gridLine) {
+				$gridLineChunks = explode('_', $gridLine);
+
+				foreach ($gridLineChunks as $gridLineChunkKey => $gridLineChunk) {
+					$itemStatus = substr($gridLineChunk, 0, 1);
+					$itemStatusCount = substr($gridLineChunk, 1);
+
+					if ($itemStatus) {
+						for ($i = 0; $i < $itemStatusCount; $i++) {
+							$grid[$index + $i] = 1;
+						}
+					}
+
+					$index += $itemStatusCount;
+				}
+			}
+
+			unset($parameters['current']['offset']);
+			$ids = $this->find($parameters['current']['table'], array_merge($parameters['current'], array(
+				'fields' => array(
+					'id'
+				),
+				'limit' => $index,
+				'offset' => 0
+			)));
+
+			if (!empty($ids['data'])) {
+				$grid = array_intersect_key($ids['data'], $grid);
+			}
+		}
+
+		return $grid;
 	}
 
 /**
@@ -290,7 +422,7 @@ class AppModel extends Config {
  * Database helper method for retrieving data
  *
  * @param string $table Table name
- * @param array $parameters Find query parameters
+ * @param array $parameters Find query parameter
  *
  * @return array $result Return associative array if it exists, otherwise return boolean ($execute)
  */
@@ -320,7 +452,7 @@ class AppModel extends Config {
 
 		return array(
 			'count' => !empty($count[0]['COUNT(id)']) ? $count[0]['COUNT(id)'] : 0,
-			'data' => $this->_query('SELECT ' . (!empty($parameters['fields']) && is_array($parameters['fields']) ? implode(',', $parameters['fields']) : '*') . $query)
+			'data' => $this->_query('SELECT ' . (!empty($parameters['fields']) && is_array($parameters['fields']) ? implode(',', $parameters['fields']) : '*') . $query, (count($parameters['fields']) === 1 ? false : true))
 		);
 	}
 
@@ -355,6 +487,7 @@ class AppModel extends Config {
 
 /**
  * Database helper method for saving data
+ * @todo Always update 'modified' field with current time
  *
  * @param string $table Table name
  * @param array $rows Data to save
@@ -437,8 +570,9 @@ class AppModel extends Config {
 			);
 		}
 
+		unset($parameters['conditions']['id']);
 		$parameters['conditions'] = array_merge($conditions, $parameters['conditions']);
-		return $this->find($table, $parameters, true);
+		return $this->find($table, $parameters);
 	}
 
 /**

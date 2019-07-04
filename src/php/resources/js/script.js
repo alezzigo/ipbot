@@ -254,7 +254,10 @@ var replaceCharacter = (string, index, character) => {
 var requestParameters = {
 	current: {
 		action: 'find',
-		order: 'modified DESC',
+		sort: {
+			field: 'modified',
+			order: 'DESC'
+		},
 		table: 'proxies',
 	},
 	url: '/src/php/views/api.php'

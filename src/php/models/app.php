@@ -23,7 +23,10 @@ class AppModel extends Config {
 				'id'
 			),
 			'limit' => 1,
-			'order' => 'modified DESC'
+			'sort' => array(
+				'field' => 'modified',
+				'order' => 'DESC'
+			)
 		))));
 	}
 
@@ -95,7 +98,7 @@ class AppModel extends Config {
 			'foreign_table' => $parameters['current']['table'],
 			'foreign_key' => $key = key($parameters['current']['conditions']),
 			'foreign_value' => $parameters['current']['conditions'][$key],
-			'string' => $tokenString = $this->_createTokenString($parameters)
+			'string' => $this->_createTokenString($parameters)
 		);
 
 		$existingToken = $this->find('tokens', array(
@@ -104,7 +107,10 @@ class AppModel extends Config {
 				'id'
 			),
 			'limit' => 1,
-			'order' => 'modified DESC'
+			'sort' => array(
+				'field' => 'modified',
+				'order' => 'DESC'
+			)
 		));
 
 		if (!empty($existingToken['data'][0])) {
@@ -121,7 +127,10 @@ class AppModel extends Config {
 				'string',
 				'created'
 			),
-			'order' => 'modified DESC'
+			'sort' => array(
+				'field' => 'modified',
+				'order' => 'DESC'
+			)
 		));
 
 		return !empty($token['data'][0]) ? $token['data'][0] : array();
@@ -298,12 +307,18 @@ class AppModel extends Config {
 								!is_int($parameters['current']['limit'])
 							) ||
 							(
-								!isset($parameters['current']['offset']) ||
+								isset($parameters['current']['offset']) &&
 								!is_int($parameters['current']['offset'])
 							) ||
 							(
-								empty($parameters['current']['order']) ||
-								!is_string($parameters['current']['order'])
+								(
+									!empty($parameters['current']['sort']['field']) &&
+									!in_array($parameters['current']['sort']['field'], $fieldPermissions)
+								) ||
+								(
+									!empty($parameters['current']['sort']['order']) &&
+									!in_array(strtoupper($parameters['current']['sort']['order']), array('ASC', 'DESC'))
+								)
 							)
 						) {
 							$response['message'] = 'Invalid request parameters, please try again.';
@@ -434,8 +449,8 @@ class AppModel extends Config {
 
 		$count = $this->_query('SELECT COUNT(id)' . $query);
 
-		if (!empty($parameters['order'])) {
-			$query .= ' ORDER BY ' . $this->_prepareValue($parameters['order']);
+		if (!empty($parameters['sort']['field'])) {
+			$query .= ' ORDER BY ' . $parameters['sort']['field'] . ' ' . (!empty($parameters['sort']['order']) ? $parameters['sort']['order'] : 'DESC');
 		}
 
 		if (!empty($parameters['limit'])) {

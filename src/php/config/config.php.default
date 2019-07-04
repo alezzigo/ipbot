@@ -28,25 +28,6 @@
 			$this->permissions = array(
 				'api' => array(
 					'proxies' => array(
-						'search' => array(
-							'fields' => array(
-								'id',
-								'order_id',
-								'ip',
-								'http_port',
-								'asn',
-								'isp',
-								'city',
-								'region',
-								'country_name',
-								'country_code',
-								'timezone',
-								'whitelisted_ips',
-								'username',
-								'password',
-								'status'
-							)
-						),
 						'find' => array(
 							'fields' => array(
 								'id',
@@ -65,7 +46,9 @@
 								'password',
 								'next_replacement_available',
 								'replacement_removal_date',
-								'status'
+								'status',
+								'created',
+								'modified'
 							)
 						),
 						'save' => array(
@@ -87,6 +70,27 @@
 								'next_replacement_available',
 								'replacement_removal_date',
 								'status'
+							)
+						),
+						'search' => array(
+							'fields' => array(
+								'id',
+								'order_id',
+								'ip',
+								'http_port',
+								'asn',
+								'isp',
+								'city',
+								'region',
+								'country_name',
+								'country_code',
+								'timezone',
+								'whitelisted_ips',
+								'username',
+								'password',
+								'status',
+								'created',
+								'modified'
 							)
 						)
 					)

@@ -511,7 +511,7 @@ class AppModel extends Config {
 			foreach ($groupValues as $fields => $values) {
 				$updateFields = explode(',', $fields);
 				array_walk($updateFields, function(&$field, $index) {
-					$field = $field . '=' . $field;
+					$field = $field . '=VALUES(' . $field . ')';
 				});
 
 				$queries[] = 'INSERT INTO ' . $table . '(' . $fields . ') VALUES (' . implode('),(', $values) . ') ON DUPLICATE KEY UPDATE ' . implode(',', $updateFields);

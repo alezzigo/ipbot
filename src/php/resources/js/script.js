@@ -162,7 +162,12 @@ var processItems = (currentPage = 1) => {
 		requestParameters.current.offset = ((currentPage * resultsPerPage) - resultsPerPage);
 	sendRequest(requestParameters, (response) => {
 		if (response.code !== 200) {
-			alert('There was an error processing your request.' + (response.message ? ' ' + response.message : ''));
+			items.innerHTML = 'There was an error processing your request, please reload the page.' + (response.message ? ' ' + response.message : '');
+			return;
+		}
+
+		if (!response.count) {
+			items.innerHTML = 'No results found, please try again.';
 			return;
 		}
 

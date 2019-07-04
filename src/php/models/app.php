@@ -109,10 +109,6 @@ class AppModel extends Config {
 
 		if (!empty($existingToken['data'][0])) {
 			$tokenParameters['id'] = $existingToken['data'][0];
-
-			if (empty($parameters['previous'])) {
-				$tokenParameters['modified'] = date('Y-m-d H:i:s', time());
-			}
 		}
 
 		$this->save('tokens', array(
@@ -487,7 +483,6 @@ class AppModel extends Config {
 
 /**
  * Database helper method for saving data
- * @todo Always update 'modified' field with current time
  *
  * @param string $table Table name
  * @param array $rows Data to save
@@ -505,6 +500,12 @@ class AppModel extends Config {
 			foreach ($rows as $row) {
 				$fields = array_keys($row);
 				$values = array_values($row);
+
+				if (!in_array('modified', $fields)) {
+					$fields[] = 'modified';
+					$values[] = date('Y-m-d H:i:s', time());
+				}
+
 				$groupValues[implode(',', $fields)][] = $this->sanitizeKeys['start'] . implode($this->sanitizeKeys['end'] . ',' . $this->sanitizeKeys['start'], $values) . $this->sanitizeKeys['end'];
 			}
 

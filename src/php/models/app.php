@@ -422,7 +422,7 @@ class AppModel extends Config {
  * Database helper method for retrieving data
  *
  * @param string $table Table name
- * @param array $parameters Find query parameter
+ * @param array $parameters Find query parameters
  *
  * @return array $result Return associative array if it exists, otherwise return boolean ($execute)
  */

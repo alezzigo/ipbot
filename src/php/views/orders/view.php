@@ -29,19 +29,19 @@
 										<span class="align-left results">
 											<span class="first-result">1</span> - <span class="last-result"></span> of <span class="total-results"></span>
 										</span>
-										<span class="icon button previous align-left"></span>
-										<span class="icon button next align-left"></span>
+										<span class="align-left button icon previous"></span>
+										<span class="align-left button icon next"></span>
 									</span>
 								</div>
 								<div class="align-left">
 									<span checked="0" class="align-left checkbox icon no-margin-left tooltip tooltip-bottom" data-title="Select all results on page" index="all-visible"></span>
 									<div class="search-container align-left">
-										<span class="icon search button window tooltip tooltip-bottom" data-title="Advanced proxy search and filter" window="search"></span>
+										<span class="button icon tooltip tooltip-bottom window" data-title="Advanced proxy search and filter" window="search"></span>
 									</div>
-									<span class="icon replace button window tooltip tooltip-bottom hidden" data-title="Configure proxy replacement settings" proxy-function window="replace"></span>
-									<span class="icon authenticate button window tooltip tooltip-bottom hidden" data-title="Configure authentication settings" proxy-function window="authenticate"></span>
-									<span class="icon group button window tooltip tooltip-bottom hidden" data-title="Create group from selected proxies" proxy-function window="group"></span>
-									<span class="icon copy button window tooltip tooltip-bottom hidden" data-title="Copy selected proxies to clipboard" proxy-function window="copy"></span>
+									<span class="button icon hidden tooltip tooltip-bottom window" data-title="Configure proxy replacement settings" item-function window="replace"></span>
+									<span class="button icon hidden tooltip tooltip-bottom window" data-title="Configure authentication settings" item-function window="authenticate"></span>
+									<span class="button icon hidden tooltip tooltip-bottom window" data-title="Create group from selected proxies" item-function window="group"></span>
+									<span class="button icon hidden tooltip tooltip-bottom window" data-title="Copy selected proxies to clipboard" item-function window="copy"></span>
 								</div>
 								<div class="clear"></div>
 								<p class="item-details no-margin-bottom"><span class="checked-container pull-left"><span class="total-checked">0</span> of <span class="total-results"></span> selected.</span> <a class="item-action hidden" href="javascript:void(0);" index="all" status="1"><span class="action">Select</span> all results</a><span class="clear"></span></p>

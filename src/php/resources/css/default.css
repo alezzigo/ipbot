@@ -224,6 +224,14 @@ select {
 				height: inherit;
 				width: inherit;
 			}
+	.item-container .message {
+		background-color: #181b23;
+		color: #fff;
+		font-size: 12px;
+		line-height: 19px;
+		margin-bottom: 20px;
+		padding: 8px 11px 7px;
+	}
 	.icon {
 		color: #fff;
 		cursor: pointer;
@@ -251,17 +259,8 @@ select {
 			.icon.tooltip:hover.tooltip-bottom:after {
 				margin-top: 23px;
 			}
-		.icon.authenticate {
-			background: url('../images/icons/icon-authenticate.png') center no-repeat / 100%;
-		}
 		.icon.close {
 			background: url('../images/icons/icon-close.png') #fff center no-repeat / 100%;
-		}
-		.icon.copy {
-			background: url('../images/icons/icon-copy.png') center no-repeat / 100%;
-		}
-		.icon.group {
-			background: url('../images/icons/icon-group.png') center no-repeat / 100%;
 		}
 		.icon.next {
 			background: url('../images/icons/icon-next.png') #fff center no-repeat / 100%;
@@ -274,10 +273,19 @@ select {
 				cursor: default;
 				opacity: 0.18;
 			}
-		.icon.replace {
+		.icon[window="authenticate"] {
+			background: url('../images/icons/icon-authenticate.png') center no-repeat / 100%;
+		}
+		.icon[window="copy"] {
+			background: url('../images/icons/icon-copy.png') center no-repeat / 100%;
+		}
+		.icon[window="group"] {
+			background: url('../images/icons/icon-group.png') center no-repeat / 100%;
+		}
+		.icon[window="replace"] {
 			background: url('../images/icons/icon-replace.png') center no-repeat / 100%;
 		}
-		.icon.search {
+		.icon[window="search"] {
 			background: url('../images/icons/icon-search.png') center no-repeat / 100%;
 			margin-left: 14px;
 		}

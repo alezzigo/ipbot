@@ -95,14 +95,12 @@ class AppModel extends Config {
  */
 	protected function _getToken($parameters) {
 		$tokenParameters = array(
-			'foreign_table' => $parameters['current']['table'],
-			'foreign_key' => $key = key($parameters['current']['conditions']),
-			'foreign_value' => $parameters['current']['conditions'][$key],
-			'string' => $this->_createTokenString($parameters)
-		);
-
-		$existingToken = $this->find('tokens', array(
-			'conditions' => $tokenParameters,
+			'conditions' => array(
+				'foreign_table' => $parameters['current']['table'],
+				'foreign_key' => $key = key($parameters['current']['conditions']),
+				'foreign_value' => $parameters['current']['conditions'][$key],
+				'string' => $this->_createTokenString($parameters)
+			),
 			'fields' => array(
 				'id'
 			),
@@ -111,28 +109,23 @@ class AppModel extends Config {
 				'field' => 'modified',
 				'order' => 'DESC'
 			)
-		));
+		);
+
+		$existingToken = $this->find('tokens', $tokenParameters);
 
 		if (!empty($existingToken['data'][0])) {
-			$tokenParameters['id'] = $existingToken['data'][0];
+			$tokenParameters['conditions']['id'] = $existingToken['data'][0];
 		}
 
 		$this->save('tokens', array(
-			$tokenParameters
+			$tokenParameters['conditions']
 		));
-		$token = $this->find('tokens', array(
-			'conditions' => $tokenParameters,
-			'fields' => array(
-				'id',
-				'string',
-				'created'
-			),
-			'sort' => array(
-				'field' => 'modified',
-				'order' => 'DESC'
-			)
-		));
-
+		$tokenParameters['fields'] = array(
+			'id',
+			'string',
+			'created'
+		);
+		$token = $this->find('tokens', $tokenParameters);
 		return !empty($token['data'][0]) ? $token['data'][0] : array();
 	}
 
@@ -199,27 +192,37 @@ class AppModel extends Config {
  * @return array $response Response data
  */
 	protected function _processAction($table, $parameters) {
-		if (!method_exists($this, $actionMethod = $parameters['current']['action'])) {
+		if (
+			!method_exists($this, $actionMethod = $parameters['current']['action']) ||
+			($token = $parameters['current']['token'] = $this->_getToken($parameters)) === false
+		) {
 			return false;
 		}
 
-		$token = $this->_getToken($parameters);
+		$response = array(
+			'grid' => $parameters['current']['grid'] = isset($parameters['current']['grid']) ? $parameters['current']['grid'] : array(),
+			'token' => $token
+		);
 
-		if (empty($token['string'])) {
-			return false;
+		if (
+			empty($parameters['previous']['token']) ||
+			(
+				!empty($parameters['previous']['token']) &&
+				$parameters['previous']['token'] === $token
+			)
+		) {
+			if (!in_array($actionMethod, array('find', 'search'))) {
+				$parameters['current']['unserialized_grid'] = $this->_unserializeGrid($parameters);
+			}
+
+			$response = array_merge($this->$actionMethod($table, $parameters['current']), $response);
+		} else {
+			$actionMethod = 'find';
+			$parameters['current']['grid'] = $response['grid'] = array();
+			$response['message'] = 'Your ' . $parameters['current']['table'] . ' have been recently modified and your previously-selected results have been deselected automatically.';
 		}
 
-		$parameters['current']['token'] = $token;
-
-		if (!empty($parameters['current']['grid'])) {
-			$parameters['current']['unserialized_grid'] = $this->_unserializeGrid($parameters);
-		}
-
-		$response = array_merge($this->$actionMethod($table, $parameters['current']), array(
-			'grid' => $parameters['current']['grid'],
-			'token' => $parameters['current']['token']
-		));
-
+		$response = array_merge($this->$actionMethod($table, $parameters['current']), $response);
 		return $response;
 	}
 
@@ -273,7 +276,7 @@ class AppModel extends Config {
 			is_string($request['json'])
 		) {
 			$parameters = json_decode($request['json'], true);
-			$response['message'] = 'Failed to retrieve request data, please try again.';
+			$response['message'] = 'No results found, please try again.';
 
 			if (
 				empty($parameters['current']['table']) ||
@@ -327,8 +330,7 @@ class AppModel extends Config {
 
 							if (!empty($queryResponse)) {
 								$response = array_merge($queryResponse, array(
-									'code' => 200,
-									'message' => 'API request successful.'
+									'code' => 200
 								));
 							}
 						}
@@ -345,49 +347,43 @@ class AppModel extends Config {
  *
  * @param array $parameters Parameters
  *
- * @return array $grid Grid
+ * @return array Grid
  */
 	protected function _unserializeGrid($parameters) {
 		$grid = array();
 		$gridLines = $parameters['current']['grid'];
 		$index = 0;
 
-		if (
-			!empty($parameters['previous']['token']) &&
-			$parameters['previous']['token'] === $parameters['current']['token']
-		) {
-			foreach ($gridLines as $gridLineKey => $gridLine) {
-				$gridLineChunks = explode('_', $gridLine);
+		foreach ($gridLines as $gridLineKey => $gridLine) {
+			$gridLineChunks = explode('_', $gridLine);
 
-				foreach ($gridLineChunks as $gridLineChunkKey => $gridLineChunk) {
-					$itemStatus = substr($gridLineChunk, 0, 1);
-					$itemStatusCount = substr($gridLineChunk, 1);
+			foreach ($gridLineChunks as $gridLineChunkKey => $gridLineChunk) {
+				$itemStatus = substr($gridLineChunk, 0, 1);
+				$itemStatusCount = substr($gridLineChunk, 1);
 
-					if ($itemStatus) {
-						for ($i = 0; $i < $itemStatusCount; $i++) {
-							$grid[$index + $i] = 1;
-						}
+				if ($itemStatus) {
+					for ($i = 0; $i < $itemStatusCount; $i++) {
+						$grid[$index + $i] = 1;
 					}
-
-					$index += $itemStatusCount;
 				}
-			}
 
-			unset($parameters['current']['offset']);
-			$ids = $this->find($parameters['current']['table'], array_merge($parameters['current'], array(
-				'fields' => array(
-					'id'
-				),
-				'limit' => $index,
-				'offset' => 0
-			)));
-
-			if (!empty($ids['data'])) {
-				$grid = array_intersect_key($ids['data'], $grid);
+				$index += $itemStatusCount;
 			}
 		}
 
-		return $grid;
+		unset($parameters['current']['offset']);
+		$ids = $this->find($parameters['current']['table'], array_merge($parameters['current'], array(
+			'fields' => array(
+				'id'
+			),
+			'limit' => $index,
+			'offset' => 0
+		)));
+
+		return array(
+			'count' => count($grid),
+			'data' => !empty($ids['data']) ? array_intersect_key($ids['data'], $grid) : array()
+		);
 	}
 
 /**
@@ -463,7 +459,8 @@ class AppModel extends Config {
 
 		return array(
 			'count' => !empty($count[0]['COUNT(id)']) ? $count[0]['COUNT(id)'] : 0,
-			'data' => $this->_query('SELECT ' . (!empty($parameters['fields']) && is_array($parameters['fields']) ? implode(',', $parameters['fields']) : '*') . $query, (count($parameters['fields']) === 1 ? false : true))
+			'data' => $this->_query('SELECT ' . (!empty($parameters['fields']) && is_array($parameters['fields']) ? implode(',', $parameters['fields']) : '*') . $query, (count($parameters['fields']) === 1 ? false : true)),
+			'message' => ''
 		);
 	}
 

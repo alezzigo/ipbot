@@ -71,6 +71,11 @@ var processItems = (currentPage = 1) => {
 			itemGrid = selectionStatus ? itemGrid : [];
 			processItemGrid(range(0, selectAllElements('tr .checkbox').length - 1));
 		};
+
+		if (!itemGrid.length) {
+			elements.html('.total-checked', 0);
+		}
+
 		itemIndexes.map((itemIndex) => {
 			var index = ((currentPage * resultsPerPage) - resultsPerPage) + +itemIndex,
 				item = document.querySelector('.checkbox[index="' + itemIndex + '"]'),
@@ -148,7 +153,7 @@ var processItems = (currentPage = 1) => {
 		}
 
 		processWindowEvents(windowEvents, 'resize');
-		+elements.html('.total-checked') ? elements.removeClass('span.icon[proxy-function]', 'hidden') : elements.addClass('span.icon[proxy-function]', 'hidden');
+		+elements.html('.total-checked') ? elements.removeClass('span.icon[item-function]', 'hidden') : elements.addClass('span.icon[item-function]', 'hidden');
 		itemGridCount = itemCount;
 	};
 	pagination.querySelector('.next').setAttribute('page', 0);
@@ -161,17 +166,13 @@ var processItems = (currentPage = 1) => {
 		requestParameters.current.limit = resultsPerPage,
 		requestParameters.current.offset = ((currentPage * resultsPerPage) - resultsPerPage);
 	sendRequest(requestParameters, (response) => {
+		items.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+
 		if (response.code !== 200) {
-			items.innerHTML = 'There was an error processing your request, please reload the page.' + (response.message ? ' ' + response.message : '');
 			return;
 		}
 
-		if (!response.count) {
-			items.innerHTML = 'No results found, please try again.';
-			return;
-		}
-
-		items.innerHTML = '<table class="table"></table>';
+		items.innerHTML += '<table class="table"></table>';
 		response.data.map((item, index) => {
 			items.querySelector('table').innerHTML += '<tr page="' + currentPage + '" proxy_id="' + item.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" proxy_id="' + item.id + '"></span></td><td><span class="details-container"><span class="details">' + item.status + ' Proxy IP ' + item.ip + ' Location ' + item.city + ', ' + item.region + ' ' + item.country_code + ' <span class="icon-container"><img src="../../resources/images/icons/flags/' + item.country_code.toLowerCase() + '.png" class="flag" alt="' + item.country_code + ' flag"></span> ISP ' + item.asn + ' Timezone ' + item.timezone + ' HTTP + HTTPS Port ' + (item.disable_http == 1 ? 'Disabled' : '80') + ' Whitelisted IPs ' + (item.whitelisted_ips ? '<textarea>' + item.whitelisted_ips + '</textarea>' : 'N/A') + ' Username ' + (item.username ? item.username : 'N/A') + ' Password ' + (item.password ? item.password : 'N/A') + '</span></span><span class="table-text">' + item.ip + '</span></td>';
 		});

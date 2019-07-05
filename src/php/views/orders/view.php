@@ -12,11 +12,6 @@
 		<h1><?php echo $data['order']['name']; ?></h1>
 		<div class="item-container proxy-configuration-container">
 			<div class="item">
-				<?php
-					if (!empty($search)) {
-						echo '<strong>0 proxy results</strong> found with your search criteria.';
-					}
-				?>
 				<div class="item-body loading">
 					<p class="no-margin-bottom">Loading...</p>
 				</div>
@@ -49,35 +44,8 @@
 						</div>
 					</div>
 					<div class="item-body">
-						<form action="<?php echo $_SERVER['REQUEST_URI']; ?>" method="post">
-							<?php
-								$hiddenFields = array(
-									'broad_search' => '',
-									'match_all_search' => '',
-									'exclude_search' => '',
-									'granular_search' => '',
-									'instant_replacement' => '0',
-									'auto_replacement_interval_type' => 'month',
-									'auto_replacement_interval_value' => '0',
-									'leave_replacement_online_hours' => '0',
-									'location_replacements' => '',
-									'order_id' => $data['order']['id'],
-									'preferred_subnet' => '',
-									'generate_unique' => '0',
-									'disable_http' => '0',
-									'configuration_action' => '',
-									'username' => '',
-									'password' => '',
-									'authorized_ips' => '',
-									'group_name' => ''
-								);
-
-								foreach ($hiddenFields as $fieldName => $fieldValue) {
-									echo '<input class="' . str_replace('_', '-', $fieldName) . '" name="' . $fieldName . '" type="hidden" value="' . $fieldValue . '">';
-								}
-							?>
-							<div class="proxy-table" previous_checked="0"></div>
-						</form>
+						<input name='order_id' type='hidden' value="<?php echo $data['order']['id']; ?>">
+						<div class="proxy-table" previous_checked="0"></div>
 					</div>
 				</div>
 			</div>

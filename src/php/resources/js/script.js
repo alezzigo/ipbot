@@ -38,7 +38,7 @@ var onLoad = (callback) => {
 	document.readyState != 'complete' ? setTimeout('onLoad(' + callback + ')', 10) : callback();
 };
 var processItems = (currentPage = 1) => {
-	var items = document.querySelector('.proxy-configuration .proxy-table'),
+	var items = document.querySelector('.item-configuration .item-table'),
 		pagination = document.querySelector('.pagination');
 	var resultsPerPage = +pagination.getAttribute('results');
 	var itemToggle = (item) => {
@@ -158,7 +158,7 @@ var processItems = (currentPage = 1) => {
 	};
 	pagination.querySelector('.next').setAttribute('page', 0);
 	pagination.querySelector('.previous').setAttribute('page', 0);
-	items.innerHTML = '<p>Loading ...</p>';
+	items.innerHTML = '<p class="message no-margin-bottom">Loading ...</p>';
 	requestParameters.current.conditions = {
 		order_id: document.querySelector('input[name="order_id"]').value
 	},
@@ -182,7 +182,7 @@ var processItems = (currentPage = 1) => {
 		pagination.setAttribute('current_page', currentPage);
 		pagination.querySelector('.next').setAttribute('page', +elements.html('.last-result') < response.count ? currentPage + 1 : 0);
 		pagination.querySelector('.previous').setAttribute('page', currentPage <= 0 ? 0 : currentPage - 1);
-		elements.loop('.proxy-configuration tr', (index, row) => {
+		elements.loop('.item-configuration tr', (index, row) => {
 			var item = row.querySelector('.checkbox');
 			item.removeEventListener('click', item.listener);
 			item.listener = () => {
@@ -302,9 +302,6 @@ if (
 }
 
 onLoad(() => {
-	elements.removeClass('.proxy-configuration', 'hidden');
-	elements.addClass('.loading', 'hidden');
-
 	if (document.querySelector('.pagination')) {
 		processItems();
 		selectAllElements('.pagination .button').map((element) => {

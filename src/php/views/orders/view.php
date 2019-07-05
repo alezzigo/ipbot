@@ -10,15 +10,12 @@
 <main class="section">
 	<div class="container small">
 		<h1><?php echo $data['order']['name']; ?></h1>
-		<div class="item-container proxy-configuration-container">
+		<div class="item-container item-configuration-container">
 			<div class="item">
-				<div class="item-body loading">
-					<p class="no-margin-bottom">Loading...</p>
-				</div>
-				<div class="proxy-configuration hidden">
-					<div class="proxy-controls-container controls-container scrollable">
+				<div class="item-configuration">
+					<div class="item-controls-container controls-container scrollable">
 						<div class="item-header">
-							<div class="proxy-controls">
+							<div class="item-controls">
 								<div class="align-right">
 									<span class="pagination" current_page="1" results="<?php echo $data['pagination']['results_per_page']; ?>">
 										<span class="align-left results">
@@ -45,7 +42,7 @@
 					</div>
 					<div class="item-body">
 						<input name='order_id' type='hidden' value="<?php echo $data['order']['id']; ?>">
-						<div class="proxy-table" previous_checked="0"></div>
+						<div class="item-table" previous_checked="0"></div>
 					</div>
 				</div>
 			</div>

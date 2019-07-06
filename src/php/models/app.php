@@ -17,8 +17,8 @@ class AppModel extends Config {
  * @return array Token string
  */
 	protected function _createTokenString($parameters) {
-		return sha1($this->config['database']['sanitizeKeys']['hashSalt'] . json_encode($this->find($parameters['current']['table'], array(
-			'conditions' => $parameters['current']['conditions'],
+		return sha1($this->config['database']['sanitizeKeys']['hashSalt'] . json_encode($this->find($parameters['table'], array(
+			'conditions' => $parameters['conditions'],
 			'fields' => array(
 				'id'
 			),
@@ -96,9 +96,9 @@ class AppModel extends Config {
 	protected function _getToken($parameters) {
 		$tokenParameters = array(
 			'conditions' => array(
-				'foreign_table' => $parameters['current']['table'],
-				'foreign_key' => $key = key($parameters['current']['conditions']),
-				'foreign_value' => $parameters['current']['conditions'][$key],
+				'foreign_table' => $parameters['table'],
+				'foreign_key' => $key = key($parameters['conditions']),
+				'foreign_value' => $parameters['conditions'][$key],
 				'string' => $this->_createTokenString($parameters)
 			),
 			'fields' => array(
@@ -189,41 +189,35 @@ class AppModel extends Config {
  * @param string $table Table name
  * @param array $parameters Action query parameters
  *
- * @return array $response Response data
+ * @return array Response data
  */
 	protected function _processAction($table, $parameters) {
 		if (
-			!method_exists($this, $actionMethod = $parameters['current']['action']) ||
-			($token = $parameters['current']['token'] = $this->_getToken($parameters)) === false
+			!method_exists($this, $action = $parameters['action']) ||
+			($token = $this->_getToken($parameters)) === false
 		) {
 			return false;
 		}
 
 		$response = array(
-			'grid' => $parameters['current']['grid'] = isset($parameters['current']['grid']) ? $parameters['current']['grid'] : array(),
+			'grid' => $parameters['grid'] = isset($parameters['grid']) ? $parameters['grid'] : array(),
 			'token' => $token
 		);
 
 		if (
-			empty($parameters['previous']['token']) ||
-			(
-				!empty($parameters['previous']['token']) &&
-				$parameters['previous']['token'] === $token
-			)
+			empty($parameters['token']) ||
+			$parameters['token'] === $token
 		) {
-			if (!in_array($actionMethod, array('find', 'search'))) {
-				$parameters['current']['unserialized_grid'] = $this->_unserializeGrid($parameters);
+			if (!in_array($action, array('find', 'search'))) {
+				$parameters['unserialized_grid'] = $this->_unserializeGrid($parameters);
 			}
-
-			$response = array_merge($this->$actionMethod($table, $parameters['current']), $response);
 		} else {
-			$actionMethod = 'find';
-			$parameters['current']['grid'] = $response['grid'] = array();
-			$response['message'] = 'Your ' . $parameters['current']['table'] . ' have been recently modified and your previously-selected results have been deselected automatically.';
+			$action = 'find';
+			$response['grid'] = array();
+			$response['message'] = 'Your ' . $parameters['table'] . ' have been recently modified and your previously-selected results have been deselected automatically.';
 		}
 
-		$response = array_merge($this->$actionMethod($table, $parameters['current']), $response);
-		return $response;
+		return array_merge($this->$action($table, $parameters), $response);
 	}
 
 /**
@@ -232,7 +226,7 @@ class AppModel extends Config {
  * @param string $query Query string
  * @param boolean $associative True to fetch associative data, false to fetch list of values
  *
- * @return array $result Return associative array if data exists, otherwise return boolean ($execute)
+ * @return array $result|$execute Return array if data exists ($result), otherwise return boolean ($execute)
  */
 	protected function _query($query, $associative = true) {
 		$database = new PDO($this->config['database']['type'] . ':host=' . $this->config['database']['hostname'] . '; dbname=' . $this->config['database']['name'] . '; charset=' . $this->config['database']['charset'], $this->config['database']['username'], $this->config['database']['password']);
@@ -279,54 +273,54 @@ class AppModel extends Config {
 			$response['message'] = 'No results found, please try again.';
 
 			if (
-				empty($parameters['current']['table']) ||
-				empty($this->permissions['api'][$parameters['current']['table']])
+				empty($parameters['table']) ||
+				empty($this->permissions['api'][$parameters['table']])
 			) {
 				$response['message'] = 'Invalid request table, please try again.';
 			} else {
 				if (
-					($parameters['current']['action'] = $action = (!empty($parameters['current']['action']) ? $parameters['current']['action'] : 'find')) &&
+					($parameters['action'] = $action = (!empty($parameters['action']) ? $parameters['action'] : 'find')) &&
 					(
-						empty($this->permissions['api'][$parameters['current']['table']][$action]) ||
-						!method_exists($this, $parameters['current']['action'])
+						empty($this->permissions['api'][$parameters['table']][$action]) ||
+						!method_exists($this, $parameters['action'])
 					)
 				) {
 					$response['message'] = 'Invalid request action, please try again.';
 				} else {
 					if (
-						($fieldPermissions = $this->permissions['api'][$parameters['current']['table']][$action]['fields']) &&
-						($parameters['current']['fields'] = $fields = !empty($parameters['current']['fields']) ? $parameters['current']['fields'] : $fieldPermissions) &&
+						($fieldPermissions = $this->permissions['api'][$parameters['table']][$action]['fields']) &&
+						($parameters['fields'] = $fields = !empty($parameters['fields']) ? $parameters['fields'] : $fieldPermissions) &&
 						count(array_intersect($fields, $fieldPermissions)) !== count($fields)
 					) {
 						$response['message'] = 'Invalid request fields, please try again.';
 					} else {
 						if (
 							(
-								empty($parameters['current']['conditions']) ||
-								!is_array($parameters['current']['conditions'])
+								empty($parameters['conditions']) ||
+								!is_array($parameters['conditions'])
 							) ||
 							(
-								!isset($parameters['current']['limit']) ||
-								!is_int($parameters['current']['limit'])
+								!isset($parameters['limit']) ||
+								!is_int($parameters['limit'])
 							) ||
 							(
-								isset($parameters['current']['offset']) &&
-								!is_int($parameters['current']['offset'])
+								isset($parameters['offset']) &&
+								!is_int($parameters['offset'])
 							) ||
 							(
 								(
-									!empty($parameters['current']['sort']['field']) &&
-									!in_array($parameters['current']['sort']['field'], $fieldPermissions)
+									!empty($parameters['sort']['field']) &&
+									!in_array($parameters['sort']['field'], $fieldPermissions)
 								) ||
 								(
-									!empty($parameters['current']['sort']['order']) &&
-									!in_array(strtoupper($parameters['current']['sort']['order']), array('ASC', 'DESC'))
+									!empty($parameters['sort']['order']) &&
+									!in_array(strtoupper($parameters['sort']['order']), array('ASC', 'DESC'))
 								)
 							)
 						) {
 							$response['message'] = 'Invalid request parameters, please try again.';
 						} else {
-							$queryResponse = $this->_processAction($parameters['current']['table'], $parameters);
+							$queryResponse = $this->_processAction($parameters['table'], $parameters);
 
 							if (!empty($queryResponse)) {
 								$response = array_merge($queryResponse, array(
@@ -351,7 +345,7 @@ class AppModel extends Config {
  */
 	protected function _unserializeGrid($parameters) {
 		$grid = array();
-		$gridLines = $parameters['current']['grid'];
+		$gridLines = $parameters['grid'];
 		$index = 0;
 
 		foreach ($gridLines as $gridLineKey => $gridLine) {
@@ -371,8 +365,8 @@ class AppModel extends Config {
 			}
 		}
 
-		unset($parameters['current']['offset']);
-		$ids = $this->find($parameters['current']['table'], array_merge($parameters['current'], array(
+		unset($parameters['offset']);
+		$ids = $this->find($parameters['table'], array_merge($parameters, array(
 			'fields' => array(
 				'id'
 			),

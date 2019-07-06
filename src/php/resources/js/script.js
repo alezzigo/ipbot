@@ -3,7 +3,7 @@
 var closeWindows = () => {
 	document.querySelector('main').classList.remove('hidden');
 	elements.addClass('.window-container', 'hidden');
-	requestParameters.current.data = {};
+	requestParameters.data = {};
 };
 var elements = {
 	addClass: (selector, className) => {
@@ -159,13 +159,13 @@ var processItems = (currentPage = 1) => {
 	pagination.querySelector('.next').setAttribute('page', 0);
 	pagination.querySelector('.previous').setAttribute('page', 0);
 	items.innerHTML = '<p class="message no-margin-bottom">Loading ...</p>';
-	requestParameters.current.conditions = {
+	requestParameters.conditions = {
 		order_id: document.querySelector('input[name="order_id"]').value
 	},
-		requestParameters.current.grid = itemGrid,
-		requestParameters.current.limit = resultsPerPage,
-		requestParameters.current.offset = ((currentPage * resultsPerPage) - resultsPerPage);
-	sendRequest(requestParameters, (response) => {
+		requestParameters.grid = itemGrid,
+		requestParameters.limit = resultsPerPage,
+		requestParameters.offset = ((currentPage * resultsPerPage) - resultsPerPage);
+	sendRequest((response) => {
 		items.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
 
 		if (response.code !== 200) {
@@ -191,9 +191,8 @@ var processItems = (currentPage = 1) => {
 			item.addEventListener('click', item.listener);
 		});
 		itemGrid = response.grid;
-		requestParameters.current.token = response.token;
 		processItemGrid(range(0, response.data.length - 1));
-		requestParameters.previous = requestParameters.current;
+		requestParameters.token = response.token;
 	});
 };
 var processWindowEvents = (windowEvents, event = null) => {
@@ -253,20 +252,18 @@ var replaceCharacter = (string, index, character) => {
 	return string.substr(0, index) + character + string.substr(index + ('' + character).length);
 };
 var requestParameters = {
-	current: {
-		action: 'find',
-		sort: {
-			field: 'modified',
-			order: 'DESC'
-		},
-		table: 'proxies',
+	action: 'find',
+	sort: {
+		field: 'modified',
+		order: 'DESC'
 	},
+	table: 'proxies',
 	url: '/src/php/views/api.php'
 };
 var selectAllElements = (selector) => {
 	return Object.entries(document.querySelectorAll(selector));
 };
-var sendRequest = (requestParameters, callback) => {
+var sendRequest = (callback) => {
 	var request = new XMLHttpRequest();
 	request.open('POST', requestParameters.url, true);
 	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -347,12 +344,14 @@ onLoad(() => {
 			var form = '.window-container[window="' + action + '"]';
 			closeWindows();
 			elements.loop(form + ' input, ' + form + ' select, ' + form + ' textarea', (index, element) => {
-				requestParameters.current.data[element.getAttribute('name')] = element.value;
+				requestParameters.data[element.getAttribute('name')] = element.value;
 			});
 			elements.loop(form + ' .checkbox', (index, element) => {
-				requestParameters.current.data[element.getAttribute('name')] = +element.getAttribute('checked');
+				requestParameters.data[element.getAttribute('name')] = +element.getAttribute('checked');
 			});
-			requestParameters.current.action = action;
+			requestParameters.action = action;
+			itemGrid = [];
+			itemGridCount = 0;
 			processItems();
 		});
 	});

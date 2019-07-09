@@ -634,12 +634,13 @@ class AppModel extends Config {
 				$processingNodes = $this->find('nodes', array(
 					'conditions' => array(
 						'OR' => array(
-							array(
-								'processing' => 1
+							'AND' => array(
+								'allocated' => 0,
+								'processing' => 0
 							),
 							'AND' => array(
 								'allocated' => 0,
-								'modified <' =>  date('Y-m-d H:i:s', strtotime('-1 minute'))
+								'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute'))
 							)
 						)
 					),
@@ -665,7 +666,7 @@ class AppModel extends Config {
 				} else {
 					$allocatedNodes = array();
 					$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, $parameters['unserialized_grid']['count'], array(
-						'processing' => true
+						'processing' => 1
 					)));
 					$this->save('nodes', $processingNodes['data']);
 

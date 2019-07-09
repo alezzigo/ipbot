@@ -350,8 +350,12 @@ onLoad(() => {
 				requestParameters.data[element.getAttribute('name')] = +element.getAttribute('checked');
 			});
 			requestParameters.action = action;
-			itemGrid = [];
-			itemGridCount = 0;
+
+			if (action == 'search') {
+				itemGrid = [];
+				itemGridCount = 0;
+			}
+
 			processItems();
 		});
 	});

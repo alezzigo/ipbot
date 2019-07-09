@@ -11,16 +11,17 @@
 				'database' => array(
 					'charset' => 'utf8',
 					'hostname' => '127.0.0.1',
-					'name' => 'database_name',
-					'password' => '',
-					'type' => 'mysql',
-					'username' => 'root',
+					'findDataRowChunkSize' => 100000,
+					'name' => 'proxybot',
+					'password' => 'password',
 					'sanitizeKeys' => array(
 						'hashEnd' => 'k84jru42our7ji484s$G',
 						'hashSalt' => '_-.-_-',
 						'hashStart' => 'i9r8302-jod8^%4i397744'
 					),
-					'saveDataRowChunkSize' => 1000
+					'saveDataRowChunkSize' => 1000,
+					'type' => 'mysql',
+					'username' => 'root'
 				),
 				'base_url' => '/src/php/'
 			);
@@ -72,6 +73,27 @@
 								'status'
 							)
 						),
+						'replace' => array(
+							'fields' => array(
+								'id',
+								'order_id',
+								'ip',
+								'http_port',
+								'asn',
+								'isp',
+								'city',
+								'region',
+								'country_name',
+								'country_code',
+								'timezone',
+								'whitelisted_ips',
+								'username',
+								'password',
+								'status',
+								'created',
+								'modified'
+							)
+						),
 						'search' => array(
 							'fields' => array(
 								'id',
@@ -101,6 +123,7 @@
 				'end' => $this->config['database']['sanitizeKeys']['hashSalt'] . '-' . $this->config['database']['sanitizeKeys']['hashEnd'] . '-' . $this->config['database']['sanitizeKeys']['hashSalt'],
 				'start' => $this->config['database']['sanitizeKeys']['hashSalt'] . '-' . $this->config['database']['sanitizeKeys']['hashStart'] . '-' . $this->config['database']['sanitizeKeys']['hashSalt']
 			);
+
 		}
 
 	}

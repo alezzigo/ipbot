@@ -64,17 +64,19 @@ class AppModel extends Config {
  * @return array $conditions SQL query conditions
  */
 	protected function _formatConditionsToSQL($conditions = array(), $condition = 'OR') {
+		$operators = array('>', '>=', '<', '<=', '=', '!=');
+
 		foreach ($conditions as $key => $value) {
 			$condition = !empty($key) && (in_array($key, array('AND', 'OR'))) ? $key : $condition;
 
 			if (count($value) == count($value, COUNT_RECURSIVE)) {
 				if (is_array($value)) {
-					$key = (strlen($key) > 1 && is_string($key) ? $key : null);
-					array_walk($value, function(&$fieldValue, $fieldKey) use ($key) {
-						$fieldValue = (strlen($fieldKey) > 1 && is_string($fieldKey) ? $fieldKey : $key) . ' LIKE ' . $this->_prepareValue($fieldValue);
+					array_walk($value, function(&$fieldValue, $fieldKey) use ($key, $operators) {
+						$key = (strlen($fieldKey) > 1 && is_string($fieldKey) ? $fieldKey : $key);
+						$fieldValue = trim(in_array($operator = trim(substr($key, strpos($key, ' '))), $operators) ? $key : $key . ' LIKE') . ' ' . $this->_prepareValue($fieldValue);
 					});
 				} else {
-					$value = array($key . ' LIKE ' . $this->_prepareValue($value));
+					$value = array(trim(in_array($operator = trim(substr($key, strpos($key, ' '))), $operators) ? $key : $key . ' LIKE') . ' ' . $this->_prepareValue($value));
 				}
 
 				$conditions[$key] = '(' . implode(' ' . $condition . ' ', $value) . ')';
@@ -104,11 +106,7 @@ class AppModel extends Config {
 			'fields' => array(
 				'id'
 			),
-			'limit' => 1,
-			'sort' => array(
-				'field' => 'modified',
-				'order' => 'DESC'
-			)
+			'limit' => 1
 		);
 
 		$existingToken = $this->find('tokens', $tokenParameters);
@@ -122,6 +120,9 @@ class AppModel extends Config {
 		));
 		$tokenParameters['fields'] = array(
 			'id',
+			'foreign_table',
+			'foreign_key',
+			'foreign_value',
 			'string',
 			'created'
 		);
@@ -217,19 +218,20 @@ class AppModel extends Config {
 			$response['message'] = 'Your ' . $parameters['table'] . ' have been recently modified and your previously-selected results have been deselected automatically.';
 		}
 
-		return array_merge($this->$action($table, $parameters), $response);
+		return array_merge($response, $this->$action($table, $parameters));
 	}
 
 /**
  * Construct and execute database queries
  *
  * @param string $query Query string
- * @param boolean $associative True to fetch associative data, false to fetch list of values
+ * @param array $parameters Parameters
  *
- * @return array $result|$execute Return array if data exists ($result), otherwise return boolean ($execute)
+ * @return array $response Return data if query results exists, otherwise return boolean status
  */
-	protected function _query($query, $associative = true) {
-		$database = new PDO($this->config['database']['type'] . ':host=' . $this->config['database']['hostname'] . '; dbname=' . $this->config['database']['name'] . '; charset=' . $this->config['database']['charset'], $this->config['database']['username'], $this->config['database']['password']);
+	protected function _query($query, $parameters = array()) {
+		$database = new PDO($this->config['database']['type'] . ':host=' . $this->config['database']['hostname'] . '; dbname=' . $this->config['database']['name'] . ';', $this->config['database']['username'], $this->config['database']['password']);
+		$database->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 		$database->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 		$parameterized = $this->_parameterizeSQL($query);
 
@@ -238,6 +240,7 @@ class AppModel extends Config {
 		}
 
 		$connection = $database->prepare($parameterized['parameterizedQuery']);
+		$data = array();
 
 		if (
 			empty($connection) ||
@@ -246,10 +249,24 @@ class AppModel extends Config {
 			return false;
 		}
 
-		$execute = $connection->execute(!empty($parameterized['parameterizedValues']) ? $parameterized['parameterizedValues'] : array());
-		$result = $connection->fetchAll($associative ? PDO::FETCH_ASSOC : PDO::FETCH_COLUMN);
+		$findDataRowChunkSize = (!empty($this->config['database']['findDataRowChunkSize']) ? (integer) $this->config['database']['findDataRowChunkSize'] : 100000);
+		$hasResults = (!empty($parameters['count']) && !empty($parameters['limit']));
+
+		foreach (array_fill(0, max(1, ($hasResults ? round($parameters['limit'] / $findDataRowChunkSize, 1, PHP_ROUND_HALF_UP) : 1)), true) as $chunkIndex => $value) {
+			if ($hasResults) {
+				end($parameterized['parameterizedValues']);
+				$offset = $parameterized['parameterizedValues'][key($parameterized['parameterizedValues'])] = $chunkIndex * $findDataRowChunkSize;
+				$limit = prev($parameterized['parameterizedValues']);
+				$parameterized['parameterizedValues'][key($parameterized['parameterizedValues'])] = $parameters['limit'] > $findDataRowChunkSize ? ($offset + $findDataRowChunkSize) < $parameters['count'] ? $findDataRowChunkSize : $parameters['count'] - $offset : $parameters['limit'];
+			}
+
+			$execute = $connection->execute($parameterized['parameterizedValues']);
+			$data[] = $connection->fetchAll(!empty($parameters['field_count']) && $parameters['field_count'] === 1 ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC);
+		}
+
+		$response = !empty($data[0]) ? call_user_func_array('array_merge', $data) : $execute;
 		$connection->closeCursor();
-		return !empty($result) ? $result : $execute;
+		return $response;
 	}
 
 /**
@@ -365,10 +382,18 @@ class AppModel extends Config {
 			}
 		}
 
+		if (
+			empty($grid) ||
+			!$index
+		) {
+			return $grid;
+		}
+
 		unset($parameters['offset']);
 		$ids = $this->find($parameters['table'], array_merge($parameters, array(
 			'fields' => array(
-				'id'
+				'id',
+				'node_id'
 			),
 			'limit' => $index,
 			'offset' => 0
@@ -424,10 +449,11 @@ class AppModel extends Config {
  *
  * @param string $table Table name
  * @param array $parameters Find query parameters
+ * @param string $message Message
  *
  * @return array $result Return associative array if it exists, otherwise return boolean ($execute)
  */
-	public function find($table, $parameters = array()) {
+	public function find($table, $parameters = array(), $message = '') {
 		$query = ' FROM ' . $table;
 
 		if (
@@ -443,18 +469,21 @@ class AppModel extends Config {
 			$query .= ' ORDER BY ' . $parameters['sort']['field'] . ' ' . (!empty($parameters['sort']['order']) ? $parameters['sort']['order'] : 'DESC');
 		}
 
-		if (!empty($parameters['limit'])) {
-			$query .= ' LIMIT ' . $this->_prepareValue($parameters['limit']);
-		}
+		$parameters = array_merge($parameters, array(
+			'count' => $count = $parameters['count'] = !empty($count[0]['COUNT(id)']) ? $count[0]['COUNT(id)'] : 0,
+			'field_count' => !empty($parameters['fields']) && is_array($parameters['fields']) ? count($parameters['fields']) : 0,
+			'limit' => !empty($parameters['limit']) && $parameters['limit'] < $count ? $parameters['limit'] : $count,
+			'offset' => !empty($parameters['offset']) ? !empty($parameters['offset']) : 0
+		));
 
-		if (!empty($parameters['offset'])) {
-			$query .= ' OFFSET ' . $this->_prepareValue($parameters['offset']);
-		}
+		$query = 'SELECT ' . (!empty($parameters['fields']) && is_array($parameters['fields']) ? implode(',', $parameters['fields']) : '*') . $query;
+		$query .= ' LIMIT ' . $this->_prepareValue($parameters['limit']) . ' OFFSET ' . $this->_prepareValue($parameters['offset']);
+		$data = $this->_query($query, $parameters);
 
 		return array(
-			'count' => !empty($count[0]['COUNT(id)']) ? $count[0]['COUNT(id)'] : 0,
-			'data' => $this->_query('SELECT ' . (!empty($parameters['fields']) && is_array($parameters['fields']) ? implode(',', $parameters['fields']) : '*') . $query, (count($parameters['fields']) === 1 ? false : true)),
-			'message' => ''
+			'count' => $count,
+			'data' => $data,
+			'message' => $message
 		);
 	}
 
@@ -534,6 +563,141 @@ class AppModel extends Config {
 		}
 
 		return $success;
+	}
+
+/**
+ * Process replace requests
+ * @todo Retrieve user ID from auth token, validate next_replacement_available, remove replaced proxies on replacement_removal_date with cron
+ *
+ * @param string $table Table name
+ * @param array $parameters Replace query parameters
+ *
+ * @return array $response Response data
+ */
+	public function replace($table, $parameters) {
+		$response = array(
+			'message' => 'No items were selected to replace, please try again.'
+		);
+
+		if (
+			!empty($parameters['unserialized_grid']['count']) &&
+			is_array($parameters['unserialized_grid']['data'])
+		) {
+			$response['message'] = 'There was an error applying the replacement settings to your ' . $table . ', please try again';
+			$newItemData = $oldItemData = array();
+
+			if (
+				(
+					!empty($parameters['data']['automatic_replacement_interval_value']) &&
+					is_int($parameters['data']['automatic_replacement_interval_value'])
+				) &&
+				(
+					!empty($parameters['data']['automatic_replacement_interval_type']) &&
+					in_array($automaticReplacementIntervalType = strtolower($parameters['data']['automatic_replacement_interval_type']), array('month', 'week'))
+				) &&
+				!empty($parameters['data']['enable_automatic_replacements'])
+			) {
+				$intervalData = array(
+					'automatic_replacement_interval_value' => $parameters['data']['automatic_replacement_interval_value'],
+					'automatic_replacement_interval_type' => $automaticReplacementIntervalType,
+					'last_replacement_date' => date('Y-m-d H:i:s', time())
+				);
+				$newItemData += $intervalData;
+				$oldItemData += $intervalData;
+			}
+
+			if (!empty($parameters['data']['instant_replacement'])) {
+				$oldItemData += array(
+					'replacement_removal_date' => date('Y-m-d H:i:s', strtotime('+24 hours')),
+					'status' => 'replaced'
+				);
+				$newItemData += array(
+					'user_id' => 1,
+					'order_id' => $parameters['token']['foreign_value'],
+					'next_replacement_available' => date('Y-m-d H:i:s', strtotime('+1 week')),
+					'status' => 'online'
+				);
+			}
+
+			if (
+				!empty($oldItemData) &&
+				$parameters['token'] === $this->_getToken($parameters)
+			) {
+				$oldItemData = array_replace_recursive(array_fill(0, $parameters['unserialized_grid']['count'], $oldItemData), $parameters['unserialized_grid']['data']);
+				$this->save($table, $oldItemData);
+			}
+
+			if (
+				!empty($newItemData) &&
+				($orderId = !empty($parameters['conditions']['order_id']) ? $parameters['conditions']['order_id'] : 0)
+			) {
+				$processingNodes = $this->find('nodes', array(
+					'conditions' => array(
+						'OR' => array(
+							array(
+								'processing' => 1
+							),
+							'AND' => array(
+								'allocated' => 0,
+								'modified <' =>  date('Y-m-d H:i:s', strtotime('-1 minute'))
+							)
+						)
+					),
+					'fields' => array(
+						'id',
+						'ip',
+						'asn',
+						'isp',
+						'city',
+						'region',
+						'country_name',
+						'country_code'
+					),
+					'limit' => $parameters['unserialized_grid']['count'],
+					'sort' => array(
+						'field' => 'id',
+						'order' => 'DESC'
+					)
+				));
+
+				if (count($processingNodes['data']) !== $parameters['unserialized_grid']['count']) {
+					$response['message'] = 'There aren\'t enough ' . $table . ' available to replace your ' . $parameters['unserialized_grid']['count'] . ' selected ' . $table . ', please try again in a few minutes.';
+				} else {
+					$allocatedNodes = array();
+					$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, $parameters['unserialized_grid']['count'], array(
+						'processing' => true
+					)));
+					$this->save('nodes', $processingNodes['data']);
+
+					foreach ($processingNodes['data'] as $key => $row) {
+						$allocatedNodes[] = array(
+							'id' => ($processingNodes['data'][$key]['node_id'] = $processingNodes['data'][$key]['id']),
+							'allocated' => 1,
+							'processing' => 0
+						);
+						$processingNodes['data'][$key] += $newItemData;
+						unset($processingNodes['data'][$key]['id']);
+						unset($processingNodes['data'][$key]['processing']);
+					}
+
+					if (
+						$parameters['token'] === $this->_getToken($parameters) &&
+						$this->save($table, $processingNodes['data']) &&
+						$this->save('nodes', $allocatedNodes)
+					) {
+						$response['message'] = $parameters['unserialized_grid']['count'] . ' ' . $table . ' replaced successfully.';
+					}
+				}
+			}
+		}
+
+		$response = $this->find($table, $parameters, $response['message']);
+
+		if (($response['token'] = $this->_getToken($parameters)) !== $parameters['token']) {
+			$response['grid'] = array();
+		}
+
+		return $response;
 	}
 
 /**

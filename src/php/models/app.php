@@ -633,13 +633,10 @@ class AppModel extends Config {
 			) {
 				$processingNodes = $this->find('nodes', array(
 					'conditions' => array(
-						'OR' => array(
-							'AND' => array(
-								'allocated' => 0,
-								'processing' => 0
-							),
-							'AND' => array(
-								'allocated' => 0,
+						'AND' => array(
+							'allocated' => 0,
+							'OR' => array(
+								'processing' => 0,
 								'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute'))
 							)
 						)

@@ -724,13 +724,15 @@ class AppModel extends Config {
  * @return array $response Response data
  */
 	public function search($table, $parameters) {
-		$broadSearchFields = $this->permissions['api'][$table]['search']['fields'];
 		$conditions = array();
 
-		if (!empty($broadSearchTerms = array_filter(explode(' ', $parameters['data']['broad_search'])))) {
+		if (
+			!empty($broadSearchFields = array_diff($this->permissions['api'][$table]['search']['fields'], array('created', 'modified'))) &&
+			!empty($broadSearchTerms = array_filter(explode(' ', $parameters['data']['broad_search'])))
+		) {
 			$conditions = array_map(function($broadSearchTerm) use ($broadSearchFields) {
 				return array(
-					'OR' => array_fill_keys($broadSearchFields, '%' . $broadSearchTerm . '%')
+					'OR' => array_combine(explode('-', implode(' LIKE' . '-', $broadSearchFields) . ' LIKE'), array_fill(1, count($broadSearchFields), '%' . $broadSearchTerm . '%'))
 				);
 			}, $broadSearchTerms);
 		}

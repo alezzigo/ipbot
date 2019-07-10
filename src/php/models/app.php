@@ -64,7 +64,7 @@ class AppModel extends Config {
  * @return array $conditions SQL query conditions
  */
 	protected function _formatConditionsToSQL($conditions = array(), $condition = 'OR') {
-		$operators = array('>', '>=', '<', '<=', '=', '!=');
+		$operators = array('>', '>=', '<', '<=', '=', '!=', 'LIKE');
 
 		foreach ($conditions as $key => $value) {
 			$condition = !empty($key) && (in_array($key, array('AND', 'OR'))) ? $key : $condition;
@@ -73,10 +73,10 @@ class AppModel extends Config {
 				if (is_array($value)) {
 					array_walk($value, function(&$fieldValue, $fieldKey) use ($key, $operators) {
 						$key = (strlen($fieldKey) > 1 && is_string($fieldKey) ? $fieldKey : $key);
-						$fieldValue = trim(in_array($operator = trim(substr($key, strpos($key, ' '))), $operators) ? $key : $key . ' LIKE') . ' ' . $this->_prepareValue($fieldValue);
+						$fieldValue = (is_null($fieldValue) ? $key . ' IS NULL' : trim(in_array($operator = trim(substr($key, strpos($key, ' '))), $operators) ? $key : $key . ' =') . ' ' . $this->_prepareValue($fieldValue));
 					});
 				} else {
-					$value = array(trim(in_array($operator = trim(substr($key, strpos($key, ' '))), $operators) ? $key : $key . ' LIKE') . ' ' . $this->_prepareValue($value));
+					$value = array((is_null($value) ? $key . ' IS NULL' : trim(in_array($operator = trim(substr($key, strpos($key, ' '))), $operators) ? $key : $key . ' =') . ' ' . $this->_prepareValue($value)));
 				}
 
 				$conditions[$key] = '(' . implode(' ' . $condition . ' ', $value) . ')';
@@ -181,7 +181,7 @@ class AppModel extends Config {
  * @return string Prepared value
  */
 	protected function _prepareValue($value) {
-		return $this->sanitizeKeys['start'] . $value . $this->sanitizeKeys['end'];
+		return $this->sanitizeKeys['start'] . (is_bool($value) ? (integer) $value : $value) . $this->sanitizeKeys['end'];
 	}
 
 /**
@@ -390,19 +390,36 @@ class AppModel extends Config {
 		}
 
 		unset($parameters['offset']);
+
 		$ids = $this->find($parameters['table'], array_merge($parameters, array(
 			'fields' => array(
-				'id',
-				'node_id'
+				'id'
 			),
-			'limit' => $index,
+			'limit' => end($grid) ? key($grid) + 1 : $index,
 			'offset' => 0
 		)));
 
-		return array(
-			'count' => count($grid),
-			'data' => !empty($ids['data']) ? array_intersect_key($ids['data'], $grid) : array()
+		$conditions = array(
+			'id' => !empty($ids['data']) ? array_intersect_key($ids['data'], $grid) : array()
 		);
+
+		if ($parameters['action'] == 'replace') {
+			$conditions[]['NOT']['AND'] = array(
+				'status' => 'replaced'
+			);
+			$conditions[]['OR'] = array(
+				'next_replacement_available' => null,
+				'next_replacement_available <' => date('Y-m-d H:i:s', time())
+			);
+		}
+
+		return $this->find($parameters['table'], array(
+			'conditions' => $conditions,
+			'fields' => array(
+				'id',
+				'node_id'
+			)
+		));
 	}
 
 /**
@@ -534,7 +551,9 @@ class AppModel extends Config {
 
 			foreach ($rows as $row) {
 				$fields = array_keys($row);
-				$values = array_values($row);
+				$values = array_map(function($value) {
+					return (is_bool($value) ? (integer) $value : $value);
+				}, array_values($row));
 
 				if (!in_array('modified', $fields)) {
 					$fields[] = 'modified';
@@ -576,7 +595,7 @@ class AppModel extends Config {
  */
 	public function replace($table, $parameters) {
 		$response = array(
-			'message' => 'No items were selected to replace, please try again.'
+			'message' => 'No selected items were eligible for replacements, please try again.'
 		);
 
 		if (
@@ -620,23 +639,15 @@ class AppModel extends Config {
 			}
 
 			if (
-				!empty($oldItemData) &&
-				$parameters['token'] === $this->_getToken($parameters)
-			) {
-				$oldItemData = array_replace_recursive(array_fill(0, $parameters['unserialized_grid']['count'], $oldItemData), $parameters['unserialized_grid']['data']);
-				$this->save($table, $oldItemData);
-			}
-
-			if (
 				!empty($newItemData) &&
 				($orderId = !empty($parameters['conditions']['order_id']) ? $parameters['conditions']['order_id'] : 0)
 			) {
 				$processingNodes = $this->find('nodes', array(
 					'conditions' => array(
 						'AND' => array(
-							'allocated' => 0,
+							'allocated' => false,
 							'OR' => array(
-								'processing' => 0,
+								'processing' => false,
 								'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute'))
 							)
 						)
@@ -663,27 +674,33 @@ class AppModel extends Config {
 				} else {
 					$allocatedNodes = array();
 					$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, $parameters['unserialized_grid']['count'], array(
-						'processing' => 1
+						'processing' => true
 					)));
 					$this->save('nodes', $processingNodes['data']);
 
 					foreach ($processingNodes['data'] as $key => $row) {
 						$allocatedNodes[] = array(
 							'id' => ($processingNodes['data'][$key]['node_id'] = $processingNodes['data'][$key]['id']),
-							'allocated' => 1,
-							'processing' => 0
+							'allocated' => true,
+							'processing' => false
 						);
 						$processingNodes['data'][$key] += $newItemData;
 						unset($processingNodes['data'][$key]['id']);
 						unset($processingNodes['data'][$key]['processing']);
 					}
 
-					if (
-						$parameters['token'] === $this->_getToken($parameters) &&
-						$this->save($table, $processingNodes['data']) &&
-						$this->save('nodes', $allocatedNodes)
-					) {
-						$response['message'] = $parameters['unserialized_grid']['count'] . ' ' . $table . ' replaced successfully.';
+					if ($parameters['token'] === $this->_getToken($parameters)) {
+						if (!empty($oldItemData)) {
+							$oldItemData = array_replace_recursive(array_fill(0, $parameters['unserialized_grid']['count'], $oldItemData), $parameters['unserialized_grid']['data']);
+							$this->save($table, $oldItemData);
+						}
+
+						if (
+							$this->save($table, $processingNodes['data']) &&
+							$this->save('nodes', $allocatedNodes)
+						) {
+							$response['message'] = $parameters['unserialized_grid']['count'] . ' of your selected ' . $table . ' replaced successfully.';
+						}
 					}
 				}
 			}

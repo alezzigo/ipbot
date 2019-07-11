@@ -31,31 +31,6 @@ class AppModel extends Config {
 	}
 
 /**
- * Helper method for extracting values from a specific key in a multidimensional array
- *
- * @param array $data Data
- * @param string $key Key
- * @param boolean $unique Extract only unique values
- *
- * @return array $data Flattened array of values
- */
-	protected function _extract($data, $key, $unique = false) {
-		if (!is_array($data)) {
-			return;
-		}
-
-		array_walk($data, function(&$value, $index, $key) {
-			$value = !empty($value[$key]) ? $value[$key] : null;
-		}, $key);
-
-		if ($unique === true) {
-			$data = array_unique($data);
-		}
-
-		return array_filter($data);
-	}
-
-/**
  * Format array of conditions to SQL query
  *
  * @param array $conditions Conditions

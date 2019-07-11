@@ -568,7 +568,6 @@ class AppModel extends Config {
 				array_walk($updateFields, function(&$field, $index) {
 					$field = $field . '=VALUES(' . $field . ')';
 				});
-
 				$queries[] = 'INSERT INTO ' . $table . '(' . $fields . ') VALUES (' . implode('),(', $values) . ') ON DUPLICATE KEY UPDATE ' . implode(',', $updateFields);
 			}
 		}
@@ -586,7 +585,7 @@ class AppModel extends Config {
 
 /**
  * Process replace requests
- * @todo Retrieve user ID from auth token, validate next_replacement_available, remove replaced proxies on replacement_removal_date with cron
+ * @todo Retrieve user ID from auth token, remove replaced proxies on replacement_removal_date with cron
  *
  * @param string $table Table name
  * @param array $parameters Replace query parameters

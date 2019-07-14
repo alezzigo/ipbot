@@ -184,8 +184,15 @@ class AppModel extends Config {
 			empty($parameters['token']) ||
 			$parameters['token'] === $token
 		) {
-			if (!in_array($action, array('find', 'search'))) {
-				$parameters['unserialized_grid'] = $this->_unserializeGrid($parameters);
+			if (
+				!in_array($action, array('find', 'search')) ||
+				$retrieveItems = empty($parameters['limit'])
+			) {
+				$parameters['items'] = $this->_retrieveGridItems($parameters);
+
+				if ($retrieveItems) {
+					return $parameters['items'];
+				}
 			}
 		} else {
 			$action = 'find';
@@ -292,7 +299,7 @@ class AppModel extends Config {
 								!is_array($parameters['conditions'])
 							) ||
 							(
-								!isset($parameters['limit']) ||
+								isset($parameters['limit']) &&
 								!is_int($parameters['limit'])
 							) ||
 							(
@@ -329,13 +336,13 @@ class AppModel extends Config {
 	}
 
 /**
- * Unserialize grid indexes and map to IDs based on previous and current tokens
+ * Unserialize grid indexes and retrieve corresponding item IDs based on parameters
  *
  * @param array $parameters Parameters
  *
- * @return array Grid
+ * @return array $response Response data
  */
-	protected function _unserializeGrid($parameters) {
+	protected function _retrieveGridItems($parameters) {
 		$grid = array();
 		$gridLines = $parameters['grid'];
 		$index = 0;
@@ -377,6 +384,10 @@ class AppModel extends Config {
 		$conditions = array(
 			'id' => !empty($ids['data']) ? array_intersect_key($ids['data'], $grid) : array()
 		);
+		$fields = array(
+			'id',
+			'node_id'
+		);
 
 		if ($parameters['action'] == 'replace') {
 			$conditions[]['NOT']['AND'] = array(
@@ -388,13 +399,21 @@ class AppModel extends Config {
 			);
 		}
 
-		return $this->find($parameters['table'], array(
+		if (empty($parameters['limit'])) {
+			$fields = array_merge($fields, array(
+				'ip',
+				'http_port',
+				'username',
+				'password'
+			));
+		}
+
+		$response = $this->find($parameters['table'], array(
 			'conditions' => $conditions,
-			'fields' => array(
-				'id',
-				'node_id'
-			)
+			'fields' => $fields
 		));
+
+		return $response;
 	}
 
 /**
@@ -573,8 +592,8 @@ class AppModel extends Config {
 		);
 
 		if (
-			!empty($parameters['unserialized_grid']['count']) &&
-			is_array($parameters['unserialized_grid']['data'])
+			!empty($parameters['items']['count']) &&
+			is_array($parameters['items']['data'])
 		) {
 			$response['message'] = 'There was an error applying the replacement settings to your ' . $table . ', please try again';
 			$newItemData = $oldItemData = array();
@@ -636,18 +655,18 @@ class AppModel extends Config {
 						'country_name',
 						'country_code'
 					),
-					'limit' => $parameters['unserialized_grid']['count'],
+					'limit' => $parameters['items']['count'],
 					'sort' => array(
 						'field' => 'id',
 						'order' => 'DESC'
 					)
 				));
 
-				if (count($processingNodes['data']) !== $parameters['unserialized_grid']['count']) {
-					$response['message'] = 'There aren\'t enough ' . $table . ' available to replace your ' . $parameters['unserialized_grid']['count'] . ' selected ' . $table . ', please try again in a few minutes.';
+				if (count($processingNodes['data']) !== $parameters['items']['count']) {
+					$response['message'] = 'There aren\'t enough ' . $table . ' available to replace your ' . $parameters['items']['count'] . ' selected ' . $table . ', please try again in a few minutes.';
 				} else {
 					$allocatedNodes = array();
-					$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, $parameters['unserialized_grid']['count'], array(
+					$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, $parameters['items']['count'], array(
 						'processing' => true
 					)));
 					$this->save('nodes', $processingNodes['data']);
@@ -665,7 +684,7 @@ class AppModel extends Config {
 
 					if ($parameters['token'] === $this->_getToken($parameters)) {
 						if (!empty($oldItemData)) {
-							$oldItemData = array_replace_recursive(array_fill(0, $parameters['unserialized_grid']['count'], $oldItemData), $parameters['unserialized_grid']['data']);
+							$oldItemData = array_replace_recursive(array_fill(0, $parameters['items']['count'], $oldItemData), $parameters['items']['data']);
 							$this->save($table, $oldItemData);
 						}
 
@@ -673,7 +692,7 @@ class AppModel extends Config {
 							$this->save($table, $processingNodes['data']) &&
 							$this->save('nodes', $allocatedNodes)
 						) {
-							$response['message'] = $parameters['unserialized_grid']['count'] . ' of your selected ' . $table . ' replaced successfully.';
+							$response['message'] = $parameters['items']['count'] . ' of your selected ' . $table . ' replaced successfully.';
 						}
 					}
 				}

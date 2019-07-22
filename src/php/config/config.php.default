@@ -7,6 +7,31 @@
 
 		public function __construct() {
 
+			$defaultFields = array(
+				'proxy_groups' => array(
+					'id',
+					'order_id',
+					'name'
+				),
+				'proxies' => array(
+					'asn',
+					'city',
+					'country_code',
+					'country_name',
+					'http_port',
+					'id',
+					'ip',
+					'isp',
+					'order_id',
+					'password',
+					'region',
+					'status',
+					'timezone',
+					'username',
+					'whitelisted_ips'
+				)
+			);
+
 			$this->config = array(
 				'database' => array(
 					'charset' => 'utf8',
@@ -28,92 +53,32 @@
 
 			$this->permissions = array(
 				'api' => array(
-					'proxies' => array(
+					'proxy_groups' => array(
 						'find' => array(
-							'fields' => array(
-								'id',
-								'order_id',
-								'ip',
-								'http_port',
-								'asn',
-								'isp',
-								'city',
-								'region',
-								'country_name',
-								'country_code',
-								'timezone',
-								'whitelisted_ips',
-								'username',
-								'password',
-								'next_replacement_available',
-								'replacement_removal_date',
-								'status',
+							'fields' => array_merge($defaultFields['proxy_groups'], array(
 								'created',
 								'modified'
-							)
+							))
 						),
-						'save' => array(
-							'fields' => array(
-								'id',
-								'order_id',
-								'ip',
-								'http_port',
-								'asn',
-								'isp',
-								'city',
-								'region',
-								'country_name',
-								'country_code',
-								'timezone',
-								'whitelisted_ips',
-								'username',
-								'password',
+						'group' => array(
+							'fields' => $defaultFields['proxy_groups']
+						)
+					),
+					'proxies' => array(
+						'find' => array(
+							'fields' => array_merge($defaultFields['proxies'], array(
+								'created',
+								'modified',
 								'next_replacement_available',
 								'replacement_removal_date',
 								'status'
-							)
+							))
 						),
 						'replace' => array(
-							'fields' => array(
-								'id',
-								'order_id',
-								'ip',
-								'http_port',
-								'asn',
-								'isp',
-								'city',
-								'region',
-								'country_name',
-								'country_code',
-								'timezone',
-								'whitelisted_ips',
-								'username',
-								'password',
-								'status',
-								'created',
-								'modified'
-							)
+							'fields' => $defaultFields['proxies']
 						),
 						'search' => array(
-							'fields' => array(
-								'id',
-								'order_id',
-								'ip',
-								'http_port',
-								'asn',
-								'isp',
-								'city',
-								'region',
-								'country_name',
-								'country_code',
-								'timezone',
-								'whitelisted_ips',
-								'username',
-								'password',
-								'status',
-								'created',
-								'modified'
-							)
+							'fields' => $defaultFields['proxies']
 						)
 					)
 				)
@@ -123,8 +88,6 @@
 				'end' => $this->config['database']['sanitizeKeys']['hashSalt'] . '-' . $this->config['database']['sanitizeKeys']['hashEnd'] . '-' . $this->config['database']['sanitizeKeys']['hashSalt'],
 				'start' => $this->config['database']['sanitizeKeys']['hashSalt'] . '-' . $this->config['database']['sanitizeKeys']['hashStart'] . '-' . $this->config['database']['sanitizeKeys']['hashSalt']
 			);
-
 		}
 
 	}
-?>

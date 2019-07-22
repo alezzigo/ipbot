@@ -31,14 +31,14 @@ class AppModel extends Config {
 	}
 
 /**
- * Format array of conditions to SQL query
+ * Format array of data to SQL query conditions
  *
  * @param array $conditions Conditions
  * @param string $condition Condition
  *
  * @return array $conditions SQL query conditions
  */
-	protected function _formatConditionsToSQL($conditions = array(), $condition = 'OR') {
+	protected function _formatConditions($conditions = array(), $condition = 'OR') {
 		$operators = array('>', '>=', '<', '<=', '=', '!=', 'LIKE');
 
 		foreach ($conditions as $key => $value) {
@@ -56,7 +56,7 @@ class AppModel extends Config {
 
 				$conditions[$key] = '(' . implode(' ' . $condition . ' ', $value) . ')';
 			} else {
-				$conditions[$key] = ($key === 'NOT' ? 'NOT' : null) . '(' . implode(' ' . $condition . ' ', $this->_formatConditionsToSQL($value, $condition)) . ')';
+				$conditions[$key] = ($key === 'NOT' ? 'NOT' : null) . '(' . implode(' ' . $condition . ' ', $this->_formatConditions($value, $condition)) . ')';
 			}
 		}
 
@@ -170,34 +170,33 @@ class AppModel extends Config {
 	protected function _processAction($table, $parameters) {
 		if (
 			!method_exists($this, $action = $parameters['action']) ||
-			($token = $this->_getToken($parameters)) === false
+			(
+				($proxyTable = ($table === 'proxies')) &&
+				($token = $this->_getToken($parameters)) === false
+			)
 		) {
 			return false;
 		}
 
 		$response = array(
-			'grid' => $parameters['grid'] = isset($parameters['grid']) ? $parameters['grid'] : array(),
+			'items' => $parameters['items'] = isset($parameters['items']) ? $parameters['items'] : array(),
 			'token' => $token
 		);
 
 		if (
-			empty($parameters['token']) ||
-			$parameters['token'] === $token
+			empty($parameters['tokens'][$table]) ||
+			$parameters['tokens'][$table] === $token
 		) {
 			if (
-				!in_array($action, array('find', 'search')) ||
-				$retrieveItems = empty($parameters['limit'])
+				$proxyTable &&
+				!in_array($action, array('find',  'search'))
 			) {
 				$parameters['items'] = $this->_retrieveGridItems($parameters);
-
-				if ($retrieveItems) {
-					return $parameters['items'];
-				}
 			}
 		} else {
 			$action = 'find';
-			$response['grid'] = array();
-			$response['message'] = 'Your ' . $parameters['table'] . ' have been recently modified and your previously-selected results have been deselected automatically.';
+			$response['items'] = array();
+			$response['message'] = 'Your ' . $table . ' have been recently modified and your previously-selected results have been deselected automatically.';
 		}
 
 		return array_merge($response, $this->$action($table, $parameters));
@@ -309,7 +308,10 @@ class AppModel extends Config {
 							(
 								(
 									!empty($parameters['sort']['field']) &&
-									!in_array($parameters['sort']['field'], $fieldPermissions)
+									!in_array($parameters['sort']['field'], array_merge($fieldPermissions, array(
+										'created',
+										'modified'
+									)))
 								) ||
 								(
 									!empty($parameters['sort']['order']) &&
@@ -344,7 +346,7 @@ class AppModel extends Config {
  */
 	protected function _retrieveGridItems($parameters) {
 		$grid = array();
-		$gridLines = $parameters['grid'];
+		$gridLines = $parameters['items'];
 		$index = 0;
 
 		foreach ($gridLines as $gridLineKey => $gridLine) {
@@ -456,13 +458,34 @@ class AppModel extends Config {
 	}
 
 /**
+ * Database helper method for deleting data
+ *
+ * @param string $table Table name
+ * @param array $rows Rows to delete
+ *
+ * @return boolean True if all data is deleted
+ */
+	public function delete($table, $rows = array()) {
+		$query = 'DELETE FROM ' . $table;
+
+		if (
+			!empty($rows) &&
+			is_array($rows)
+		) {
+			$query .= ' WHERE ' . implode(' AND ', $this->_formatConditions($rows));
+		}
+
+		$data = $this->_query($query, $parameters);
+	}
+
+/**
  * Database helper method for retrieving data
  *
  * @param string $table Table name
  * @param array $parameters Find query parameters
  * @param string $message Message
  *
- * @return array $result Return associative array if it exists, otherwise return boolean ($execute)
+ * @return array $response Return associative array if it exists, otherwise return boolean ($execute)
  */
 	public function find($table, $parameters = array(), $message = '') {
 		$query = ' FROM ' . $table;
@@ -471,7 +494,7 @@ class AppModel extends Config {
 			!empty($parameters['conditions']) &&
 			is_array($parameters['conditions'])
 		) {
-			$query .= ' WHERE ' . implode(' AND ', $this->_formatConditionsToSQL($parameters['conditions']));
+			$query .= ' WHERE ' . implode(' AND ', $this->_formatConditions($parameters['conditions']));
 		}
 
 		$count = $this->_query('SELECT COUNT(id)' . $query);
@@ -490,12 +513,91 @@ class AppModel extends Config {
 		$query = 'SELECT ' . (!empty($parameters['fields']) && is_array($parameters['fields']) ? implode(',', $parameters['fields']) : '*') . $query;
 		$query .= ' LIMIT ' . $this->_prepareValue($parameters['limit']) . ' OFFSET ' . $this->_prepareValue($parameters['offset']);
 		$data = $this->_query($query, $parameters);
-
-		return array(
+		$response = array(
 			'count' => $count,
-			'data' => $data,
-			'message' => $message
+			'data' => $data
 		);
+
+		if (!empty($message)) {
+			$response['message'] = $message;
+		}
+
+		return $response;
+	}
+
+/**
+ * Process group requests
+ *
+ * @param string $table Table name
+ * @param array $parameters Group query parameters
+ *
+ * @return array $response Response data
+ */
+	public function group($table, $parameters) {
+		$group = array();
+		$message = 'Error processing your group request, please try again.';
+
+		if (!empty($parameters['data'])) {
+			foreach ($parameters['data'] as $key => $value) {
+				$group[$key] = $value;
+			}
+
+			if (
+				!empty($groupName = $group['name']) &&
+				!empty($group['order_id'])
+			) {
+				$message = 'Group "' . $groupName . '" already exists for this order.';
+				$existingGroup = $this->find('proxy_groups', array(
+					'conditions' => $group,
+					'limit' => 1
+				));
+
+				if (empty($existingGroup['count'])) {
+					$message = 'Error creating new group, please try again.';
+					$this->save('proxy_groups', array(
+						$group
+					));
+					$group = $this->find('proxy_groups', array(
+						'conditions' => $group,
+						'limit' => 1
+					));
+
+					if (!empty($group['count'])) {
+						$message = 'Group "' . $groupName . '" saved successfully.';
+					}
+				}
+			}
+
+			if (
+				!empty($group['id']) &&
+				!isset($group['name'])
+			) {
+				$message = 'Error deleting group, please try again.';
+				$existingGroup = $this->find('proxy_groups', array(
+					'conditions' => $group,
+					'limit' => 1
+				));
+
+				if (!empty($existingGroup['count'])) {
+					$this->delete('proxy_groups', array(
+						$group
+					));
+					$deletedGroup = $this->find('proxy_groups', array(
+						'conditions' => $group,
+						'limit' => 1
+					));
+
+					if (empty($deletedGroup['count'])) {
+						$this->delete('proxy_group_proxies', array(
+							'proxy_group_id' => $group['id']
+						));
+						$message = 'Group deleted successfully.';
+					}
+				}
+			}
+		}
+
+		return $this->find('proxy_groups', $parameters, $message);
 	}
 
 /**
@@ -509,6 +611,137 @@ class AppModel extends Config {
 	public function redirect($path, $responseCode = 301) {
 		header('Location: ' . $path, true, $responseCode);
 		exit;
+	}
+
+/**
+ * Process replace requests
+ * @todo Retrieve user ID from auth token, remove replaced proxies on replacement_removal_date with cron
+ *
+ * @param string $table Table name
+ * @param array $parameters Replace query parameters
+ *
+ * @return array $response Response data
+ */
+	public function replace($table, $parameters) {
+		$response = array(
+			'message' => 'No selected items were eligible for replacements, please try again.'
+		);
+
+		if (
+			!empty($parameters['items']['count']) &&
+			is_array($parameters['items']['data'])
+		) {
+			$response['message'] = 'There was an error applying the replacement settings to your ' . $table . ', please try again';
+			$newItemData = $oldItemData = array();
+
+			if (
+				(
+					!empty($parameters['data']['automatic_replacement_interval_value']) &&
+					is_numeric($parameters['data']['automatic_replacement_interval_value'])
+				) &&
+				(
+					!empty($parameters['data']['automatic_replacement_interval_type']) &&
+					in_array($automaticReplacementIntervalType = strtolower($parameters['data']['automatic_replacement_interval_type']), array('month', 'week'))
+				) &&
+				!empty($parameters['data']['enable_automatic_replacements'])
+			) {
+				$intervalData = array(
+					'automatic_replacement_interval_value' => $parameters['data']['automatic_replacement_interval_value'],
+					'automatic_replacement_interval_type' => $automaticReplacementIntervalType,
+					'last_replacement_date' => date('Y-m-d H:i:s', time())
+				);
+				$newItemData += $intervalData;
+				$oldItemData += $intervalData;
+			}
+
+			if (
+				!empty($parameters['data']['instant_replacement']) &&
+				($orderId = !empty($parameters['conditions']['order_id']) ? $parameters['conditions']['order_id'] : 0)
+			) {
+				$oldItemData += array(
+					'replacement_removal_date' => date('Y-m-d H:i:s', strtotime('+24 hours')),
+					'status' => 'replaced'
+				);
+				$newItemData += array(
+					'user_id' => 1,
+					'order_id' => $orderId,
+					'next_replacement_available' => date('Y-m-d H:i:s', strtotime('+1 week')),
+					'status' => 'online'
+				);
+			}
+
+			if (!empty($newItemData)) {
+				$processingNodes = $this->find('nodes', array(
+					'conditions' => array(
+						'AND' => array(
+							'allocated' => false,
+							'OR' => array(
+								'processing' => false,
+								'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute'))
+							)
+						)
+					),
+					'fields' => array(
+						'id',
+						'ip',
+						'asn',
+						'isp',
+						'city',
+						'region',
+						'country_name',
+						'country_code'
+					),
+					'limit' => $parameters['items']['count'],
+					'sort' => array(
+						'field' => 'id',
+						'order' => 'DESC'
+					)
+				));
+
+				if (count($processingNodes['data']) !== $parameters['items']['count']) {
+					$response['message'] = 'There aren\'t enough ' . $table . ' available to replace your ' . $parameters['items']['count'] . ' selected ' . $table . ', please try again in a few minutes.';
+				} else {
+					$allocatedNodes = array();
+					$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, $parameters['items']['count'], array(
+						'processing' => true
+					)));
+					$this->save('nodes', $processingNodes['data']);
+
+					foreach ($processingNodes['data'] as $key => $row) {
+						$allocatedNodes[] = array(
+							'id' => ($processingNodes['data'][$key]['node_id'] = $processingNodes['data'][$key]['id']),
+							'allocated' => true,
+							'processing' => false
+						);
+						$processingNodes['data'][$key] += $newItemData;
+						unset($processingNodes['data'][$key]['id']);
+						unset($processingNodes['data'][$key]['processing']);
+					}
+
+					if ($parameters['tokens'][$table] === $this->_getToken($parameters)) {
+						if (!empty($oldItemData)) {
+							$oldItemData = array_replace_recursive(array_fill(0, $parameters['items']['count'], $oldItemData), $parameters['items']['data']);
+							$this->save($table, $oldItemData);
+						}
+
+						if (
+							$this->save($table, $processingNodes['data']) &&
+							$this->save('nodes', $allocatedNodes)
+						) {
+							$response['message'] = $parameters['items']['count'] . ' of your selected ' . $table . ' replaced successfully.';
+						}
+					}
+				}
+			}
+		}
+
+		$response = $this->find($table, $parameters, $response['message']);
+
+		if (($response['token'] = $this->_getToken($parameters)) !== $parameters['tokens'][$table]) {
+			$response['grid'] = array();
+		}
+
+		return $response;
 	}
 
 /**
@@ -578,137 +811,6 @@ class AppModel extends Config {
 	}
 
 /**
- * Process replace requests
- * @todo Retrieve user ID from auth token, remove replaced proxies on replacement_removal_date with cron
- *
- * @param string $table Table name
- * @param array $parameters Replace query parameters
- *
- * @return array $response Response data
- */
-	public function replace($table, $parameters) {
-		$response = array(
-			'message' => 'No selected items were eligible for replacements, please try again.'
-		);
-
-		if (
-			!empty($parameters['items']['count']) &&
-			is_array($parameters['items']['data'])
-		) {
-			$response['message'] = 'There was an error applying the replacement settings to your ' . $table . ', please try again';
-			$newItemData = $oldItemData = array();
-
-			if (
-				(
-					!empty($parameters['data']['automatic_replacement_interval_value']) &&
-					is_int($parameters['data']['automatic_replacement_interval_value'])
-				) &&
-				(
-					!empty($parameters['data']['automatic_replacement_interval_type']) &&
-					in_array($automaticReplacementIntervalType = strtolower($parameters['data']['automatic_replacement_interval_type']), array('month', 'week'))
-				) &&
-				!empty($parameters['data']['enable_automatic_replacements'])
-			) {
-				$intervalData = array(
-					'automatic_replacement_interval_value' => $parameters['data']['automatic_replacement_interval_value'],
-					'automatic_replacement_interval_type' => $automaticReplacementIntervalType,
-					'last_replacement_date' => date('Y-m-d H:i:s', time())
-				);
-				$newItemData += $intervalData;
-				$oldItemData += $intervalData;
-			}
-
-			if (!empty($parameters['data']['instant_replacement'])) {
-				$oldItemData += array(
-					'replacement_removal_date' => date('Y-m-d H:i:s', strtotime('+24 hours')),
-					'status' => 'replaced'
-				);
-				$newItemData += array(
-					'user_id' => 1,
-					'order_id' => $parameters['token']['foreign_value'],
-					'next_replacement_available' => date('Y-m-d H:i:s', strtotime('+1 week')),
-					'status' => 'online'
-				);
-			}
-
-			if (
-				!empty($newItemData) &&
-				($orderId = !empty($parameters['conditions']['order_id']) ? $parameters['conditions']['order_id'] : 0)
-			) {
-				$processingNodes = $this->find('nodes', array(
-					'conditions' => array(
-						'AND' => array(
-							'allocated' => false,
-							'OR' => array(
-								'processing' => false,
-								'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute'))
-							)
-						)
-					),
-					'fields' => array(
-						'id',
-						'ip',
-						'asn',
-						'isp',
-						'city',
-						'region',
-						'country_name',
-						'country_code'
-					),
-					'limit' => $parameters['items']['count'],
-					'sort' => array(
-						'field' => 'id',
-						'order' => 'DESC'
-					)
-				));
-
-				if (count($processingNodes['data']) !== $parameters['items']['count']) {
-					$response['message'] = 'There aren\'t enough ' . $table . ' available to replace your ' . $parameters['items']['count'] . ' selected ' . $table . ', please try again in a few minutes.';
-				} else {
-					$allocatedNodes = array();
-					$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, $parameters['items']['count'], array(
-						'processing' => true
-					)));
-					$this->save('nodes', $processingNodes['data']);
-
-					foreach ($processingNodes['data'] as $key => $row) {
-						$allocatedNodes[] = array(
-							'id' => ($processingNodes['data'][$key]['node_id'] = $processingNodes['data'][$key]['id']),
-							'allocated' => true,
-							'processing' => false
-						);
-						$processingNodes['data'][$key] += $newItemData;
-						unset($processingNodes['data'][$key]['id']);
-						unset($processingNodes['data'][$key]['processing']);
-					}
-
-					if ($parameters['token'] === $this->_getToken($parameters)) {
-						if (!empty($oldItemData)) {
-							$oldItemData = array_replace_recursive(array_fill(0, $parameters['items']['count'], $oldItemData), $parameters['items']['data']);
-							$this->save($table, $oldItemData);
-						}
-
-						if (
-							$this->save($table, $processingNodes['data']) &&
-							$this->save('nodes', $allocatedNodes)
-						) {
-							$response['message'] = $parameters['items']['count'] . ' of your selected ' . $table . ' replaced successfully.';
-						}
-					}
-				}
-			}
-		}
-
-		$response = $this->find($table, $parameters, $response['message']);
-
-		if (($response['token'] = $this->_getToken($parameters)) !== $parameters['token']) {
-			$response['grid'] = array();
-		}
-
-		return $response;
-	}
-
-/**
  * Process search requests
  *
  * @param string $table Table name
@@ -720,7 +822,7 @@ class AppModel extends Config {
 		$conditions = array();
 
 		if (
-			!empty($broadSearchFields = array_diff($this->permissions['api'][$table]['search']['fields'], array('created', 'modified'))) &&
+			!empty($broadSearchFields = $this->permissions['api'][$table]['search']['fields']) &&
 			!empty($broadSearchTerms = array_filter(explode(' ', $parameters['data']['broad_search'])))
 		) {
 			$conditions = array_map(function($broadSearchTerm) use ($broadSearchFields) {

@@ -3,7 +3,9 @@
 var closeWindows = () => {
 	document.querySelector('main').classList.remove('hidden');
 	elements.addClass('.window-container', 'hidden');
+	requestParameters.action = 'find';
 	requestParameters.data = {};
+	requestParameters.table = 'proxies';
 };
 var elements = {
 	addClass: (selector, className) => {
@@ -39,37 +41,38 @@ var onLoad = (callback) => {
 };
 var processItems = (currentPage = 1) => {
 	var items = document.querySelector('.item-configuration .item-table'),
-		pagination = document.querySelector('.pagination');
+		orderId = document.querySelector('input[name="order_id"]').value,
+		pagination = document.querySelector('.item-configuration .pagination');
 	var resultsPerPage = +pagination.getAttribute('results');
 	var itemToggle = (item) => {
 		items.setAttribute('current_checked', item.getAttribute('index'));
-		processItemGrid(window.event.shiftKey ? range(items.getAttribute('previous_checked'), item.getAttribute('index')) : [item.getAttribute('index')], window.event.shiftKey ? +document.querySelector('.checkbox[index="' + items.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +item.getAttribute('checked') === 0);
+		processItemGrid(window.event.shiftKey ? range(items.getAttribute('previous_checked'), item.getAttribute('index')) : [item.getAttribute('index')], window.event.shiftKey ? +document.querySelector('.item-configuration .checkbox[index="' + items.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +item.getAttribute('checked') === 0);
 		items.setAttribute('previous_checked', item.getAttribute('index'));
 	};
-	var itemAllVisible = document.querySelector('.checkbox[index="all-visible"]'),
+	var itemAllVisible = document.querySelector('.item-configuration .checkbox[index="all-visible"]'),
 		itemToggleAllVisible = (item) => {
 			items.setAttribute('current_checked', 0);
 			items.setAttribute('previous_checked', 0);
-			processItemGrid(range(0, selectAllElements('tr .checkbox').length - 1), +item.getAttribute('checked') === 0);
+			processItemGrid(range(0, selectAllElements('.item-configuration tr .checkbox').length - 1), +item.getAttribute('checked') === 0);
 		};
 	var processItemGrid = (itemIndexes, itemState) => {
 		var itemCount = 0;
-			itemGridLineSizeMaximum = +('1' + repeat(Math.min(elements.html('.total-results').length, 4), '0')),
-			pageResultCount = (+elements.html('.last-result') - +elements.html('.first-result') + 1),
-			totalResults = +elements.html('.total-results');
+			itemGridLineSizeMaximum = +('1' + repeat(Math.min(elements.html('.item-configuration .total-results').length, 4), '0')),
+			pageResultCount = (+elements.html('.item-configuration .last-result') - +elements.html('.item-configuration .first-result') + 1),
+			totalResults = +elements.html('.item-configuration .total-results');
 		var itemGridLineSize = (key) => {
 			return Math.min(itemGridLineSizeMaximum, totalResults - (key * itemGridLineSizeMaximum)).toString();
 		}
 		var processItemGridSelection = (item) => {
 			var keyIndexes = range(0, Math.floor(totalResults / itemGridLineSizeMaximum));
 			elements.html('.total-checked', (selectionStatus = +item.getAttribute('status')) ? totalResults : 0);
-			item.querySelector('.action').innerText = (selectionStatus ? 'Unselect' : 'Select');
+			item.querySelector('.item-configuration .action').innerText = (selectionStatus ? 'Unselect' : 'Select');
 			item.setAttribute('status', +(selectionStatus === 0));
 			keyIndexes.map((key) => {
 				itemGrid[key] = selectionStatus + itemGridLineSize(key);
 			});
 			itemGrid = selectionStatus ? itemGrid : [];
-			processItemGrid(range(0, selectAllElements('tr .checkbox').length - 1));
+			processItemGrid(range(0, selectAllElements('.item-configuration tr .checkbox').length - 1));
 		};
 
 		if (!itemGrid.length) {
@@ -78,7 +81,7 @@ var processItems = (currentPage = 1) => {
 
 		itemIndexes.map((itemIndex) => {
 			var index = ((currentPage * resultsPerPage) - resultsPerPage) + +itemIndex,
-				item = document.querySelector('.checkbox[index="' + itemIndex + '"]'),
+				item = document.querySelector('.item-configuration .checkbox[index="' + itemIndex + '"]'),
 				serializeCount = 1;
 			var key = Math.floor(index / itemGridLineSizeMaximum),
 				serializedGridLineItems = [];
@@ -114,7 +117,7 @@ var processItems = (currentPage = 1) => {
 		});
 
 		range(0, pageResultCount - 1).map((itemIndex) => {
-			var item = document.querySelector('.checkbox[index="' + itemIndex + '"]');
+			var item = document.querySelector('.item-configuration .checkbox[index="' + itemIndex + '"]');
 
 			if (+(item.getAttribute('checked'))) {
 				itemCount++;
@@ -125,19 +128,19 @@ var processItems = (currentPage = 1) => {
 			elements.html('.total-checked', +elements.html('.total-checked') + (itemCount - itemGridCount));
 		}
 
-		var itemAll = document.querySelector('.item-action[index="all"]');
+		var itemAll = document.querySelector('.item-configuration .item-action[index="all"]');
 		itemAll.classList.add('hidden');
-		itemAll.removeEventListener('click', itemAll.listener);
-		itemAll.listener = () => {
+		itemAll.removeEventListener('click', itemAll.clickListener);
+		itemAll.clickListener = () => {
 			processItemGridSelection(itemAll)
 		};
-		itemAll.addEventListener('click', itemAll.listener);
+		itemAll.addEventListener('click', itemAll.clickListener);
 		itemAllVisible.setAttribute('checked', +(allVisibleChecked = (itemCount === pageResultCount)));
-		itemAllVisible.removeEventListener('click', itemAllVisible.listener);
-		itemAllVisible.listener = () => {
+		itemAllVisible.removeEventListener('click', itemAllVisible.clickListener);
+		itemAllVisible.clickListener = () => {
 			itemToggleAllVisible(itemAllVisible);
 		};
-		itemAllVisible.addEventListener('click', itemAllVisible.listener);
+		itemAllVisible.addEventListener('click', itemAllVisible.clickListener);
 
 		if (
 			pageResultCount != totalResults &&
@@ -153,18 +156,19 @@ var processItems = (currentPage = 1) => {
 		}
 
 		processWindowEvents(windowEvents, 'resize');
-		+elements.html('.total-checked') ? elements.removeClass('span.icon[item-function]', 'hidden') : elements.addClass('span.icon[item-function]', 'hidden');
+		+elements.html('.total-checked') ? elements.removeClass('.item-configuration span.icon[item-function]', 'hidden') : elements.addClass('.item-configuration span.icon[item-function]', 'hidden');
 		itemGridCount = itemCount;
 	};
 	pagination.querySelector('.next').setAttribute('page', 0);
 	pagination.querySelector('.previous').setAttribute('page', 0);
 	items.innerHTML = '<p class="message no-margin-bottom">Loading ...</p>';
 	requestParameters.conditions = {
-		order_id: document.querySelector('input[name="order_id"]').value
-	},
-		requestParameters.grid = itemGrid,
-		requestParameters.limit = resultsPerPage,
-		requestParameters.offset = ((currentPage * resultsPerPage) - resultsPerPage);
+		order_id: orderId
+	};
+	requestParameters.items = itemGrid;
+	requestParameters.limit = resultsPerPage;
+	requestParameters.offset = ((currentPage * resultsPerPage) - resultsPerPage);
+	requestParameters.sort.field = 'modified';
 	sendRequest((response) => {
 		items.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
 
@@ -172,27 +176,162 @@ var processItems = (currentPage = 1) => {
 			return;
 		}
 
-		items.innerHTML += '<table class="table"></table>';
+		items.innerHTML += '<table class="table"><thead><th style="width: 35px;"></th><th>Proxy IP</th></thead></table>';
 		response.data.map((item, index) => {
-			items.querySelector('table').innerHTML += '<tr page="' + currentPage + '" proxy_id="' + item.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" proxy_id="' + item.id + '"></span></td><td><span class="details-container"><span class="details">' + item.status + ' Proxy IP ' + item.ip + ' Location ' + item.city + ', ' + item.region + ' ' + item.country_code + ' <span class="icon-container"><img src="../../resources/images/icons/flags/' + item.country_code.toLowerCase() + '.png" class="flag" alt="' + item.country_code + ' flag"></span> ISP ' + item.asn + ' Timezone ' + item.timezone + ' HTTP + HTTPS Port ' + (item.disable_http == 1 ? 'Disabled' : '80') + ' Whitelisted IPs ' + (item.whitelisted_ips ? '<textarea>' + item.whitelisted_ips + '</textarea>' : 'N/A') + ' Username ' + (item.username ? item.username : 'N/A') + ' Password ' + (item.password ? item.password : 'N/A') + '</span></span><span class="table-text">' + item.ip + '</span></td>';
+			items.querySelector('table').innerHTML += '<tbody><tr page="' + currentPage + '" proxy_id="' + item.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" proxy_id="' + item.id + '"></span></td><td><span class="details-container"><span class="details"><span class="detail"><strong>Status:</strong> ' + item.status.charAt(0).toUpperCase() + item.status.substr(1) + '</span><span class="detail"><strong>Proxy IP:</strong> ' + item.ip + '</span><span class="detail"><strong>Location:</strong> ' + item.city + ', ' + item.region + ' ' + item.country_code + ' <span class="icon-container"><img src="../../resources/images/icons/flags/' + item.country_code.toLowerCase() + '.png" class="flag" alt="' + item.country_code + ' flag"></span></span><span class="detail"><strong>ISP:</strong> ' + item.asn + ' </span><span class="detail"><strong>HTTP + HTTPS Port:</strong> ' + (item.disable_http == 1 ? 'Disabled' : '80') + '</span><span class="detail"><strong>Whitelisted IPs:</strong> ' + (item.whitelisted_ips ? '<textarea>' + item.whitelisted_ips + '</textarea>' : 'N/A') + '</span><span class="detail"><strong>Username:</strong> ' + (item.username ? item.username : 'N/A') + '</span><span class="detail"><strong>Password:</strong> ' + (item.password ? item.password : 'N/A') + '</span></span></span><span class="table-text">' + item.ip + '</span></td></tbody>';
 		});
-		elements.html('.first-result', currentPage === 1 ? currentPage : ((currentPage * resultsPerPage) - resultsPerPage) + 1);
-		elements.html('.last-result', (lastResult = currentPage * resultsPerPage) >= response.count ? response.count : lastResult);
-		elements.html('.total-results', response.count);
+		elements.html('.item-configuration .first-result', currentPage === 1 ? currentPage : ((currentPage * resultsPerPage) - resultsPerPage) + 1);
+		elements.html('.item-configuration .last-result', (lastResult = currentPage * resultsPerPage) >= response.count ? response.count : lastResult);
+		elements.html('.item-configuration .total-results', response.count);
 		pagination.setAttribute('current_page', currentPage);
-		pagination.querySelector('.next').setAttribute('page', +elements.html('.last-result') < response.count ? currentPage + 1 : 0);
+		pagination.querySelector('.next').setAttribute('page', +elements.html('.item-configuration .last-result') < response.count ? currentPage + 1 : 0);
 		pagination.querySelector('.previous').setAttribute('page', currentPage <= 0 ? 0 : currentPage - 1);
-		elements.loop('.item-configuration tr', (index, row) => {
+		elements.loop('.item-configuration tbody tr', (index, row) => {
 			var item = row.querySelector('.checkbox');
-			item.removeEventListener('click', item.listener);
-			item.listener = () => {
+			item.removeEventListener('click', item.clickListener);
+			item.clickListener = () => {
 				itemToggle(item);
 			};
-			item.addEventListener('click', item.listener);
+			item.addEventListener('click', item.clickListener);
 		});
-		itemGrid = response.grid;
+		itemGrid = response.items;
+		elements.removeClass('.item-configuration .item-details', 'hidden');
 		processItemGrid(range(0, response.data.length - 1));
-		requestParameters.token = response.token;
+		var table = requestParameters.table;
+		requestParameters.tokens[table] = response.token;
+	});
+};
+var processGroups = () => {
+	var groups = document.querySelector('.group-configuration .group-table'),
+		groupGrid = [],
+		groupNameField = document.querySelector('.group-configuration .group-name-field'),
+		groupNameButton = document.querySelector('.group-configuration .group-name-button'),
+		orderId = document.querySelector('input[name="order_id"]').value;
+	var processGroupGrid = (groupIndexes, groupState) => {
+		groupIndexes.map((groupIndex) => {
+			var group = document.querySelector('.group-configuration .checkbox[index="' + groupIndex + '"]');
+			var groupId = group.getAttribute('group_id');
+			group.setAttribute('checked', +groupState);
+			groupGrid['group' + groupId] = groupId;
+		});
+	};
+	var groupAdd = (groupName) => {
+		requestParameters.action = 'group';
+		requestParameters.data = {
+			name: groupName,
+			order_id: orderId
+		};
+		sendRequest((response) => {
+			processGroupTable(response);
+		});
+	};
+	var groupDelete = (button, row) => {
+		var groupId = row.getAttribute('group_id');
+		requestParameters.action = 'group';
+		requestParameters.data = {
+			id: [groupId]
+		};
+		sendRequest((response) => {
+			delete groupGrid['group' + groupId];
+			processGroupTable(response);
+		});
+	};
+	var groupEdit = (button, row) => {
+		var processGroupEdit = (row) => {
+			requestParameters.action = 'group';
+			requestParameters.data = {
+				id: row.getAttribute('group_id'),
+				order_id: orderId,
+				name: row.querySelector('.group-name-edit-field').value
+			};
+			sendRequest((response) => {
+				processGroupTable(response);
+			});
+		}
+		var originalRow = row.querySelector('.table-text').innerHTML;
+		row.querySelector('.table-text').innerHTML = '<div class="field-group no-margin"><input class="group-name-edit-field no-margin" id="group-name-edit" name="group_name" type="text" value="' + row.querySelector('.view').innerText + '"><button class="button group-name-save-edit-button">Save</button><button class="button group-name-cancel-edit-button">Cancel</button></div>';
+		row = document.querySelector('.group-configuration tbody tr[group_id="' + row.getAttribute('group_id') + '"]');
+		var groupNameCancelEditButton = row.querySelector('.group-name-cancel-edit-button'),
+			groupNameEditField = row.querySelector('.group-name-edit-field'),
+			groupNameSaveEditButton = row.querySelector('.group-name-save-edit-button');
+		groupNameCancelEditButton.removeEventListener('click', groupNameCancelEditButton.clickListener);
+		groupNameEditField.removeEventListener('keydown', groupNameEditField.keydownListener);
+		groupNameSaveEditButton.removeEventListener('click', groupNameSaveEditButton.clickListener);
+		groupNameCancelEditButton.clickListener = () => {
+			row.querySelector('.table-text').innerHTML = originalRow;
+		};
+		groupNameEditField.keydownListener = () => {
+			if (event.key == 'Enter') {
+				processGroupEdit(row);
+			}
+		};
+		groupNameSaveEditButton.clickListener = () => {
+			processGroupEdit(row);
+		};
+		groupNameCancelEditButton.addEventListener('click', groupNameCancelEditButton.clickListener);
+		groupNameEditField.addEventListener('keydown', groupNameEditField.keydownListener);
+		groupNameSaveEditButton.addEventListener('click', groupNameSaveEditButton.clickListener);
+	};
+	var groupToggle = (button) => {
+		groups.setAttribute('current_checked', button.getAttribute('index'));
+		processGroupGrid(window.event.shiftKey ? range(groups.getAttribute('previous_checked'), button.getAttribute('index')) : [button.getAttribute('index')], window.event.shiftKey ? +document.querySelector('.group-configuration .checkbox[index="' + groups.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +button.getAttribute('checked') === 0);
+		groups.setAttribute('previous_checked', button.getAttribute('index'));
+	};
+	var groupView = (button, row) => {
+		// ...
+	};
+	var processGroupTable = (response) => {
+		groups.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+		groups.innerHTML += '<table class="table"><thead><th style="width: 35px;"></th><th>Group Name</th></thead><tbody></tbody></table>';
+		response.data.map((group, index) => {
+			groups.querySelector('table tbody').innerHTML += '<tr group_id="' + group.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" group_id="' + group.id + '"></span></td><td><span class="table-text"><a class="view" group_id="' + group.id + '" href="javascript:void(0);">' + group.name + '</a></span><span class="table-actions"><span class="button edit icon" group_id="' + group.id + '"></span><span class="button delete icon" group_id="' + group.id + '"></span></span></td>';
+		});
+		elements.loop('.group-configuration tbody tr', (index, row) => {
+			var groupDeleteButton = row.querySelector('.delete'),
+				groupEditButton = row.querySelector('.edit'),
+				groupToggleButton = row.querySelector('.checkbox'),
+				groupViewButton = row.querySelector('.view');
+			groupDeleteButton.removeEventListener('click', groupDeleteButton.clickListener);
+			groupEditButton.removeEventListener('click', groupEditButton.clickListener);
+			groupToggleButton.removeEventListener('click', groupToggleButton.clickListener);
+			groupDeleteButton.clickListener = () => {
+				groupDelete(groupDeleteButton, row);
+			};
+			groupEditButton.clickListener = () => {
+				groupEdit(groupEditButton, row);
+			};
+			groupToggleButton.clickListener = () => {
+				groupToggle(groupToggleButton);
+			};
+			groupDeleteButton.addEventListener('click', groupDeleteButton.clickListener);
+			groupEditButton.addEventListener('click', groupEditButton.clickListener);
+			groupToggleButton.addEventListener('click', groupToggleButton.clickListener);
+		});
+		groupNameField.value = '';
+		Object.entries(groupGrid).map((groupId) => {
+			var group = document.querySelector('.group-configuration .checkbox[group_id="' + groupId[1] + '"]');
+			processGroupGrid([group.getAttribute('index')], true);
+		});
+	};
+	+elements.html('.total-checked') ? elements.removeClass('.group-configuration .submit', 'hidden') : elements.addClass('.group-configuration .submit', 'hidden');
+	groupNameField.removeEventListener('keydown', groupNameField.keydownListener);
+	groupNameButton.removeEventListener('click', groupNameButton.clickListener);
+	groupNameField.keydownListener = (event) => {
+		if (event.key == 'Enter') {
+			groupAdd(groupNameField.value);
+		}
+	};
+	groupNameButton.clickListener = () => {
+		groupAdd(groupNameField.value);
+	};
+	groupNameField.addEventListener('keydown', groupNameField.keydownListener);
+	groupNameButton.addEventListener('click', groupNameButton.clickListener);
+	groups.innerHTML = '<p class="message no-margin-bottom">Loading ...</p>';
+	requestParameters.action = 'find';
+	requestParameters.sort.field = 'created';
+	requestParameters.table = 'proxy_groups';
+	sendRequest((response) => {
+		processGroupTable(response);
 	});
 };
 var processWindowEvents = (windowEvents, event = null) => {
@@ -258,6 +397,7 @@ var requestParameters = {
 		order: 'DESC'
 	},
 	table: 'proxies',
+	tokens: {},
 	url: '/src/php/views/api.php'
 };
 var selectAllElements = (selector) => {
@@ -316,7 +456,7 @@ onLoad(() => {
 				var elementContainerDetails = element[1].parentNode.getBoundingClientRect();
 
 				if (elementContainerDetails.width) {
-					element[1].parentNode.querySelector('.item-body').setAttribute('style', 'padding-top: ' + (element[1].querySelector('.item-header').clientHeight + 21) + 'px');
+					element[1].parentNode.querySelector('.item-body').setAttribute('style', 'padding-top: ' + (element[1].querySelector('.item-header').clientHeight + 1) + 'px');
 					element[1].setAttribute('style', 'max-width: ' + elementContainerDetails.width + 'px;');
 				}
 
@@ -329,8 +469,16 @@ onLoad(() => {
 
 	selectAllElements('.button.window').map((element) => {
 		element[1].addEventListener('click', (element) => {
+			var action = element.target.getAttribute('window');
+			var form = '.window-container[window="' + action + '"]';
 			document.querySelector('main').classList.add('hidden');
-			elements.removeClass('.window-container[window="' + element.target.getAttribute('window') + '"]', 'hidden');
+			elements.removeClass(form, 'hidden');
+
+			switch (action) {
+				case 'group':
+					processGroups();
+					break;
+			}
 		});
 	});
 	selectAllElements('.window .button.close').map((element) => {

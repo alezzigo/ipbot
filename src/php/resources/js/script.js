@@ -283,6 +283,11 @@ var processGroups = () => {
 	};
 	var processGroupTable = (response) => {
 		groups.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+
+		if (!response.data.length) {
+			return;
+		}
+
 		groups.innerHTML += '<table class="table"><thead><th style="width: 35px;"></th><th>Group Name</th></thead><tbody></tbody></table>';
 		response.data.map((group, index) => {
 			groups.querySelector('table tbody').innerHTML += '<tr group_id="' + group.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" group_id="' + group.id + '"></span></td><td><span class="table-text"><a class="view" group_id="' + group.id + '" href="javascript:void(0);">' + group.name + '</a></span><span class="table-actions"><span class="button edit icon" group_id="' + group.id + '"></span><span class="button delete icon" group_id="' + group.id + '"></span></span></td>';

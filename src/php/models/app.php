@@ -171,7 +171,7 @@ class AppModel extends Config {
 		if (
 			!method_exists($this, $action = $parameters['action']) ||
 			(
-				($proxyTable = ($table === 'proxies')) &&
+				($itemTable = (in_array($table, array('proxies')))) &&
 				($token = $this->_getToken($parameters)) === false
 			)
 		) {
@@ -187,11 +187,12 @@ class AppModel extends Config {
 			empty($parameters['tokens'][$table]) ||
 			$parameters['tokens'][$table] === $token
 		) {
+
 			if (
-				$proxyTable &&
+				$itemTable &&
 				!in_array($action, array('find',  'search'))
 			) {
-				$parameters['items'] = $this->_retrieveGridItems($parameters);
+				$parameters['items'] = $this->_retrieveItems($parameters);
 			}
 		} else {
 			$action = 'find';
@@ -338,82 +339,85 @@ class AppModel extends Config {
 	}
 
 /**
- * Unserialize grid indexes and retrieve corresponding item IDs based on parameters
+ * Unserialize indexes and retrieve corresponding item IDs based on parameters
  *
  * @param array $parameters Parameters
  *
  * @return array $response Response data
  */
-	protected function _retrieveGridItems($parameters) {
-		$grid = array();
-		$gridLines = $parameters['items'];
-		$index = 0;
+	protected function _retrieveItems($parameters) {
+		$response = array();
 
-		foreach ($gridLines as $gridLineKey => $gridLine) {
-			$gridLineChunks = explode('_', $gridLine);
+		if (!empty($parameters['items'])) {
+			foreach ($parameters['items'] as $table => $items) {
+				$response[$table] = array(
+					'count' => count($items),
+					'data' => $items
+				);
 
-			foreach ($gridLineChunks as $gridLineChunkKey => $gridLineChunk) {
-				$itemStatus = substr($gridLineChunk, 0, 1);
-				$itemStatusCount = substr($gridLineChunk, 1);
+				if (
+					!empty($items) &&
+					is_numeric(array_search(current($items), $items))
+				) {
+					$itemIndexes = array();
+					$itemIndexLines = $items;
+					$index = 0;
 
-				if ($itemStatus) {
-					for ($i = 0; $i < $itemStatusCount; $i++) {
-						$grid[$index + $i] = 1;
+					foreach ($itemIndexLines as $itemIndexLine) {
+						$itemIndexLineChunks = explode('_', $itemIndexLine);
+
+						foreach ($itemIndexLineChunks as $itemIndexLineChunk) {
+							$itemStatus = substr($itemIndexLineChunk, 0, 1);
+							$itemStatusCount = substr($itemIndexLineChunk, 1);
+
+							if ($itemStatus) {
+								for ($i = 0; $i < $itemStatusCount; $i++) {
+									$itemIndexes[$index + $i] = 1;
+								}
+							}
+
+							$index += $itemStatusCount;
+						}
 					}
-				}
 
-				$index += $itemStatusCount;
+					if (
+						empty($itemIndexes) ||
+						!$index
+					) {
+						continue;
+					}
+
+					unset($parameters['offset']);
+					$ids = $this->find($table, array_merge($parameters, array(
+						'fields' => array(
+							'id'
+						),
+						'limit' => end($itemIndexes) ? key($itemIndexes) + 1 : $index,
+						'offset' => 0
+					)));
+					$conditions = array(
+						'id' => !empty($ids['data']) ? array_intersect_key($ids['data'], $itemIndexes) : array()
+					);
+
+					if ($parameters['action'] == 'replace') {
+						$conditions[]['NOT']['AND'] = array(
+							'status' => 'replaced'
+						);
+						$conditions[]['OR'] = array(
+							'next_replacement_available' => null,
+							'next_replacement_available <' => date('Y-m-d H:i:s', time())
+						);
+					}
+
+					$response[$table] = $this->find($table, array(
+						'conditions' => $conditions,
+						'fields' => array(
+							'id'
+						)
+					));
+				}
 			}
 		}
-
-		if (
-			empty($grid) ||
-			!$index
-		) {
-			return $grid;
-		}
-
-		unset($parameters['offset']);
-
-		$ids = $this->find($parameters['table'], array_merge($parameters, array(
-			'fields' => array(
-				'id'
-			),
-			'limit' => end($grid) ? key($grid) + 1 : $index,
-			'offset' => 0
-		)));
-
-		$conditions = array(
-			'id' => !empty($ids['data']) ? array_intersect_key($ids['data'], $grid) : array()
-		);
-		$fields = array(
-			'id',
-			'node_id'
-		);
-
-		if ($parameters['action'] == 'replace') {
-			$conditions[]['NOT']['AND'] = array(
-				'status' => 'replaced'
-			);
-			$conditions[]['OR'] = array(
-				'next_replacement_available' => null,
-				'next_replacement_available <' => date('Y-m-d H:i:s', time())
-			);
-		}
-
-		if (empty($parameters['limit'])) {
-			$fields = array_merge($fields, array(
-				'ip',
-				'http_port',
-				'username',
-				'password'
-			));
-		}
-
-		$response = $this->find($parameters['table'], array(
-			'conditions' => $conditions,
-			'fields' => $fields
-		));
 
 		return $response;
 	}
@@ -483,11 +487,10 @@ class AppModel extends Config {
  *
  * @param string $table Table name
  * @param array $parameters Find query parameters
- * @param string $message Message
  *
  * @return array $response Return associative array if it exists, otherwise return boolean ($execute)
  */
-	public function find($table, $parameters = array(), $message = '') {
+	public function find($table, $parameters = array()) {
 		$query = ' FROM ' . $table;
 
 		if (
@@ -517,11 +520,6 @@ class AppModel extends Config {
 			'count' => $count,
 			'data' => $data
 		);
-
-		if (!empty($message)) {
-			$response['message'] = $message;
-		}
-
 		return $response;
 	}
 
@@ -542,25 +540,24 @@ class AppModel extends Config {
 				$group[$key] = $value;
 			}
 
+			$groupParameters = array(
+				'conditions' => $group,
+				'limit' => 1
+			);
+
 			if (
 				!empty($groupName = $group['name']) &&
 				!empty($group['order_id'])
 			) {
 				$message = 'Group "' . $groupName . '" already exists for this order.';
-				$existingGroup = $this->find('proxy_groups', array(
-					'conditions' => $group,
-					'limit' => 1
-				));
+				$existingGroup = $this->find('proxy_groups', $groupParameters);
 
 				if (empty($existingGroup['count'])) {
 					$message = 'Error creating new group, please try again.';
 					$this->save('proxy_groups', array(
 						$group
 					));
-					$group = $this->find('proxy_groups', array(
-						'conditions' => $group,
-						'limit' => 1
-					));
+					$group = $this->find('proxy_groups', $groupParameters);
 
 					if (!empty($group['count'])) {
 						$message = 'Group "' . $groupName . '" saved successfully.';
@@ -573,19 +570,13 @@ class AppModel extends Config {
 				!isset($group['name'])
 			) {
 				$message = 'Error deleting group, please try again.';
-				$existingGroup = $this->find('proxy_groups', array(
-					'conditions' => $group,
-					'limit' => 1
-				));
+				$existingGroup = $this->find('proxy_groups', $groupParameters);
 
 				if (!empty($existingGroup['count'])) {
 					$this->delete('proxy_groups', array(
 						$group
 					));
-					$deletedGroup = $this->find('proxy_groups', array(
-						'conditions' => $group,
-						'limit' => 1
-					));
+					$deletedGroup = $this->find('proxy_groups', $groupParameters);
 
 					if (empty($deletedGroup['count'])) {
 						$this->delete('proxy_group_proxies', array(
@@ -595,9 +586,54 @@ class AppModel extends Config {
 					}
 				}
 			}
+
+			if (
+				$table == 'proxies' &&
+				!empty($parameters['items']['proxies']['count']) &&
+				!empty($parameters['items']['proxy_groups']['count'])
+			) {
+				$groups = array();
+				$proxyIds = array();
+				$existingProxyGroupProxies = $this->find('proxy_group_proxies', array(
+					'conditions' => array(
+						'proxy_group_id' => array_values($parameters['items']['proxy_groups']['data']),
+						'proxy_id' => $parameters['items']['proxies']['data']
+					),
+					'fields' => array(
+						'id',
+						'proxy_group_id',
+						'proxy_id'
+					)
+				));
+
+				foreach ($parameters['items']['proxies']['data'] as $key => $proxyId) {
+					foreach ($parameters['items']['proxy_groups']['data'] as $key => $proxyGroupId) {
+						$groups[$proxyGroupId . '_' . $proxyId] = array(
+							'proxy_group_id' => $proxyGroupId,
+							'proxy_id' => $proxyId
+						);
+					}
+				}
+
+				if (!empty($existingProxyGroupProxies['data'])) {
+					foreach ($existingProxyGroupProxies['data'] as $existingProxyGroupProxy) {
+						if (!empty($groups[$key = $existingProxyGroupProxy['proxy_group_id'] . '_' . $existingProxyGroupProxy['proxy_id']])) {
+							$groups[$key]['id'] = $existingProxyGroupProxy['id'];
+						}
+					}
+				}
+
+				$message = 'Error adding selected items to groups.';
+
+				if ($this->save('proxy_group_proxies', array_values($groups))) {
+					$message = 'Items added to selected groups successfully.';
+				}
+			}
 		}
 
-		return $this->find('proxy_groups', $parameters, $message);
+		return array_merge($this->find($table, $parameters), array(
+			'message' => $message
+		));
 	}
 
 /**
@@ -628,11 +664,11 @@ class AppModel extends Config {
 		);
 
 		if (
-			!empty($parameters['items']['count']) &&
-			is_array($parameters['items']['data'])
+			!empty($parameters['items'][$table]['count']) &&
+			is_array($parameters['items'][$table]['data'])
 		) {
 			$response['message'] = 'There was an error applying the replacement settings to your ' . $table . ', please try again';
-			$newItemData = $oldItemData = array();
+			$newItemData = $oldItemData = $oldItemIds = array();
 
 			if (
 				(
@@ -691,18 +727,18 @@ class AppModel extends Config {
 						'country_name',
 						'country_code'
 					),
-					'limit' => $parameters['items']['count'],
+					'limit' => $parameters['items'][$table]['count'],
 					'sort' => array(
 						'field' => 'id',
 						'order' => 'DESC'
 					)
 				));
 
-				if (count($processingNodes['data']) !== $parameters['items']['count']) {
-					$response['message'] = 'There aren\'t enough ' . $table . ' available to replace your ' . $parameters['items']['count'] . ' selected ' . $table . ', please try again in a few minutes.';
+				if (count($processingNodes['data']) !== $parameters['items'][$table]['count']) {
+					$response['message'] = 'There aren\'t enough ' . $table . ' available to replace your ' . $parameters['items'][$table]['count'] . ' selected ' . $table . ', please try again in a few minutes.';
 				} else {
 					$allocatedNodes = array();
-					$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, $parameters['items']['count'], array(
+					$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, count($processingNodes['data']), array(
 						'processing' => true
 					)));
 					$this->save('nodes', $processingNodes['data']);
@@ -716,11 +752,12 @@ class AppModel extends Config {
 						$processingNodes['data'][$key] += $newItemData;
 						unset($processingNodes['data'][$key]['id']);
 						unset($processingNodes['data'][$key]['processing']);
+						$oldItemIds[]['id'] = $parameters['items'][$table]['data'][$key];
 					}
 
 					if ($parameters['tokens'][$table] === $this->_getToken($parameters)) {
 						if (!empty($oldItemData)) {
-							$oldItemData = array_replace_recursive(array_fill(0, $parameters['items']['count'], $oldItemData), $parameters['items']['data']);
+							$oldItemData = array_replace_recursive(array_fill(0, $parameters['items'][$table]['count'], $oldItemData), $oldItemIds);
 							$this->save($table, $oldItemData);
 						}
 
@@ -728,17 +765,18 @@ class AppModel extends Config {
 							$this->save($table, $processingNodes['data']) &&
 							$this->save('nodes', $allocatedNodes)
 						) {
-							$response['message'] = $parameters['items']['count'] . ' of your selected ' . $table . ' replaced successfully.';
+							$response['items'][$table] = array();
+							$response['message'] = $parameters['items'][$table]['count'] . ' of your selected ' . $table . ' replaced successfully.';
 						}
 					}
 				}
 			}
 		}
 
-		$response = $this->find($table, $parameters, $response['message']);
+		$response = array_merge($this->find($table, $parameters), $response);
 
 		if (($response['token'] = $this->_getToken($parameters)) !== $parameters['tokens'][$table]) {
-			$response['grid'] = array();
+			$response['items'][$table] = array();
 		}
 
 		return $response;

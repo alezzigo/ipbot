@@ -165,7 +165,7 @@ var processItems = (currentPage = 1) => {
 	requestParameters.conditions = {
 		order_id: orderId
 	};
-	requestParameters.items = itemGrid;
+	requestParameters.items[requestParameters.table] = itemGrid;
 	requestParameters.limit = resultsPerPage;
 	requestParameters.offset = ((currentPage * resultsPerPage) - resultsPerPage);
 	requestParameters.sort.field = 'modified';
@@ -194,7 +194,7 @@ var processItems = (currentPage = 1) => {
 			};
 			item.addEventListener('click', item.clickListener);
 		});
-		itemGrid = response.items;
+		itemGrid = response.items[requestParameters.table];
 		elements.removeClass('.item-configuration .item-details', 'hidden');
 		processItemGrid(range(0, response.data.length - 1));
 		var table = requestParameters.table;
@@ -203,7 +203,7 @@ var processItems = (currentPage = 1) => {
 };
 var processGroups = () => {
 	var groups = document.querySelector('.group-configuration .group-table'),
-		groupGrid = [],
+		groupGrid = {},
 		groupNameField = document.querySelector('.group-configuration .group-name-field'),
 		groupNameButton = document.querySelector('.group-configuration .group-name-button'),
 		orderId = document.querySelector('input[name="order_id"]').value;
@@ -214,6 +214,7 @@ var processGroups = () => {
 			group.setAttribute('checked', +groupState);
 			groupGrid['group' + groupId] = groupId;
 		});
+		requestParameters.items[requestParameters.table] = groupGrid;
 	};
 	var groupAdd = (groupName) => {
 		requestParameters.action = 'group';
@@ -392,6 +393,7 @@ var replaceCharacter = (string, index, character) => {
 };
 var requestParameters = {
 	action: 'find',
+	items: {},
 	sort: {
 		field: 'modified',
 		order: 'DESC'

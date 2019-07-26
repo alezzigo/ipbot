@@ -20,7 +20,7 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close">Close</button>
-						<button class="button hidden submit" disabled form="group">Add to Selected Groups</button>
+						<button class="button hidden submit" form="group">Add to Selected Groups</button>
 					</div>
 				</div>
 			</div>

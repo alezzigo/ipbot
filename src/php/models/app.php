@@ -615,7 +615,7 @@ class AppModel extends Config {
 					}
 				}
 
-				if (!empty($existingProxyGroupProxies['data'])) {
+				if (!empty($existingProxyGroupProxies['count'])) {
 					foreach ($existingProxyGroupProxies['data'] as $existingProxyGroupProxy) {
 						if (!empty($groups[$key = $existingProxyGroupProxy['proxy_group_id'] . '_' . $existingProxyGroupProxy['proxy_id']])) {
 							$groups[$key]['id'] = $existingProxyGroupProxy['id'];

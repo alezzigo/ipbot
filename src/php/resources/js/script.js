@@ -81,6 +81,165 @@ var processCopy = (action, currentWindow) => {
 	itemsCopy.addEventListener('click', itemsCopy.clickListener);
 	processCopyFormat();
 };
+var processGroup = (action, currentWindow) => {
+	var groupGrid = {},
+		groupNameField = document.querySelector(currentWindow + ' .group-name-field'),
+		groupNameButton = document.querySelector(currentWindow + ' .group-name-button'),
+		groupTable = document.querySelector(currentWindow + ' .group-table'),
+		orderId = document.querySelector('input[name="order_id"]').value;
+	var processGroupGrid = (groupIndexes, groupState) => {
+		groupIndexes.map((groupIndex) => {
+			var group = document.querySelector(currentWindow + ' .checkbox[index="' + groupIndex + '"]');
+			var groupId = group.getAttribute('group_id');
+			group.setAttribute('checked', +groupState);
+			groupGrid[action + groupId] = groupId;
+		});
+		requestParameters.items[requestParameters.table] = groupGrid;
+	};
+	var groupAdd = (groupName) => {
+		requestParameters.action = action;
+		requestParameters.data = {
+			name: groupName,
+			order_id: orderId
+		};
+		sendRequest((response) => {
+			processGroupTable(response);
+		});
+	};
+	var groupDelete = (button, row) => {
+		var groupId = row.getAttribute('group_id');
+		requestParameters.action = action;
+		requestParameters.data = {
+			id: [groupId]
+		};
+		sendRequest((response) => {
+			delete groupGrid[action + groupId];
+			processGroupTable(response);
+		});
+	};
+	var groupEdit = (button, row) => {
+		var processGroupEdit = (row) => {
+			requestParameters.action = action;
+			requestParameters.data = {
+				id: row.getAttribute('group_id'),
+				order_id: orderId,
+				name: row.querySelector('.group-name-edit-field').value
+			};
+			sendRequest((response) => {
+				processGroupTable(response);
+			});
+		}
+		var originalRow = row.querySelector('.table-text').innerHTML;
+		row.querySelector('.table-text').innerHTML = '<div class="field-group no-margin"><input class="group-name-edit-field no-margin" id="group-name-edit" name="group_name" type="text" value="' + row.querySelector('.view').innerText + '"><button class="button group-name-save-edit-button">Save</button><button class="button group-name-cancel-edit-button">Cancel</button></div>';
+		row = document.querySelector(currentWindow + ' tbody tr[group_id="' + row.getAttribute('group_id') + '"]');
+		var groupNameCancelEditButton = row.querySelector('.group-name-cancel-edit-button'),
+			groupNameEditField = row.querySelector('.group-name-edit-field'),
+			groupNameSaveEditButton = row.querySelector('.group-name-save-edit-button');
+		groupNameCancelEditButton.removeEventListener('click', groupNameCancelEditButton.clickListener);
+		groupNameEditField.removeEventListener('keydown', groupNameEditField.keydownListener);
+		groupNameSaveEditButton.removeEventListener('click', groupNameSaveEditButton.clickListener);
+		groupNameCancelEditButton.clickListener = () => {
+			row.querySelector('.table-text').innerHTML = originalRow;
+		};
+		groupNameEditField.keydownListener = () => {
+			if (event.key == 'Enter') {
+				processGroupEdit(row);
+			}
+		};
+		groupNameSaveEditButton.clickListener = () => {
+			processGroupEdit(row);
+		};
+		groupNameCancelEditButton.addEventListener('click', groupNameCancelEditButton.clickListener);
+		groupNameEditField.addEventListener('keydown', groupNameEditField.keydownListener);
+		groupNameSaveEditButton.addEventListener('click', groupNameSaveEditButton.clickListener);
+	};
+	var groupToggle = (button) => {
+		groupTable.setAttribute('current_checked', button.getAttribute('index'));
+		processGroupGrid(window.event.shiftKey ? range(groupTable.getAttribute('previous_checked'), button.getAttribute('index')) : [button.getAttribute('index')], window.event.shiftKey ? +document.querySelector(currentWindow + ' .checkbox[index="' + groupTable.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +button.getAttribute('checked') === 0);
+		groupTable.setAttribute('previous_checked', button.getAttribute('index'));
+	};
+	var groupView = (button, row) => {
+		document.querySelector('.item-configuration .item-table').innerHTML = '<p class="message">Loading ...</p>';
+		elements.addClass('.item-configuration .item-controls', 'hidden');
+		closeWindows();
+		requestParameters.action = 'search';
+		requestParameters.data = {
+			groups: [button.getAttribute('group_id')]
+		};
+		requestParameters.table = 'proxies';
+		itemGrid = [];
+		itemGridCount = 0;
+		sendRequest((response) => {
+			processItems();
+		});
+	};
+	var processGroupTable = (response) => {
+		groupTable.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+
+		if (
+			response.code !== 200 ||
+			!response.data.length
+		) {
+			return;
+		}
+
+		groupTable.innerHTML += '<table class="table"><thead><th style="width: 35px;"></th><th>Group Name</th></thead><tbody></tbody></table>';
+		response.data.map((group, index) => {
+			groupTable.querySelector('table tbody').innerHTML += '<tr group_id="' + group.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" group_id="' + group.id + '"></span></td><td><span class="table-text"><a class="view" group_id="' + group.id + '" href="javascript:void(0);">' + group.name + '</a></span><span class="table-actions"><span class="button edit icon" group_id="' + group.id + '"></span><span class="button delete icon" group_id="' + group.id + '"></span></span></td>';
+		});
+		elements.loop(currentWindow + ' tbody tr', (index, row) => {
+			var groupDeleteButton = row.querySelector('.delete'),
+				groupEditButton = row.querySelector('.edit'),
+				groupToggleButton = row.querySelector('.checkbox'),
+				groupViewButton = row.querySelector('.view');
+			groupDeleteButton.removeEventListener('click', groupDeleteButton.clickListener);
+			groupEditButton.removeEventListener('click', groupEditButton.clickListener);
+			groupToggleButton.removeEventListener('click', groupToggleButton.clickListener);
+			groupViewButton.removeEventListener('click', groupViewButton.clickListener);
+			groupDeleteButton.clickListener = () => {
+				groupDelete(groupDeleteButton, row);
+			};
+			groupEditButton.clickListener = () => {
+				groupEdit(groupEditButton, row);
+			};
+			groupToggleButton.clickListener = () => {
+				groupToggle(groupToggleButton);
+			};
+			groupViewButton.clickListener = () => {
+				groupView(groupViewButton);
+			};
+			groupDeleteButton.addEventListener('click', groupDeleteButton.clickListener);
+			groupEditButton.addEventListener('click', groupEditButton.clickListener);
+			groupToggleButton.addEventListener('click', groupToggleButton.clickListener);
+			groupViewButton.addEventListener('click', groupViewButton.clickListener);
+		});
+		groupNameField.value = '';
+		Object.entries(groupGrid).map((groupId) => {
+			var group = document.querySelector(currentWindow + ' .checkbox[group_id="' + groupId[1] + '"]');
+			processGroupGrid([group.getAttribute('index')], true);
+		});
+	};
+	+elements.html('.total-checked') ? elements.removeClass(currentWindow + ' .submit', 'hidden') : elements.addClass(currentWindow + ' .submit', 'hidden');
+	groupNameField.removeEventListener('keydown', groupNameField.keydownListener);
+	groupNameButton.removeEventListener('click', groupNameButton.clickListener);
+	groupNameField.keydownListener = (event) => {
+		if (event.key == 'Enter') {
+			groupAdd(groupNameField.value);
+		}
+	};
+	groupNameButton.clickListener = () => {
+		groupAdd(groupNameField.value);
+	};
+	groupNameField.addEventListener('keydown', groupNameField.keydownListener);
+	groupNameButton.addEventListener('click', groupNameButton.clickListener);
+	groupTable.innerHTML = '<p class="message no-margin-bottom">Loading ...</p>';
+	requestParameters.action = 'find';
+	requestParameters.sort.field = 'created';
+	requestParameters.table = 'proxy_groups';
+	sendRequest((response) => {
+		processGroupTable(response);
+	});
+};
 var processItems = (currentPage = 1) => {
 	var items = document.querySelector('.item-configuration .item-table'),
 		orderId = document.querySelector('input[name="order_id"]').value,
@@ -264,165 +423,6 @@ var processItems = (currentPage = 1) => {
 		processItemGrid(range(0, response.data.length - 1));
 		var table = requestParameters.table;
 		requestParameters.tokens[table] = response.token;
-	});
-};
-var processGroup = (action, currentWindow) => {
-	var groupGrid = {},
-		groupNameField = document.querySelector(currentWindow + ' .group-name-field'),
-		groupNameButton = document.querySelector(currentWindow + ' .group-name-button'),
-		groupTable = document.querySelector(currentWindow + ' .group-table'),
-		orderId = document.querySelector('input[name="order_id"]').value;
-	var processGroupGrid = (groupIndexes, groupState) => {
-		groupIndexes.map((groupIndex) => {
-			var group = document.querySelector(currentWindow + ' .checkbox[index="' + groupIndex + '"]');
-			var groupId = group.getAttribute('group_id');
-			group.setAttribute('checked', +groupState);
-			groupGrid[action + groupId] = groupId;
-		});
-		requestParameters.items[requestParameters.table] = groupGrid;
-	};
-	var groupAdd = (groupName) => {
-		requestParameters.action = action;
-		requestParameters.data = {
-			name: groupName,
-			order_id: orderId
-		};
-		sendRequest((response) => {
-			processGroupTable(response);
-		});
-	};
-	var groupDelete = (button, row) => {
-		var groupId = row.getAttribute('group_id');
-		requestParameters.action = action;
-		requestParameters.data = {
-			id: [groupId]
-		};
-		sendRequest((response) => {
-			delete groupGrid[action + groupId];
-			processGroupTable(response);
-		});
-	};
-	var groupEdit = (button, row) => {
-		var processGroupEdit = (row) => {
-			requestParameters.action = action;
-			requestParameters.data = {
-				id: row.getAttribute('group_id'),
-				order_id: orderId,
-				name: row.querySelector('.group-name-edit-field').value
-			};
-			sendRequest((response) => {
-				processGroupTable(response);
-			});
-		}
-		var originalRow = row.querySelector('.table-text').innerHTML;
-		row.querySelector('.table-text').innerHTML = '<div class="field-group no-margin"><input class="group-name-edit-field no-margin" id="group-name-edit" name="group_name" type="text" value="' + row.querySelector('.view').innerText + '"><button class="button group-name-save-edit-button">Save</button><button class="button group-name-cancel-edit-button">Cancel</button></div>';
-		row = document.querySelector(currentWindow + ' tbody tr[group_id="' + row.getAttribute('group_id') + '"]');
-		var groupNameCancelEditButton = row.querySelector('.group-name-cancel-edit-button'),
-			groupNameEditField = row.querySelector('.group-name-edit-field'),
-			groupNameSaveEditButton = row.querySelector('.group-name-save-edit-button');
-		groupNameCancelEditButton.removeEventListener('click', groupNameCancelEditButton.clickListener);
-		groupNameEditField.removeEventListener('keydown', groupNameEditField.keydownListener);
-		groupNameSaveEditButton.removeEventListener('click', groupNameSaveEditButton.clickListener);
-		groupNameCancelEditButton.clickListener = () => {
-			row.querySelector('.table-text').innerHTML = originalRow;
-		};
-		groupNameEditField.keydownListener = () => {
-			if (event.key == 'Enter') {
-				processGroupEdit(row);
-			}
-		};
-		groupNameSaveEditButton.clickListener = () => {
-			processGroupEdit(row);
-		};
-		groupNameCancelEditButton.addEventListener('click', groupNameCancelEditButton.clickListener);
-		groupNameEditField.addEventListener('keydown', groupNameEditField.keydownListener);
-		groupNameSaveEditButton.addEventListener('click', groupNameSaveEditButton.clickListener);
-	};
-	var groupToggle = (button) => {
-		groupTable.setAttribute('current_checked', button.getAttribute('index'));
-		processGroupGrid(window.event.shiftKey ? range(groupTable.getAttribute('previous_checked'), button.getAttribute('index')) : [button.getAttribute('index')], window.event.shiftKey ? +document.querySelector(currentWindow + ' .checkbox[index="' + groupTable.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +button.getAttribute('checked') === 0);
-		groupTable.setAttribute('previous_checked', button.getAttribute('index'));
-	};
-	var groupView = (button, row) => {
-		document.querySelector('.item-configuration .item-table').innerHTML = '<p class="message">Loading ...</p>';
-		elements.addClass('.item-configuration .item-controls', 'hidden');
-		closeWindows();
-		requestParameters.action = 'search';
-		requestParameters.data = {
-			groups: [button.getAttribute('group_id')]
-		};
-		requestParameters.table = 'proxies';
-		itemGrid = [];
-		itemGridCount = 0;
-		sendRequest((response) => {
-			processItems();
-		});
-	};
-	var processGroupTable = (response) => {
-		groupTable.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
-
-		if (
-			response.code !== 200 ||
-			!response.data.length
-		) {
-			return;
-		}
-
-		groupTable.innerHTML += '<table class="table"><thead><th style="width: 35px;"></th><th>Group Name</th></thead><tbody></tbody></table>';
-		response.data.map((group, index) => {
-			groupTable.querySelector('table tbody').innerHTML += '<tr group_id="' + group.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" group_id="' + group.id + '"></span></td><td><span class="table-text"><a class="view" group_id="' + group.id + '" href="javascript:void(0);">' + group.name + '</a></span><span class="table-actions"><span class="button edit icon" group_id="' + group.id + '"></span><span class="button delete icon" group_id="' + group.id + '"></span></span></td>';
-		});
-		elements.loop(currentWindow + ' tbody tr', (index, row) => {
-			var groupDeleteButton = row.querySelector('.delete'),
-				groupEditButton = row.querySelector('.edit'),
-				groupToggleButton = row.querySelector('.checkbox'),
-				groupViewButton = row.querySelector('.view');
-			groupDeleteButton.removeEventListener('click', groupDeleteButton.clickListener);
-			groupEditButton.removeEventListener('click', groupEditButton.clickListener);
-			groupToggleButton.removeEventListener('click', groupToggleButton.clickListener);
-			groupViewButton.removeEventListener('click', groupViewButton.clickListener);
-			groupDeleteButton.clickListener = () => {
-				groupDelete(groupDeleteButton, row);
-			};
-			groupEditButton.clickListener = () => {
-				groupEdit(groupEditButton, row);
-			};
-			groupToggleButton.clickListener = () => {
-				groupToggle(groupToggleButton);
-			};
-			groupViewButton.clickListener = () => {
-				groupView(groupViewButton);
-			};
-			groupDeleteButton.addEventListener('click', groupDeleteButton.clickListener);
-			groupEditButton.addEventListener('click', groupEditButton.clickListener);
-			groupToggleButton.addEventListener('click', groupToggleButton.clickListener);
-			groupViewButton.addEventListener('click', groupViewButton.clickListener);
-		});
-		groupNameField.value = '';
-		Object.entries(groupGrid).map((groupId) => {
-			var group = document.querySelector(currentWindow + ' .checkbox[group_id="' + groupId[1] + '"]');
-			processGroupGrid([group.getAttribute('index')], true);
-		});
-	};
-	+elements.html('.total-checked') ? elements.removeClass(currentWindow + ' .submit', 'hidden') : elements.addClass(currentWindow + ' .submit', 'hidden');
-	groupNameField.removeEventListener('keydown', groupNameField.keydownListener);
-	groupNameButton.removeEventListener('click', groupNameButton.clickListener);
-	groupNameField.keydownListener = (event) => {
-		if (event.key == 'Enter') {
-			groupAdd(groupNameField.value);
-		}
-	};
-	groupNameButton.clickListener = () => {
-		groupAdd(groupNameField.value);
-	};
-	groupNameField.addEventListener('keydown', groupNameField.keydownListener);
-	groupNameButton.addEventListener('click', groupNameButton.clickListener);
-	groupTable.innerHTML = '<p class="message no-margin-bottom">Loading ...</p>';
-	requestParameters.action = 'find';
-	requestParameters.sort.field = 'created';
-	requestParameters.table = 'proxy_groups';
-	sendRequest((response) => {
-		processGroupTable(response);
 	});
 };
 var processWindowEvents = (windowEvents, event = null) => {

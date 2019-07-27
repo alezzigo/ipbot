@@ -158,7 +158,7 @@ var processItems = (currentPage = 1) => {
 		+elements.html('.total-checked') ? elements.removeClass('.item-configuration span.icon[item-function]', 'hidden') : elements.addClass('.item-configuration span.icon[item-function]', 'hidden');
 		itemGridCount = itemCount;
 	};
-	elements.addClass('.item-configuration .item-details', 'hidden');
+	elements.addClass('.item-configuration .item-controls', 'hidden');
 	pagination.querySelector('.next').setAttribute('page', 0);
 	pagination.querySelector('.previous').setAttribute('page', 0);
 	items.innerHTML = '<p class="message no-margin-bottom">Loading ...</p>';
@@ -214,7 +214,7 @@ var processItems = (currentPage = 1) => {
 			item.addEventListener('click', item.clickListener);
 		});
 		itemGrid = response.items[requestParameters.table];
-		elements.removeClass('.item-configuration .item-details', 'hidden');
+		elements.removeClass('.item-configuration .item-controls', 'hidden');
 		processItemGrid(range(0, response.data.length - 1));
 		var table = requestParameters.table;
 		requestParameters.tokens[table] = response.token;
@@ -299,7 +299,7 @@ var processGroups = () => {
 	};
 	var groupView = (button, row) => {
 		document.querySelector('.item-configuration .item-table').innerHTML = '<p class="message">Loading ...</p>';
-		elements.addClass('.item-configuration .item-details', 'hidden');
+		elements.addClass('.item-configuration .item-controls', 'hidden');
 		closeWindows();
 		requestParameters.action = 'search';
 		requestParameters.data = {

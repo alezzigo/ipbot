@@ -74,6 +74,9 @@
 								'status'
 							))
 						),
+						'group' => array(
+							'fields' => array()
+						),
 						'replace' => array(
 							'fields' => $defaultFields['proxies']
 						),

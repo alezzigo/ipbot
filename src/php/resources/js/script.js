@@ -182,6 +182,8 @@ var processItems = (currentPage = 1) => {
 				itemsClear.removeEventListener('click', itemsClear.clickListener);
 				itemsClear.clickListener = () => {
 					closeWindows();
+					itemGrid = [];
+					itemGridCount = 0;
 					processItems();
 				};
 				itemsClear.addEventListener('click', itemsClear.clickListener);

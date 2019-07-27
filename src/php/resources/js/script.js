@@ -4,7 +4,6 @@ var closeWindows = () => {
 	document.querySelector('main').classList.remove('hidden');
 	elements.addClass('.window-container', 'hidden');
 	requestParameters.action = 'find';
-	requestParameters.data = {};
 	requestParameters.table = 'proxies';
 };
 var elements = {
@@ -159,6 +158,7 @@ var processItems = (currentPage = 1) => {
 		+elements.html('.total-checked') ? elements.removeClass('.item-configuration span.icon[item-function]', 'hidden') : elements.addClass('.item-configuration span.icon[item-function]', 'hidden');
 		itemGridCount = itemCount;
 	};
+	elements.addClass('.item-configuration .item-details', 'hidden');
 	pagination.querySelector('.next').setAttribute('page', 0);
 	pagination.querySelector('.previous').setAttribute('page', 0);
 	items.innerHTML = '<p class="message no-margin-bottom">Loading ...</p>';
@@ -172,7 +172,26 @@ var processItems = (currentPage = 1) => {
 	sendRequest((response) => {
 		items.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
 
-		if (response.code !== 200) {
+		if (
+			requestParameters.action == 'search' &&
+			requestParameters.data &&
+			response.message
+		) {
+			setTimeout(() => {
+				var itemsClear = items.querySelector('.clear');
+				itemsClear.removeEventListener('click', itemsClear.clickListener);
+				itemsClear.clickListener = () => {
+					closeWindows();
+					processItems();
+				};
+				itemsClear.addEventListener('click', itemsClear.clickListener);
+			}, 100);
+		}
+
+		if (
+			response.code !== 200 ||
+			!response.data.length
+		) {
 			return;
 		}
 
@@ -279,12 +298,27 @@ var processGroups = () => {
 		groups.setAttribute('previous_checked', button.getAttribute('index'));
 	};
 	var groupView = (button, row) => {
-		// ...
+		document.querySelector('.item-configuration .item-table').innerHTML = '<p class="message">Loading ...</p>';
+		elements.addClass('.item-configuration .item-details', 'hidden');
+		closeWindows();
+		requestParameters.action = 'search';
+		requestParameters.data = {
+			groups: [button.getAttribute('group_id')]
+		};
+		requestParameters.table = 'proxies';
+		itemGrid = [];
+		itemGridCount = 0;
+		sendRequest((response) => {
+			processItems();
+		});
 	};
 	var processGroupTable = (response) => {
 		groups.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
 
-		if (!response.data.length) {
+		if (
+			response.code !== 200 ||
+			!response.data.length
+		) {
 			return;
 		}
 
@@ -300,6 +334,7 @@ var processGroups = () => {
 			groupDeleteButton.removeEventListener('click', groupDeleteButton.clickListener);
 			groupEditButton.removeEventListener('click', groupEditButton.clickListener);
 			groupToggleButton.removeEventListener('click', groupToggleButton.clickListener);
+			groupViewButton.removeEventListener('click', groupViewButton.clickListener);
 			groupDeleteButton.clickListener = () => {
 				groupDelete(groupDeleteButton, row);
 			};
@@ -309,9 +344,13 @@ var processGroups = () => {
 			groupToggleButton.clickListener = () => {
 				groupToggle(groupToggleButton);
 			};
+			groupViewButton.clickListener = () => {
+				groupView(groupViewButton);
+			};
 			groupDeleteButton.addEventListener('click', groupDeleteButton.clickListener);
 			groupEditButton.addEventListener('click', groupEditButton.clickListener);
 			groupToggleButton.addEventListener('click', groupToggleButton.clickListener);
+			groupViewButton.addEventListener('click', groupViewButton.clickListener);
 		});
 		groupNameField.value = '';
 		Object.entries(groupGrid).map((groupId) => {
@@ -398,6 +437,7 @@ var replaceCharacter = (string, index, character) => {
 };
 var requestParameters = {
 	action: 'find',
+	data: {},
 	items: {},
 	sort: {
 		field: 'modified',

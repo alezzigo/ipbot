@@ -284,6 +284,13 @@ select {
 		margin-bottom: 20px;
 		padding: 8px 11px 7px;
 	}
+	.item-container .message a {
+		border-bottom: 1px dashed;
+		color: #fff;
+	}
+		.item-container .message a:hover {
+			border: none;
+		}
 	.icon {
 		color: #fff;
 		cursor: pointer;

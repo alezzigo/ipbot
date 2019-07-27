@@ -872,9 +872,9 @@ class AppModel extends Config {
 
 		if (
 			!empty($parameters['data']['granular_search']) &&
-			($conditions['ip'] = $this->_parseIps($parameters['data']['granular_search'], true))
+			($conditions['ip LIKE'] = $this->_parseIps($parameters['data']['granular_search'], true))
 		) {
-			array_walk($conditions['ip'], function(&$value, $key) {
+			array_walk($conditions['ip LIKE'], function(&$value, $key) {
 				$value .= '%'; // Add trailing wildcard for A/B/C class subnet search
 			});
 		}
@@ -892,8 +892,31 @@ class AppModel extends Config {
 		}
 
 		unset($parameters['conditions']['id']);
+
+		if (!empty($parameters['data']['groups'])) {
+			$conditions['id'] = false;
+			$groupProxies = $this->find('proxy_group_proxies', array(
+				'conditions' => array(
+					'proxy_group_id' => array_values($parameters['data']['groups'])
+				),
+				'fields' => array(
+					'proxy_id'
+				)
+			));
+
+			if (
+				!empty($groupProxies['count']) &&
+				!empty($groupProxyIds = array_unique($groupProxies['data']))
+			) {
+				$conditions['id'] = $groupProxyIds;
+			}
+		}
+
 		$parameters['conditions'] = array_merge($conditions, $parameters['conditions']);
-		return $this->find($table, $parameters);
+		$response = $this->find($table, $parameters);
+		return array_merge($response, array(
+			'message' => $response['count'] . ' search results found. <a class="clear" href="javascript:void(0);">Clear search filter</a>.'
+		));
 	}
 
 /**

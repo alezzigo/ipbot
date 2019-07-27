@@ -222,11 +222,11 @@ var processItems = (currentPage = 1) => {
 		requestParameters.tokens[table] = response.token;
 	});
 };
-var processGroups = () => {
-	var groups = document.querySelector('.group-configuration .group-table'),
-		groupGrid = {},
+var processGroup = () => {
+	var groupGrid = {},
 		groupNameField = document.querySelector('.group-configuration .group-name-field'),
 		groupNameButton = document.querySelector('.group-configuration .group-name-button'),
+		groupTable = document.querySelector('.group-configuration .group-table'),
 		orderId = document.querySelector('input[name="order_id"]').value;
 	var processGroupGrid = (groupIndexes, groupState) => {
 		groupIndexes.map((groupIndex) => {
@@ -295,9 +295,9 @@ var processGroups = () => {
 		groupNameSaveEditButton.addEventListener('click', groupNameSaveEditButton.clickListener);
 	};
 	var groupToggle = (button) => {
-		groups.setAttribute('current_checked', button.getAttribute('index'));
-		processGroupGrid(window.event.shiftKey ? range(groups.getAttribute('previous_checked'), button.getAttribute('index')) : [button.getAttribute('index')], window.event.shiftKey ? +document.querySelector('.group-configuration .checkbox[index="' + groups.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +button.getAttribute('checked') === 0);
-		groups.setAttribute('previous_checked', button.getAttribute('index'));
+		groupTable.setAttribute('current_checked', button.getAttribute('index'));
+		processGroupGrid(window.event.shiftKey ? range(groupTable.getAttribute('previous_checked'), button.getAttribute('index')) : [button.getAttribute('index')], window.event.shiftKey ? +document.querySelector('.group-configuration .checkbox[index="' + groupTable.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +button.getAttribute('checked') === 0);
+		groupTable.setAttribute('previous_checked', button.getAttribute('index'));
 	};
 	var groupView = (button, row) => {
 		document.querySelector('.item-configuration .item-table').innerHTML = '<p class="message">Loading ...</p>';
@@ -315,7 +315,7 @@ var processGroups = () => {
 		});
 	};
 	var processGroupTable = (response) => {
-		groups.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+		groupTable.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
 
 		if (
 			response.code !== 200 ||
@@ -324,9 +324,9 @@ var processGroups = () => {
 			return;
 		}
 
-		groups.innerHTML += '<table class="table"><thead><th style="width: 35px;"></th><th>Group Name</th></thead><tbody></tbody></table>';
+		groupTable.innerHTML += '<table class="table"><thead><th style="width: 35px;"></th><th>Group Name</th></thead><tbody></tbody></table>';
 		response.data.map((group, index) => {
-			groups.querySelector('table tbody').innerHTML += '<tr group_id="' + group.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" group_id="' + group.id + '"></span></td><td><span class="table-text"><a class="view" group_id="' + group.id + '" href="javascript:void(0);">' + group.name + '</a></span><span class="table-actions"><span class="button edit icon" group_id="' + group.id + '"></span><span class="button delete icon" group_id="' + group.id + '"></span></span></td>';
+			groupTable.querySelector('table tbody').innerHTML += '<tr group_id="' + group.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" group_id="' + group.id + '"></span></td><td><span class="table-text"><a class="view" group_id="' + group.id + '" href="javascript:void(0);">' + group.name + '</a></span><span class="table-actions"><span class="button edit icon" group_id="' + group.id + '"></span><span class="button delete icon" group_id="' + group.id + '"></span></span></td>';
 		});
 		elements.loop('.group-configuration tbody tr', (index, row) => {
 			var groupDeleteButton = row.querySelector('.delete'),
@@ -373,7 +373,7 @@ var processGroups = () => {
 	};
 	groupNameField.addEventListener('keydown', groupNameField.keydownListener);
 	groupNameButton.addEventListener('click', groupNameButton.clickListener);
-	groups.innerHTML = '<p class="message no-margin-bottom">Loading ...</p>';
+	groupTable.innerHTML = '<p class="message no-margin-bottom">Loading ...</p>';
 	requestParameters.action = 'find';
 	requestParameters.sort.field = 'created';
 	requestParameters.table = 'proxy_groups';
@@ -525,7 +525,7 @@ onLoad(() => {
 
 			switch (action) {
 				case 'group':
-					processGroups();
+					processGroup();
 					break;
 			}
 		});

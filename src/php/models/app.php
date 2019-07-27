@@ -187,7 +187,6 @@ class AppModel extends Config {
 			empty($parameters['tokens'][$table]) ||
 			$parameters['tokens'][$table] === $token
 		) {
-
 			if (
 				$itemTable &&
 				!in_array($action, array('find',  'search'))
@@ -459,6 +458,50 @@ class AppModel extends Config {
 			$ips[$key] = implode('.', $splitIpSubnets);
 		}
 		return implode("\n", array_unique($ips));
+	}
+
+/**
+ * Process copy requests
+ * @todo File downloads for large lists
+ *
+ * @param string $table Table name
+ * @param array $parameters Copy query parameters
+ *
+ * @return array $response Response data
+ */
+	public function copy($table, $parameters) {
+		$items = array();
+		$response = $this->find($table, array(
+			'conditions' => array(
+				'id' => $parameters['items'][$table]['data']
+			),
+			'fields' => $this->permissions['api'][$table]['copy']['fields']
+		));
+
+		if (!empty($response['data'])) {
+			$delimiters = implode('', array_unique(array_filter(array(
+				!empty($parameters['data']['ipv4_delimiter_1']) ? $parameters['data']['ipv4_delimiter_1'] : '',
+				!empty($parameters['data']['ipv4_delimiter_2']) ? $parameters['data']['ipv4_delimiter_2'] : '',
+				!empty($parameters['data']['ipv4_delimiter_3']) ? $parameters['data']['ipv4_delimiter_3'] : '',
+				!empty($parameters['data']['ipv4_delimiter_4']) ? $parameters['data']['ipv4_delimiter_4'] : ''
+			))));
+
+			foreach ($response['data'] as $key => $data) {
+				$items[$key] = '';
+
+				for ($i = 1; $i < 5; $i++) {
+					$items[$key] .= !empty($column = $response['data'][$key][$parameters['data']['ipv4_column_' . $i]]) ? $column . $parameters['data']['ipv4_delimiter_' . $i] : '';
+				}
+
+				$items[$key] = rtrim($items[$key], $delimiters);
+			}
+		}
+
+		$response = array(
+			'count' => count($items),
+			'data' => implode("\n", $items)
+		);
+		return $response;
 	}
 
 /**

@@ -93,6 +93,13 @@ select {
 	select:hover {
 		border-color: #6c62e0;
 	}
+	select[disabled]:hover {
+		border-color: #c0c2c7;
+	}
+[disabled] {
+	cursor: default;
+	opacity: 0.50;
+}
 .field-group {
 	float: left;
 	margin-bottom: 18px;

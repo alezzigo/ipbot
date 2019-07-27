@@ -12,20 +12,27 @@ var elements = {
 			element[1].classList.add(className);
 		});
 	},
+	html: (selector, value = null) => {
+		return selectAllElements(selector).map((element) => {
+			return value !== null ? element[1].innerHTML = value : element[1].innerHTML;
+		})[0];
+	},
 	loop: (selector, callback) => {
 		selectAllElements(selector).map((element) => {
 			callback(element[0], element[1]);
+		});
+	},
+	removeAttribute: (selector, attribute) => {
+		selectAllElements(selector).map((element) => {
+			if (element[1].hasAttribute(attribute)) {
+				element[1].removeAttribute(attribute);
+			}
 		});
 	},
 	removeClass: (selector, className) => {
 		selectAllElements(selector).map((element) => {
 			element[1].classList.remove(className);
 		});
-	},
-	html: (selector, value = null) => {
-		return selectAllElements(selector).map((element) => {
-			return value !== null ? element[1].innerHTML = value : element[1].innerHTML;
-		})[0];
 	},
 	setAttribute: (selector, attribute, value) => {
 		selectAllElements(selector).map((element) => {
@@ -37,6 +44,42 @@ var itemGrid = [],
 	itemGridCount = 0;
 var onLoad = (callback) => {
 	document.readyState != 'complete' ? setTimeout('onLoad(' + callback + ')', 10) : callback();
+};
+var processCopy = (action, currentWindow) => {
+	var previousAction = requestParameters.action;
+	var processCopyFormat = () => {
+		requestParameters.action = action;
+		elements.addClass(currentWindow + ' .copy', 'hidden');
+		elements.removeClass(currentWindow + ' .loading', 'hidden');
+		elements.setAttribute(currentWindow + ' .list-format select', 'disabled', 'disabled');
+		elements.loop(currentWindow + ' input, ' + currentWindow + ' select, ' + currentWindow + ' textarea', (index, element) => {
+			requestParameters.data[element.getAttribute('name')] = element.value;
+		});
+		requestParameters.items[requestParameters.table] = itemGrid;
+		sendRequest((response) => {
+			document.querySelector(currentWindow + ' textarea[name="' + action + '"]').value = response.data;
+			elements.addClass(currentWindow + ' .loading', 'hidden');
+			elements.removeClass(currentWindow + ' .copy', 'hidden');
+			elements.removeAttribute(currentWindow + ' .list-format select', 'disabled');
+			requestParameters.action = previousAction;
+		});
+	};
+	elements.loop(currentWindow + ' .list-format select', (index, element) => {
+		element.removeEventListener('change', element.changeListener);
+		element.changeListener = () => {
+			processCopyFormat();
+		}
+		element.addEventListener('change', element.changeListener);
+	});
+
+	var itemsCopy = document.querySelector(currentWindow + ' .button.' + action);
+	itemsCopy.removeEventListener('click', itemsCopy.clickListener);
+	itemsCopy.clickListener = () => {
+		document.querySelector('[name="copy"]').select();
+		document.execCommand(action);
+	};
+	itemsCopy.addEventListener('click', itemsCopy.clickListener);
+	processCopyFormat();
 };
 var processItems = (currentPage = 1) => {
 	var items = document.querySelector('.item-configuration .item-table'),
@@ -222,23 +265,23 @@ var processItems = (currentPage = 1) => {
 		requestParameters.tokens[table] = response.token;
 	});
 };
-var processGroup = () => {
+var processGroup = (action, currentWindow) => {
 	var groupGrid = {},
-		groupNameField = document.querySelector('.group-configuration .group-name-field'),
-		groupNameButton = document.querySelector('.group-configuration .group-name-button'),
-		groupTable = document.querySelector('.group-configuration .group-table'),
+		groupNameField = document.querySelector(currentWindow + ' .group-name-field'),
+		groupNameButton = document.querySelector(currentWindow + ' .group-name-button'),
+		groupTable = document.querySelector(currentWindow + ' .group-table'),
 		orderId = document.querySelector('input[name="order_id"]').value;
 	var processGroupGrid = (groupIndexes, groupState) => {
 		groupIndexes.map((groupIndex) => {
-			var group = document.querySelector('.group-configuration .checkbox[index="' + groupIndex + '"]');
+			var group = document.querySelector(currentWindow + ' .checkbox[index="' + groupIndex + '"]');
 			var groupId = group.getAttribute('group_id');
 			group.setAttribute('checked', +groupState);
-			groupGrid['group' + groupId] = groupId;
+			groupGrid[action + groupId] = groupId;
 		});
 		requestParameters.items[requestParameters.table] = groupGrid;
 	};
 	var groupAdd = (groupName) => {
-		requestParameters.action = 'group';
+		requestParameters.action = action;
 		requestParameters.data = {
 			name: groupName,
 			order_id: orderId
@@ -249,18 +292,18 @@ var processGroup = () => {
 	};
 	var groupDelete = (button, row) => {
 		var groupId = row.getAttribute('group_id');
-		requestParameters.action = 'group';
+		requestParameters.action = action;
 		requestParameters.data = {
 			id: [groupId]
 		};
 		sendRequest((response) => {
-			delete groupGrid['group' + groupId];
+			delete groupGrid[action + groupId];
 			processGroupTable(response);
 		});
 	};
 	var groupEdit = (button, row) => {
 		var processGroupEdit = (row) => {
-			requestParameters.action = 'group';
+			requestParameters.action = action;
 			requestParameters.data = {
 				id: row.getAttribute('group_id'),
 				order_id: orderId,
@@ -272,7 +315,7 @@ var processGroup = () => {
 		}
 		var originalRow = row.querySelector('.table-text').innerHTML;
 		row.querySelector('.table-text').innerHTML = '<div class="field-group no-margin"><input class="group-name-edit-field no-margin" id="group-name-edit" name="group_name" type="text" value="' + row.querySelector('.view').innerText + '"><button class="button group-name-save-edit-button">Save</button><button class="button group-name-cancel-edit-button">Cancel</button></div>';
-		row = document.querySelector('.group-configuration tbody tr[group_id="' + row.getAttribute('group_id') + '"]');
+		row = document.querySelector(currentWindow + ' tbody tr[group_id="' + row.getAttribute('group_id') + '"]');
 		var groupNameCancelEditButton = row.querySelector('.group-name-cancel-edit-button'),
 			groupNameEditField = row.querySelector('.group-name-edit-field'),
 			groupNameSaveEditButton = row.querySelector('.group-name-save-edit-button');
@@ -296,7 +339,7 @@ var processGroup = () => {
 	};
 	var groupToggle = (button) => {
 		groupTable.setAttribute('current_checked', button.getAttribute('index'));
-		processGroupGrid(window.event.shiftKey ? range(groupTable.getAttribute('previous_checked'), button.getAttribute('index')) : [button.getAttribute('index')], window.event.shiftKey ? +document.querySelector('.group-configuration .checkbox[index="' + groupTable.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +button.getAttribute('checked') === 0);
+		processGroupGrid(window.event.shiftKey ? range(groupTable.getAttribute('previous_checked'), button.getAttribute('index')) : [button.getAttribute('index')], window.event.shiftKey ? +document.querySelector(currentWindow + ' .checkbox[index="' + groupTable.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +button.getAttribute('checked') === 0);
 		groupTable.setAttribute('previous_checked', button.getAttribute('index'));
 	};
 	var groupView = (button, row) => {
@@ -328,7 +371,7 @@ var processGroup = () => {
 		response.data.map((group, index) => {
 			groupTable.querySelector('table tbody').innerHTML += '<tr group_id="' + group.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" group_id="' + group.id + '"></span></td><td><span class="table-text"><a class="view" group_id="' + group.id + '" href="javascript:void(0);">' + group.name + '</a></span><span class="table-actions"><span class="button edit icon" group_id="' + group.id + '"></span><span class="button delete icon" group_id="' + group.id + '"></span></span></td>';
 		});
-		elements.loop('.group-configuration tbody tr', (index, row) => {
+		elements.loop(currentWindow + ' tbody tr', (index, row) => {
 			var groupDeleteButton = row.querySelector('.delete'),
 				groupEditButton = row.querySelector('.edit'),
 				groupToggleButton = row.querySelector('.checkbox'),
@@ -356,11 +399,11 @@ var processGroup = () => {
 		});
 		groupNameField.value = '';
 		Object.entries(groupGrid).map((groupId) => {
-			var group = document.querySelector('.group-configuration .checkbox[group_id="' + groupId[1] + '"]');
+			var group = document.querySelector(currentWindow + ' .checkbox[group_id="' + groupId[1] + '"]');
 			processGroupGrid([group.getAttribute('index')], true);
 		});
 	};
-	+elements.html('.total-checked') ? elements.removeClass('.group-configuration .submit', 'hidden') : elements.addClass('.group-configuration .submit', 'hidden');
+	+elements.html('.total-checked') ? elements.removeClass(currentWindow + ' .submit', 'hidden') : elements.addClass(currentWindow + ' .submit', 'hidden');
 	groupNameField.removeEventListener('keydown', groupNameField.keydownListener);
 	groupNameButton.removeEventListener('click', groupNameButton.clickListener);
 	groupNameField.keydownListener = (event) => {
@@ -519,13 +562,16 @@ onLoad(() => {
 	selectAllElements('.button.window').map((element) => {
 		element[1].addEventListener('click', (element) => {
 			var action = element.target.getAttribute('window');
-			var form = '.window-container[window="' + action + '"]';
+			var currentWindow = '.window-container[window="' + action + '"]';
 			document.querySelector('main').classList.add('hidden');
-			elements.removeClass(form, 'hidden');
+			elements.removeClass(currentWindow, 'hidden');
 
 			switch (action) {
+				case 'copy':
+					processCopy(action, currentWindow);
+					break;
 				case 'group':
-					processGroup();
+					processGroup(action, currentWindow);
 					break;
 			}
 		});
@@ -538,12 +584,12 @@ onLoad(() => {
 	selectAllElements('.window .button.submit').map((element) => {
 		element[1].addEventListener('click', (element) => {
 			var action = element.target.getAttribute('form');
-			var form = '.window-container[window="' + action + '"]';
+			var currentWindow = '.window-container[window="' + action + '"]';
 			closeWindows();
-			elements.loop(form + ' input, ' + form + ' select, ' + form + ' textarea', (index, element) => {
+			elements.loop(currentWindow + ' input, ' + currentWindow + ' select, ' + currentWindow + ' textarea', (index, element) => {
 				requestParameters.data[element.getAttribute('name')] = element.value;
 			});
-			elements.loop(form + ' .checkbox', (index, element) => {
+			elements.loop(currentWindow + ' .checkbox', (index, element) => {
 				requestParameters.data[element.getAttribute('name')] = +element.getAttribute('checked');
 			});
 			requestParameters.action = action;

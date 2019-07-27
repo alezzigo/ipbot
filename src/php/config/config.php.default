@@ -65,6 +65,14 @@
 						)
 					),
 					'proxies' => array(
+						'copy' => array(
+							'fields' => array(
+								'ip',
+								'http_port',
+								'username',
+								'password'
+							)
+						),
 						'find' => array(
 							'fields' => array_merge($defaultFields['proxies'], array(
 								'created',

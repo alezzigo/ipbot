@@ -224,6 +224,7 @@ var processItems = (currentPage = 1) => {
 				var itemsClear = items.querySelector('.clear');
 				itemsClear.removeEventListener('click', itemsClear.clickListener);
 				itemsClear.clickListener = () => {
+					requestParameters.data = {};
 					closeWindows();
 					itemGrid = [];
 					itemGridCount = 0;

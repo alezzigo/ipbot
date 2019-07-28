@@ -100,16 +100,9 @@ var replaceCharacter = (string, index, character) => {
 	return string.substr(0, index) + character + string.substr(index + ('' + character).length);
 };
 var requestParameters = {
-	action: 'find',
 	data: {},
 	items: {},
-	sort: {
-		field: 'modified',
-		order: 'DESC'
-	},
-	table: 'proxies',
-	tokens: {},
-	url: '/src/views/app/api.php'
+	tokens: {}
 };
 var selectAllElements = (selector) => {
 	return Object.entries(document.querySelectorAll(selector));

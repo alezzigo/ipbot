@@ -1,4 +1,7 @@
 <?php
+	$styleSheets = array(
+		'/src/resources/css/default.css'
+	);
 	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/controllers/orders.php');
 	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/layouts/default/header.php');
 	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/includes/forms/proxies/search.php');
@@ -49,8 +52,8 @@
 </div>
 <?php
 	$scripts = array(
-		'/src/resources/js/app/script.js',
-		'/src/resources/js/proxies/script.js'
+		'/src/resources/js/app.js',
+		'/src/resources/js/proxies.js'
 	);
 	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/layouts/default/footer.php');
 ?>

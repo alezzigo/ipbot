@@ -1,4 +1,7 @@
 <?php
+	$styleSheets = array(
+		'/src/resources/css/default.css'
+	);
 	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/controllers/orders.php');
 	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/layouts/default/header.php');
 ?>

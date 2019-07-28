@@ -381,25 +381,6 @@ var processItems = (currentPage = 1) => {
 	});
 };
 
-/*
-requestParameters = {
-	action: 'register',
-	data: {},
-	items: {},
-	sort: {
-		field: 'modified',
-		order: 'DESC'
-	},
-	table: 'users',
-	tokens: {},
-	url: '/src/views/app/api.php'
-};
-onLoad(() => {
-	sendRequest((response) => {
-		console.log(response);
-	});
-});*/
-
 onLoad(() => {
 	if (document.querySelector('.pagination')) {
 		processItems();

@@ -7,16 +7,6 @@
  */
 require_once($_SERVER['DOCUMENT_ROOT'] . '/src/models/app.php');
 
-/*
-if (
-	($parameters = ((!empty($_POST['json']) && is_string($_POST['json'])) ? json_decode($_POST['json'], true) : array())) &&
-	!empty($parameters['table']) &&
-	//array_key_exists($parameters['table'], $this->permissions['api']) &&
-	file_exists($modelPath = $_SERVER['DOCUMENT_ROOT'] . '/src/models/' . $parameters['table'] . '.php')
-) {
-	require_once($modelPath);
-}*/
-
 class AppController extends AppModel {
 
 /**

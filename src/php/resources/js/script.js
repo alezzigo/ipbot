@@ -3,7 +3,7 @@
 var closeWindows = () => {
 	document.querySelector('main').classList.remove('hidden');
 	elements.addClass('.window-container', 'hidden');
-	requestParameters.action = 'find';
+	requestParameters.action = previousAction;
 	requestParameters.table = 'proxies';
 };
 var elements = {
@@ -41,12 +41,13 @@ var elements = {
 	}
 };
 var itemGrid = [],
-	itemGridCount = 0;
+	itemGridCount = 0,
+	previousAction = 'find';
 var onLoad = (callback) => {
 	document.readyState != 'complete' ? setTimeout('onLoad(' + callback + ')', 10) : callback();
 };
 var processCopy = (action, currentWindow) => {
-	var previousAction = requestParameters.action;
+	previousAction = requestParameters.action;
 	var processCopyFormat = () => {
 		requestParameters.action = action;
 		elements.addClass(currentWindow + ' .copy', 'hidden');
@@ -98,10 +99,9 @@ var processGroup = (action, currentWindow) => {
 	};
 	var groupAdd = (groupName) => {
 		requestParameters.action = action;
-		requestParameters.data = {
-			name: groupName,
-			order_id: orderId
-		};
+		requestParameters.data.name = groupName;
+		requestParameters.data.order_id = orderId;
+		delete requestParameters.data.id;
 		sendRequest((response) => {
 			processGroupTable(response);
 		});
@@ -109,9 +109,8 @@ var processGroup = (action, currentWindow) => {
 	var groupDelete = (button, row) => {
 		var groupId = row.getAttribute('group_id');
 		requestParameters.action = action;
-		requestParameters.data = {
-			id: [groupId]
-		};
+		requestParameters.data.id = [groupId];
+		delete requestParameters.data.name;
 		sendRequest((response) => {
 			delete groupGrid[action + groupId];
 			processGroupTable(response);
@@ -120,11 +119,9 @@ var processGroup = (action, currentWindow) => {
 	var groupEdit = (button, row) => {
 		var processGroupEdit = (row) => {
 			requestParameters.action = action;
-			requestParameters.data = {
-				id: row.getAttribute('group_id'),
-				order_id: orderId,
-				name: row.querySelector('.group-name-edit-field').value
-			};
+			requestParameters.data.id = row.getAttribute('group_id');
+			requestParameters.data.order_id = orderId;
+			requestParameters.data.name = row.querySelector('.group-name-edit-field').value;
 			sendRequest((response) => {
 				processGroupTable(response);
 			});
@@ -163,9 +160,7 @@ var processGroup = (action, currentWindow) => {
 		elements.addClass('.item-configuration .item-controls', 'hidden');
 		closeWindows();
 		requestParameters.action = 'search';
-		requestParameters.data = {
-			groups: [button.getAttribute('group_id')]
-		};
+		requestParameters.data.groups = [button.getAttribute('group_id')];
 		requestParameters.table = 'proxies';
 		itemGrid = [];
 		itemGridCount = 0;
@@ -241,6 +236,7 @@ var processGroup = (action, currentWindow) => {
 	});
 };
 var processItems = (currentPage = 1) => {
+	previousAction = requestParameters.action;
 	var items = document.querySelector('.item-configuration .item-table'),
 		orderId = document.querySelector('input[name="order_id"]').value,
 		pagination = document.querySelector('.item-configuration .pagination');
@@ -383,6 +379,7 @@ var processItems = (currentPage = 1) => {
 				var itemsClear = items.querySelector('.clear');
 				itemsClear.removeEventListener('click', itemsClear.clickListener);
 				itemsClear.clickListener = () => {
+					previousAction = 'find';
 					requestParameters.data = {};
 					closeWindows();
 					itemGrid = [];

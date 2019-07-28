@@ -508,18 +508,18 @@ class AppModel extends Config {
  * Database helper method for deleting data
  *
  * @param string $table Table name
- * @param array $rows Rows to delete
+ * @param array $conditions Conditions for deletion
  *
  * @return boolean True if all data is deleted
  */
-	public function delete($table, $rows = array()) {
+	public function delete($table, $conditions = array()) {
 		$query = 'DELETE FROM ' . $table;
 
 		if (
-			!empty($rows) &&
-			is_array($rows)
+			!empty($conditions) &&
+			is_array($conditions)
 		) {
-			$query .= ' WHERE ' . implode(' AND ', $this->_formatConditions($rows));
+			$query .= ' WHERE ' . implode(' AND ', $this->_formatConditions($conditions));
 		}
 
 		$data = $this->_query($query, $parameters);
@@ -575,22 +575,21 @@ class AppModel extends Config {
  * @return array $response Response data
  */
 	public function group($table, $parameters) {
-		$group = array();
 		$message = 'Error processing your group request, please try again.';
 
-		if (!empty($parameters['data'])) {
-			foreach ($parameters['data'] as $key => $value) {
-				$group[$key] = $value;
-			}
-
+		if (!empty($groupData = array_intersect_key($parameters['data'], array(
+			'id' => true,
+			'name' => true,
+			'order_id' => true
+		)))) {
 			$groupParameters = array(
-				'conditions' => $group,
+				'conditions' => $groupData,
 				'limit' => 1
 			);
 
 			if (
-				!empty($groupName = $group['name']) &&
-				!empty($group['order_id'])
+				!empty($groupName = $groupData['name']) &&
+				!empty($groupData['order_id'])
 			) {
 				$message = 'Group "' . $groupName . '" already exists for this order.';
 				$existingGroup = $this->find('proxy_groups', $groupParameters);
@@ -598,32 +597,30 @@ class AppModel extends Config {
 				if (empty($existingGroup['count'])) {
 					$message = 'Error creating new group, please try again.';
 					$this->save('proxy_groups', array(
-						$group
+						$groupData
 					));
-					$group = $this->find('proxy_groups', $groupParameters);
+					$groupData = $this->find('proxy_groups', $groupParameters);
 
-					if (!empty($group['count'])) {
+					if (!empty($groupData['count'])) {
 						$message = 'Group "' . $groupName . '" saved successfully.';
 					}
 				}
 			}
 
 			if (
-				!empty($group['id']) &&
-				!isset($group['name'])
+				!empty($groupData['id']) &&
+				!isset($groupData['name'])
 			) {
 				$message = 'Error deleting group, please try again.';
 				$existingGroup = $this->find('proxy_groups', $groupParameters);
 
 				if (!empty($existingGroup['count'])) {
-					$this->delete('proxy_groups', array(
-						$group
-					));
+					$this->delete('proxy_groups', $groupData);
 					$deletedGroup = $this->find('proxy_groups', $groupParameters);
 
 					if (empty($deletedGroup['count'])) {
 						$this->delete('proxy_group_proxies', array(
-							'proxy_group_id' => $group['id']
+							'proxy_group_id' => $groupData['id']
 						));
 						$message = 'Group deleted successfully.';
 					}

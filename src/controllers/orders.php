@@ -5,7 +5,7 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
-require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/models/orders.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/src/models/orders.php');
 
 class OrdersController extends OrdersModel {
 

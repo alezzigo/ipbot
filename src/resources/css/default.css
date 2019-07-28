@@ -449,6 +449,8 @@ select {
 				.window-container .window .checkbox-container .custom-checkbox-label {
 					box-sizing: border-box;
 					cursor: pointer;
+					font-size: 14px;
+					font-weight: 600;
 					line-height: 23px;
 					padding-left: 31px;
 				}

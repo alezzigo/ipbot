@@ -1,11 +1,11 @@
 <?php
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/controllers/orders.php');
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/views/layouts/default/header.php');
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/views/includes/forms/search.php');
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/views/includes/forms/replace.php');
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/views/includes/forms/authenticate.php');
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/views/includes/forms/group.php');
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/views/includes/forms/copy.php');
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/controllers/orders.php');
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/layouts/default/header.php');
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/includes/forms/proxies/search.php');
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/includes/forms/proxies/replace.php');
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/includes/forms/proxies/authenticate.php');
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/includes/forms/proxies/group.php');
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/includes/forms/proxies/copy.php');
 ?>
 <main class="section">
 	<div class="container small">
@@ -47,4 +47,10 @@
 		</div>
 	</div>
 </div>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/views/layouts/default/footer.php'); ?>
+<?php
+	$scripts = array(
+		'/src/resources/js/app/script.js',
+		'/src/resources/js/proxies/script.js'
+	);
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/layouts/default/footer.php');
+?>

@@ -5,7 +5,7 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
-require_once($_SERVER['DOCUMENT_ROOT'] . '/src/php/config/config.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/src/config/config.php');
 
 class AppModel extends Config {
 
@@ -253,21 +253,17 @@ class AppModel extends Config {
 /**
  * Validate and structure API request based on parameters
  *
- * @param array $request Request data
+ * @param array $parameters Parameters
  *
  * @return array $response Response data
  */
-	protected function _request($request) {
+	protected function _request($parameters) {
 		$response = array(
 			'code' => 400,
 			'message' => 'Request parameters are required for API.'
 		);
 
-		if (
-			!empty($request['json']) &&
-			is_string($request['json'])
-		) {
-			$parameters = json_decode($request['json'], true);
+		if (!empty($parameters)) {
 			$response['message'] = 'No results found, please try again.';
 
 			if (
@@ -294,8 +290,14 @@ class AppModel extends Config {
 					} else {
 						if (
 							(
-								empty($parameters['conditions']) ||
-								!is_array($parameters['conditions'])
+								(
+									isset($parameters['conditions']) &&
+									empty($parameters['conditions'])
+								) ||
+								(
+									!empty($parameters['conditions']) &&
+									!is_array($parameters['conditions'])
+								)
 							) ||
 							(
 								isset($parameters['limit']) &&

@@ -386,7 +386,7 @@ requestParameters.sort = {
 	order: 'DESC'
 };
 requestParameters.table = 'proxies';
-requestParameters.url = '/src/views/proxies/api.php'
+requestParameters.url = '/src/views/proxies/api.php';
 onLoad(() => {
 	if (document.querySelector('.pagination')) {
 		processItems();

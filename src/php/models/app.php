@@ -482,8 +482,7 @@ class AppModel extends Config {
 			$delimiters = implode('', array_unique(array_filter(array(
 				!empty($parameters['data']['ipv4_delimiter_1']) ? $parameters['data']['ipv4_delimiter_1'] : '',
 				!empty($parameters['data']['ipv4_delimiter_2']) ? $parameters['data']['ipv4_delimiter_2'] : '',
-				!empty($parameters['data']['ipv4_delimiter_3']) ? $parameters['data']['ipv4_delimiter_3'] : '',
-				!empty($parameters['data']['ipv4_delimiter_4']) ? $parameters['data']['ipv4_delimiter_4'] : ''
+				!empty($parameters['data']['ipv4_delimiter_3']) ? $parameters['data']['ipv4_delimiter_3'] : ''
 			))));
 
 			foreach ($response['data'] as $key => $data) {

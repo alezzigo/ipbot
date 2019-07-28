@@ -21,7 +21,7 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close">Close</button>
-						<button class="button submit" form="authenticate">Apply Configuration</button>
+						<button class="button submit" disabled form="authenticate">Apply Configuration</button>
 					</div>
 				</div>
 			</div>

@@ -52,8 +52,9 @@
 </div>
 <?php
 	$scripts = array(
-		'/src/resources/js/app.js',
-		'/src/resources/js/proxies.js'
+		'/src/resources/js/default.js',
+		'/src/resources/js/proxies.js',
+		'/src/resources/js/app.js'
 	);
 	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/layouts/default/footer.php');
 ?>

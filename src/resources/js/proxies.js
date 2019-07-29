@@ -357,7 +357,7 @@ var processItems = (currentPage = 1) => {
 
 		items.innerHTML += '<table class="table"><thead><th style="width: 35px;"></th><th>Proxy IP</th></thead></table>';
 		response.data.map((item, index) => {
-			items.querySelector('table').innerHTML += '<tbody><tr page="' + currentPage + '" proxy_id="' + item.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" proxy_id="' + item.id + '"></span></td><td><span class="details-container"><span class="details"><span class="detail"><strong>Status:</strong> ' + item.status.charAt(0).toUpperCase() + item.status.substr(1) + '</span><span class="detail"><strong>Proxy IP:</strong> ' + item.ip + '</span><span class="detail"><strong>Location:</strong> ' + item.city + ', ' + item.region + ' ' + item.country_code + ' <span class="icon-container"><img src="../../resources/images/icons/flags/' + item.country_code.toLowerCase() + '.png" class="flag" alt="' + item.country_code + ' flag"></span></span><span class="detail"><strong>ISP:</strong> ' + item.asn + ' </span><span class="detail"><strong>HTTP + HTTPS Port:</strong> ' + (item.disable_http == 1 ? 'Disabled' : '80') + '</span><span class="detail"><strong>Whitelisted IPs:</strong> ' + (item.whitelisted_ips ? '<textarea>' + item.whitelisted_ips + '</textarea>' : 'N/A') + '</span><span class="detail"><strong>Username:</strong> ' + (item.username ? item.username : 'N/A') + '</span><span class="detail"><strong>Password:</strong> ' + (item.password ? item.password : 'N/A') + '</span></span></span><span class="table-text">' + item.ip + '</span></td></tbody>';
+			items.querySelector('table').innerHTML += '<tbody><tr page="' + currentPage + '" proxy_id="' + item.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" proxy_id="' + item.id + '"></span></td><td><span class="details-container"><span class="details"><span class="detail"><strong>Status:</strong> ' + capitalizeString(item.status) + '</span><span class="detail"><strong>Proxy IP:</strong> ' + item.ip + '</span><span class="detail"><strong>Location:</strong> ' + item.city + ', ' + item.region + ' ' + item.country_code + ' <span class="icon-container"><img src="../../resources/images/icons/flags/' + item.country_code.toLowerCase() + '.png" class="flag" alt="' + item.country_code + ' flag"></span></span><span class="detail"><strong>ISP:</strong> ' + item.asn + ' </span><span class="detail"><strong>HTTP + HTTPS Port:</strong> ' + (item.disable_http == 1 ? 'Disabled' : '80') + '</span><span class="detail"><strong>Whitelisted IPs:</strong> ' + (item.whitelisted_ips ? '<textarea>' + item.whitelisted_ips + '</textarea>' : 'N/A') + '</span><span class="detail"><strong>Username:</strong> ' + (item.username ? item.username : 'N/A') + '</span><span class="detail"><strong>Password:</strong> ' + (item.password ? item.password : 'N/A') + '</span></span></span><span class="table-text">' + item.ip + '</span></td></tbody>';
 		});
 		elements.html('.item-configuration .first-result', currentPage === 1 ? currentPage : ((currentPage * resultsPerPage) - resultsPerPage) + 1);
 		elements.html('.item-configuration .last-result', (lastResult = currentPage * resultsPerPage) >= response.count ? response.count : lastResult);
@@ -399,23 +399,6 @@ onLoad(() => {
 		});
 	}
 
-	selectAllElements('.button.window').map((element) => {
-		element[1].addEventListener('click', (element) => {
-			var action = element.target.getAttribute('window');
-			var currentWindow = '.window-container[window="' + action + '"]';
-			document.querySelector('main').classList.add('hidden');
-			elements.removeClass(currentWindow, 'hidden');
-
-			switch (action) {
-				case 'copy':
-					processCopy(action, currentWindow);
-					break;
-				case 'group':
-					processGroup(action, currentWindow);
-					break;
-			}
-		});
-	});
 	selectAllElements('.window .button.submit').map((element) => {
 		element[1].addEventListener('click', (element) => {
 			var action = element.target.getAttribute('form');

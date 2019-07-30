@@ -11,5 +11,28 @@
 	}
 ?>
 </head>
-<header></header>
+<header>
+	<div class="container small">
+		<div class="align-left">
+			<div class="logo-container">
+				<a class="logo" href="/src">Proxies</a>
+			</div>
+		</div>
+		<div class="align-right">
+			<!--<nav>
+				<ul>
+					<li><a class="button window" href="javascript:void(0);" window="login">Log In</a></li>
+					<li><a class="button window" href="javascript:void(0);" window="register">Register</a></li>
+				</ul>
+			</nav>-->
+		</div>
+	</div>
+</header>
 <body>
+<?php
+	if (!empty($forms = array_diff(scandir($_SERVER['DOCUMENT_ROOT'] . '/src/views/includes/forms/users/'), array('.', '..', '.DS_Store')))) {
+		foreach ($forms as $form) {
+			require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/includes/forms/users/' . $form);
+		}
+	}
+?>

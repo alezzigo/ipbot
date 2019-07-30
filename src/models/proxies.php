@@ -112,48 +112,48 @@ class ProxiesModel extends AppModel {
 					}
 				}
 			}
+		}
 
-			if (
-				$table == 'proxies' &&
-				!empty($parameters['items']['proxies']['count']) &&
-				!empty($parameters['items']['proxy_groups']['count'])
-			) {
-				$groups = array();
-				$proxyIds = array();
-				$existingProxyGroupProxies = $this->find('proxy_group_proxies', array(
-					'conditions' => array(
-						'proxy_group_id' => array_values($parameters['items']['proxy_groups']['data']),
-						'proxy_id' => $parameters['items']['proxies']['data']
-					),
-					'fields' => array(
-						'id',
-						'proxy_group_id',
-						'proxy_id'
-					)
-				));
+		if (
+			$table == 'proxies' &&
+			!empty($parameters['items']['proxies']['count']) &&
+			!empty($parameters['items']['proxy_groups']['count'])
+		) {
+			$groups = array();
+			$proxyIds = array();
+			$existingProxyGroupProxies = $this->find('proxy_group_proxies', array(
+				'conditions' => array(
+					'proxy_id' => $parameters['items']['proxies']['data'],
+					'proxy_group_id' => array_values($parameters['items']['proxy_groups']['data'])
+				),
+				'fields' => array(
+					'id',
+					'proxy_group_id',
+					'proxy_id'
+				)
+			));
 
-				foreach ($parameters['items']['proxies']['data'] as $key => $proxyId) {
-					foreach ($parameters['items']['proxy_groups']['data'] as $key => $proxyGroupId) {
-						$groups[$proxyGroupId . '_' . $proxyId] = array(
-							'proxy_group_id' => $proxyGroupId,
-							'proxy_id' => $proxyId
-						);
+			foreach ($parameters['items']['proxies']['data'] as $key => $proxyId) {
+				foreach ($parameters['items']['proxy_groups']['data'] as $key => $proxyGroupId) {
+					$groups[$proxyGroupId . '_' . $proxyId] = array(
+						'proxy_group_id' => $proxyGroupId,
+						'proxy_id' => $proxyId
+					);
+				}
+			}
+
+			if (!empty($existingProxyGroupProxies['count'])) {
+				foreach ($existingProxyGroupProxies['data'] as $existingProxyGroupProxy) {
+					if (!empty($groups[$key = $existingProxyGroupProxy['proxy_group_id'] . '_' . $existingProxyGroupProxy['proxy_id']])) {
+						$groups[$key]['id'] = $existingProxyGroupProxy['id'];
 					}
 				}
+			}
 
-				if (!empty($existingProxyGroupProxies['count'])) {
-					foreach ($existingProxyGroupProxies['data'] as $existingProxyGroupProxy) {
-						if (!empty($groups[$key = $existingProxyGroupProxy['proxy_group_id'] . '_' . $existingProxyGroupProxy['proxy_id']])) {
-							$groups[$key]['id'] = $existingProxyGroupProxy['id'];
-						}
-					}
-				}
+			$message = 'Error adding selected items to groups.';
 
-				$message = 'Error adding selected items to groups.';
-
-				if ($this->save('proxy_group_proxies', array_values($groups))) {
-					$message = 'Items added to selected groups successfully.';
-				}
+			if ($this->save('proxy_group_proxies', array_values($groups))) {
+				$message = 'Items added to selected groups successfully.';
 			}
 		}
 
@@ -195,8 +195,8 @@ class ProxiesModel extends AppModel {
 				!empty($parameters['data']['enable_automatic_replacements'])
 			) {
 				$intervalData = array(
-					'automatic_replacement_interval_value' => $parameters['data']['automatic_replacement_interval_value'],
 					'automatic_replacement_interval_type' => $automaticReplacementIntervalType,
+					'automatic_replacement_interval_value' => $parameters['data']['automatic_replacement_interval_value'],
 					'last_replacement_date' => date('Y-m-d H:i:s', time())
 				);
 				$newItemData += $intervalData;
@@ -212,10 +212,11 @@ class ProxiesModel extends AppModel {
 					'status' => 'replaced'
 				);
 				$newItemData += array(
-					'user_id' => 1,
-					'order_id' => $orderId,
 					'next_replacement_available' => date('Y-m-d H:i:s', strtotime('+1 week')),
-					'status' => 'online'
+					'order_id' => $orderId,
+					'status' => 'online',
+					'user_id' => 1,
+					'whitelisted_ips' => ''
 				);
 			}
 
@@ -225,20 +226,20 @@ class ProxiesModel extends AppModel {
 						'AND' => array(
 							'allocated' => false,
 							'OR' => array(
-								'processing' => false,
-								'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute'))
+								'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute')),
+								'processing' => false
 							)
 						)
 					),
 					'fields' => array(
+						'asn',
+						'city',
+						'country_code',
+						'country_name',
 						'id',
 						'ip',
-						'asn',
 						'isp',
-						'city',
-						'region',
-						'country_name',
-						'country_code'
+						'region'
 					),
 					'limit' => $parameters['items'][$table]['count'],
 					'sort' => array(
@@ -258,8 +259,8 @@ class ProxiesModel extends AppModel {
 
 					foreach ($processingNodes['data'] as $key => $row) {
 						$allocatedNodes[] = array(
-							'id' => ($processingNodes['data'][$key]['node_id'] = $processingNodes['data'][$key]['id']),
 							'allocated' => true,
+							'id' => ($processingNodes['data'][$key]['node_id'] = $processingNodes['data'][$key]['id']),
 							'processing' => false
 						);
 						$processingNodes['data'][$key] += $newItemData;

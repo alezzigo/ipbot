@@ -73,8 +73,8 @@ class AppModel extends Config {
 	protected function _getToken($parameters) {
 		$tokenParameters = array(
 			'conditions' => array(
-				'foreign_table' => $parameters['table'],
 				'foreign_key' => $key = key($parameters['conditions']),
+				'foreign_table' => $parameters['table'],
 				'foreign_value' => $parameters['conditions'][$key],
 				'string' => $this->_createTokenString($parameters)
 			),
@@ -94,12 +94,12 @@ class AppModel extends Config {
 			$tokenParameters['conditions']
 		));
 		$tokenParameters['fields'] = array(
+			'created',
 			'id',
-			'foreign_table',
 			'foreign_key',
+			'foreign_table',
 			'foreign_value',
-			'string',
-			'created'
+			'string'
 		);
 		$token = $this->find('tokens', $tokenParameters);
 		return !empty($token['data'][0]) ? $token['data'][0] : array();

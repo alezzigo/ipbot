@@ -158,17 +158,18 @@ class AppModel extends Config {
 	protected function _passwordHash($password) {
 		$passwordCharacters = str_split($password);
 		$passwordLength = strlen($password);
+		$salt = $this->config['database']['sanitizeKeys']['hashSalt'];
 		$time = time();
 
 		foreach ($passwordCharacters as $key => $passwordCharacter) {
-			$passwordCharacters[$key] = sha1($passwordCharacter . ($key % 2 == 0 ? (($passwordLength / 2) * $passwordLength) : (($passwordLength * $passwordLength) + ($passwordLength * $passwordLength))));
+			$passwordCharacters[$key] = sha1($passwordCharacter . $salt . ($key % 2 == 0 ? (($passwordLength / 2) * $passwordLength) : (($passwordLength * $passwordLength) + ($passwordLength * $passwordLength))));
 		}
 
 		$hashedPassword = implode('', $passwordCharacters);
 		$modified = date('Y-m-d h:i:s', $time);
 
 		for ($i = 0; $i < $passwordLength; $i++) {
-			$hashedPassword = 'e1Gh7$' . sha1($this->config['database']['sanitizeKeys']['hashSalt'] . $hashedPassword . $modified);
+			$hashedPassword = 'e1Gh7$' . sha1($salt . $time . $hashedPassword . $modified);
 		}
 
 		$response = array(

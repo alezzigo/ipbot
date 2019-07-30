@@ -31,19 +31,32 @@ onLoad(() => {
 			hiddenField ? (hiddenField.classList.contains('hidden') ? hiddenField.classList.remove('hidden') : hiddenField.classList.add('hidden')) : null;
 		});
 	});
-	selectAllElements('.button.window').map((element) => {
+	selectAllElements('.button.window, .window .button.submit').map((element) => {
 		element[1].addEventListener('click', (element) => {
-			var action = element.target.getAttribute('window');
-			var currentWindow = '.window-container[window="' + action + '"]';
-			var method = 'process' + capitalizeString(action);
-			elements.addClass('footer, header, main', 'hidden');
-			elements.removeClass(currentWindow, 'hidden');
+			var processName = element.target.hasAttribute('process') ? element.target.getAttribute('process') : '';
+			var windowName = element.target.getAttribute('window');
+			var windowSelector = '.window-container[window="' + windowName + '"]';
+			var method = 'process' + capitalizeString(processName);
+			openWindow(windowSelector);
 
-			if (
-				typeof window[method] !== 'undefined' &&
-				typeof window[method] === 'function'
-			) {
-				window[method](action, currentWindow);
+			if (element.target.classList.contains('submit')) {
+				closeWindows(defaultTable);
+				elements.loop(windowSelector + ' input, ' + windowSelector + ' select, ' + windowSelector + ' textarea', (index, element) => {
+					requestParameters.data[element.getAttribute('name')] = element.value;
+				});
+				elements.loop(windowSelector + ' .checkbox', (index, element) => {
+					requestParameters.data[element.getAttribute('name')] = +element.getAttribute('checked');
+				});
+				requestParameters.action = windowName;
+
+				if (windowName == 'search') {
+					itemGrid = [];
+					itemGridCount = 0;
+				}
+			}
+
+			if (typeof window[method] === 'function') {
+				window[method](windowName, windowSelector);
 			}
 		});
 	});

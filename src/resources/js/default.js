@@ -46,6 +46,10 @@ var elements = {
 var onLoad = (callback) => {
 	document.readyState != 'complete' ? setTimeout('onLoad(' + callback + ')', 10) : callback();
 };
+var openWindow = (windowSelector) => {
+	elements.addClass('footer, header, main', 'hidden');
+	elements.removeClass(windowSelector, 'hidden');
+}
 var processWindowEvents = (windowEvents, event = null) => {
 	var runWindowEvents = (windowEvents) => {
 		windowEvents.map((windowEvent) => {

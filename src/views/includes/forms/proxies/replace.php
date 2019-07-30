@@ -42,7 +42,7 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close">Close</button>
-						<button class="button submit" form="replace">Apply Configuration</button>
+						<button class="button submit" process="proxies" window="replace">Apply Configuration</button>
 					</div>
 				</div>
 			</div>

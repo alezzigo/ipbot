@@ -29,6 +29,11 @@
 					'timezone',
 					'username',
 					'whitelisted_ips'
+				),
+				'users' => array(
+					'email',
+					'id',
+					'password'
 				)
 			);
 

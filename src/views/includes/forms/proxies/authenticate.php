@@ -21,7 +21,7 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close">Close</button>
-						<button class="button submit" disabled process="proxies" window="authenticate">Apply Configuration</button>
+						<button class="button close submit" disabled process="proxies" window="authenticate">Apply Configuration</button>
 					</div>
 				</div>
 			</div>

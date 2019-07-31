@@ -9,7 +9,6 @@
 					</div>
 					<div class="item-body">
 						<p class="hidden message submit">The items you've selected previously will be added to the groups selected below.</p>
-						<div class="message-container"></div>
 						<label for="group_name">Add New Group</label>
 						<div class="field-group">
 							<input class="group-name-field" id="group-name" name="group_name" type="text">
@@ -20,7 +19,7 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close">Close</button>
-						<button class="button hidden submit" process="proxies" window="group">Add to Selected Groups</button>
+						<button class="button close hidden submit" process="proxies" window="group">Add to Selected Groups</button>
 					</div>
 				</div>
 			</div>

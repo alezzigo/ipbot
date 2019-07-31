@@ -37,10 +37,8 @@ onLoad(() => {
 			var windowName = element.target.getAttribute('window');
 			var windowSelector = '.window-container[window="' + windowName + '"]';
 			var method = 'process' + capitalizeString(processName);
-			openWindow(windowSelector);
 
 			if (element.target.classList.contains('submit')) {
-				closeWindows(defaultTable);
 				elements.loop(windowSelector + ' input, ' + windowSelector + ' select, ' + windowSelector + ' textarea', (index, element) => {
 					requestParameters.data[element.getAttribute('name')] = element.value;
 				});
@@ -53,6 +51,8 @@ onLoad(() => {
 					itemGrid = [];
 					itemGridCount = 0;
 				}
+			} else {
+				openWindow(windowSelector);
 			}
 
 			if (typeof window[method] === 'function') {

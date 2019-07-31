@@ -2,23 +2,26 @@
 
 var defaultTable = 'users',
 	previousAction = 'register';
-var processForgot = (windowName, windowSelector) => {
-	// ...
-};
-var processLogin = (windowName, windowSelector) => {
-	// ...
-};
-var processRegister = (windowName, windowSelector) => {
-	// ...
-};
-var processReset = (windowName, windowSelector) => {
-	// ...
-};
 var processUsers = (windowName, windowSelector) => {
-	// ...
+	requestParameters.action = windowName;
+	requestParameters.table = 'users';
+	sendRequest((response) => {
+		var messageContainer = document.querySelector('.' + windowName + ' .message-container');
+
+		if (messageContainer) {
+			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+		}
+
+		if (
+			response.code !== 200 ||
+			!response.data.length
+		) {
+			return;
+		}
+
+		// ...
+	});
 };
-requestParameters.action = 'register';
-requestParameters.table = 'users';
 requestParameters.url = '/src/views/users/api.php';
 onLoad(() => {
 	// ...

@@ -8,6 +8,7 @@
 						<h1>Register</h1>
 					</div>
 					<div class="item-body">
+						<div class="message-container"></div>
 						<label for="register-email">Email</label>
 						<input class="email" id="register-email" name="email" type="text">
 						<label for="register-password">Password</label>

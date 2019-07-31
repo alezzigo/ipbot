@@ -173,9 +173,9 @@ class AppModel extends Config {
 		}
 
 		$response = array(
-			'password_hashed' => $hashedPassword,
-			'password_modified' => $modified,
-			'password_raw' => $password
+			'hashed' => $hashedPassword,
+			'modified' => $modified,
+			'raw' => $password
 		);
 
 		return $response;
@@ -458,6 +458,18 @@ class AppModel extends Config {
 		}
 
 		return $response;
+	}
+
+/**
+ * Validate email address format
+ * @todo Email address format validation
+ *
+ * @param string $email Email address
+ *
+ * @return mixed $email String if valid email address format, boolean false if invalid
+ */
+	protected function _validateEmailFormat($email) {
+		return $email;
 	}
 
 /**

@@ -23,7 +23,7 @@ class UsersModel extends AppModel {
 		if (!empty($parameters['data']['email'])) {
 			$message = 'Invalid email or password, please try again.';
 
-			if (!empty($email = $this->_validateEmail($parameters['data']['email']))) {
+			if (!empty($email = $this->_validateEmailFormat($parameters['data']['email']))) {
 				$message = 'Password and confirmation are required, please try again.';
 
 				if (

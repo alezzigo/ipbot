@@ -32,8 +32,7 @@
 				),
 				'users' => array(
 					'email',
-					'id',
-					'password'
+					'id'
 				)
 			);
 

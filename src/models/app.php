@@ -469,8 +469,6 @@ class AppModel extends Config {
  */
 	protected function _validateEmailFormat($email) {
 		$email = strtolower(trim($email));
-		$emailCharacters = str_split($email);
-		$emailCharacterOccurences = array_count_values($emailCharacters);
 		$emailSplitCharacters = explode('@', $email);
 		$validAlphaNumericCharacters = 'abcdefghijklmnopqrstuvwxyz1234567890';
 		$validLocalCharacters = '!#$%&\'*+-/=?^_`{|}~' . $validAlphaNumericCharacters;
@@ -483,10 +481,8 @@ class AppModel extends Config {
 
 		$localString = $emailSplitCharacters[0];
 		$localStringCharacters = str_split($localString);
-		$localStringCharacterOccurences = array_count_values($localStringCharacters);
 		$domainString = $emailSplitCharacters[1];
 		$domainStringCharacters = str_split($domainString);
-		$domainStringCharacterOccurences = array_count_values($domainStringCharacters);
 		$domainStringSplitCharacters = explode('.', $domainString);
 
 		if (

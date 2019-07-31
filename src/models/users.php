@@ -22,8 +22,17 @@ class UsersModel extends AppModel {
 
 		if (!empty($parameters['data']['email'])) {
 			$message = 'Invalid email or password, please try again.';
+			$existingUser = $this->find('users', array(
+				'conditions' => array(
+					'email' => $email = $this->_validateEmailFormat($parameters['data']['email'])
+				),
+				'limit' => 1
+			));
 
-			if (!empty($email = $this->_validateEmailFormat($parameters['data']['email']))) {
+			if (
+				!empty($email) &&
+				empty($existingUser['count'])
+			) {
 				$message = 'Password and confirmation are required, please try again.';
 
 				if (

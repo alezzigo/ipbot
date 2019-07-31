@@ -462,13 +462,77 @@ class AppModel extends Config {
 
 /**
  * Validate email address format
- * @todo Email address format validation
  *
  * @param string $email Email address
  *
  * @return mixed $email String if valid email address format, boolean false if invalid
  */
 	protected function _validateEmailFormat($email) {
+		$email = strtolower(trim($email));
+		$emailCharacters = str_split($email);
+		$emailCharacterOccurences = array_count_values($emailCharacters);
+		$emailSplitCharacters = explode('@', $email);
+		$validAlphaNumericCharacters = 'abcdefghijklmnopqrstuvwxyz1234567890';
+		$validLocalCharacters = '!#$%&\'*+-/=?^_`{|}~' . $validAlphaNumericCharacters;
+		$validLocalSpecialCharacters = ' .(),:;<>@[]';
+		$validDomainCharacters = '-.' . $validAlphaNumericCharacters;
+
+		if (count($emailSplitCharacters) !== 2) {
+			$email = false;
+		}
+
+		$localString = $emailSplitCharacters[0];
+		$localStringCharacters = str_split($localString);
+		$localStringCharacterOccurences = array_count_values($localStringCharacters);
+		$domainString = $emailSplitCharacters[1];
+		$domainStringCharacters = str_split($domainString);
+		$domainStringCharacterOccurences = array_count_values($domainStringCharacters);
+		$domainStringSplitCharacters = explode('.', $domainString);
+
+		if (
+			strstr(' .-', $lastLocalStringCharacter = end($localStringCharacters)) !== false ||
+			strstr(' .-', $firstLocalStringCharacter = reset($localStringCharacters)) !== false ||
+			strstr(' .-', $lastDomainStringCharacter = end($domainStringCharacters)) !== false ||
+			strstr(' .-', $firstDomainStringCharacter = reset($domainStringCharacters)) !== false ||
+			strpos($domainString, '-.') !== false ||
+			strpos($domainString, '.-') !== false ||
+			count($domainStringSplitCharacters) < 2 ||
+			strlen(end($domainStringSplitCharacters)) < 2 ||
+			$lastDomainStringCharacter == '-'
+		) {
+			$email = false;
+		}
+
+		if (
+			$lastLocalStringCharacter == '"' &&
+			$firstLocalStringCharacter == '"'
+		) {
+			$validLocalCharacters .= $validLocalSpecialCharacters;
+			array_shift($localStringCharacters);
+			array_pop($localStringCharacters);
+			$localString = implode('', $localStringCharacters);
+			$localString = str_replace('\\' . '\\', ' \\' . '\\ ', $localString);
+			$localString = str_replace('\"', ' \" ', $localString);
+			$localStringCharacters = array();
+			$localStringSplitCharacters = explode(' ', $localString);
+
+			foreach ($localStringSplitCharacters as $key => $localStringSplitCharacter) {
+				$localStringCharacters = array_filter(array_merge($localStringCharacters, !in_array($localStringSplitCharacter, array('\\' . '\\', '\"')) ? str_split($localStringSplitCharacter) : array()));
+			}
+		} elseif (strstr($domainString, '..')) {
+			$email = false;
+		}
+
+		if (
+			$email &&
+			(
+				$invalidLocalCharacters = array_diff($localStringCharacters, str_split($validLocalCharacters)) ||
+				$invalidDomainCharacters = array_diff($domainStringCharacters, str_split($validDomainCharacters))
+			)
+		) {
+			$email = false;
+		}
+
 		return $email;
 	}
 

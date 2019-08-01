@@ -19,6 +19,7 @@ class UsersModel extends AppModel {
  */
 	public function login($table, $parameters = array()) {
 		$message = $defaultMessage = 'Error logging in, please try again.';
+		$response = array();
 
 		if (!empty($parameters['data']['email'])) {
 			$message = 'Invalid email or password, please try again.';
@@ -43,20 +44,23 @@ class UsersModel extends AppModel {
 
 						if ($this->_passwordVerify($parameters['data']['password'], $existingUser['data'][0])) {
 							$message = 'Logged in successfully.';
+							$parameters['conditions'] = array(
+								'user_id' => $existingUser['data'][0]['id']
+							);
+							$response['tokens'][$table] = $this->_getToken($parameters);
 							unset($existingUser['data'][0]['password']);
 							unset($existingUser['data'][0]['password_modified']);
-							// TODO: Generate auth token and redirect to default user page
 						}
 					}
 				}
 			}
 		}
 
-		$response = array(
-			'count' => !empty($user['count']) ? $user['count'] : 0,
+		$response = array_merge(array(
+			'count' => !empty($existingUser['count']) ? $existingUser['count'] : 0,
 			'data' => !empty($existingUser['data'][0]) ? $existingUser['data'][0] : array(),
 			'message' => $message
-		);
+		), $response);
 		return $response;
 	}
 

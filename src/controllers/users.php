@@ -17,6 +17,7 @@ class UsersController extends UsersModel {
 	public function api() {
 		return $this->_request($_POST);
 	}
+
 }
 
 $controller = new UsersController();

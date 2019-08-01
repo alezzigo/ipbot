@@ -97,11 +97,11 @@ class UsersModel extends AppModel {
 
 						if ($parameters['data']['password'] == $parameters['data']['confirm_password']) {
 							$message = $defaultMessage;
-							$password = $this->_passwordHash($parameters['data']['password']);
+							$passwordHash = $this->_passwordHash($parameters['data']['password'], time());
 							$user = array(
 								'email' => $email,
-								'password' => $password['hashed'],
-								'password_modified' => $password['modified']
+								'password' => $passwordHash['string'],
+								'password_modified' => $passwordHash['modified']
 							);
 							$this->save('users', array(
 								$user
@@ -113,10 +113,7 @@ class UsersModel extends AppModel {
 
 							if (!empty($user['count'])) {
 								$message = 'User account created successfully.';
-
-								if (method_exists($this, 'login')) {
-									$this->login($user);
-								}
+								return $this->login($table, $parameters);
 							}
 						}
 					}

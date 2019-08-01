@@ -5,6 +5,7 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
+require_once($_SERVER['DOCUMENT_ROOT'] . '/src/controllers/app.php');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/src/models/users.php');
 
 class UsersController extends UsersModel {
@@ -20,5 +21,6 @@ class UsersController extends UsersModel {
 
 }
 
-$controller = new UsersController();
-$data = $controller->route();
+$appController = new AppController();
+$usersController = new UsersController();
+$data = $usersController->route();

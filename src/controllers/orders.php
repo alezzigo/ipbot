@@ -5,6 +5,7 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
+require_once($_SERVER['DOCUMENT_ROOT'] . '/src/controllers/app.php');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/src/models/orders.php');
 
 class OrdersController extends OrdersModel {
@@ -30,5 +31,6 @@ class OrdersController extends OrdersModel {
 
 }
 
-$controller = new OrdersController();
-$data = $controller->route();
+$appController = new AppController();
+$ordersController = new OrdersController();
+$data = $ordersController->route();

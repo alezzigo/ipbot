@@ -118,7 +118,7 @@ var sendRequest = (callback) => {
 	var request = new XMLHttpRequest();
 	request.open('POST', requestParameters.url, true);
 	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	request.send('json=' + JSON.stringify(requestParameters));
+	request.send('json=' + encodeURIComponent(JSON.stringify(requestParameters)));
 	request.onload = function(response) {
 		callback(JSON.parse(response.target.response));
 	};

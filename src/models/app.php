@@ -165,6 +165,28 @@ class AppModel extends Config {
 	}
 
 /**
+ * Verify password
+ *
+ * @param string $password Raw password string
+ * @param array $user User data
+ *
+ * @return boolean $response True/false if password is valid/invalid
+ */
+	protected function _passwordVerify($password, $user) {
+		$response = false;
+
+		if (!empty($user['password'])) {
+			$passwordHash = $this->_passwordHash($password, strtotime($user['modified']));
+
+			if ($passwordHash['string'] == $user['password']) {
+				$response = true;
+			}
+		}
+
+		return $response;
+	}
+
+/**
  * Prepare user input value for SQL parameterization parsing with hash strings
  *
  * @param string $value Value

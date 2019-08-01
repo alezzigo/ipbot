@@ -95,6 +95,14 @@
 						'search' => array(
 							'fields' => $defaultFields['proxies']
 						)
+					),
+					'users' => array(
+						'login' => array(
+							'fields' => $defaultFields['users']
+						),
+						'register' => array(
+							'fields' => $defaultFields['users']
+						)
 					)
 				)
 			);

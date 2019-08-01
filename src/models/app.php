@@ -151,33 +151,16 @@ class AppModel extends Config {
 /**
  * Hash password
  *
- * @param string $password Raw password string
+ * @param string $string Raw password string
+ * @param string $time Timestamp
  *
  * @return array $response Response with hashed password
  */
-	protected function _passwordHash($password) {
-		$passwordCharacters = str_split($password);
-		$passwordLength = strlen($password);
-		$salt = $this->config['database']['sanitizeKeys']['hashSalt'];
-		$time = time();
-
-		foreach ($passwordCharacters as $key => $passwordCharacter) {
-			$passwordCharacters[$key] = sha1($passwordCharacter . $salt . ($key % 2 == 0 ? (($passwordLength / 2) * $passwordLength) : (($passwordLength * $passwordLength) + ($passwordLength * $passwordLength))));
-		}
-
-		$hashedPassword = implode('', $passwordCharacters);
-		$modified = date('Y-m-d h:i:s', $time);
-
-		for ($i = 0; $i < $passwordLength; $i++) {
-			$hashedPassword = 'e1Gh7$' . sha1($salt . $time . $hashedPassword . $modified);
-		}
-
+	protected function _passwordHash($string, $time) {
 		$response = array(
-			'hashed' => $hashedPassword,
-			'modified' => $modified,
-			'raw' => $password
+			'modified' => $modified = date('Y-m-d h:i:s', $time),
+			'string' => 'e1Gh7$' . sha1($this->config['database']['sanitizeKeys']['hashSalt'] . $string . $modified)
 		);
-
 		return $response;
 	}
 

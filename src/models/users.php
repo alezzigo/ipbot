@@ -10,6 +10,57 @@ require_once('../../models/app.php');
 class UsersModel extends AppModel {
 
 /**
+ * Login user
+ *
+ * @param string $table Table name
+ * @param array $parameters Parameters
+ *
+ * @return array $response Response data
+ */
+	public function login($table, $parameters = array()) {
+		$message = $defaultMessage = 'Error logging in, please try again.';
+
+		if (!empty($parameters['data']['email'])) {
+			$message = 'Invalid email or password, please try again.';
+			$existingUser = $this->find('users', array(
+				'conditions' => array(
+					'email' => $email = $this->_validateEmailFormat($parameters['data']['email'])
+				),
+				'limit' => 1
+			));
+
+			if (
+				!empty($email) &&
+				!empty($existingUser['count'])
+			) {
+				$message = 'Password is required, please try again.';
+
+				if (!empty($parameters['data']['password'])) {
+					$message = 'Password must be at least 10 characters, please try again.';
+
+					if (strlen($parameters['data']['password']) >= 10) {
+						$message = $defaultMessage;
+
+						if ($this->_passwordVerify($parameters['data']['password'], $existingUser['data'][0])) {
+							$message = 'Logged in successfully.';
+							unset($existingUser['data'][0]['password']);
+							unset($existingUser['data'][0]['password_modified']);
+							// TODO: Generate auth token and redirect to default user page
+						}
+					}
+				}
+			}
+		}
+
+		$response = array(
+			'count' => !empty($user['count']) ? $user['count'] : 0,
+			'data' => !empty($existingUser['data'][0]) ? $existingUser['data'][0] : array(),
+			'message' => $message
+		);
+		return $response;
+	}
+
+/**
  * Register user
  *
  * @param string $table Table name

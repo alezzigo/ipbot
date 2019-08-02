@@ -374,10 +374,9 @@ var processProxies = (windowName = false, windowSelector = false, currentPage = 
 			item.addEventListener('click', item.clickListener);
 		});
 		itemGrid = response.items[requestParameters.table];
+		requestParameters.tokens[requestParameters.table] = response.tokens[requestParameters.table];
 		elements.removeClass('.item-configuration .item-controls', 'hidden');
 		processItemGrid(range(0, response.data.length - 1));
-		var table = requestParameters.table;
-		requestParameters.tokens[table] = response.token;
 	});
 };
 requestParameters.action = 'find';

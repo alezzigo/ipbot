@@ -289,7 +289,7 @@ class ProxiesModel extends AppModel {
 
 		$response = array_merge($this->find($table, $parameters), $response);
 
-		if (($response['token'] = $this->_getToken($parameters)) !== $parameters['tokens'][$table]) {
+		if (($response['tokens'][$table] = $this->_getToken($parameters)) !== $parameters['tokens'][$table]) {
 			$response['items'][$table] = array();
 		}
 

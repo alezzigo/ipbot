@@ -1,9 +1,10 @@
 <?php
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/config.php');
 	$styleSheets = array(
-		'/src/resources/css/default.css'
+		$config->settings['base_url'] . '/resources/css/default.css'
 	);
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/controllers/orders.php');
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/layouts/default/header.php');
+	require_once($config->settings['base_path'] . '/controllers/orders.php');
+	require_once($config->settings['base_path'] . '/views/layouts/default/header.php');
 ?>
 <main class="section">
 	<div class="container small">
@@ -38,4 +39,4 @@
 			endif;
 		?></div>
 </div>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/layouts/default/footer.php'); ?>
+<?php require_once($config->settings['base_path'] . '/views/layouts/default/footer.php'); ?>

@@ -5,7 +5,7 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
-require_once($_SERVER['DOCUMENT_ROOT'] . '/src/models/app.php');
+require_once($config->settings['base_path'] . '/models/app.php');
 
 class AppController extends AppModel {
 

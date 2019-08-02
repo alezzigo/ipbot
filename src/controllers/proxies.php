@@ -5,8 +5,8 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
-require_once($_SERVER['DOCUMENT_ROOT'] . '/src/controllers/app.php');
-require_once($_SERVER['DOCUMENT_ROOT'] . '/src/models/proxies.php');
+require_once($config->settings['base_path'] . '/controllers/app.php');
+require_once($config->settings['base_path'] . '/models/proxies.php');
 
 class ProxiesController extends ProxiesModel {
 

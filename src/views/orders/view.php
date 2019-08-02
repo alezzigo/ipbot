@@ -1,13 +1,14 @@
 <?php
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/config.php');
 	$styleSheets = array(
-		'/src/resources/css/default.css'
+		$config->settings['base_url'] . '/resources/css/default.css'
 	);
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/controllers/orders.php');
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/layouts/default/header.php');
+	require_once($config->settings['base_path'] . '/controllers/orders.php');
+	require_once($config->settings['base_path'] . '/views/layouts/default/header.php');
 
-	if (!empty($forms = array_diff(scandir($_SERVER['DOCUMENT_ROOT'] . '/src/views/includes/forms/proxies/'), array('.', '..', '.DS_Store')))) {
+	if (!empty($forms = array_diff(scandir($config->settings['base_path'] . '/views/includes/forms/proxies/'), array('.', '..', '.DS_Store')))) {
 		foreach ($forms as $form) {
-			require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/includes/forms/proxies/' . $form);
+			require_once($config->settings['base_path'] . '/views/includes/forms/proxies/' . $form);
 		}
 	}
 ?>
@@ -53,9 +54,9 @@
 </div>
 <?php
 	$scripts = array(
-		'/src/resources/js/default.js',
-		'/src/resources/js/proxies.js',
-		'/src/resources/js/app.js'
+		$config->settings['base_url'] . '/resources/js/default.js',
+		$config->settings['base_url'] . '/resources/js/proxies.js',
+		$config->settings['base_url'] . '/resources/js/app.js'
 	);
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/layouts/default/footer.php');
+	require_once($config->settings['base_path'] . '/views/layouts/default/footer.php');
 ?>

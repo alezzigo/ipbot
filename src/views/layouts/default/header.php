@@ -19,20 +19,20 @@
 			</div>
 		</div>
 		<div class="align-right">
-			<!--<nav>
+			<nav>
 				<ul>
 					<li><a class="button window" href="javascript:void(0);" window="login">Log In</a></li>
 					<li><a class="button window" href="javascript:void(0);" window="register">Register</a></li>
 				</ul>
-			</nav>-->
+			</nav>
 		</div>
 	</div>
 </header>
 <body>
 <?php
-	if (!empty($forms = array_diff(scandir($_SERVER['DOCUMENT_ROOT'] . '/src/views/includes/forms/users/'), array('.', '..', '.DS_Store')))) {
+	if (!empty($forms = array_diff(scandir($config->settings['base_path'] . '/views/includes/forms/users/'), array('.', '..', '.DS_Store')))) {
 		foreach ($forms as $form) {
-			require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/includes/forms/users/' . $form);
+			require_once($config->settings['base_path'] . '/views/includes/forms/users/' . $form);
 		}
 	}
 ?>

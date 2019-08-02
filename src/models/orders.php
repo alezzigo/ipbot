@@ -5,7 +5,7 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
-require_once('../../models/app.php');
+require_once($config->settings['base_path'] . '/models/app.php');
 
 class OrdersModel extends AppModel {
 
@@ -17,7 +17,7 @@ class OrdersModel extends AppModel {
 	public function getOrders() {
 		$orders = $this->find('orders');
 		return array(
-			'orders' => $orders['data']
+			'orders' => !empty($order['count']) ? $orders['data'] : array(),
 		);
 	}
 
@@ -46,7 +46,7 @@ class OrdersModel extends AppModel {
 		);
 
 		return array(
-			'order' => $order['data'][0],
+			'order' => !empty($order['count']) ? $order['data'] : array(),
 			'pagination' => $pagination
 		);
 	}

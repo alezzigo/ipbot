@@ -5,7 +5,7 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
-require_once('../../models/app.php');
+require_once($config->settings['base_path'] . '/models/app.php');
 
 class ProxiesModel extends AppModel {
 

@@ -1,8 +1,9 @@
 <?php
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/app.php');
 	$styleSheets = array(
-		'/src/resources/css/default.css'
+		$app->config['base_url'] . '/resources/css/default.css'
 	);
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/layouts/default/header.php');
+	require_once($app->config['base_path'] . '/views/layouts/default/header.php');
 ?>
 <main class="section">
 	<div class="container small">
@@ -12,9 +13,9 @@
 </main>
 <?php
 	$scripts = array(
-		'/src/resources/js/default.js',
-		'/src/resources/js/users.js',
-		'/src/resources/js/app.js'
+		$app->config['base_url'] . '/resources/js/default.js',
+		$app->config['base_url'] . '/resources/js/users.js',
+		$app->config['base_url'] . '/resources/js/app.js'
 	);
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/views/layouts/default/footer.php');
+	require_once($app->config['base_path'] . '/views/layouts/default/footer.php');
 ?>

@@ -1,0 +1,122 @@
+<?php
+/**
+ * Config
+ *
+ * @author Will Parsons
+ * @link   https://parsonsbots.com
+ */
+class Config {
+
+	public function __construct() {
+
+		$defaultFields = array(
+			'proxy_groups' => array(
+				'id',
+				'order_id',
+				'name'
+			),
+			'proxies' => array(
+				'asn',
+				'city',
+				'country_code',
+				'country_name',
+				'http_port',
+				'id',
+				'ip',
+				'isp',
+				'order_id',
+				'password',
+				'region',
+				'status',
+				'timezone',
+				'username',
+				'whitelisted_ips'
+			),
+			'users' => array(
+				'email',
+				'id'
+			)
+		);
+
+		$this->settings = array(
+			'database' => array(
+				'charset' => 'utf8',
+				'hostname' => '127.0.0.1',
+				'findDataRowChunkSize' => 100000,
+				'name' => 'proxybot',
+				'password' => 'password',
+				'sanitizeKeys' => array(
+					'hashEnd' => 'k84jru42our7ji484s$G',
+					'hashSalt' => '_-.-_-',
+					'hashStart' => 'i9r8302-jod8^%4i397744'
+				),
+				'saveDataRowChunkSize' => 1000,
+				'type' => 'mysql',
+				'username' => 'root'
+			),
+			'base_path' => $_SERVER['DOCUMENT_ROOT'] . '/src',
+			'base_url' => '/src'
+		);
+
+		$this->permissions = array(
+			'api' => array(
+				'proxy_groups' => array(
+					'find' => array(
+						'fields' => array_merge($defaultFields['proxy_groups'], array(
+							'created',
+							'modified'
+						))
+					),
+					'group' => array(
+						'fields' => $defaultFields['proxy_groups']
+					)
+				),
+				'proxies' => array(
+					'copy' => array(
+						'fields' => array(
+							'ip',
+							'http_port',
+							'username',
+							'password'
+						)
+					),
+					'find' => array(
+						'fields' => array_merge($defaultFields['proxies'], array(
+							'created',
+							'modified',
+							'next_replacement_available',
+							'replacement_removal_date',
+							'status'
+						))
+					),
+					'group' => array(
+						'fields' => array()
+					),
+					'replace' => array(
+						'fields' => $defaultFields['proxies']
+					),
+					'search' => array(
+						'fields' => $defaultFields['proxies']
+					)
+				),
+				'users' => array(
+					'login' => array(
+						'fields' => $defaultFields['users']
+					),
+					'register' => array(
+						'fields' => $defaultFields['users']
+					)
+				)
+			)
+		);
+
+		$this->sanitizeKeys = array(
+			'end' => $this->settings['database']['sanitizeKeys']['hashSalt'] . '-' . $this->settings['database']['sanitizeKeys']['hashEnd'] . '-' . $this->settings['database']['sanitizeKeys']['hashSalt'],
+			'start' => $this->settings['database']['sanitizeKeys']['hashSalt'] . '-' . $this->settings['database']['sanitizeKeys']['hashStart'] . '-' . $this->settings['database']['sanitizeKeys']['hashSalt']
+		);
+
+	}
+
+}
+
+$config = new Config();

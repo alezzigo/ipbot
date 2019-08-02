@@ -5,8 +5,8 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
-require_once($_SERVER['DOCUMENT_ROOT'] . '/src/controllers/app.php');
-require_once($_SERVER['DOCUMENT_ROOT'] . '/src/models/orders.php');
+require_once($config->settings['base_path'] . '/controllers/app.php');
+require_once($config->settings['base_path'] . '/models/orders.php');
 
 class OrdersController extends OrdersModel {
 
@@ -25,7 +25,7 @@ class OrdersController extends OrdersModel {
  * @return array Order data
  */
 	public function view() {
-		$orderId = $this->validateId(!empty($_GET['id']) ? $_GET['id'] : '', 'orders') ? $_GET['id'] : $this->redirect($this->config['base_url']);
+		$orderId = $this->validateId(!empty($_GET['id']) ? $_GET['id'] : '', 'orders') ? $_GET['id'] : $this->redirect($this->settings['base_url']);
 		return $this->getOrder($orderId);
 	}
 

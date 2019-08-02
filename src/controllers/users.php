@@ -5,8 +5,8 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
-require_once($_SERVER['DOCUMENT_ROOT'] . '/src/controllers/app.php');
-require_once($_SERVER['DOCUMENT_ROOT'] . '/src/models/users.php');
+require_once($config->settings['base_path'] . '/controllers/app.php');
+require_once($config->settings['base_path'] . '/models/users.php');
 
 class UsersController extends UsersModel {
 

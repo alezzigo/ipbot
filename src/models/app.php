@@ -5,7 +5,6 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
-require_once($_SERVER['DOCUMENT_ROOT'] . '/src/config/config.php');
 
 class AppModel extends Config {
 
@@ -17,7 +16,7 @@ class AppModel extends Config {
  * @return array Token string
  */
 	protected function _createTokenString($parameters) {
-		return sha1($this->config['database']['sanitizeKeys']['hashSalt'] . json_encode($this->find($parameters['table'], array(
+		return sha1($this->settings['database']['sanitizeKeys']['hashSalt'] . json_encode($this->find($parameters['table'], array(
 			'conditions' => $parameters['conditions'],
 			'fields' => array(
 				'id'
@@ -159,7 +158,7 @@ class AppModel extends Config {
 	protected function _passwordHash($string, $time) {
 		$response = array(
 			'modified' => $modified = date('Y-m-d h:i:s', $time),
-			'string' => 'e1Gh7$' . sha1($this->config['database']['sanitizeKeys']['hashSalt'] . $string . $modified)
+			'string' => 'e1Gh7$' . sha1($this->settings['database']['sanitizeKeys']['hashSalt'] . $string . $modified)
 		);
 		return $response;
 	}
@@ -249,7 +248,7 @@ class AppModel extends Config {
  * @return array $response Return data if query results exists, otherwise return boolean status
  */
 	protected function _query($query, $parameters = array()) {
-		$database = new PDO($this->config['database']['type'] . ':host=' . $this->config['database']['hostname'] . '; dbname=' . $this->config['database']['name'] . ';', $this->config['database']['username'], $this->config['database']['password']);
+		$database = new PDO($this->settings['database']['type'] . ':host=' . $this->settings['database']['hostname'] . '; dbname=' . $this->settings['database']['name'] . ';', $this->settings['database']['username'], $this->settings['database']['password']);
 		$database->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 		$database->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 		$parameterized = $this->_parameterizeSQL($query);
@@ -268,7 +267,7 @@ class AppModel extends Config {
 			return false;
 		}
 
-		$findDataRowChunkSize = (!empty($this->config['database']['findDataRowChunkSize']) ? (integer) $this->config['database']['findDataRowChunkSize'] : 100000);
+		$findDataRowChunkSize = (!empty($this->settings['database']['findDataRowChunkSize']) ? (integer) $this->settings['database']['findDataRowChunkSize'] : 100000);
 		$hasResults = (!empty($parameters['count']) && !empty($parameters['limit']));
 
 		foreach (array_fill(0, max(1, ($hasResults ? round($parameters['limit'] / $findDataRowChunkSize, 1, PHP_ROUND_HALF_UP) : 1)), true) as $chunkIndex => $value) {
@@ -664,7 +663,7 @@ class AppModel extends Config {
 			return $this->$method();
 		}
 
-		$this->redirect($this->config['base_url']);
+		$this->redirect($this->settings['base_url']);
 	}
 
 /**
@@ -680,7 +679,7 @@ class AppModel extends Config {
 		$queries = array();
 		$success = true;
 
-		foreach (array_chunk($rows, (!empty($this->config['database']['saveDataRowChunkSize']) ? (integer) $this->config['database']['saveDataRowChunkSize'] : 100)) as $rows) {
+		foreach (array_chunk($rows, (!empty($this->settings['database']['saveDataRowChunkSize']) ? (integer) $this->settings['database']['saveDataRowChunkSize'] : 100)) as $rows) {
 			$groupValues = array();
 
 			foreach ($rows as $row) {

@@ -122,7 +122,7 @@ var processGroup = (windowName, windowSelector) => {
 		requestParameters.table = 'proxies';
 		itemGrid = [];
 		itemGridCount = 0;
-		sendRequest((response) => {
+		sendRequest(() => {
 			processProxies();
 		});
 	};

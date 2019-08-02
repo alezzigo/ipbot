@@ -44,22 +44,9 @@ class Config {
 			'stop' => '._.'
 		);
 
-		$this->settings = array(
-			'database' => array(
-				'charset' => 'utf8',
-				'hostname' => '127.0.0.1',
-				'name' => 'proxybot',
-				'password' => 'password',
-				'sanitizeKeys' => array(
-					'hashEnd' => 'k84jru42our7ji484s$G',
-					'hashSalt' => '_-.-_-',
-					'hashStart' => 'i9r8302-jod8^%4i397744'
-				),
-				'type' => 'mysql',
-				'username' => 'root'
-			),
-			'base_path' => $_SERVER['DOCUMENT_ROOT'] . '/src',
-			'base_url' => '/src'
+		$this->keys = array(
+			'start' => $keys['salt'] . $keys['start'] . $keys['salt'],
+			'stop' => $keys['salt'] . $keys['stop'] . $keys['salt']
 		);
 
 		$this->permissions = array(
@@ -114,9 +101,17 @@ class Config {
 			)
 		);
 
-		$this->keys = array(
-			'start' => $keys['salt'] . $keys['start'] . $keys['salt'],
-			'stop' => $keys['salt'] . $keys['stop'] . $keys['salt']
+		$this->settings = array(
+			'database' => array(
+				'charset' => 'utf8',
+				'hostname' => '127.0.0.1',
+				'name' => 'proxybot',
+				'password' => 'password',
+				'type' => 'mysql',
+				'username' => 'root'
+			),
+			'base_path' => $_SERVER['DOCUMENT_ROOT'] . '/src',
+			'base_url' => '/src'
 		);
 
 	}

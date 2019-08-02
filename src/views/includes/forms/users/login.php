@@ -8,6 +8,7 @@
 						<h1>Log In</h1>
 					</div>
 					<div class="item-body">
+						<div class="message-container"></div>
 						<label for="login-email">Email</label>
 						<input class="email" id="login-email" name="email" type="text">
 						<label for="login-password">Password</label>

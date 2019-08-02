@@ -47,9 +47,8 @@ class UsersModel extends AppModel {
 							$parameters['conditions'] = array(
 								'user_id' => $existingUser['data'][0]['id']
 							);
-							$response['tokens'][$table] = $this->_getToken($parameters);
-							unset($existingUser['data'][0]['password']);
-							unset($existingUser['data'][0]['password_modified']);
+							$this->_getToken($parameters);
+							$response['redirect'] = $this->settings['base_url'] . '/views/orders';
 						}
 					}
 				}
@@ -57,8 +56,6 @@ class UsersModel extends AppModel {
 		}
 
 		$response = array_merge(array(
-			'count' => !empty($existingUser['count']) ? $existingUser['count'] : 0,
-			'data' => !empty($existingUser['data'][0]) ? $existingUser['data'][0] : array(),
 			'message' => $message
 		), $response);
 		return $response;

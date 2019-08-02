@@ -12,14 +12,13 @@ var processUsers = (windowName, windowSelector) => {
 			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
 		}
 
-		if (
-			response.code !== 200 ||
-			!response.data.length
-		) {
+		if (response.code !== 200) {
 			return;
 		}
 
-		// ...
+		if (typeof response.redirect === 'string') {
+			window.location = response.redirect;
+		}
 	});
 };
 requestParameters.url = '/src/views/users/api.php';

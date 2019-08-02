@@ -215,10 +215,13 @@ class AppModel extends Config {
 			return false;
 		}
 
-		$response = array(
-			'items' => $parameters['items'] = isset($parameters['items']) ? $parameters['items'] : array(),
-			'token' => $token
+		$noItems = array(
+			$table => array()
 		);
+		$response = array(
+			'items' => $parameters['items'] = isset($parameters['items']) ? $parameters['items'] : $noItems
+		);
+		$response['tokens'][$table] = $token;
 
 		if (
 			empty($parameters['tokens'][$table]) ||
@@ -232,7 +235,7 @@ class AppModel extends Config {
 			}
 		} else {
 			$action = 'find';
-			$response['items'] = array();
+			$response['items'] = $noItems;
 			$response['message'] = 'Your ' . $table . ' have been recently modified and your previously-selected results have been deselected automatically.';
 		}
 

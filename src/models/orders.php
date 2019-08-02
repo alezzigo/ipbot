@@ -17,7 +17,7 @@ class OrdersModel extends AppModel {
 	public function getOrders() {
 		$orders = $this->find('orders');
 		return array(
-			'orders' => !empty($order['count']) ? $orders['data'] : array(),
+			'orders' => !empty($orders['count']) ? $orders['data'] : array(),
 		);
 	}
 
@@ -46,7 +46,7 @@ class OrdersModel extends AppModel {
 		);
 
 		return array(
-			'order' => !empty($order['count']) ? $order['data'] : array(),
+			'order' => !empty($order['count']) ? $order['data'][0] : array(),
 			'pagination' => $pagination
 		);
 	}

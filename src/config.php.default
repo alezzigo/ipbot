@@ -38,11 +38,16 @@ class Config {
 			)
 		);
 
+		$keys = array(
+			'salt' => '-_-',
+			'start' => 'o_o',
+			'stop' => '._.'
+		);
+
 		$this->settings = array(
 			'database' => array(
 				'charset' => 'utf8',
 				'hostname' => '127.0.0.1',
-				'findDataRowChunkSize' => 100000,
 				'name' => 'proxybot',
 				'password' => 'password',
 				'sanitizeKeys' => array(
@@ -50,7 +55,6 @@ class Config {
 					'hashSalt' => '_-.-_-',
 					'hashStart' => 'i9r8302-jod8^%4i397744'
 				),
-				'saveDataRowChunkSize' => 1000,
 				'type' => 'mysql',
 				'username' => 'root'
 			),
@@ -110,9 +114,9 @@ class Config {
 			)
 		);
 
-		$this->sanitizeKeys = array(
-			'end' => $this->settings['database']['sanitizeKeys']['hashSalt'] . '-' . $this->settings['database']['sanitizeKeys']['hashEnd'] . '-' . $this->settings['database']['sanitizeKeys']['hashSalt'],
-			'start' => $this->settings['database']['sanitizeKeys']['hashSalt'] . '-' . $this->settings['database']['sanitizeKeys']['hashStart'] . '-' . $this->settings['database']['sanitizeKeys']['hashSalt']
+		$this->keys = array(
+			'start' => $keys['salt'] . $keys['start'] . $keys['salt'],
+			'stop' => $keys['salt'] . $keys['stop'] . $keys['salt']
 		);
 
 	}

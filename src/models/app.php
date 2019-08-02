@@ -112,13 +112,13 @@ class AppModel extends Config {
  * @return array Parameterized SQL query and array of values
  */
 	protected function _parameterizeSQL($query) {
-		$queryChunks = explode($this->sanitizeKeys['start'], $query);
+		$queryChunks = explode($this->keys['start'], $query);
 		$parameterValues = array();
 
 		foreach ($queryChunks as $key => $queryChunk) {
 			if (
-				($position = strpos($queryChunk, $this->sanitizeKeys['end'])) !== false &&
-				$queryChunk = str_replace($this->sanitizeKeys['end'], '?', $queryChunk)
+				($position = strpos($queryChunk, $this->keys['stop'])) !== false &&
+				$queryChunk = str_replace($this->keys['stop'], '?', $queryChunk)
 			) {
 				$queryChunks[$key] = str_replace(($between = substr($queryChunk, 0, $position)), '', $queryChunk);
 				$parameterValues[] = $between;
@@ -193,7 +193,7 @@ class AppModel extends Config {
  * @return string Prepared value
  */
 	protected function _prepareValue($value) {
-		return $this->sanitizeKeys['start'] . (is_bool($value) ? (integer) $value : $value) . $this->sanitizeKeys['end'];
+		return $this->keys['start'] . (is_bool($value) ? (integer) $value : $value) . $this->keys['stop'];
 	}
 
 /**
@@ -267,7 +267,7 @@ class AppModel extends Config {
 			return false;
 		}
 
-		$findDataRowChunkSize = (!empty($this->settings['database']['findDataRowChunkSize']) ? (integer) $this->settings['database']['findDataRowChunkSize'] : 100000);
+		$findDataRowChunkSize = 100000;
 		$hasResults = (!empty($parameters['count']) && !empty($parameters['limit']));
 
 		foreach (array_fill(0, max(1, ($hasResults ? round($parameters['limit'] / $findDataRowChunkSize, 1, PHP_ROUND_HALF_UP) : 1)), true) as $chunkIndex => $value) {
@@ -679,7 +679,7 @@ class AppModel extends Config {
 		$queries = array();
 		$success = true;
 
-		foreach (array_chunk($rows, (!empty($this->settings['database']['saveDataRowChunkSize']) ? (integer) $this->settings['database']['saveDataRowChunkSize'] : 100)) as $rows) {
+		foreach (array_chunk($rows, 1000) as $rows) {
 			$groupValues = array();
 
 			foreach ($rows as $row) {
@@ -693,7 +693,7 @@ class AppModel extends Config {
 					$values[] = date('Y-m-d H:i:s', time());
 				}
 
-				$groupValues[implode(',', $fields)][] = $this->sanitizeKeys['start'] . implode($this->sanitizeKeys['end'] . ',' . $this->sanitizeKeys['start'], $values) . $this->sanitizeKeys['end'];
+				$groupValues[implode(',', $fields)][] = $this->keys['start'] . implode($this->keys['stop'] . ',' . $this->keys['start'], $values) . $this->keys['stop'];
 			}
 
 			foreach ($groupValues as $fields => $values) {

@@ -30,10 +30,7 @@ class UsersModel extends AppModel {
 				'limit' => 1
 			));
 
-			if (
-				!empty($email) &&
-				!empty($existingUser['count'])
-			) {
+			if (!empty($email)) {
 				$message = 'Password is required, please try again.';
 
 				if (!empty($parameters['data']['password'])) {
@@ -81,10 +78,7 @@ class UsersModel extends AppModel {
 				'limit' => 1
 			));
 
-			if (
-				!empty($email) &&
-				empty($existingUser['count'])
-			) {
+			if (!empty($email)) {
 				$message = 'Password and confirmation are required, please try again.';
 
 				if (

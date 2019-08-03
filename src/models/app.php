@@ -483,7 +483,7 @@ class AppModel extends Config {
 		$validDomainCharacters = '-.' . $validAlphaNumericCharacters;
 
 		if (count($emailSplitCharacters) !== 2) {
-			return false;
+			$email = false;
 		}
 
 		$localString = $emailSplitCharacters[0];
@@ -503,7 +503,7 @@ class AppModel extends Config {
 			strlen(end($domainStringSplitCharacters)) < 2 ||
 			$lastDomainStringCharacter == '-'
 		) {
-			return false;
+			$email = false;
 		}
 
 		if (
@@ -523,14 +523,17 @@ class AppModel extends Config {
 				$localStringCharacters = array_filter(array_merge($localStringCharacters, !in_array($localStringSplitCharacter, array('\\' . '\\', '\"')) ? str_split($localStringSplitCharacter) : array()));
 			}
 		} elseif (strstr($domainString, '..')) {
-			return false;
+			$email = false;
 		}
 
 		if (
-			$invalidLocalCharacters = array_diff($localStringCharacters, str_split($validLocalCharacters)) ||
-			$invalidDomainCharacters = array_diff($domainStringCharacters, str_split($validDomainCharacters))
+			$email &&
+			(
+				$invalidLocalCharacters = array_diff($localStringCharacters, str_split($validLocalCharacters)) ||
+				$invalidDomainCharacters = array_diff($domainStringCharacters, str_split($validDomainCharacters))
+			)
 		) {
-			return false;
+			$email = false;
 		}
 
 		return $email;

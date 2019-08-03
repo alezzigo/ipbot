@@ -158,7 +158,7 @@ class AppModel extends Config {
 	protected function _passwordHash($string, $time) {
 		$response = array(
 			'modified' => $modified = date('Y-m-d h:i:s', $time),
-			'string' => 'e1Gh7$' . sha1($this->settings['database']['sanitizeKeys']['hashSalt'] . $string . $modified)
+			'string' => 'e1Gh7$' . sha1($string . $modified . $this->keys['start'])
 		);
 		return $response;
 	}

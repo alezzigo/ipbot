@@ -10,6 +10,18 @@ require_once($config->settings['base_path'] . '/models/app.php');
 class UsersModel extends AppModel {
 
 /**
+ * Request user password reset
+ *
+ * @param string $table Table name
+ * @param array $parameters Parameters
+ *
+ * @return array $response Response data
+ */
+	public function forgot($table, $parameters = array()) {
+		// ...
+	}
+
+/**
  * Login user
  *
  * @param string $table Table name
@@ -23,7 +35,7 @@ class UsersModel extends AppModel {
 
 		if (!empty($parameters['data']['email'])) {
 			$message = 'Invalid email or password, please try again.';
-			$existingUser = $this->find('users', array(
+			$existingUser = $this->find($table, array(
 				'conditions' => array(
 					'email' => $email = $this->_validateEmailFormat($parameters['data']['email'])
 				),
@@ -71,7 +83,7 @@ class UsersModel extends AppModel {
 
 		if (!empty($parameters['data']['email'])) {
 			$message = 'Invalid email or password, please try again.';
-			$existingUser = $this->find('users', array(
+			$existingUser = $this->find($table, array(
 				'conditions' => array(
 					'email' => $email = $this->_validateEmailFormat($parameters['data']['email'])
 				),
@@ -98,10 +110,10 @@ class UsersModel extends AppModel {
 								'password' => $passwordHash['string'],
 								'password_modified' => $passwordHash['modified']
 							);
-							$this->save('users', array(
+							$this->save($table, array(
 								$user
 							));
-							$user = $this->find('users', array(
+							$user = $this->find($table, array(
 								'conditions' => $user,
 								'limit' => 1
 							));
@@ -122,6 +134,18 @@ class UsersModel extends AppModel {
 			'message' => $message
 		);
 		return $response;
+	}
+
+/**
+ * Reset user password
+ *
+ * @param string $table Table name
+ * @param array $parameters Parameters
+ *
+ * @return array $response Response data
+ */
+	public function reset($table, $parameters = array()) {
+		// ...
 	}
 
 }

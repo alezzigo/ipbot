@@ -16,7 +16,7 @@ class AppModel extends Config {
  * @return array Token string
  */
 	protected function _createTokenString($parameters) {
-		return sha1($this->settings['database']['sanitizeKeys']['hashSalt'] . json_encode($this->find($parameters['table'], array(
+		return sha1(json_encode($this->find($parameters['table'], array(
 			'conditions' => $parameters['conditions'],
 			'fields' => array(
 				'id'
@@ -26,7 +26,7 @@ class AppModel extends Config {
 				'field' => 'modified',
 				'order' => 'DESC'
 			)
-		))));
+		))) . $this->keys['start']);
 	}
 
 /**

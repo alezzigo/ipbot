@@ -553,7 +553,7 @@ class AppModel extends Config {
  *
  * @param string $email Email address
  *
- * @return mixed $email String if valid email address format, boolean false if invalid
+ * @return mixed [string/boolean] $email Email if valid email address format, false if invalid
  */
 	protected function _validateEmailFormat($email) {
 		$email = strtolower(trim($email));
@@ -564,7 +564,7 @@ class AppModel extends Config {
 		$validDomainCharacters = '-.' . $validAlphaNumericCharacters;
 
 		if (count($emailSplitCharacters) !== 2) {
-			$email = false;
+			return false;
 		}
 
 		$localString = $emailSplitCharacters[0];
@@ -584,7 +584,7 @@ class AppModel extends Config {
 			strlen(end($domainStringSplitCharacters)) < 2 ||
 			$lastDomainStringCharacter == '-'
 		) {
-			$email = false;
+			return false;
 		}
 
 		if (
@@ -604,17 +604,14 @@ class AppModel extends Config {
 				$localStringCharacters = array_filter(array_merge($localStringCharacters, !in_array($localStringSplitCharacter, array('\\' . '\\', '\"')) ? str_split($localStringSplitCharacter) : array()));
 			}
 		} elseif (strstr($domainString, '..')) {
-			$email = false;
+			return false;
 		}
 
 		if (
-			$email &&
-			(
-				$invalidLocalCharacters = array_diff($localStringCharacters, str_split($validLocalCharacters)) ||
-				$invalidDomainCharacters = array_diff($domainStringCharacters, str_split($validDomainCharacters))
-			)
+			$invalidLocalCharacters = array_diff($localStringCharacters, str_split($validLocalCharacters)) ||
+			$invalidDomainCharacters = array_diff($domainStringCharacters, str_split($validDomainCharacters))
 		) {
-			$email = false;
+			return false;
 		}
 
 		return $email;

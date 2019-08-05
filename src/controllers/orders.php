@@ -13,10 +13,12 @@ class OrdersController extends OrdersModel {
 /**
  * List orders
  *
+ * @param array $parameters Parameters
+ *
  * @return array Orders data
  */
-	public function index() {
-		return $this->getOrders();
+	public function index($parameters) {
+		return $this->getOrders($parameters);
 	}
 
 /**

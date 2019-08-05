@@ -12,10 +12,16 @@ class OrdersModel extends AppModel {
 /**
  * Get orders data
  *
+ * @param array $parameters Parameters
+ *
  * @return array Orders data
  */
-	public function getOrders() {
-		$orders = $this->find('orders');
+	public function getOrders($parameters) {
+		$orders = $this->find('orders', array(
+			'conditions' => array(
+				'user_id' => !empty($parameters['user']['id']) ? $parameters['user']['id'] : false
+			)
+		));
 		return array(
 			'orders' => !empty($orders['count']) ? $orders['data'] : array(),
 		);
@@ -23,7 +29,6 @@ class OrdersModel extends AppModel {
 
 /**
  * Get order data
- * @todo Format timer countdowns with Javascript on front end
  *
  * @param string $id Order ID
  *

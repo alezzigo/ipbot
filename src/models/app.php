@@ -773,7 +773,7 @@ class AppModel extends Config {
 			empty($redirect = $parameters['redirect']) &&
 			method_exists($this, $action)
 		) {
-			return $this->$action();
+			return $this->$action($parameters);
 		}
 
 		$this->redirect((!empty($redirect) ? $redirect : $this->settings['base_url'] . '/'));

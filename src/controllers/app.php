@@ -17,7 +17,6 @@ class AppController extends AppModel {
  *
  * @return array $parameters Parameters
  */
-
 	public function authenticate($table, $parameters = array()) {
 		if (empty($parameters)) {
 			$parameters['action'] = $action = array_shift(array_reverse(explode('/', str_replace('.php', '', $_SERVER['SCRIPT_NAME']))));

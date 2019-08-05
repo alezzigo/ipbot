@@ -829,20 +829,4 @@ class AppModel extends Config {
 		return $success;
 	}
 
-/**
- * Validation and sanitization helper method for unique IDs
- *
- * @param string $id ID
- * @param string $table Table name
- *
- * @return boolean True if ID exists and is formatted correctly (integer).
- */
-	public function validateId($id, $table) {
-		return !empty($this->find($table, array(
-			'conditions' => array(
-				'id' => (integer) $id
-			)
-		)));
-	}
-
 }

@@ -24,11 +24,20 @@ class OrdersController extends OrdersModel {
 /**
  * View order
  *
+ * @param array $parameters Parameters
+ *
  * @return array Order data
  */
-	public function view() {
-		$orderId = $this->validateId(!empty($_GET['id']) ? $_GET['id'] : '', 'orders') ? $_GET['id'] : $this->redirect($this->settings['base_url']);
-		return $this->getOrder($orderId);
+	public function view($parameters) {
+		if (
+			empty($_GET['id']) ||
+			!is_numeric($_GET['id'])
+		) {
+			$this->redirect($this->settings['base_url']);
+		}
+
+		$parameters['order_id'] = $_GET['id'];
+		return $this->getOrder($parameters);
 	}
 
 }

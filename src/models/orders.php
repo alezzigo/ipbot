@@ -30,14 +30,15 @@ class OrdersModel extends AppModel {
 /**
  * Get order data
  *
- * @param string $id Order ID
+ * @param array $parameters Parameters
  *
  * @return array Order data
  */
-	public function getOrder($id) {
+	public function getOrder($parameters) {
 		$order = $this->find('orders', array(
 			'conditions' => array(
-				'id' => $id
+				'id' => $parameters['order_id'],
+				'user_id' => !empty($parameters['user']['id']) ? $parameters['user']['id'] : false
 			),
 			'fields' => array(
 				'id',

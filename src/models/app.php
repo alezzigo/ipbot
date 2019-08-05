@@ -444,8 +444,32 @@ class AppModel extends Config {
 
 							if (
 								empty($this->permissions[$table][$action]['group']) ||
-								$parameters['user'] = $this->_authenticate('users', $parameters)
+								(
+									($parameters['user'] = $this->_authenticate('users', $parameters)) &&
+									in_array('user_id', $this->permissions[$table][$action]['fields']) &&
+									($parameters['conditions']['user_id'] = $parameters['user']['id'])
+								)
 							) {
+								if (array_search($parameters['user']['permissions'], $this->groups) > 1) {
+									unset($parameters['conditions']['user_id']);
+
+									if (!empty($parameters['conditions']['order_id'])) {
+										$userData = $this->find('orders', array(
+											'conditions' => array(
+												'id' => $parameters['conditions']['order_id']
+											),
+											'fields' => array(
+												'user_id'
+											),
+											'limit' => 1
+										));
+
+										if (!empty($userData['count'])) {
+											$parameters['conditions']['user_id'] = $userData['data'][0];
+										}
+									}
+								}
+
 								$queryResponse = $this->_processAction($table, $parameters);
 
 								if (!empty($queryResponse)) {

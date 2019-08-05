@@ -70,6 +70,10 @@ class ProxiesModel extends AppModel {
 			'name' => true,
 			'order_id' => true
 		)))) {
+			if (!empty($parameters['conditions'])) {
+				$groupData = array_merge($groupData, $parameters['conditions']);
+			}
+
 			$groupParameters = array(
 				'conditions' => $groupData,
 				'limit' => 1
@@ -159,6 +163,7 @@ class ProxiesModel extends AppModel {
 			}
 		}
 
+		$parameters['fields'] = $this->permissions[$table]['find']['fields'];
 		return array_merge($this->find($table, $parameters), array(
 			'message' => $message
 		));

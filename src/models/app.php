@@ -154,7 +154,6 @@ class AppModel extends Config {
 
 		if (!empty($existingToken['count'])) {
 			$tokenParameters['conditions']['id'] = $existingToken['data'][0];
-			//$tokenParameters['conditions']['expiration'] = date('Y-m-d h:i:s', strtotime('+1 week'));
 		}
 
 		$this->save('tokens', array(
@@ -440,12 +439,12 @@ class AppModel extends Config {
 						} else {
 							$response = array(
 								'code' => 407,
-								'message' => 'Authentication required, please log in and try again.'
+								'message' => 'Authentication required, please refresh the page and try again.'
 							);
 
 							if (
-								empty($this->permissions[$table][$session['action']]['group']) ||
-								$parameters = $this->_authenticate('users', $parameters)
+								empty($this->permissions[$table][$action]['group']) ||
+								$parameters['user'] = $this->_authenticate('users', $parameters)
 							) {
 								$queryResponse = $this->_processAction($table, $parameters);
 
@@ -756,6 +755,9 @@ class AppModel extends Config {
  * @return exit
  */
 	public function redirect($redirect, $responseCode = 301) {
+		header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+		header('Cache-Control: post-check=0, pre-check=0', false);
+		header('Pragma: no-cache');
 		header('Location: ' . $redirect, false, $responseCode);
 		exit;
 	}

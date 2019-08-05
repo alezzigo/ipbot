@@ -16,8 +16,12 @@ var processUsers = (windowName, windowSelector) => {
 			return;
 		}
 
-		if (typeof response.redirect === 'string') {
-			window.location = response.redirect;
+		if (
+			typeof response.redirect === 'string' &&
+			response.redirect
+		) {
+			window.location.href = response.redirect;
+			return false;
 		}
 	});
 };

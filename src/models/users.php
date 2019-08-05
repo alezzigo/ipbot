@@ -53,7 +53,7 @@ class UsersModel extends AppModel {
 						$this->_getToken($table, $parameters, 'id', $existingUser['data'][0]['id'], $parameters['keys']['users'])
 					) {
 						$message = 'Logged in successfully.';
-						$redirect = $this->settings['base_url'] . '/views/orders';
+						$redirect = $this->settings['base_url'] . '/views/orders/';
 					}
 				}
 			}

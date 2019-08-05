@@ -8,7 +8,6 @@ var closeWindows = (defaultTable) => {
 	elements.removeClass('footer, header, main', 'hidden');
 	requestParameters.action = previousAction;
 	requestParameters.table = defaultTable;
-	window.location.hash = '';
 };
 var elements = {
 	addClass: (selector, className) => {
@@ -50,7 +49,6 @@ var onLoad = (callback) => {
 var openWindow = (windowName, windowSelector) => {
 	elements.addClass('footer, header, main', 'hidden');
 	elements.removeClass(windowSelector, 'hidden');
-	window.location.hash = windowName;
 }
 var processWindowEvents = (windowEvents, event = null) => {
 	var runWindowEvents = (windowEvents) => {

@@ -31,7 +31,7 @@
 				</div>
 			</div>
 			<div class="item-link-container">
-				<a class="item-link" href="view.php?id=<?php echo $order['id']; ?>"></a>
+				<a class="item-link" href="<?php echo $config->settings['base_url'] ?>/views/orders/view.php?id=<?php echo $order['id']; ?>"></a>
 			</div>
 		</div>
 		<?php

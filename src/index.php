@@ -8,7 +8,7 @@
 <main class="section">
 	<div class="container small">
 		[Homepage contents]
-		<a href="views/orders/">View Orders</a>
+		<a href="<?php echo $config->settings['base_url'] ?>/views/orders/">View Orders</a>
 	</div>
 </main>
 <?php

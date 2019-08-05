@@ -730,7 +730,7 @@ class AppModel extends Config {
  * @return exit
  */
 	public function redirect($redirect, $responseCode = 301) {
-		header('Location: ' . $redirect, true, $responseCode);
+		header('Location: ' . $redirect, false, $responseCode);
 		exit;
 	}
 

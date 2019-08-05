@@ -549,6 +549,35 @@ class AppModel extends Config {
 	}
 
 /**
+ * Send mail
+ *
+ * @param string $parameters Parameters
+ *
+ * @return boolean True if mail is sent
+ */
+	protected function _sendMail($parameters) {
+		if (
+			empty($to = $this->_validateEmailFormat($parameters['to'])) ||
+			(
+				empty($subject = $parameters['subject']) ||
+				!is_string($subject)
+			) ||
+			(
+				empty($message = $parameters['message']) ||
+				!is_string($message)
+			) ||
+			(
+				empty($headers = $parameters['message']) ||
+				!is_array($headers)
+			)
+		) {
+			return false;
+		}
+
+		return mail($to, $subject, $message, $headers);
+	}
+
+/**
  * Validate email address format
  *
  * @param string $email Email address

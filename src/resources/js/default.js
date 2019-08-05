@@ -8,6 +8,7 @@ var closeWindows = (defaultTable) => {
 	elements.removeClass('footer, header, main', 'hidden');
 	requestParameters.action = previousAction;
 	requestParameters.table = defaultTable;
+	window.location.hash = '';
 };
 var elements = {
 	addClass: (selector, className) => {
@@ -46,9 +47,10 @@ var elements = {
 var onLoad = (callback) => {
 	document.readyState != 'complete' ? setTimeout('onLoad(' + callback + ')', 10) : callback();
 };
-var openWindow = (windowSelector) => {
+var openWindow = (windowName, windowSelector) => {
 	elements.addClass('footer, header, main', 'hidden');
 	elements.removeClass(windowSelector, 'hidden');
+	window.location.hash = windowName;
 }
 var processWindowEvents = (windowEvents, event = null) => {
 	var runWindowEvents = (windowEvents) => {
@@ -104,11 +106,12 @@ var repeat = (count, pattern) => {
 	return result + (count < 1 ? '' : pattern);
 };
 var replaceCharacter = (string, index, character) => {
-	return string.substr(0, index) + character + string.substr(index + ('' + character).length);
+	return string.substr(0, index) + character + string.substr(index + Math.max(1, ('' + character).length));
 };
 var requestParameters = {
 	data: {},
 	items: {},
+	keys: document.querySelector('.keys') ? JSON.parse(document.querySelector('.keys').innerHTML) : {},
 	tokens: {}
 };
 var selectAllElements = (selector) => {

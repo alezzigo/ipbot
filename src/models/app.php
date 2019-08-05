@@ -9,24 +9,88 @@
 class AppModel extends Config {
 
 /**
+ * Authenticate requests
+ *
+ * @param string $table Table name
+ * @param array $parameters Parameters
+ *
+ * @return mixed [string/boolean] $response Response data if authentication is successful, false if user request is invalid or expired
+ */
+	protected function _authenticate($table, $parameters) {
+		$response = false;
+
+		if (!empty($parameters['keys']['users'])) {
+			$existingToken = $this->find('tokens', array(
+				'conditions' => array(
+					'foreign_key' => 'id',
+					'foreign_table' => $table,
+					'string' => $this->_createTokenString($table, array(), $parameters['keys']['users'])
+				),
+				'fields' => array(
+					'foreign_key',
+					'foreign_value',
+					'id',
+					'string'
+				),
+				'limit' => 1,
+				'sort' => array(
+					'field' => 'created',
+					'order' => 'DESC'
+				)
+			));
+
+			if (!empty($existingToken['count'])) {
+				$existingData = $this->find($table, array(
+					'conditions' => array(
+						$existingToken['data'][0]['foreign_key'] => $existingToken['data'][0]['foreign_value']
+					),
+					'limit' => 1
+				));
+
+				if (!empty($existingData['count'])) {
+					unset($existingData['data'][0]['password']);
+					unset($existingData['data'][0]['password_modified']);
+					$response = $existingData['data'][0];
+				}
+			}
+		}
+
+		return $response;
+	}
+
+/**
  * Create token string from parameters and results
  *
+ * @param string $table Table name
  * @param array $parameters Parameters
+ * @param string $salt Salt for token string
  *
  * @return array Token string
  */
-	protected function _createTokenString($parameters) {
-		return sha1(json_encode($this->find($parameters['table'], array(
-			'conditions' => $parameters['conditions'],
-			'fields' => array(
-				'id'
-			),
-			'limit' => 1,
-			'sort' => array(
-				'field' => 'modified',
-				'order' => 'DESC'
-			)
-		))) . $this->keys['start']);
+	protected function _createTokenString($table, $parameters, $salt = '') {
+		$tokenParts = array(
+			$this->keys['start']
+		);
+
+		if (!empty($parameters['conditions'])) {
+			$tokenParts[] = $this->find($table, array(
+				'conditions' => $parameters['conditions'],
+				'fields' => array(
+					'id'
+				),
+				'limit' => 1,
+				'sort' => array(
+					'field' => 'modified',
+					'order' => 'DESC'
+				)
+			));
+		}
+
+		if (!empty($salt)) {
+			$tokenParts[] = $salt;
+		}
+
+		return sha1(json_encode(implode(')-(', $tokenParts)));
 	}
 
 /**
@@ -65,28 +129,32 @@ class AppModel extends Config {
 /**
  * Save and retrieve database token based on parameters
  *
+ * @param string $table Table name
  * @param array $parameters Parameters
+ * @param string $foreignKey Foreign key
+ * @param string $foreignValue Foreign value
+ * @param string $salt Salt for token string
  *
  * @return array $token Token
  */
-	protected function _getToken($parameters) {
+	protected function _getToken($table, $parameters, $foreignKey, $foreignValue, $salt = '') {
 		$tokenParameters = array(
 			'conditions' => array(
-				'foreign_key' => $key = key($parameters['conditions']),
-				'foreign_table' => $parameters['table'],
-				'foreign_value' => $parameters['conditions'][$key],
-				'string' => $this->_createTokenString($parameters)
+				'foreign_key' => $foreignKey,
+				'foreign_table' => $table,
+				'foreign_value' => $foreignValue,
+				'string' => $this->_createTokenString($table, $parameters, $salt)
 			),
 			'fields' => array(
 				'id'
 			),
 			'limit' => 1
 		);
-
 		$existingToken = $this->find('tokens', $tokenParameters);
 
-		if (!empty($existingToken['data'][0])) {
+		if (!empty($existingToken['count'])) {
 			$tokenParameters['conditions']['id'] = $existingToken['data'][0];
+			//$tokenParameters['conditions']['expiration'] = date('Y-m-d h:i:s', strtotime('+1 week'));
 		}
 
 		$this->save('tokens', array(
@@ -94,9 +162,7 @@ class AppModel extends Config {
 		));
 		$tokenParameters['fields'] = array(
 			'created',
-			'id',
 			'foreign_key',
-			'foreign_table',
 			'foreign_value',
 			'string'
 		);
@@ -200,7 +266,7 @@ class AppModel extends Config {
  * Process API action requests
  *
  * @param string $table Table name
- * @param array $parameters Action query parameters
+ * @param array $parameters Parameters
  *
  * @return array Response data
  */
@@ -209,7 +275,8 @@ class AppModel extends Config {
 			!method_exists($this, $action = $parameters['action']) ||
 			(
 				($itemTable = (in_array($table, array('proxies')))) &&
-				($token = $this->_getToken($parameters)) === false
+				!empty($orderId = $parameters['conditions']['order_id']) &&
+				($token = $this->_getToken($table, $parameters, 'order_id', $orderId)) === false
 			)
 		) {
 			return false;
@@ -237,6 +304,10 @@ class AppModel extends Config {
 			$action = 'find';
 			$response['items'] = $noItems;
 			$response['message'] = 'Your ' . $table . ' have been recently modified and your previously-selected results have been deselected automatically.';
+		}
+
+		if (!empty($parameters['redirect'])) {
+			$response['redirect'] = $parameters['redirect'];
 		}
 
 		return array_merge($response, $this->$action($table, $parameters));
@@ -311,22 +382,22 @@ class AppModel extends Config {
 			$response['message'] = 'No results found, please try again.';
 
 			if (
-				empty($parameters['table']) ||
-				empty($this->permissions['api'][$parameters['table']])
+				empty($table = $parameters['table']) ||
+				empty($this->permissions[$table])
 			) {
 				$response['message'] = 'Invalid request table, please try again.';
 			} else {
 				if (
 					($parameters['action'] = $action = (!empty($parameters['action']) ? $parameters['action'] : 'find')) &&
 					(
-						empty($this->permissions['api'][$parameters['table']][$action]) ||
-						!method_exists($this, $parameters['action'])
+						empty($this->permissions[$table][$action]) ||
+						!method_exists($this, $action)
 					)
 				) {
 					$response['message'] = 'Invalid request action, please try again.';
 				} else {
 					if (
-						($fieldPermissions = $this->permissions['api'][$parameters['table']][$action]['fields']) &&
+						($fieldPermissions = $this->permissions[$table][$action]['fields']) &&
 						($parameters['fields'] = $fields = !empty($parameters['fields']) ? $parameters['fields'] : $fieldPermissions) &&
 						count(array_intersect($fields, $fieldPermissions)) !== count($fields)
 					) {
@@ -367,12 +438,22 @@ class AppModel extends Config {
 						) {
 							$response['message'] = 'Invalid request parameters, please try again.';
 						} else {
-							$queryResponse = $this->_processAction($parameters['table'], $parameters);
+							$response = array(
+								'code' => 407,
+								'message' => 'Authentication required, please log in and try again.'
+							);
 
-							if (!empty($queryResponse)) {
-								$response = array_merge($queryResponse, array(
-									'code' => 200
-								));
+							if (
+								empty($this->permissions[$table][$session['action']]['group']) ||
+								$parameters = $this->_authenticate('users', $parameters)
+							) {
+								$queryResponse = $this->_processAction($table, $parameters);
+
+								if (!empty($queryResponse)) {
+									$response = array_merge($queryResponse, array(
+										'code' => 200
+									));
+								}
 							}
 						}
 					}
@@ -603,7 +684,7 @@ class AppModel extends Config {
  * Database helper method for retrieving data
  *
  * @param string $table Table name
- * @param array $parameters Find query parameters
+ * @param array $parameters Parameters
  *
  * @return array $response Return associative array if it exists, otherwise return boolean ($execute)
  */
@@ -643,30 +724,33 @@ class AppModel extends Config {
 /**
  * Redirect helper method
  *
- * @param string $path URL path
+ * @param string $redirect Redirect URL
  * @param string $responseCode HTTP response code
  *
  * @return exit
  */
-	public function redirect($path, $responseCode = 301) {
-		header('Location: ' . $path, true, $responseCode);
+	public function redirect($redirect, $responseCode = 301) {
+		header('Location: ' . $redirect, true, $responseCode);
 		exit;
 	}
 
 /**
  * Routing helper method
- * @todo Custom URL routing
  *
- * @return function redirect()
+ * @param array $parameters Parameters
+ *
+ * @return mixed [array/exit] Return data if action exists, redirect to base URL if action doesn't exist
  */
-	public function route() {
-		$method = array_shift(array_reverse(explode('/', str_replace('.php', '', $_SERVER['SCRIPT_NAME']))));
-
-		if (method_exists($this, $method)) {
-			return $this->$method();
+	public function route($parameters) {
+		if (
+			!empty($action = $parameters['action']) &&
+			empty($redirect = $parameters['redirect']) &&
+			method_exists($this, $action)
+		) {
+			return $this->$action();
 		}
 
-		$this->redirect($this->settings['base_url']);
+		$this->redirect((!empty($redirect) ? $redirect : $this->settings['base_url'] . '/'));
 	}
 
 /**

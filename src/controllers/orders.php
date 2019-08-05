@@ -1,6 +1,6 @@
 <?php
 /**
- * Orders Model
+ * Orders Controller
  *
  * @author Will Parsons
  * @link   https://parsonsbots.com
@@ -33,4 +33,5 @@ class OrdersController extends OrdersModel {
 
 $appController = new AppController();
 $ordersController = new OrdersController();
-$data = $ordersController->route();
+$parameters = $appController->authenticate('orders');
+$data = $ordersController->route($parameters);

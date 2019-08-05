@@ -10,6 +10,11 @@ class Config {
 	public function __construct() {
 
 		$defaultFields = array(
+			'orders' => array(
+				'id',
+				'name',
+				'status'
+			),
 			'proxy_groups' => array(
 				'id',
 				'order_id',
@@ -44,59 +49,88 @@ class Config {
 			'stop' => '._.'
 		);
 
+		$this->groups = array(
+			'public',
+			'user',
+			'manager',
+			'administrator'
+		);
+
 		$this->keys = array(
 			'start' => $keys['salt'] . $keys['start'] . $keys['salt'],
-			'stop' => $keys['salt'] . $keys['stop'] . $keys['salt']
+			'stop' => $keys['salt'] . $keys['stop'] . $keys['salt'],
+			'users' => sha1($keys['start'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['REMOTE_ADDRESS'])
 		);
 
 		$this->permissions = array(
-			'api' => array(
-				'proxy_groups' => array(
-					'find' => array(
-						'fields' => array_merge($defaultFields['proxy_groups'], array(
-							'created',
-							'modified'
-						))
-					),
-					'group' => array(
-						'fields' => $defaultFields['proxy_groups']
-					)
+			'orders' => array(
+				'index' => array(
+					'fields' => $defaultFields['orders'],
+					'group' => 'user'
 				),
-				'proxies' => array(
-					'copy' => array(
-						'fields' => array(
-							'ip',
-							'http_port',
-							'username',
-							'password'
-						)
-					),
-					'find' => array(
-						'fields' => array_merge($defaultFields['proxies'], array(
-							'created',
-							'modified',
-							'next_replacement_available',
-							'replacement_removal_date',
-							'status'
-						))
-					),
-					'group' => array(
-						'fields' => array()
-					),
-					'replace' => array(
-						'fields' => $defaultFields['proxies']
-					),
-					'search' => array(
-						'fields' => $defaultFields['proxies']
-					)
+				'view' => array(
+					'fields' => $defaultFields['orders'],
+					'group' => 'user'
+				)
+			),
+			'proxy_groups' => array(
+				'find' => array(
+					'fields' => array_merge($defaultFields['proxy_groups'], array(
+						'created',
+						'modified'
+					)),
+					'group' => 'user'
 				),
-				'users' => array(
-					'login' => array(
-						'fields' => $defaultFields['users']
+				'group' => array(
+					'fields' => $defaultFields['proxy_groups'],
+					'group' => 'user'
+				)
+			),
+			'proxies' => array(
+				'copy' => array(
+					'fields' => array(
+						'ip',
+						'http_port',
+						'username',
+						'password'
 					),
-					'register' => array(
-						'fields' => $defaultFields['users']
-					)
+					'group' => 'user'
+				),
+				'find' => array(
+					'fields' => array_merge($defaultFields['proxies'], array(
+						'created',
+						'modified',
+						'next_replacement_available',
+						'replacement_removal_date',
+						'status'
+					)),
+					'group' => 'user'
+				),
+				'group' => array(
+					'fields' => array(),
+					'group' => 'user'
+				),
+				'replace' => array(
+					'fields' => $defaultFields['proxies'],
+					'group' => 'user'
+				),
+				'search' => array(
+					'fields' => $defaultFields['proxies'],
+					'group' => 'user'
+				)
+			),
+			'users' => array(
+				'forgot' => array(
+					'fields' => $defaultFields['users']
+				),
+				'login' => array(
+					'fields' => $defaultFields['users']
+				),
+				'register' => array(
+					'fields' => $defaultFields['users']
+				),
+				'reset' => array(
+					'fields' => $defaultFields['users']
 				)
 			)
 		);

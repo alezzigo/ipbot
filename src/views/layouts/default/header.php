@@ -21,8 +21,8 @@
 		<div class="align-right">
 			<nav>
 				<ul>
-					<li><a class="button window" href="javascript:void(0);" window="login">Log In</a></li>
-					<li><a class="button window" href="javascript:void(0);" window="register">Register</a></li>
+					<li><a class="button window-button" href="javascript:void(0);" window="login">Log In</a></li>
+					<li><a class="button window-button" href="javascript:void(0);" window="register">Register</a></li>
 				</ul>
 			</nav>
 		</div>

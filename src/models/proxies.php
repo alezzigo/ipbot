@@ -24,7 +24,7 @@ class ProxiesModel extends AppModel {
 			'conditions' => array(
 				'id' => $parameters['items'][$table]['data']
 			),
-			'fields' => $this->permissions['api'][$table]['copy']['fields']
+			'fields' => $this->permissions[$table]['copy']['fields']
 		));
 
 		if (!empty($response['data'])) {
@@ -271,7 +271,7 @@ class ProxiesModel extends AppModel {
 						$oldItemIds[]['id'] = $parameters['items'][$table]['data'][$key];
 					}
 
-					if ($parameters['tokens'][$table] === $this->_getToken($parameters)) {
+					if ($parameters['tokens'][$table] === $this->_getToken($table, 'order_id', $orderId)) {
 						if (!empty($oldItemData)) {
 							$oldItemData = array_replace_recursive(array_fill(0, $parameters['items'][$table]['count'], $oldItemData), $oldItemIds);
 							$this->save($table, $oldItemData);
@@ -291,7 +291,7 @@ class ProxiesModel extends AppModel {
 
 		$response = array_merge($this->find($table, $parameters), $response);
 
-		if (($response['tokens'][$table] = $this->_getToken($parameters)) !== $parameters['tokens'][$table]) {
+		if (($response['tokens'][$table] = $this->_getToken($table, 'order_id', $orderId)) !== $parameters['tokens'][$table]) {
 			$response['items'][$table] = array();
 		}
 
@@ -310,7 +310,7 @@ class ProxiesModel extends AppModel {
 		$conditions = array();
 
 		if (
-			!empty($broadSearchFields = $this->permissions['api'][$table]['search']['fields']) &&
+			!empty($broadSearchFields = $this->permissions[$table]['search']['fields']) &&
 			!empty($broadSearchTerms = array_filter(explode(' ', $parameters['data']['broad_search'])))
 		) {
 			$conditions = array_map(function($broadSearchTerm) use ($broadSearchFields) {

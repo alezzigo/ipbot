@@ -13,6 +13,8 @@
 						<input class="email" id="login-email" name="email" type="text">
 						<label for="login-password">Password</label>
 						<input class="password" id="login-password" name="password" type="password">
+						<a class="button clear window-button" href="javascript:void(0);" window="forgot">Forgot your password?</a>
+						<a class="button clear window-button" href="javascript:void(0);" window="register">Don't have an account?</a>
 					</div>
 					<div class="item-footer">
 						<button class="button close">Close</button>

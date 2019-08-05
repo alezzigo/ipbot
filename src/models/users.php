@@ -26,12 +26,12 @@ class UsersModel extends AppModel {
  *
  * @param string $table Table name
  * @param array $parameters Parameters
+ * @param string $redirect Redirect URL
  *
  * @return array $response Response data
  */
-	public function login($table, $parameters = array()) {
+	public function login($table, $parameters = array(), $redirect = '') {
 		$message = $defaultMessage = 'Error logging in, please try again.';
-		$response = array();
 
 		if (!empty($parameters['data']['email'])) {
 			$message = 'Invalid email or password, please try again.';
@@ -46,27 +46,23 @@ class UsersModel extends AppModel {
 				$message = 'Password is required, please try again.';
 
 				if (!empty($parameters['data']['password'])) {
-					$message = 'Password must be at least 10 characters, please try again.';
+					$message = $defaultMessage;
 
-					if (strlen($parameters['data']['password']) >= 10) {
-						$message = $defaultMessage;
-
-						if ($this->_passwordVerify($parameters['data']['password'], $existingUser['data'][0])) {
-							$message = 'Logged in successfully.';
-							$parameters['conditions'] = array(
-								'user_id' => $existingUser['data'][0]['id']
-							);
-							$this->_getToken($parameters);
-							$response['redirect'] = $this->settings['base_url'] . '/views/orders';
-						}
+					if (
+						$this->_passwordVerify($parameters['data']['password'], $existingUser['data'][0]) &&
+						$this->_getToken($table, $parameters, 'id', $existingUser['data'][0]['id'], $parameters['keys']['users'])
+					) {
+						$message = 'Logged in successfully.';
+						$redirect = $this->settings['base_url'] . '/views/orders';
 					}
 				}
 			}
 		}
 
-		$response = array_merge(array(
-			'message' => $message
-		), $response);
+		$response = array(
+			'message' => $message,
+			'redirect' => $redirect
+		);
 		return $response;
 	}
 
@@ -90,7 +86,10 @@ class UsersModel extends AppModel {
 				'limit' => 1
 			));
 
-			if (!empty($email)) {
+			if (
+				!empty($email) &&
+				empty($existingUser['count'])
+			) {
 				$message = 'Password and confirmation are required, please try again.';
 
 				if (
@@ -108,7 +107,8 @@ class UsersModel extends AppModel {
 							$user = array(
 								'email' => $email,
 								'password' => $passwordHash['string'],
-								'password_modified' => $passwordHash['modified']
+								'password_modified' => $passwordHash['modified'],
+								'permissions' => 'user'
 							);
 							$this->save($table, array(
 								$user

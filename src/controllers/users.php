@@ -23,4 +23,5 @@ class UsersController extends UsersModel {
 
 $appController = new AppController();
 $usersController = new UsersController();
-$data = $usersController->route();
+$parameters = $appController->authenticate('users');
+$data = $usersController->route($parameters);

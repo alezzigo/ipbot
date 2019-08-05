@@ -15,6 +15,7 @@
 						<input class="password" id="register-password" name="password" type="password">
 						<label for="confirm_password">Confirm Password</label>
 						<input class="confirm-password" id="register-confirm-password" name="confirm_password" type="password">
+						<a class="button window-button" href="javascript:void(0);" window="login">Already have an account?</a>
 					</div>
 					<div class="item-footer">
 						<button class="button close">Close</button>

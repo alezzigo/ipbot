@@ -31,7 +31,7 @@ onLoad(() => {
 			hiddenField ? (hiddenField.classList.contains('hidden') ? hiddenField.classList.remove('hidden') : hiddenField.classList.add('hidden')) : null;
 		});
 	});
-	selectAllElements('.button.window, .window .button.submit').map((element) => {
+	selectAllElements('.button.window-button, .window .button.submit').map((element) => {
 		element[1].addEventListener('click', (element) => {
 			var processName = element.target.hasAttribute('process') ? element.target.getAttribute('process') : '';
 			var windowName = element.target.getAttribute('window');
@@ -52,7 +52,8 @@ onLoad(() => {
 					itemGridCount = 0;
 				}
 			} else {
-				openWindow(windowSelector);
+				closeWindows(defaultTable);
+				openWindow(windowName, windowSelector);
 			}
 
 			if (typeof window[method] === 'function') {
@@ -61,4 +62,14 @@ onLoad(() => {
 		});
 	});
 	processWindowEvents(windowEvents);
+
+	if (window.location.hash) {
+		var windowName = replaceCharacter(window.location.hash, 0, '').toLowerCase();
+		var windowSelector = '.window-container[window="' + windowName + '"]';
+
+		if (document.querySelector(windowSelector)) {
+			closeWindows(defaultTable);
+			openWindow(windowName, windowSelector);
+		}
+	}
 });

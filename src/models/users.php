@@ -18,7 +18,40 @@ class UsersModel extends AppModel {
  * @return array $response Response data
  */
 	public function forgot($table, $parameters = array()) {
-		// ...
+		$message = $defaultMessage = 'Error sending password reset instructions, please try again.';
+
+		if (!empty($parameters['data']['email'])) {
+			$message = 'Please check your inbox for password reset instructions.';
+			$existingUser = $this->find($table, array(
+				'conditions' => array(
+					'email' => $email = $this->_validateEmailFormat($parameters['data']['email'])
+				),
+				'limit' => 1
+			));
+
+			if (
+				!empty($email) &&
+				!empty($existingUser['count'])
+			) {
+				$mailParameters = array(
+					'to' => $email,
+					'subject' => 'Password reset request',
+					'message' => '...',
+					'headers' => array(
+						'From' => $this->settings['default_email'],
+						'Reply-To' => $this->settings['default_email'],
+						'X-Mailer' => 'PHP/' . phpversion()
+					)
+				);
+				$this->_sendMail($mailParameters);
+				// ...
+			}
+		}
+
+		$response = array(
+			'message' => $message
+		);
+		return $response;
 	}
 
 /**

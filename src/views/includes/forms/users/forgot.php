@@ -5,7 +5,7 @@
 				<div class="forgot">
 					<div class="item-header">
 						<span class="button close icon icon-close"></span>
-						<h1>Forgot Password?</h1>
+						<h1>Request Password Reset</h1>
 					</div>
 					<div class="item-body">
 						<div class="message-container"></div>

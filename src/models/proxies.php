@@ -276,7 +276,7 @@ class ProxiesModel extends AppModel {
 						$oldItemIds[]['id'] = $parameters['items'][$table]['data'][$key];
 					}
 
-					if ($parameters['tokens'][$table] === $this->_getToken($table, 'order_id', $orderId)) {
+					if ($parameters['tokens'][$table] === $this->_getToken($table, $parameters, 'order_id', $orderId)) {
 						if (!empty($oldItemData)) {
 							$oldItemData = array_replace_recursive(array_fill(0, $parameters['items'][$table]['count'], $oldItemData), $oldItemIds);
 							$this->save($table, $oldItemData);
@@ -296,7 +296,7 @@ class ProxiesModel extends AppModel {
 
 		$response = array_merge($this->find($table, $parameters), $response);
 
-		if (($response['tokens'][$table] = $this->_getToken($table, 'order_id', $orderId)) !== $parameters['tokens'][$table]) {
+		if (($response['tokens'][$table] = $this->_getToken($table, $parameters, 'order_id', $orderId)) !== $parameters['tokens'][$table]) {
 			$response['items'][$table] = array();
 		}
 

@@ -5,7 +5,6 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
-require_once($config->settings['base_path'] . '/controllers/app.php');
 require_once($config->settings['base_path'] . '/models/users.php');
 
 class UsersController extends UsersModel {
@@ -21,7 +20,5 @@ class UsersController extends UsersModel {
 
 }
 
-$appController = new AppController();
 $usersController = new UsersController();
-$parameters = $appController->authenticate('users');
-$data = $usersController->route($parameters);
+$data = $usersController->route();

@@ -5,7 +5,6 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
-require_once($config->settings['base_path'] . '/controllers/app.php');
 require_once($config->settings['base_path'] . '/models/proxies.php');
 
 class ProxiesController extends ProxiesModel {
@@ -21,7 +20,5 @@ class ProxiesController extends ProxiesModel {
 
 }
 
-$appController = new AppController();
 $proxiesController = new ProxiesController();
-$parameters = $appController->authenticate('proxies');
-$data = $proxiesController->route($parameters);
+$data = $proxiesController->route();

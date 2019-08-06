@@ -50,10 +50,10 @@ class UsersModel extends AppModel {
 
 					if (
 						$this->_passwordVerify($parameters['data']['password'], $existingUser['data'][0]) &&
-						$this->_getToken($table, $parameters, 'id', $existingUser['data'][0]['id'], $parameters['keys']['users'])
+						$this->_getToken($table, $parameters, 'id', $existingUser['data'][0]['id'], sha1($parameters['keys']['users']))
 					) {
 						$message = 'Logged in successfully.';
-						$redirect = $this->settings['base_url'] . '/views/orders/';
+						$redirect = $this->settings['base_url'] . '/views/orders/list.php';
 					}
 				}
 			}

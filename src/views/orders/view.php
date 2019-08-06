@@ -12,16 +12,16 @@
 		}
 	}
 ?>
-<main class="section">
+<main class="section orders-view">
 	<div class="container small">
-		<h1><?php echo $data['order']['name']; ?></h1>
+		<h1 class="order-name"></h1>
 		<div class="item-container item-configuration-container">
 			<div class="item">
 				<div class="item-configuration">
 					<div class="item-controls-container controls-container scrollable">
 						<div class="item-header">
 							<div class="align-right">
-								<span class="pagination" current_page="1" results="<?php echo $data['pagination']['results_per_page']; ?>">
+								<span class="pagination" current_page="1" results="<?php echo $data['results_per_page']; ?>">
 									<span class="align-left hidden item-controls results">
 										<span class="first-result"></span> - <span class="last-result"></span> of <span class="total-results"></span>
 									</span>
@@ -44,7 +44,7 @@
 						</div>
 					</div>
 					<div class="item-body">
-						<input name='order_id' type='hidden' value="<?php echo $data['order']['id']; ?>">
+						<input name='order_id' type='hidden' value="<?php echo $data['order_id']; ?>">
 						<div class="item-table" previous_checked="0"></div>
 					</div>
 				</div>

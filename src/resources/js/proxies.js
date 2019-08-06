@@ -349,10 +349,18 @@ var processProxies = (windowName = false, windowSelector = false, currentPage = 
 		}
 
 		if (
+			typeof response.redirect === 'string' &&
+			response.redirect
+		) {
+			window.location.href = response.redirect;
+			return false;
+		}
+
+		if (
 			response.code !== 200 ||
 			!response.data.length
 		) {
-			return;
+			return false;
 		}
 
 		items.innerHTML += '<table class="table"><thead><th style="width: 35px;"></th><th>Proxy IP</th></thead></table>';

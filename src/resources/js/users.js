@@ -12,10 +12,6 @@ var processUsers = (windowName, windowSelector) => {
 			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
 		}
 
-		if (response.code !== 200) {
-			return;
-		}
-
 		if (
 			typeof response.redirect === 'string' &&
 			response.redirect
@@ -23,9 +19,10 @@ var processUsers = (windowName, windowSelector) => {
 			window.location.href = response.redirect;
 			return false;
 		}
+
+		if (response.code !== 200) {
+			return false;
+		}
 	});
 };
 requestParameters.url = '/src/views/users/api.php';
-onLoad(() => {
-	// ...
-});

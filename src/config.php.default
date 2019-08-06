@@ -12,13 +12,18 @@ class Config {
 		$defaultFields = array(
 			'orders' => array(
 				'id',
+				'interval_type',
+				'interval_value',
 				'name',
-				'status'
+				'price',
+				'status',
+				'user_id'
 			),
 			'proxy_groups' => array(
 				'id',
+				'name',
 				'order_id',
-				'name'
+				'user_id'
 			),
 			'proxies' => array(
 				'asn',
@@ -34,6 +39,7 @@ class Config {
 				'region',
 				'status',
 				'timezone',
+				'user_id',
 				'username',
 				'whitelisted_ips'
 			),
@@ -64,7 +70,7 @@ class Config {
 
 		$this->permissions = array(
 			'orders' => array(
-				'index' => array(
+				'find' => array(
 					'fields' => $defaultFields['orders'],
 					'group' => 'user'
 				),
@@ -92,6 +98,7 @@ class Config {
 						'ip',
 						'http_port',
 						'username',
+						'user_id',
 						'password'
 					),
 					'group' => 'user'
@@ -107,7 +114,9 @@ class Config {
 					'group' => 'user'
 				),
 				'group' => array(
-					'fields' => array(),
+					'fields' => array(
+						'user_id'
+					),
 					'group' => 'user'
 				),
 				'replace' => array(

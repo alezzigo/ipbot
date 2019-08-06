@@ -24,7 +24,7 @@ class AppModel extends Config {
 				'conditions' => array(
 					'foreign_key' => 'id',
 					'foreign_table' => $table,
-					'string' => $this->_createTokenString($table, array(), $parameters['keys']['users'])
+					'string' => $this->_createTokenString($table, array(), sha1($parameters['keys']['users']))
 				),
 				'fields' => array(
 					'foreign_key',
@@ -439,7 +439,8 @@ class AppModel extends Config {
 						} else {
 							$response = array(
 								'code' => 407,
-								'message' => 'Authentication required, please refresh the page and try again.'
+								'message' => 'Authentication required, please log in and try again.',
+								'redirect' => $this->settings['base_url'] . '/#login'
 							);
 
 							if (
@@ -470,6 +471,7 @@ class AppModel extends Config {
 									}
 								}
 
+								$parameters['redirect'] = '';
 								$queryResponse = $this->_processAction($table, $parameters);
 
 								if (!empty($queryResponse)) {
@@ -767,6 +769,11 @@ class AppModel extends Config {
 			'count' => $count,
 			'data' => $data
 		);
+
+		if (empty($count)) {
+			$response['message'] = 'No ' . $table . ' found, please try again.';
+		}
+
 		return $response;
 	}
 
@@ -789,20 +796,17 @@ class AppModel extends Config {
 /**
  * Routing helper method
  *
- * @param array $parameters Parameters
- *
  * @return mixed [array/exit] Return data if action exists, redirect to base URL if action doesn't exist
  */
-	public function route($parameters) {
+	public function route() {
 		if (
-			!empty($action = $parameters['action']) &&
-			empty($redirect = $parameters['redirect']) &&
+			!empty($action = array_shift(array_reverse(explode('/', str_replace('.php', '', $_SERVER['SCRIPT_NAME']))))) &&
 			method_exists($this, $action)
 		) {
 			return $this->$action($parameters);
 		}
 
-		$this->redirect((!empty($redirect) ? $redirect : $this->settings['base_url'] . '/'));
+		$this->redirect($this->settings['base_url'] . '/');
 	}
 
 /**

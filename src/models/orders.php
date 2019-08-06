@@ -10,50 +10,30 @@ require_once($config->settings['base_path'] . '/models/app.php');
 class OrdersModel extends AppModel {
 
 /**
- * Get orders data
- *
- * @param array $parameters Parameters
+ * List orders
  *
  * @return array Orders data
  */
-	public function getOrders($parameters) {
-		$orders = $this->find('orders', array(
-			'conditions' => array(
-				'user_id' => !empty($parameters['user']['id']) ? $parameters['user']['id'] : false
-			)
-		));
-		return array(
-			'orders' => !empty($orders['count']) ? $orders['data'] : array(),
-		);
+	public function list() {
+		return;
 	}
 
 /**
- * Get order data
- *
- * @param array $parameters Parameters
+ * View order
  *
  * @return array Order data
  */
-	public function getOrder($parameters) {
-		$order = $this->find('orders', array(
-			'conditions' => array(
-				'id' => $parameters['order_id'],
-				'user_id' => !empty($parameters['user']['id']) ? $parameters['user']['id'] : false
-			),
-			'fields' => array(
-				'id',
-				'name',
-				'status'
-			)
-		));
-
-		$pagination = array(
-			'results_per_page' => 50
-		);
+	public function view() {
+		if (
+			empty($_GET['id']) ||
+			!is_numeric($_GET['id'])
+		) {
+			$this->redirect($this->settings['base_url'] . '/views/orders/list.php');
+		}
 
 		return array(
-			'order' => !empty($order['count']) ? $order['data'][0] : array(),
-			'pagination' => $pagination
+			'order_id' => $_GET['id'],
+			'results_per_page' => 50
 		);
 	}
 

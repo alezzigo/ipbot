@@ -19,7 +19,10 @@ class AppModel extends Config {
 	protected function _authenticate($table, $parameters) {
 		$response = false;
 
-		if (!empty($parameters['keys']['users'])) {
+		if (
+			!empty($parameters['keys']['users']) &&
+			$this->_verifyKeys()
+		) {
 			$existingToken = $this->find('tokens', array(
 				'conditions' => array(
 					'foreign_key' => 'id',
@@ -714,6 +717,75 @@ class AppModel extends Config {
 			$ips[$key] = implode('.', $splitIpSubnets);
 		}
 		return implode("\n", array_unique($ips));
+	}
+
+/**
+ * Verify configuration keys
+ *
+ * @return boolean $response True if keys are verified, false if new keys are set
+ */
+	protected function _verifyKeys($table, $parameters) {
+		$response = false;
+
+		if (
+			!empty($this->keys['start']) &&
+			!empty($this->keys['stop'])
+		) {
+			$keys = sha1(json_encode($this->keys['start'] . $this->keys['stop']));
+			$existingKeys = $this->find('settings', array(
+				'conditions' => array(
+					'name' => 'keys'
+				),
+				'fields' => array(
+					'name',
+					'value'
+				),
+				'sort' => array(
+					'field' => 'modified',
+					'order' => 'DESC'
+				)
+			));
+
+			if (!empty($existingKeys['count'])) {
+				$response = true;
+			}
+
+			if (
+				empty($existingKeys['count']) ||
+				(
+					!empty($existingKeys['count']) &&
+					$existingKeys['data'][0]['value'] != $keys
+				)
+			) {
+				$response = false;
+				$users = $this->find('users', array(
+					'fields' => array(
+						'id',
+						'password',
+						'password_modified'
+					)
+				));
+
+				if (!empty($users['count'])) {
+					foreach ($users['data'] as $key => $user) {
+						$users['data'][$key]['password'] = '';
+						$users['data'][$key]['password_modified'] = date('Y-m-d h:i:s', time());
+					}
+
+					$this->save('users', $users['data']);
+				}
+
+				$this->delete('tokens');
+				$this->save('settings', array(
+					array(
+						'name' => 'keys',
+						'value' => $keys
+					)
+				));
+			}
+		}
+
+		return $response;
 	}
 
 /**

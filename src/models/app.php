@@ -702,7 +702,7 @@ class AppModel extends Config {
  *
  * @return boolean $response True if keys are verified, false if new keys are set
  */
-	protected function _verifyKeys($table, $parameters) {
+	protected function _verifyKeys() {
 		$response = false;
 
 		if (

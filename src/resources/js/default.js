@@ -37,7 +37,7 @@ var browserDetails = () => {
 };
 var capitalizeString = (string) => {
 	return string.charAt(0).toUpperCase() + string.substr(1);
-}
+};
 var closeWindows = (defaultTable) => {
 	elements.addClass('.window-container', 'hidden');
 	elements.removeClass('footer, header, main', 'hidden');
@@ -85,7 +85,7 @@ var onLoad = (callback) => {
 var openWindow = (windowName, windowSelector) => {
 	elements.addClass('footer, header, main', 'hidden');
 	elements.removeClass(windowSelector, 'hidden');
-}
+};
 var processWindowEvents = (windowEvents, event = null) => {
 	var runWindowEvents = (windowEvents) => {
 		windowEvents.map((windowEvent) => {
@@ -124,7 +124,7 @@ var range = (low, high, step = 1) => {
 	}
 
 	return array;
-}
+};
 var repeat = (count, pattern) => {
 	var result = '';
 

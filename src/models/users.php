@@ -21,7 +21,7 @@ class UsersModel extends AppModel {
 		$message = $defaultMessage = 'Error sending password reset instructions, please try again.';
 
 		if (!empty($parameters['data']['email'])) {
-			$message = 'Please check your inbox for password reset instructions.';
+			$message = 'Password reset is required, please check your inbox for instructions.';
 			$existingUser = $this->find($table, array(
 				'conditions' => array(
 					'email' => $email = $this->_validateEmailFormat($parameters['data']['email'])
@@ -81,12 +81,18 @@ class UsersModel extends AppModel {
 				if (!empty($parameters['data']['password'])) {
 					$message = $defaultMessage;
 
-					if (
-						$this->_verifyPassword($parameters['data']['password'], $existingUser['data'][0]) &&
-						$this->_getToken($table, $parameters, 'id', $existingUser['data'][0]['id'], sha1($parameters['keys']['users']))
-					) {
-						$message = 'Logged in successfully.';
-						$redirect = $this->settings['base_url'] . '/views/orders/list.php';
+					if (!empty($existingUser['count'])) {
+						if (empty($existingUser['data'][0]['password'])) {
+							return $this->forgot($table, $parameters);
+						} else {
+							if (
+								$this->_verifyPassword($parameters['data']['password'], $existingUser['data'][0]) &&
+								$this->_getToken($table, $parameters, 'id', $existingUser['data'][0]['id'], sha1($parameters['keys']['users']))
+							) {
+								$message = 'Logged in successfully.';
+								$redirect = $this->settings['base_url'] . '/views/orders/list.php';
+							}
+						}
 					}
 				}
 			}

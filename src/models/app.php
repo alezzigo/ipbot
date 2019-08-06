@@ -712,10 +712,10 @@ class AppModel extends Config {
 			$keys = sha1(json_encode($this->keys['start'] . $this->keys['stop']));
 			$existingKeys = $this->find('settings', array(
 				'conditions' => array(
-					'name' => 'keys'
+					'id' => 'keys'
 				),
 				'fields' => array(
-					'name',
+					'id',
 					'value'
 				),
 				'sort' => array(

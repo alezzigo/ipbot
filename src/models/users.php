@@ -82,7 +82,7 @@ class UsersModel extends AppModel {
 					$message = $defaultMessage;
 
 					if (
-						$this->_passwordVerify($parameters['data']['password'], $existingUser['data'][0]) &&
+						$this->_verifyPassword($parameters['data']['password'], $existingUser['data'][0]) &&
 						$this->_getToken($table, $parameters, 'id', $existingUser['data'][0]['id'], sha1($parameters['keys']['users']))
 					) {
 						$message = 'Logged in successfully.';
@@ -136,11 +136,11 @@ class UsersModel extends AppModel {
 
 						if ($parameters['data']['password'] == $parameters['data']['confirm_password']) {
 							$message = $defaultMessage;
-							$passwordHash = $this->_passwordHash($parameters['data']['password'], time());
+							$password = $this->_hashPassword($parameters['data']['password'], time());
 							$user = array(
 								'email' => $email,
-								'password' => $passwordHash['string'],
-								'password_modified' => $passwordHash['modified'],
+								'password' => $password['string'],
+								'password_modified' => $password['modified'],
 								'permissions' => 'user'
 							);
 							$this->save($table, array(

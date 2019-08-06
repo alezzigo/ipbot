@@ -173,6 +173,22 @@ class AppModel extends Config {
 	}
 
 /**
+ * Hash password
+ *
+ * @param string $string Raw password string
+ * @param string $time Timestamp
+ *
+ * @return array $response Response with hashed password
+ */
+	protected function _hashPassword($string, $time) {
+		$response = array(
+			'modified' => $modified = date('Y-m-d h:i:s', $time),
+			'string' => 'e1Gh7$' . sha1($string . $modified . $this->keys['start'])
+		);
+		return $response;
+	}
+
+/**
  * Retrieve parameterized SQL query and array of values
  *
  * @param string $query Query
@@ -213,44 +229,6 @@ class AppModel extends Config {
 		}, array_filter(preg_split("/[](\r\n|\n|\r) @#$+,[;:_-]/", $ips))));
 		$ips = $this->_validateIps($ips, $subnets);
 		return explode("\n", $ips);
-	}
-
-/**
- * Hash password
- *
- * @param string $string Raw password string
- * @param string $time Timestamp
- *
- * @return array $response Response with hashed password
- */
-	protected function _passwordHash($string, $time) {
-		$response = array(
-			'modified' => $modified = date('Y-m-d h:i:s', $time),
-			'string' => 'e1Gh7$' . sha1($string . $modified . $this->keys['start'])
-		);
-		return $response;
-	}
-
-/**
- * Verify password
- *
- * @param string $password Raw password string
- * @param array $user User data
- *
- * @return boolean $response True/false if password is valid/invalid
- */
-	protected function _passwordVerify($password, $user) {
-		$response = false;
-
-		if (!empty($user['password'])) {
-			$passwordHash = $this->_passwordHash($password, strtotime($user['modified']));
-
-			if ($passwordHash['string'] == $user['password']) {
-				$response = true;
-			}
-		}
-
-		return $response;
 	}
 
 /**
@@ -782,6 +760,28 @@ class AppModel extends Config {
 						'value' => $keys
 					)
 				));
+			}
+		}
+
+		return $response;
+	}
+
+/**
+ * Verify password
+ *
+ * @param string $password Raw password string
+ * @param array $user User data
+ *
+ * @return boolean $response True/false if password is valid/invalid
+ */
+	protected function _verifyPassword($password, $user) {
+		$response = false;
+
+		if (!empty($user['password'])) {
+			$password = $this->_hashPassword($password, strtotime($user['modified']));
+
+			if ($password['string'] == $user['password']) {
+				$response = true;
 			}
 		}
 

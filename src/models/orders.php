@@ -15,7 +15,7 @@ class OrdersModel extends AppModel {
  * @return array Orders data
  */
 	public function list() {
-		return;
+		return array();
 	}
 
 /**

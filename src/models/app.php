@@ -809,7 +809,10 @@ class AppModel extends Config {
 			!empty($action = array_shift(array_reverse(explode('/', str_replace('.php', '', $_SERVER['SCRIPT_NAME']))))) &&
 			method_exists($this, $action)
 		) {
-			return $this->$action($parameters);
+			return array_merge($this->$action(), array(
+				'action' => $action,
+				'table' => str_replace('/', '', strrchr(dirname($_SERVER['SCRIPT_NAME']), '/'))
+			));
 		}
 
 		$this->redirect($this->settings['base_url'] . '/');

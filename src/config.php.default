@@ -142,6 +142,9 @@ class Config {
 				'login' => array(
 					'fields' => $defaultFields['users']
 				),
+				'logout' => array(
+					'fields' => array()
+				),
 				'register' => array(
 					'fields' => $defaultFields['users']
 				),

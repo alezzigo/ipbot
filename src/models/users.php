@@ -55,7 +55,7 @@ class UsersModel extends AppModel {
 	}
 
 /**
- * Login user
+ * Log in user
  *
  * @param string $table Table name
  * @param array $parameters Parameters
@@ -103,6 +103,41 @@ class UsersModel extends AppModel {
 			'redirect' => $redirect
 		);
 		return $response;
+	}
+
+/**
+ * Log out user
+ *
+ * @param string $table Table name
+ * @param array $parameters Parameters
+ *
+ * @return array $response Response data
+ */
+	public function logout($table, $parameters = array()) {
+		$message = 'Error logging out, please try again.';
+		$tokens = $this->find('tokens', array(
+			'fields' => array(
+				'id'
+			),
+			'conditions' => array(
+				'foreign_key' => 'id',
+				'foreign_table' => $table,
+				'string' => $this->_createTokenString($table, array(), sha1($parameters['keys']['users']))
+			)
+		));
+
+		if (!empty($tokens['count'])) {
+			$this->delete('tokens', array(
+				'id' => $tokens['data']
+			));
+			$message = 'Logged out successfully.';
+			$redirect = $this->settings['base_url'] . '/#login';
+		}
+
+		return array(
+			'message' => $message,
+			'redirect' => (!empty($redirect) ? $redirect : '')
+		);
 	}
 
 /**

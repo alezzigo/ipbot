@@ -31,8 +31,8 @@
 			),
 			array(
 				'class' => 'button window-button',
-				'text' => 'Log Out',
-				'window' => 'logout'
+				'process' => 'logout',
+				'text' => 'Log Out'
 			)
 		);
 	}
@@ -54,8 +54,9 @@
 						if (!empty($navigationItem['text'])) {
 							$class = !empty($navigationItem['class']) ? $navigationItem['class'] : 'button';
 							$href = !empty($navigationItem['href']) ? $navigationItem['href'] : 'javascript:void(0);';
+							$process = !empty($navigationItem['process']) ? $navigationItem['process'] : '';
 							$window = !empty($navigationItem['window']) ? $navigationItem['window'] : '';
-							echo '<li><a class="' . $class . '" href="' . $href . '"' . (!empty($window) ? ' window="' . $window . '"' : '') . '>' . $navigationItem['text'] . '</a></li>';
+							echo '<li><a class="' . $class . '" href="' . $href . '"' . (!empty($process) ? ' process="' . $process . '"' : '') . (!empty($window) ? ' window="' . $window . '"' : '') . '>' . $navigationItem['text'] . '</a></li>';
 						}
 					}
 

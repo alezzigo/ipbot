@@ -1,5 +1,19 @@
 'use_strict';
 
+var processLogout = () => {
+	requestParameters.table = 'users';
+	requestParameters.action = 'logout';
+	requestParameters.url = '/src/views/users/api.php';
+	sendRequest((response) => {
+		if (
+			typeof response.redirect === 'string' &&
+			response.redirect
+		) {
+			window.location.href = response.redirect;
+			return false;
+		}
+	});
+};
 onLoad(() => {
 	if ((scrollableElements = selectAllElements('.scrollable')).length) {
 		scrollableElements.map((element) => {
@@ -34,7 +48,7 @@ onLoad(() => {
 	selectAllElements('.button.window-button, .window .button.submit').map((element) => {
 		element[1].addEventListener('click', (element) => {
 			var processName = element.target.hasAttribute('process') ? element.target.getAttribute('process') : '';
-			var windowName = element.target.getAttribute('window');
+			var windowName = element.target.hasAttribute('window') ? element.target.getAttribute('window') : '';
 			var windowSelector = '.window-container[window="' + windowName + '"]';
 			var method = 'process' + capitalizeString(processName);
 
@@ -51,7 +65,7 @@ onLoad(() => {
 					itemGrid = [];
 					itemGridCount = 0;
 				}
-			} else {
+			} else if (windowName) {
 				closeWindows(defaultTable);
 				openWindow(windowName, windowSelector);
 			}

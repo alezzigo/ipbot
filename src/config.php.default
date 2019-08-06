@@ -152,6 +152,8 @@ class Config {
 		);
 
 		$this->settings = array(
+			'base_path' => $_SERVER['DOCUMENT_ROOT'] . '/src',
+			'base_url' => '/src',
 			'database' => array(
 				'charset' => 'utf8',
 				'hostname' => '127.0.0.1',
@@ -160,8 +162,7 @@ class Config {
 				'type' => 'mysql',
 				'username' => 'root'
 			),
-			'base_path' => $_SERVER['DOCUMENT_ROOT'] . '/src',
-			'base_url' => '/src'
+			'default_email' => 'email@localhost'
 		);
 
 	}

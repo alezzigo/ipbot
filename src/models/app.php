@@ -454,10 +454,16 @@ class AppModel extends Config {
 								if (array_search($parameters['user']['permissions'], $this->groups) > 1) {
 									unset($parameters['conditions']['user_id']);
 
-									if (!empty($parameters['conditions']['order_id'])) {
+									if (
+										(
+											$table == 'orders' &&
+											!empty($orderId = $parameters['conditions']['id'])
+										) ||
+										!empty($orderId = $parameters['conditions']['order_id'])
+									) {
 										$userData = $this->find('orders', array(
 											'conditions' => array(
-												'id' => $parameters['conditions']['order_id']
+												'id' => $orderId
 											),
 											'fields' => array(
 												'user_id'

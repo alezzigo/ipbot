@@ -71,7 +71,10 @@ class Config {
 		$this->permissions = array(
 			'orders' => array(
 				'find' => array(
-					'fields' => $defaultFields['orders'],
+					'fields' => array_merge($defaultFields['orders'], array(
+						'created',
+						'modified'
+					)),
 					'group' => 'user'
 				),
 				'view' => array(

@@ -2,7 +2,7 @@
 
 var defaultTable = 'orders',
 	previousAction = 'find';
-var processOrders = () => {
+var processOrdersList = () => {
 	requestParameters.action = previousAction;
 	requestParameters.table = defaultTable;
 	sendRequest((response) => {
@@ -29,5 +29,5 @@ var processOrders = () => {
 };
 requestParameters.url = '/src/views/orders/api.php';
 onLoad(() => {
-	processOrders();
+	processOrdersList();
 });

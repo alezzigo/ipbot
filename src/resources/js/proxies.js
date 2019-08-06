@@ -1,6 +1,7 @@
 'use_strict';
 
 var defaultTable = 'proxies',
+	defaultUrl = '/src/views/proxies/api.php',
 	itemGrid = [],
 	itemGridCount = 0,
 	previousAction = 'find';
@@ -191,6 +192,46 @@ var processGroup = (windowName, windowSelector) => {
 	requestParameters.table = 'proxy_groups';
 	sendRequest((response) => {
 		processGroupTable(response);
+	});
+};
+var processOrdersView = () => {
+	var orderId = document.querySelector('input[name="order_id"]').value;
+	requestParameters.conditions = {
+		id: orderId
+	};
+	requestParameters.table = 'orders';
+	requestParameters.url = '/src/views/orders/api.php';
+	sendRequest((response) => {
+		var messageContainer = document.querySelector('.orders-list .message-container');
+
+		if (messageContainer) {
+			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+		}
+
+		if (
+			typeof response.redirect === 'string' &&
+			response.redirect
+		) {
+			window.location.href = response.redirect;
+			return false;
+		}
+
+		if (response.count) {
+			document.querySelector('.order-name').innerHTML = response.data[0].name;
+			requestParameters.table = defaultTable;
+			requestParameters.url = defaultUrl;
+
+			if (document.querySelector('.pagination')) {
+				processProxies();
+				selectAllElements('.pagination .button').map((element) => {
+					element[1].addEventListener('click', (element) => {
+						if ((page = +element.target.getAttribute('page')) > 0) {
+							processProxies(false, false, page);
+						}
+					});
+				});
+			}
+		}
 	});
 };
 var processProxies = (windowName = false, windowSelector = false, currentPage = 1) => {
@@ -392,17 +433,8 @@ requestParameters.sort = {
 	field: 'modified',
 	order: 'DESC'
 };
-requestParameters.table = 'proxies';
-requestParameters.url = '/src/views/proxies/api.php';
+requestParameters.table = defaultTable;
+requestParameters.url = defaultUrl;
 onLoad(() => {
-	if (document.querySelector('.pagination')) {
-		processProxies();
-		selectAllElements('.pagination .button').map((element) => {
-			element[1].addEventListener('click', (element) => {
-				if ((page = +element.target.getAttribute('page')) > 0) {
-					processProxies(false, false, page);
-				}
-			});
-		});
-	}
+	processOrdersView();
 });

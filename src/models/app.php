@@ -778,7 +778,7 @@ class AppModel extends Config {
 		$response = false;
 
 		if (!empty($user['password'])) {
-			$password = $this->_hashPassword($password, strtotime($user['modified']));
+			$password = $this->_hashPassword($password, strtotime($user['password_modified']));
 
 			if ($password['string'] == $user['password']) {
 				$response = true;

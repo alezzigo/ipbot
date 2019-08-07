@@ -12,7 +12,7 @@ var browserDetails = () => {
 	var retrievePlugins = (pluginObject) => {
 		var plugins = [];
 		Object.entries(pluginObject).map((plugin) => {
-			plugins.push(plugin[1].filename);
+			plugins.push(plugin[1].description + plugin[1].filename + plugin[1].length + plugin[1].name);
 		});
 		return plugins;
 	};

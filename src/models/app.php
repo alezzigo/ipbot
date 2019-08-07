@@ -70,7 +70,7 @@ class AppModel extends Config {
  *
  * @return array Token string
  */
-	protected function _createTokenString($table, $parameters, $salt = '') {
+	protected function _createTokenString($table, $parameters, $salt = false) {
 		$tokenParts = array(
 			$this->keys['start']
 		);
@@ -137,10 +137,11 @@ class AppModel extends Config {
  * @param string $foreignKey Foreign key
  * @param string $foreignValue Foreign value
  * @param string $salt Salt for token string
+ * @param integer $expirationMinutes Number of minutes before token expires
  *
  * @return array $token Token
  */
-	protected function _getToken($table, $parameters, $foreignKey, $foreignValue, $salt = '') {
+	protected function _getToken($table, $parameters, $foreignKey, $foreignValue, $salt = false, $expirationMinutes = false) {
 		$tokenParameters = array(
 			'conditions' => array(
 				'foreign_key' => $foreignKey,
@@ -159,11 +160,19 @@ class AppModel extends Config {
 			$tokenParameters['conditions']['id'] = $existingToken['data'][0];
 		}
 
+		if (
+			!empty($expirationMinutes) &&
+			is_numeric($expirationMinutes)
+		) {
+			$tokenParameters['conditions']['expiration'] = date('Y-m-d h:i:s', strtotime('+' . $expirationMinutes . ' minutes'));
+		}
+
 		$this->save('tokens', array(
 			$tokenParameters['conditions']
 		));
 		$tokenParameters['fields'] = array(
 			'created',
+			'expiration',
 			'foreign_key',
 			'foreign_value',
 			'string'

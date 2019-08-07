@@ -33,18 +33,19 @@ class UsersModel extends AppModel {
 				!empty($email) &&
 				!empty($existingUser['count'])
 			) {
-				$mailParameters = array(
-					'to' => $email,
-					'subject' => 'Password reset request',
-					'message' => '...',
-					'headers' => array(
-						'From' => $this->settings['default_email'],
-						'Reply-To' => $this->settings['default_email'],
-						'X-Mailer' => 'PHP/' . phpversion()
-					)
-				);
-				$this->_sendMail($mailParameters);
-				// ...
+				if (!empty($token = $this->_getToken('users', array(), 'password_reset', $existingUser['data'][0]['id'] . '_' . $existingUser['data'][0]['password_modified'], false, 5))) {
+					$mailParameters = array(
+						'to' => $email,
+						'subject' => 'Password reset request',
+						'message' => '...',
+						'headers' => array(
+							'From' => $this->settings['default_email'],
+							'Reply-To' => $this->settings['default_email'],
+							'X-Mailer' => 'PHP/' . phpversion()
+						)
+					);
+					$this->_sendMail($mailParameters);
+				}
 			}
 		}
 
@@ -184,15 +185,10 @@ class UsersModel extends AppModel {
 								'password_modified' => $password['modified'],
 								'permissions' => 'user'
 							);
-							$this->save($table, array(
-								$user
-							));
-							$user = $this->find($table, array(
-								'conditions' => $user,
-								'limit' => 1
-							));
 
-							if (!empty($user['count'])) {
+							if ($this->save($table, array(
+								$user
+							))) {
 								$message = 'User account created successfully.';
 								return $this->login($table, $parameters);
 							}
@@ -219,7 +215,63 @@ class UsersModel extends AppModel {
  * @return array $response Response data
  */
 	public function reset($table, $parameters = array()) {
-		// ...
+		$message = 'Password and confirmation are required, please try again.';
+
+		if (
+			!empty($parameters['data']['password']) &&
+			!empty($parameters['data']['confirm_password'])
+		) {
+			$message = 'Password must be at least 10 characters, please try again.';
+
+			if (strlen($parameters['data']['password']) >= 10) {
+				$message = 'Password confirmation doesn\'t match password, please try again.';
+
+				if ($parameters['data']['password'] == $parameters['data']['confirm_password']) {
+					$message = 'Invalid or expired password reset token.';
+
+					if (!empty($token = $parameters['data']['password_token'])) {
+						$existingToken = $this->find('tokens', array(
+							'fields' => array(
+								'foreign_value'
+							),
+							'conditions' => array(
+								'expiration >' => date('Y-m-d h:i:s', time()),
+								'string' => $token
+							)
+						));
+
+						if (!empty($existingToken['count'])) {
+							$message = 'Error resetting password, please try again.';
+
+							if ($this->_verifyKeys()) {
+								$password = $this->_hashPassword($parameters['data']['password'], time());
+								$tokenParts = explode('_', $existingToken['data'][0]);
+								$user = array(
+									'id' => $tokenParts[key($tokenParts)],
+									'password' => $password['string'],
+									'password_modified' => $password['modified']
+								);
+
+								if ($this->save($table, array(
+									$user
+								))) {
+									$this->delete('tokens', array(
+										'foreign_value' => $existingToken['data']
+									));
+									$message = 'Password reset successfully, you can now log in with your new password.';
+									$redirect = $this->settings['base_url'] . '/#login';
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return array(
+			'message' => $message,
+			'redirect' => (!empty($redirect) ? $redirect : '')
+		);
 	}
 
 }

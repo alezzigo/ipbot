@@ -160,7 +160,7 @@ class Config {
 			'database' => array(
 				'charset' => 'utf8',
 				'hostname' => '127.0.0.1',
-				'name' => 'proxybot',
+				'name' => 'proxies',
 				'password' => 'password',
 				'type' => 'mysql',
 				'username' => 'root'

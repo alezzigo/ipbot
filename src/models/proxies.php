@@ -63,48 +63,67 @@ class ProxiesModel extends AppModel {
 				$message = 'Both username and password must be set or empty.';
 			} else {
 				if (
-					($usernames = array()) &&
-					!empty($parameters['data']['username'])
-				) {
-					$existingUsernames = $this->find('proxies', array(
-						'conditions' => array(
-							'username !=' => ''
-						),
-						'fields' => array(
-							'username'
+					(
+						!empty($parameters['data']['username']) &&
+						(
+							strlen($parameters['data']['username']) < 4 ||
+							strlen($parameters['data']['username']) > 15
 						)
-					));
-
-					if (!empty($existingUsernames['count'])) {
-						$usernames = array_unique($existingUsernames['data']);
-					}
-				}
-
-				$whitelistedIps = implode("\n", (!empty($parameters['data']['whitelisted_ips']) ? $this->_parseIps($parameters['data']['whitelisted_ips']) : array()));
-
-				foreach ($proxies as $key => $proxy) {
-					$proxy = array(
-						'id' => $proxy,
-						'username' => $parameters['data']['username'],
-						'password' => $parameters['data']['password'],
-						'whitelisted_ips' => $whitelistedIps
-					);
-
-					if (!empty($parameters['data']['generate_unique'])) {
-						$proxy = $this->_generateRandomAuthentication($proxy);
-					}
-
-					$proxies[$key] = $proxy;
-				}
-
-				if (
-					!empty($parameters['data']['username']) &&
-					in_array($parameters['data']['username'], $usernames)
+					) ||
+					(
+						!empty($parameters['data']['password']) &&
+						(
+							strlen($parameters['data']['password']) < 4 ||
+							strlen($parameters['data']['password']) > 15
+						)
+					)
 				) {
-					$message = 'Username [' . $parameters['data']['username'] . '] is already in use, please try a different username.';
+					$message = 'Both username and password must be between 4 and 15 characters.';
 				} else {
-					$this->save('proxies', $proxies);
-					$message = 'Authentication saved successfully';
+					if (
+						($usernames = array()) &&
+						!empty($parameters['data']['username'])
+					) {
+						$existingUsernames = $this->find('proxies', array(
+							'conditions' => array(
+								'username !=' => ''
+							),
+							'fields' => array(
+								'username'
+							)
+						));
+
+						if (!empty($existingUsernames['count'])) {
+							$usernames = array_unique($existingUsernames['data']);
+						}
+					}
+
+					$whitelistedIps = implode("\n", (!empty($parameters['data']['whitelisted_ips']) ? $this->_parseIps($parameters['data']['whitelisted_ips']) : array()));
+
+					foreach ($proxies as $key => $proxy) {
+						$proxy = array(
+							'id' => $proxy,
+							'username' => $parameters['data']['username'],
+							'password' => $parameters['data']['password'],
+							'whitelisted_ips' => $whitelistedIps
+						);
+
+						if (!empty($parameters['data']['generate_unique'])) {
+							$proxy = $this->_generateRandomAuthentication($proxy);
+						}
+
+						$proxies[$key] = $proxy;
+					}
+
+					if (
+						!empty($parameters['data']['username']) &&
+						in_array($parameters['data']['username'], $usernames)
+					) {
+						$message = 'Username [' . $parameters['data']['username'] . '] is already in use, please try a different username.';
+					} else {
+						$this->save('proxies', $proxies);
+						$message = 'Authentication saved successfully';
+					}
 				}
 			}
 		}

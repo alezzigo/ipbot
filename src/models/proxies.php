@@ -10,6 +10,19 @@ require_once($config->settings['base_path'] . '/models/app.php');
 class ProxiesModel extends AppModel {
 
 /**
+ * Generate random proxy username:password authentication
+ *
+ * @param array $data Data
+ * @param array $proxy Proxy data
+ * @param array $generatedAuthentication Generated authentication
+ * @param integer $iteration Iteration
+ * @return array $proxy Proxy data
+ */
+	protected function _generateRandomAuthentication($data, $proxy, $generatedAuthentication, $iteration) {
+		// ...
+	}
+
+/**
  * Process authenticate requests
  *
  * @param string $table Table name

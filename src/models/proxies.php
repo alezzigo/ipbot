@@ -12,14 +12,25 @@ class ProxiesModel extends AppModel {
 /**
  * Generate random proxy username:password authentication
  *
- * @param array $data Data
  * @param array $proxy Proxy data
- * @param array $generatedAuthentication Generated authentication
- * @param integer $iteration Iteration
+ *
  * @return array $proxy Proxy data
  */
-	protected function _generateRandomAuthentication($data, $proxy, $generatedAuthentication, $iteration) {
-		// ...
+	protected function _generateRandomAuthentication($proxy) {
+		$characters = 'bcdfghjklmnpqrstvwxyzbcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+
+		$proxy['username'] .= uniqid();
+		$proxy['password'] .= uniqid();
+
+		for ($i = 0; $i < mt_rand(5, 10); $i++) {
+			$proxy['username'] .= $characters[mt_rand(0, strlen($characters) - 1)];
+		}
+
+		for ($i = 0; $i < mt_rand(5, 10); $i++) {
+			$proxy['password'] .= $characters[mt_rand(0, strlen($characters) - 1)];
+		}
+
+		return $proxy;
 	}
 
 /**
@@ -31,7 +42,77 @@ class ProxiesModel extends AppModel {
  * @return array $response Response data
  */
 	public function authenticate($table, $parameters) {
-		// ...
+		$message = 'Error authenticating proxies, please try again.';
+
+		if (empty($parameters['items'][$table]['count'])) {
+			$message = 'There are no ' . $table . ' selected to authenticate.';
+		} else {
+			$proxies = $parameters['items'][$table]['data'];
+
+			if (
+				empty($parameters['data']['generate_unique']) &&
+				(
+					!empty($parameters['data']['username']) ||
+					!empty($parameters['data']['password'])
+				) &&
+				(
+					empty($parameters['data']['username']) ||
+					empty($parameters['data']['password'])
+				)
+			) {
+				$message = 'Both username and password must be set or empty.';
+			} else {
+				if (
+					($usernames = array()) &&
+					!empty($parameters['data']['username'])
+				) {
+					$existingUsernames = $this->find('proxies', array(
+						'conditions' => array(
+							'username !=' => ''
+						),
+						'fields' => array(
+							'username'
+						)
+					));
+
+					if (!empty($existingUsernames['count'])) {
+						$usernames = array_unique($existingUsernames['data']);
+					}
+				}
+
+				$whitelistedIps = implode("\n", (!empty($parameters['data']['whitelisted_ips']) ? $this->_parseIps($parameters['data']['whitelisted_ips']) : array()));
+
+				foreach ($proxies as $key => $proxy) {
+					$proxy = array(
+						'id' => $proxy,
+						'username' => $parameters['data']['username'],
+						'password' => $parameters['data']['password'],
+						'whitelisted_ips' => $whitelistedIps
+					);
+
+					if (!empty($parameters['data']['generate_unique'])) {
+						$proxy = $this->_generateRandomAuthentication($proxy);
+					}
+
+					$proxies[$key] = $proxy;
+				}
+
+				if (
+					!empty($parameters['data']['username']) &&
+					in_array($parameters['data']['username'], $usernames)
+				) {
+					$message = 'Username [' . $parameters['data']['username'] . '] is already in use, please try a different username.';
+				} else {
+					$this->save('proxies', $proxies);
+					$message = 'Authentication saved successfully';
+				}
+			}
+		}
+
+		$response = array_merge($this->find($table, $parameters), array(
+			'message' => $message
+		));
+		return $response;
 	}
 
 /**

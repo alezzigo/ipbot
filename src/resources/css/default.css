@@ -235,6 +235,17 @@ header {
 						display: block;
 						width: 100%;
 					}
+						.table tr td .details-container .details .detail textarea {
+							background: #554db3;
+							border: none;
+							box-sizing: border-box;
+							color: #fff;
+							line-height: 14px;
+							margin: 2px 0 -3px 0;
+							min-height: 69px;
+							padding: 7px 8px 5px 8px;
+							width: 100%;
+						}
 .section {
 	padding: 51px 15px 180px;
 }

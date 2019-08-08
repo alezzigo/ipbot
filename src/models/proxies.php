@@ -10,6 +10,18 @@ require_once($config->settings['base_path'] . '/models/app.php');
 class ProxiesModel extends AppModel {
 
 /**
+ * Process authenticate requests
+ *
+ * @param string $table Table name
+ * @param array $parameters Parameters
+ *
+ * @return array $response Response data
+ */
+	public function authenticate($table, $parameters) {
+		// ...
+	}
+
+/**
  * Process copy requests
  * @todo File downloads for large lists
  *

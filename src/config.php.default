@@ -100,6 +100,10 @@ class Config {
 				)
 			),
 			'proxies' => array(
+				'authenticate' => array(
+					'fields' => $defaultFields['proxies'],
+					'group' => 'user'
+				),
 				'copy' => array(
 					'fields' => array(
 						'ip',

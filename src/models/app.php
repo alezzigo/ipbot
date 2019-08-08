@@ -235,7 +235,7 @@ class AppModel extends Config {
 	protected function _parseIps($ips = array(), $subnets = false) {
 		$ips = implode("\n", array_map(function($ip) {
 			return trim($ip, '.');
-		}, array_filter(preg_split("/[](\r\n|\n|\r) @#$+,[;:_-]/", $ips))));
+		}, array_filter(preg_split("/[](\r\n|\n|\r) <>()~{}|`\"'=?!*&@#$+,[;:_-]/", $ips))));
 		$ips = $this->_validateIps($ips, $subnets);
 		return explode("\n", $ips);
 	}
@@ -701,7 +701,9 @@ class AppModel extends Config {
 				}
 			}
 
-			$ips[$key] = implode('.', $splitIpSubnets);
+			if (!empty($ips[$key])) {
+				$ips[$key] = implode('.', $splitIpSubnets);
+			}
 		}
 		return implode("\n", array_unique($ips));
 	}

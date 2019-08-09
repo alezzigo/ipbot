@@ -25,4 +25,4 @@ var processUsers = (windowName, windowSelector) => {
 		}
 	});
 };
-requestParameters.url = '/src/views/users/api.php';
+requestParameters.url = '/api/users';

@@ -3,7 +3,7 @@
 var processLogout = () => {
 	requestParameters.table = 'users';
 	requestParameters.action = 'logout';
-	requestParameters.url = '/src/views/users/api.php';
+	requestParameters.url = '/api/users';
 	sendRequest((response) => {
 		if (
 			typeof response.redirect === 'string' &&

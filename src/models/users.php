@@ -91,7 +91,7 @@ class UsersModel extends AppModel {
 								$this->_getToken($table, $parameters, 'id', $existingUser['data'][0]['id'], sha1($parameters['keys']['users']))
 							) {
 								$message = 'Logged in successfully.';
-								$redirect = $this->settings['base_url'] . '/views/orders/list.php';
+								$redirect = $this->settings['base_url'] . 'orders';
 							}
 						}
 					}
@@ -132,7 +132,7 @@ class UsersModel extends AppModel {
 				'id' => $tokens['data']
 			));
 			$message = 'Logged out successfully.';
-			$redirect = $this->settings['base_url'] . '/#login';
+			$redirect = $this->settings['base_url'] . '#login';
 		}
 
 		return array(
@@ -259,7 +259,7 @@ class UsersModel extends AppModel {
 										'foreign_value' => $existingToken['data']
 									));
 									$message = 'Password reset successfully, you can now log in with your new password.';
-									$redirect = $this->settings['base_url'] . '/#login';
+									$redirect = $this->settings['base_url'] . '#login';
 								}
 							}
 						}

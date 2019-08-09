@@ -21,4 +21,4 @@ class ProxiesController extends ProxiesModel {
 }
 
 $proxiesController = new ProxiesController();
-$data = $proxiesController->route();
+$data = $proxiesController->route($config->parameters);

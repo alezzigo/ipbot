@@ -169,9 +169,26 @@ class Config {
 				'type' => 'mysql',
 				'username' => 'root'
 			),
-			'default_email' => 'email@localhost'
+			'default_email' => 'email@localhost',
+			'site_name' => 'Proxies'
 		);
 
+	}
+
+/**
+ * Redirect helper method
+ *
+ * @param string $redirect Redirect URL
+ * @param string $responseCode HTTP response code
+ *
+ * @return exit
+ */
+	public function redirect($redirect, $responseCode = 301) {
+		header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+		header('Cache-Control: post-check=0, pre-check=0', false);
+		header('Pragma: no-cache');
+		header('Location: ' . $redirect, false, $responseCode);
+		exit;
 	}
 
 }

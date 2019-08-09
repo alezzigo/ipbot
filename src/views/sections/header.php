@@ -6,7 +6,7 @@
 <?php
 	if (!empty($styleSheets)) {
 		foreach ($styleSheets as $styleSheet) {
-			echo '<link rel="stylesheet" href="' . $styleSheet . '?' . time() . '">' . "\n";
+			echo '<link rel="stylesheet" href="' . $styleSheet . '?' . time() . '" type="text/css">' . "\n";
 		}
 	}
 
@@ -26,7 +26,7 @@
 	if (!empty($config->permissions[$data['table']][$data['action']]['group'])) {
 		$navigationItems = array(
 			array(
-				'href' => $config->settings['base_url'] . '/views/orders/list.php',
+				'href' => $config->settings['base_url'] . 'orders',
 				'text' => 'Dashboard'
 			),
 			array(
@@ -42,7 +42,7 @@
 	<div class="container small">
 		<div class="align-left">
 			<div class="logo-container">
-				<a class="logo" href="/src">Proxies</a>
+				<a class="logo" href="<?php echo $config->settings['base_url']; ?>">Proxies</a>
 			</div>
 		</div>
 		<div class="align-right">
@@ -68,9 +68,16 @@
 </header>
 <body>
 <?php
-	if (!empty($forms = array_diff(scandir($config->settings['base_path'] . '/views/includes/forms/users/'), array('.', '..', '.DS_Store')))) {
-		foreach ($forms as $form) {
-			require_once($config->settings['base_path'] . '/views/includes/forms/users/' . $form);
+	$windows = array(
+		'forgot',
+		'login',
+		'register',
+		'reset'
+	);
+
+	foreach ($windows as $window) {
+		if (file_exists($file = $config->settings['base_path'] . '/views/sections/' . $window . '.php')) {
+			require_once($file);
 		}
 	}
 ?>

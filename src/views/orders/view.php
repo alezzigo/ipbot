@@ -1,14 +1,20 @@
 <?php
-	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/config.php');
 	$styleSheets = array(
-		$config->settings['base_url'] . '/resources/css/default.css'
+		$config->settings['base_url'] . 'resources/css/default.css'
 	);
 	require_once($config->settings['base_path'] . '/controllers/orders.php');
-	require_once($config->settings['base_path'] . '/views/layouts/default/header.php');
+	require_once($config->settings['base_path'] . '/views/sections/header.php');
+	$windows = array(
+		'authenticate',
+		'copy',
+		'group',
+		'replace',
+		'search'
+	);
 
-	if (!empty($forms = array_diff(scandir($config->settings['base_path'] . '/views/includes/forms/proxies/'), array('.', '..', '.DS_Store')))) {
-		foreach ($forms as $form) {
-			require_once($config->settings['base_path'] . '/views/includes/forms/proxies/' . $form);
+	foreach ($windows as $window) {
+		if (file_exists($file = $config->settings['base_path'] . '/views/sections/' . $window . '.php')) {
+			require_once($file);
 		}
 	}
 ?>
@@ -54,9 +60,9 @@
 </div>
 <?php
 	$scripts = array(
-		$config->settings['base_url'] . '/resources/js/default.js',
-		$config->settings['base_url'] . '/resources/js/proxies.js',
-		$config->settings['base_url'] . '/resources/js/app.js'
+		$config->settings['base_url'] . 'resources/js/default.js',
+		$config->settings['base_url'] . 'resources/js/proxies.js',
+		$config->settings['base_url'] . 'resources/js/app.js'
 	);
-	require_once($config->settings['base_path'] . '/views/layouts/default/footer.php');
+	require_once($config->settings['base_path'] . '/views/sections/footer.php');
 ?>

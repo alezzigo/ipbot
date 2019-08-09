@@ -430,7 +430,7 @@ class AppModel extends Config {
 							$response = array(
 								'code' => 407,
 								'message' => 'Authentication required, please log in and try again.',
-								'redirect' => $this->settings['base_url'] . '/#login'
+								'redirect' => $this->settings['base_url'] . '#login'
 							);
 
 							if (
@@ -867,38 +867,24 @@ class AppModel extends Config {
 	}
 
 /**
- * Redirect helper method
- *
- * @param string $redirect Redirect URL
- * @param string $responseCode HTTP response code
- *
- * @return exit
- */
-	public function redirect($redirect, $responseCode = 301) {
-		header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-		header('Cache-Control: post-check=0, pre-check=0', false);
-		header('Pragma: no-cache');
-		header('Location: ' . $redirect, false, $responseCode);
-		exit;
-	}
-
-/**
  * Routing helper method
+ *
+ * @param array $parameters Parameters
  *
  * @return mixed [array/exit] Return data if action exists, redirect to base URL if action doesn't exist
  */
-	public function route() {
+	public function route($parameters) {
 		if (
-			!empty($action = array_shift(array_reverse(explode('/', str_replace('.php', '', $_SERVER['SCRIPT_NAME']))))) &&
+			!empty($action = array_shift(array_reverse(explode('/', str_replace('.php', '', $parameters['route']['file']))))) &&
 			method_exists($this, $action)
 		) {
-			return array_merge($this->$action(), array(
+			return array_merge($this->$action($parameters), array(
 				'action' => $action,
-				'table' => str_replace('/', '', strrchr(dirname($_SERVER['SCRIPT_NAME']), '/'))
+				'table' => str_replace('/', '', strrchr(dirname($parameters['route']['file']), '/'))
 			));
 		}
 
-		$this->redirect($this->settings['base_url'] . '/');
+		$this->redirect($this->settings['base_url']);
 	}
 
 /**

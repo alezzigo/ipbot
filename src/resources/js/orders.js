@@ -22,12 +22,12 @@ var processOrdersList = () => {
 
 		if (response.data.length) {
 			response.data.map((item, index) => {
-				document.querySelector('.orders-container').innerHTML += '<div class="item-container item-button"><div class="item"><div class="item-body"><p><strong>' + item.name + '</strong></p><p>$' + item.price + ' per ' + (item.interval_value > 1 ? item.interval_value + ' ' : '') + item.interval_type + (item.interval_value > 1 ? 's' : '') + '</p></div></div><div class="item-link-container"><a class="item-link" href="/src/views/orders/view.php?id=' + item.id + '"></a></div></div>';
+				document.querySelector('.orders-container').innerHTML += '<div class="item-container item-button"><div class="item"><div class="item-body"><p><strong>' + item.name + '</strong></p><p>$' + item.price + ' per ' + (item.interval_value > 1 ? item.interval_value + ' ' : '') + item.interval_type + (item.interval_value > 1 ? 's' : '') + '</p></div></div><div class="item-link-container"><a class="item-link" href="/orders/' + item.id + '"></a></div></div>';
 			});
 		}
 	});
 };
-requestParameters.url = '/src/views/orders/api.php';
+requestParameters.url = '/api/orders';
 onLoad(() => {
 	processOrdersList();
 });

@@ -21,18 +21,20 @@ class OrdersModel extends AppModel {
 /**
  * View order
  *
+ * @param array $parameters Parameters
+ *
  * @return array Order data
  */
-	public function view() {
+	public function view($parameters) {
 		if (
-			empty($_GET['id']) ||
-			!is_numeric($_GET['id'])
+			empty($orderId = $parameters['id']) ||
+			!is_numeric($orderId)
 		) {
-			$this->redirect($this->settings['base_url'] . '/views/orders/list.php');
+			$this->redirect($this->settings['base_url'] . 'orders');
 		}
 
 		return array(
-			'order_id' => $_GET['id'],
+			'order_id' => $parameters['id'],
 			'results_per_page' => 50
 		);
 	}

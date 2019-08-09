@@ -21,4 +21,4 @@ class OrdersController extends OrdersModel {
 }
 
 $ordersController = new OrdersController();
-$data = $ordersController->route();
+$data = $ordersController->route($config->parameters);

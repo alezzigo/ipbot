@@ -21,4 +21,4 @@ class UsersController extends UsersModel {
 }
 
 $usersController = new UsersController();
-$data = $usersController->route();
+$data = $usersController->route($config->parameters);

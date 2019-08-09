@@ -8,6 +8,7 @@
 						<h1>Proxy Authentication Configuration</h1>
 					</div>
 					<div class="item-body">
+						<p class="message">These proxy usernames and passwords may be stored in plain text. Please make sure they don't include any sensitive information.</p>
 						<label for="username">Proxy Username</label>
 						<input class="username" id="username" name="username" type="text">
 						<label for="password">Proxy Password</label>

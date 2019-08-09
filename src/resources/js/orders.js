@@ -29,5 +29,7 @@ var processOrdersList = () => {
 };
 requestParameters.url = '/api/orders';
 onLoad(() => {
-	processOrdersList();
+	setTimeout(() => {
+		processOrdersList();
+	}, 100)
 });

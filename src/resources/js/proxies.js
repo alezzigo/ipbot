@@ -436,5 +436,7 @@ requestParameters.sort = {
 requestParameters.table = defaultTable;
 requestParameters.url = defaultUrl;
 onLoad(() => {
-	processOrdersView();
+	setTimeout(() => {
+		processOrdersView();
+	}, 100);
 });

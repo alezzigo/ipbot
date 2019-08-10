@@ -58,10 +58,11 @@ h1 {
 	margin: 0 0 18px;
 }
 h2 {
-	font-size: 18px;
-	font-weight: 600;
-	margin-bottom: 14px;
+	border-bottom: 1px solid #dddbf4;
+	font-size: 20px;
+	margin-bottom: 17px;
 	margin-top: 32px;
+	padding-bottom: 11px;
 }
 p {
 	line-height: 23px;
@@ -155,11 +156,11 @@ main {
 	padding: 88px 15px 169px;
 }
 	main img {
-		margin: 5px 0;
+		margin: 10px 0;
 		width: 100%;
 	}
 	main p {
-		margin-bottom: 24px;
+		margin-bottom: 16px;
 	}
 .field-group {
 	float: left;
@@ -313,7 +314,7 @@ main {
 	margin-top: 71px;
 }
 	.section .item {
-		margin-bottom: 47px;
+		margin-bottom: 52px;
 	}
 .container {
 	margin: 0 auto;

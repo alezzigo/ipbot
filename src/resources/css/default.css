@@ -459,7 +459,7 @@ main {
 		}
 	.flag {
 		display: inline-block;
-		margin-left: 2px;
+		margin: 0 0 0 2px;
 		width: 16px;
 	}
 .checkbox {

@@ -57,7 +57,7 @@
 			</div>
 		</div>
 	</div>
-</div>
+</main>
 <?php
 	$scripts = array(
 		$config->settings['base_url'] . 'resources/js/default.js',

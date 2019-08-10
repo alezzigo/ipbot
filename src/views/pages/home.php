@@ -6,9 +6,7 @@
 ?>
 <main class="section">
 	<div class="container small">
-		[Homepage contents]
-		<br>
-		<a href="<?php echo $config->settings['base_url'] ?>orders">View Orders</a>
+		[content]
 	</div>
 </main>
 <?php

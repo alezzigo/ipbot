@@ -18,8 +18,8 @@
 						<a class="button window-button" href="javascript:void(0);" window="login">Already have an account?</a>
 					</div>
 					<div class="item-footer">
-						<button class="button close">Close</button>
-						<button class="button submit" process="users" window="register">Create Account</button>
+						<button class="button close main-button">Close</button>
+						<button class="button main-button submit" process="users" window="register">Create Account</button>
 					</div>
 				</div>
 			</div>

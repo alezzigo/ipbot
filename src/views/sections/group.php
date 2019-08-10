@@ -18,8 +18,8 @@
 						<div class="group-table"></div>
 					</div>
 					<div class="item-footer">
-						<button class="button close">Close</button>
-						<button class="button close hidden submit" process="proxies" window="group">Add to Selected Groups</button>
+						<button class="button close main-button">Close</button>
+						<button class="button close hidden main-button submit" process="proxies" window="group">Add to Selected Groups</button>
 					</div>
 				</div>
 			</div>

@@ -10,21 +10,15 @@
 		}
 	}
 
-	$navigationItems = array(
+	$primaryNavigationItems = array(
 		array(
-			'class' => 'button window-button',
-			'text' => 'Log In',
-			'window' => 'login'
-		),
-		array(
-			'class' => 'button window-button',
-			'text' => 'Register',
-			'window' => 'register'
+			'href' => $config->settings['base_url'] . 'orders',
+			'text' => 'Dashboard'
 		)
 	);
 
 	if (!empty($config->permissions[$data['table']][$data['action']]['group'])) {
-		$navigationItems = array(
+		$primaryNavigationItems = array(
 			array(
 				'href' => $config->settings['base_url'] . 'orders',
 				'text' => 'Dashboard'
@@ -36,34 +30,59 @@
 			)
 		);
 	}
+
+	$secondaryNavigationItems = array();
 ?>
 </head>
 <header>
 	<div class="container small">
-		<div class="align-left">
-			<div class="logo-container">
-				<a class="logo" href="<?php echo $config->settings['base_url']; ?>">Proxies</a>
+		<div class="align-left navigation primary-navigation">
+			<div class="align-left">
+				<div class="logo-container">
+					<a class="logo" href="<?php echo $config->settings['base_url']; ?>"><?php echo $config->settings['site_name']; ?></a>
+				</div>
+			</div>
+			<div class="align-right">
+				<?php
+					if (!empty($primaryNavigationItems)) {
+						echo '<nav><ul>';
+
+						foreach ($primaryNavigationItems as $navigationItem) {
+							if (!empty($navigationItem['text'])) {
+								$class = !empty($navigationItem['class']) ? $navigationItem['class'] : 'button';
+								$href = !empty($navigationItem['href']) ? $navigationItem['href'] : 'javascript:void(0);';
+								$process = !empty($navigationItem['process']) ? $navigationItem['process'] : '';
+								$window = !empty($navigationItem['window']) ? $navigationItem['window'] : '';
+								echo '<li><a class="' . $class . '" href="' . $href . '"' . (!empty($process) ? ' process="' . $process . '"' : '') . (!empty($window) ? ' window="' . $window . '"' : '') . '>' . $navigationItem['text'] . '</a></li>';
+							}
+						}
+
+						echo '</ul></nav>';
+					}
+				?>
 			</div>
 		</div>
-		<div class="align-right">
-			<?php
-				if (!empty($navigationItems)) {
-					echo '<nav><ul>';
-
-					foreach ($navigationItems as $navigationItem) {
-						if (!empty($navigationItem['text'])) {
-							$class = !empty($navigationItem['class']) ? $navigationItem['class'] : 'button';
-							$href = !empty($navigationItem['href']) ? $navigationItem['href'] : 'javascript:void(0);';
-							$process = !empty($navigationItem['process']) ? $navigationItem['process'] : '';
-							$window = !empty($navigationItem['window']) ? $navigationItem['window'] : '';
-							echo '<li><a class="' . $class . '" href="' . $href . '"' . (!empty($process) ? ' process="' . $process . '"' : '') . (!empty($window) ? ' window="' . $window . '"' : '') . '>' . $navigationItem['text'] . '</a></li>';
-						}
-					}
-
-					echo '</ul></nav>';
-				}
-			?>
+		<?php if (!empty($secondaryNavigationItems)): ?>
+		<div class="align-left navigation secondary-navigation">
+			<div class="align-left">
+				<nav>
+					<ul>
+						<?php
+							foreach ($secondaryNavigationItems as $navigationItem) {
+								if (!empty($navigationItem['text'])) {
+									$class = !empty($navigationItem['class']) ? $navigationItem['class'] : 'button';
+									$href = !empty($navigationItem['href']) ? $navigationItem['href'] : 'javascript:void(0);';
+									$process = !empty($navigationItem['process']) ? $navigationItem['process'] : '';
+									$window = !empty($navigationItem['window']) ? $navigationItem['window'] : '';
+									echo '<li><a class="' . $class . '" href="' . $href . '"' . (!empty($process) ? ' process="' . $process . '"' : '') . (!empty($window) ? ' window="' . $window . '"' : '') . '>' . $navigationItem['text'] . '</a></li>';
+								}
+							}
+						?>
+					</ul>
+				</nav>
+			</div>
 		</div>
+		<?php endif; ?>
 	</div>
 </header>
 <body>

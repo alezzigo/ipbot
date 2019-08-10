@@ -16,7 +16,7 @@
 body,
 html {
 	background: #fff;
-	color: #787785;
+	color: #646094;
 	font-family: helvetica, serif !important;
 	font-size: 14px;
 	line-height: 27px;
@@ -42,7 +42,7 @@ h4,
 h5,
 h6 {
 	color: #6c62e0;
-	font-weight: 600;
+	font-weight: 100;
 	padding-bottom: 8px;
 }
 a,
@@ -54,14 +54,16 @@ a:visited {
 	text-decoration: none;
 }
 h1 {
-	margin: 42px 0 18px;
-	font-size: 21px;
+	font-size: 28px;
+	line-height: 36px;
+	margin: 88px 0 18px;
 }
 h2 {
 	font-size: 18px;
 	margin-top: 33px;
 }
 p {
+	line-height: 23px;
 	margin: 0;
 }
 strong {
@@ -83,7 +85,7 @@ select {
 	background: url('../images/icons/icon-select-arrow.png') #fff right center no-repeat / auto 100%;
 	border: 1px solid #c0c2c7;
 	border-radius: 0;
-	color: #787785;
+	color: #646094;
 	cursor: pointer;
 	display: block;
 	font-size: 14px;
@@ -100,17 +102,45 @@ select {
 	cursor: default;
 	opacity: 0.50;
 }
+footer,
 header {
 	width: 100%;
 }
-	header nav ul {
-		list-style: none;
+.navigation {
+	padding: 8px 0;
+	width: 100%;
+}
+	.navigation .logo {
+		color: #2a2473;
+	}
+	.navigation nav {
 		margin: 0;
 	}
-		header nav ul li {
-			float: left;
-			margin-left: 10px;
+		.navigation nav ul {
+			list-style: none;
+			margin: 0;
+			padding: 0;
 		}
+			.navigation nav ul li {
+				float: left;
+				margin-left: 16px;
+			}
+				.navigation nav ul li:first-child {
+					margin-left: 0;
+				}
+footer .navigation {
+	border-top: 1px solid #c0c2c7;
+	margin-bottom: 88px;
+}
+	footer .navigation p {
+		margin: 0;
+	}
+header .navigation {
+	border-bottom: 1px solid #c0c2c7;
+}
+main p {
+	margin-bottom: 24px;
+}
 .field-group {
 	float: left;
 	margin-bottom: 18px;
@@ -161,6 +191,18 @@ header {
 		top: 6px;
 		z-index: 3;
 	}
+.main-button {
+	background: #6c62e0;
+	border: none;
+	color: #fff !important;
+	cursor: pointer;
+	display: inline-block;
+	font-size: 14px;
+	font-weight: 600;
+	margin: 0 6px 4px 0;
+	outline: none;
+	padding: 16px 33px;
+}
 .table {
 	border-left: none;
 	border-right: none;
@@ -247,7 +289,7 @@ header {
 							width: 100%;
 						}
 .section {
-	padding: 51px 15px 180px;
+	padding: 88px 15px 169px;
 }
 .container {
 	margin: 0 auto;
@@ -272,6 +314,7 @@ header {
 		}
 		.item-container.item-button p {
 			line-height: 20px;
+			margin: 0;
 		}
 	.item-container .item {
 		display: block;
@@ -290,8 +333,6 @@ header {
 			border-top: 1px solid #c0c2c7;
 			line-height: 21px;
 			margin-bottom: -1px;
-		}
-		.item-container .item-footer {
 		}
 	.item-container .item-link-container {
 		height: 100%;
@@ -432,7 +473,7 @@ header {
 			z-index: 3;
 		}
 			.window-container .item-container {
-				padding: 51px 0;
+				padding: 8px 0 88px;
 			}
 			.window-container .window input,
 			.window-container .window textarea {
@@ -495,7 +536,7 @@ header {
 				.window-container .window .item-header .icon-close {
 					position: absolute;
 					right: 0;
-					top: 31px;
+					top: 38px;
 					width: 32px;
 				}
 				.window-container .window .item-header h1 {
@@ -513,17 +554,6 @@ header {
 				padding-top: 34px;
 				position: relative;
 			}
-				.window-container .window .item-footer button {
-					background: #6c62e0;
-					border: none;
-					color: #fff;
-					cursor: pointer;
-					font-size: 14px;
-					font-weight: 600;
-					margin: 0 6px 4px 0;
-					outline: none;
-					padding: 16px 33px;
-				}
 .scrollable {
 	left: 0;
 	position: absolute;

@@ -21,8 +21,8 @@
 						<textarea class="whitelisted-ips" id="whitelisted-ips" name="whitelisted_ips" type="text"></textarea>
 					</div>
 					<div class="item-footer">
-						<button class="button close">Close</button>
-						<button class="button close submit" process="proxies" window="authenticate">Apply Configuration</button>
+						<button class="button close main-button">Close</button>
+						<button class="button close main-button submit" process="proxies" window="authenticate">Apply Configuration</button>
 					</div>
 				</div>
 			</div>

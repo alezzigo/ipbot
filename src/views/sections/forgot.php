@@ -14,8 +14,8 @@
 						<a class="button window-button" href="javascript:void(0);" window="login">Remember your password?</a>
 					</div>
 					<div class="item-footer">
-						<button class="button close">Close</button>
-						<button class="button submit" process="users" window="forgot">Request Password Reset</button>
+						<button class="button close main-button">Close</button>
+						<button class="button main-button submit" process="users" window="forgot">Request Password Reset</button>
 					</div>
 				</div>
 			</div>

@@ -4,10 +4,10 @@
 	);
 	require_once($config->settings['base_path'] . '/views/sections/header.php');
 ?>
-<main class="home">
+<main class="contact">
 	<div class="section">
 		<div class="container small">
-			<h1>Homepage Content</h1>
+			<h1>Contact Us</h1>
 		</div>
 	</div>
 </main>

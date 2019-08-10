@@ -4,10 +4,10 @@
 	);
 	require_once($config->settings['base_path'] . '/views/sections/header.php');
 ?>
-<main class="home">
+<main class="socks-proxies">
 	<div class="section">
 		<div class="container small">
-			<h1>Homepage Content</h1>
+			<h1>SOCKS 5 Proxies</h1>
 		</div>
 	</div>
 </main>

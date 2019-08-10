@@ -70,8 +70,8 @@
 						</div>
 					</div>
 					<div class="item-footer">
-						<button class="button close">Close</button>
-						<button class="button copy" field="copy">Copy to Clipboard</button>
+						<button class="button close main-button">Close</button>
+						<button class="button copy main-button" field="copy">Copy to Clipboard</button>
 					</div>
 				</div>
 			</div>

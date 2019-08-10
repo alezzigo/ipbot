@@ -11,30 +11,18 @@
 	$pathParts = array_filter(explode('/', $_SERVER['PATH_INFO']));
 	$routes = array(
 		array(
-			'file' => $config->settings['base_path'] . '/views/pages/home.php',
-			'title' => 'Buy Premium Proxies' . (!empty($config->settings['site_name']) ? ' | ' . $config->settings['site_name'] : ''),
-			'url' => '/'
-		),
-		array(
-			'file' => $config->settings['base_path'] . '/views/[table]/api.php',
-			'url' => '/api/[table]'
-		),
-		array(
-			'file' => $config->settings['base_path'] . '/views/orders/view.php',
-			'title' => 'Proxy Order [id]',
-			'url' => '/orders/[id]'
-		),
-		array(
-			'file' => $config->settings['base_path'] . '/views/orders/list.php',
-			'title' => 'Proxy Orders',
-			'url' => '/orders'
-		),
-		array(
 			'file' => $config->settings['base_path'] . '/resources/css/[file]',
 			'headers' => array(
 				'Content-type: text/css'
 			),
 			'url' => '/resources/css/[file]'
+		),
+		array(
+			'file' => $config->settings['base_path'] . '/resources/images/[type]/[file]',
+			'headers' => array(
+				'Content-type: image/png'
+			),
+			'url' => '/resources/images/[type]/[file]'
 		),
 		array(
 			'file' => $config->settings['base_path'] . '/resources/js/[file]',
@@ -44,11 +32,58 @@
 			'url' => '/resources/js/[file]'
 		),
 		array(
-			'file' => $config->settings['base_path'] . '/resources/images/[type]/[file]',
-			'headers' => array(
-				'Content-type: image/png'
-			),
-			'url' => '/resources/images/[type]/[file]'
+			'file' => $config->settings['base_path'] . '/views/[table]/api.php',
+			'url' => '/api/[table]'
+		),
+		array(
+			'file' => $config->settings['base_path'] . '/views/carts/view.php',
+			'title' => 'Shopping Cart',
+			'url' => '/cart'
+		),
+		array(
+			'file' => $config->settings['base_path'] . '/views/pages/contact.php',
+			'title' => 'Contact',
+			'url' => '/contact'
+		),
+		array(
+			'file' => $config->settings['base_path'] . '/views/pages/faq.php',
+			'title' => 'FAQs',
+			'url' => '/faq'
+		),
+		array(
+			'file' => $config->settings['base_path'] . '/views/pages/features.php',
+			'title' => 'Feature Tour',
+			'url' => '/features'
+		),
+		array(
+			'file' => $config->settings['base_path'] . '/views/pages/free-proxy-trial.php',
+			'title' => 'Free Trial',
+			'url' => '/free-proxy-trial'
+		),
+		array(
+			'file' => $config->settings['base_path'] . '/views/pages/home.php',
+			'title' => 'Buy Premium Proxies',
+			'url' => '/'
+		),
+		array(
+			'file' => $config->settings['base_path'] . '/views/pages/private-proxies.php',
+			'title' => 'Private Proxies',
+			'url' => '/private-proxies'
+		),
+		array(
+			'file' => $config->settings['base_path'] . '/views/pages/socks-proxies.php',
+			'title' => 'SOCKS 5 Proxies',
+			'url' => '/socks-proxies'
+		),
+		array(
+			'file' => $config->settings['base_path'] . '/views/orders/list.php',
+			'title' => 'Proxy Orders',
+			'url' => '/orders'
+		),
+		array(
+			'file' => $config->settings['base_path'] . '/views/orders/view.php',
+			'title' => 'Proxy Order [id]',
+			'url' => '/orders/[id]'
 		)
 	);
 
@@ -56,7 +91,7 @@
 		$routes['files'][$key] = $route['file'];
 		$routes['headers'][$key] = !empty($route['headers']) ? $route['headers'] : array();
 		$routes['paths'][$key] = array_filter(explode('/', $route['url']));
-		$routes['titles'][$key] = !empty($route['title']) ? $route['title'] : false;
+		$routes['titles'][$key] = (!empty($route['title']) ? $route['title'] : false) . (!empty($config->settings['site_name']) ? ' | ' . $config->settings['site_name'] : false);
 		$routes['urls'][$key] = $route['url'];
 		unset($routes[$key]);
 		unset($route);

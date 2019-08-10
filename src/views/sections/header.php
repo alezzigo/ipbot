@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="x-ua-compatible" content="IE=edge">
+<title><?php echo $config->parameters['title']; ?></title>
 <?php
 	if (!empty($styleSheets)) {
 		foreach ($styleSheets as $styleSheet) {
@@ -14,7 +16,11 @@
 		array(
 			'href' => $config->settings['base_url'] . 'orders',
 			'text' => 'Dashboard'
-		)
+		),
+		array(
+			'href' => $config->settings['base_url'] . 'cart',
+			'text' => 'Cart'
+		),
 	);
 
 	if (!empty($config->permissions[$data['table']][$data['action']]['group'])) {
@@ -24,6 +30,10 @@
 				'text' => 'Dashboard'
 			),
 			array(
+				'href' => $config->settings['base_url'] . 'cart',
+				'text' => 'Cart'
+			),
+			array(
 				'class' => 'button window-button',
 				'process' => 'logout',
 				'text' => 'Log Out'
@@ -31,7 +41,24 @@
 		);
 	}
 
-	$secondaryNavigationItems = array();
+	$secondaryNavigationItems = array(
+		array(
+			'href' => $config->settings['base_url'],
+			'text' => 'Home'
+		),
+		array(
+			'href' => $config->settings['base_url'] . 'features',
+			'text' => 'Features'
+		),
+		array(
+			'href' => $config->settings['base_url'] . 'faq',
+			'text' => 'FAQ'
+		),
+		array(
+			'href' => $config->settings['base_url'] . 'contact',
+			'text' => 'Contact'
+		)
+	);
 ?>
 </head>
 <header>
@@ -70,7 +97,7 @@
 						<?php
 							foreach ($secondaryNavigationItems as $navigationItem) {
 								if (!empty($navigationItem['text'])) {
-									$class = !empty($navigationItem['class']) ? $navigationItem['class'] : 'button';
+									$class = (!empty($navigationItem['class']) ? $navigationItem['class'] : 'button') . ($config->parameters['route']['url'] === $navigationItem['href'] ? ' active' : false);
 									$href = !empty($navigationItem['href']) ? $navigationItem['href'] : 'javascript:void(0);';
 									$process = !empty($navigationItem['process']) ? $navigationItem['process'] : '';
 									$window = !empty($navigationItem['window']) ? $navigationItem['window'] : '';

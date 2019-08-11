@@ -2,7 +2,7 @@
 	<div class="container small">
 		<div class="align-left navigation primary-navigation">
 			<div class="align-left">
-				<p>Copyright <?php echo date('Y'); ?> <a href="<?php echo $config->settings['base_url']; ?>" target="_blank"><?php echo $config->settings['site_name'] ?></a>. All rights reserved.</p>
+				<p>Copyright <?php echo date('Y'); ?> <a href="https://eightomic.com" target="_blank">Eightomic</a>. All rights reserved.</p>
 			</div>
 		</div>
 	</div>

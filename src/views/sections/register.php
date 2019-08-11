@@ -19,7 +19,7 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close main-button">Close</button>
-						<button class="button main-button submit" process="users" window="register">Create Account</button>
+						<button class="button main-button submit" disabled process="users" window="register">Registration Disabled</button>
 					</div>
 				</div>
 			</div>

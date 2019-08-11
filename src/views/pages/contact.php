@@ -7,7 +7,8 @@
 <main class="contact">
 	<div class="section">
 		<div class="container small">
-			<h1>Contact Us</h1>
+			<h1>Contact</h1>
+			<p>[Coming soon]</p>
 		</div>
 	</div>
 </main>

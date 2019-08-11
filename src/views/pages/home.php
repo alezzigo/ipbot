@@ -7,7 +7,23 @@
 <main class="home">
 	<div class="section">
 		<div class="container small">
-			<h1>Homepage Content</h1>
+			<h1>Premium Proxy Services</h1>
+			<p>Buy the highest-quality proxy IPs at affordable prices using a custom-built, <a href="https://github.com/parsonsbots/proxies" target="_blank">open-source</a> control panel with granular access controls.</p>
+			<img alt="Proxy control panel screenshot" src="/resources/images/screenshots/control-panel.png">
+		</div>
+	</div>
+	<div class="section">
+		<div class="container small">
+			<div class="item">
+				<h2>Private Proxies</h2>
+				<p>Buy elite (high-anonymous) private HTTP proxies with unlimited threads, fast speeds, stable uptime and unmetered data transfer.</p>
+				<a href="/private-proxies">Buy Private Proxies</a>
+			</div>
+			<div class="item no-margin-bottom">
+				<h2>SOCKS 5 Proxies</h2>
+				<p>Buy SOCKS 5 proxies with all outbound ports open. Private HTTP proxy access is included with all SOCKS 5 plans.</p>
+				<a href="/socks-proxies">Buy SOCKS Proxies</a>
+			</div>
 		</div>
 	</div>
 </main>

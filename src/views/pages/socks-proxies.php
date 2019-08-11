@@ -8,6 +8,7 @@
 	<div class="section">
 		<div class="container small">
 			<h1>SOCKS 5 Proxies</h1>
+			<p>[Coming soon]</p>
 		</div>
 	</div>
 </main>

@@ -1,14 +1,14 @@
 <?php
-	require_once(str_replace('/route.php', '', $_SERVER['DOCUMENT_ROOT']) . '/config.php');
+	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/config.php');
 
 	if (
-		$_SERVER['PATH_INFO'] !== '/' &&
-		substr($_SERVER['PATH_INFO'], -1) === '/'
+		$_SERVER['REDIRECT_URL'] !== '/' &&
+		substr($_SERVER['REDIRECT_URL'], -1) === '/'
 	) {
-		$config->redirect(substr($_SERVER['REQUEST_URI'], 0, -1));
+		$config->redirect(substr($_SERVER['REDIRECT_URL'], 0, -1));
 	}
 
-	$pathParts = array_filter(explode('/', $_SERVER['PATH_INFO']));
+	$pathParts = array_filter(explode('/', $_SERVER['REDIRECT_URL']));
 	$routes = array(
 		array(
 			'file' => $config->settings['base_path'] . '/resources/css/[file]',

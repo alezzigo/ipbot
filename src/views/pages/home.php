@@ -8,7 +8,7 @@
 	<div class="section">
 		<div class="container small">
 			<h1>Premium Proxy Services</h1>
-			<p>Power your business and applications through the anonymous Eightomic proxy IP network using a custom-built, <a href="https://github.com/parsonsbots/proxies" target="_blank">open-source</a> control panel with granular access controls.</p>
+			<p>Power your business and applications through the anonymous Eightomic IP network using a custom-built, <a href="https://github.com/parsonsbots/proxies" target="_blank">open-source</a> proxy control panel with granular access controls.</p>
 			<img alt="Proxy control panel screenshot" src="/resources/images/screenshots/control-panel.png">
 		</div>
 	</div>

@@ -60,7 +60,7 @@ h1 {
 h2 {
 	border-bottom: 1px solid #dddbf4;
 	font-size: 20px;
-	margin-bottom: 17px;
+	margin-bottom: 23px;
 	margin-top: 32px;
 	padding-bottom: 11px;
 }
@@ -160,7 +160,7 @@ main {
 		width: 100%;
 	}
 	main p {
-		margin-bottom: 16px;
+		margin-bottom: 26px;
 	}
 .field-group {
 	float: left;
@@ -222,7 +222,7 @@ main {
 	font-weight: 600;
 	margin: 0 6px 4px 0;
 	outline: none;
-	padding: 10px 24px;
+	padding: 18px 42px;
 }
 .table {
 	border-left: none;

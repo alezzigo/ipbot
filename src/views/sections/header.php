@@ -41,10 +41,6 @@
 	if (!empty($config->permissions[$data['table']][$data['action']]['group'])) {
 		$primaryNavigationItems = array(
 			array(
-				'href' => $config->settings['base_url'] . 'orders',
-				'text' => 'Dashboard'
-			),
-			array(
 				'class' => 'button window-button',
 				'process' => 'logout',
 				'text' => 'Log Out'

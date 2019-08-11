@@ -1,0 +1,6 @@
+<IfModule mod_rewrite.c>
+RewriteEngine on
+RewriteBase /
+RewriteCond %{REQUEST_URI} !route.php
+RewriteRule (.*) /route.php?/$1 [L]
+</IfModule>

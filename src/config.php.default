@@ -160,7 +160,7 @@ class Config {
 
 		$this->settings = array(
 			'base_path' => $_SERVER['DOCUMENT_ROOT'] . '/src',
-			'base_url' => '/src',
+			'base_url' => '/',
 			'database' => array(
 				'charset' => 'utf8',
 				'hostname' => '127.0.0.1',

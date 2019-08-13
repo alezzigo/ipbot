@@ -65,7 +65,7 @@ class Config {
 		$this->keys = array(
 			'start' => $keys['salt'] . $keys['start'] . $keys['salt'],
 			'stop' => $keys['salt'] . $keys['stop'] . $keys['salt'],
-			'users' => sha1($keys['start'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['REMOTE_ADDRESS'])
+			'users' => sha1($keys['start'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['HTTP_HOST'] . $_SERVER['REMOTE_ADDRESS'])
 		);
 
 		$this->permissions = array(

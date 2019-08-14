@@ -9,7 +9,9 @@
 	<div class="section">
 		<div class="container small">
 			<h1>Orders</h1>
-			<div class="message-container"></div>
+			<div class="message-container">
+				<p class="message">Loading...</p>
+			</div>
 			<div class="orders-container"></div>
 		</div>
 	</div>

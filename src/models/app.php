@@ -467,7 +467,10 @@ class AppModel extends Config {
 									}
 								}
 
-								$parameters['redirect'] = '';
+								$parameters = array_merge($parameters, array(
+									'session' => $this->_createTokenString($table, array(), sha1($parameters['keys']['user'])),
+									'redirect' => ''
+								));
 								$queryResponse = $this->_processAction($table, $parameters);
 
 								if (!empty($queryResponse)) {

@@ -5,7 +5,7 @@
 	require_once($config->settings['base_path'] . '/controllers/carts.php');
 	require_once($config->settings['base_path'] . '/views/sections/header.php');
 ?>
-<main class="orders-view">
+<main class="carts-view">
 	<div class="section">
 		<div class="container small">
 			<h1>Shopping Cart</h1>
@@ -23,8 +23,8 @@
 							</div>
 						</div>
 						<div class="item-body">
-							<input name='order_id' type='hidden' value="<?php echo $data['order_id']; ?>">
-							<div class="item-table" previous_checked="0"></div>
+							<div class="message-container"><p class="message">Loading...</p></div>
+							<div class="items-container cart-items-container"></div>
 						</div>
 					</div>
 				</div>
@@ -35,7 +35,7 @@
 <?php
 	$scripts = array(
 		$config->settings['base_url'] . 'resources/js/default.js',
-		$config->settings['base_url'] . 'resources/js/users.js',
+		$config->settings['base_url'] . 'resources/js/carts.js',
 		$config->settings['base_url'] . 'resources/js/app.js'
 	);
 	require_once($config->settings['base_path'] . '/views/sections/footer.php');

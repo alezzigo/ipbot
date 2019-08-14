@@ -10,6 +10,10 @@ class Config {
 	public function __construct() {
 
 		$defaultFields = array(
+			'carts' => array(
+				'id',
+				'user_id'
+			),
 			'orders' => array(
 				'id',
 				'interval_type',
@@ -69,6 +73,14 @@ class Config {
 		);
 
 		$this->permissions = array(
+			'carts' => array(
+				'cart' => array(
+					'fields' => array_merge($defaultFields['carts'], array(
+						'created',
+						'modified'
+					))
+				)
+			),
 			'orders' => array(
 				'find' => array(
 					'fields' => array_merge($defaultFields['orders'], array(

@@ -55,7 +55,7 @@ a:visited {
 h1 {
 	font-size: 26px;
 	line-height: 36px;
-	margin: 0 0 18px;
+	margin: 0 0 22px;
 }
 h2 {
 	border-bottom: 1px solid #dddbf4;
@@ -175,6 +175,7 @@ main {
 	.field-group textarea {
 		float: left;
 		margin-left: -1px;
+		margin-top: -1px;
 		position: relative;
 	}
 	.field-group input,
@@ -218,11 +219,15 @@ main {
 	color: #fff !important;
 	cursor: pointer;
 	display: inline-block;
-	font-size: 14px;
+	font-size: 12px;
 	font-weight: 600;
 	margin: 0 6px 4px 0;
 	outline: none;
-	padding: 18px 42px;
+	padding: 15px 30px;
+	text-transform: uppercase;
+}
+.text-button {
+	margin-left: 10px;
 }
 .table {
 	border-left: none;
@@ -311,7 +316,7 @@ main {
 							width: 100%;
 						}
 .section {
-	margin-top: 71px;
+	margin-top: 88px;
 }
 	.section .item {
 		margin-bottom: 52px;
@@ -323,6 +328,15 @@ main {
 	.container.small {
 		max-width: 450px;
 	}
+.feature-container {
+	margin-bottom: 88px;
+}
+	.feature-container .feature-screenshot {
+		margin-top: 20px;
+	}
+.items-container {
+	padding-top: 20px;
+}
 .item-container {
 	box-sizing: border-box;
 	margin-bottom: 15px;
@@ -334,12 +348,32 @@ main {
 		border: 1px solid #dddbf4;
 		padding: 15px;
 	}
+		.item-container.item-button .field-group {
+			margin: 0 0 8px 0;
+		}
 		.item-container.item-button:hover {
 			border-color: #7773e3;
 		}
 		.item-container.item-button p {
 			line-height: 20px;
 			margin: 0;
+		}
+	.item-container.item-button-selectable {
+		padding-left: 51px;
+		position: relative;
+	}
+		.item-container.item-button-selectable:hover {
+			border-color: #c4c1e6;
+		}
+		.item-container.item-button-selectable .checkbox {
+			left: 15px;
+			position: absolute;
+			top: 15px;
+		}
+		.item-container.item-button-selectable p {
+			cursor: default;
+			margin-bottom: 11px;
+			margin-left: -1px;
 		}
 	.item-container .item {
 		display: block;
@@ -601,4 +635,10 @@ main {
 .item-configuration-container .item-body {
 	border-top: none;
 	padding-top: 85px;
+}
+
+.cart-items-container .item-container .field-group .price {
+	background: none;
+	font-size: 14px;
+	font-weight: 400;
 }

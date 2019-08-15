@@ -70,11 +70,13 @@ class CartsModel extends AppModel {
 				if (!empty($cartProductDetails = $cartProducts[$cartItem['product_id']])) {
 					$cartItem = array_merge($cartProductDetails, $cartItem);
 					$cartItem['price'] = number_format(round(($cartItem['price_per'] * $cartItem['quantity']) - (($cartItem['price_per'] * $cartItem['quantity']) * (($cartItem['quantity'] / $cartItem['volume_discount_divisor']) * $cartItem['volume_discount_multiple'])), 2), 2);
-					$cartItems['data'][$key] = $cartItem;
+					$cartItems[$cartItem['id']] = $cartItem;
 				}
 			}
 
-			$response = $cartItems['data'];
+			unset($cartItems['count']);
+			unset($cartItems['data']);
+			$response = $cartItems;
 		}
 
 		return $response;
@@ -135,9 +137,10 @@ class CartsModel extends AppModel {
  * @return array $response Response data
  */
 	public function cart($table, $parameters) {
+		$defaultMessage = 'Error processing your cart request, please try again.';
 		$response = array(
 			'data' => array(),
-			'message' => 'Error processing your cart request, please try again.'
+			'message' => $defaultMessage
 		);
 
 		if ($cart = $this->_retrieveCart($parameters)) {
@@ -148,10 +151,30 @@ class CartsModel extends AppModel {
 				$cartProducts = $this->_retrieveProducts($cart)
 			) {
 				if ($cartItems = $this->_retrieveCartItems($cart, $cartProducts)) {
-					$response = array(
-						'data' =>  $cartItems,
-						'message' => ''
-					);
+					$response['message'] = '';
+
+					if (!empty($cartItemData = array_intersect_key($parameters['data'], array(
+						'id' => true,
+						'interval_type' => true,
+						'interval_value' => true,
+						'quantity' => true
+					)))) {
+						$response['message'] = 'Invalid cart item, please try again.';
+
+						if (!empty($cartItem = $cartItems[$cartItemData['id']])) {
+							$response['message'] = $defaultMessage;
+							unset($cartItem['modified']);
+
+							if ($this->save('cart_items', array(
+								$cartItemData
+							))) {
+								$cartItems[$cartItemData['id']] = array_merge($cartItems[$cartItemData['id']], $cartItemData);
+								$response['message'] = '';
+							}
+						}
+					}
+
+					$response['data'] = $cartItems;
 				}
 			}
 		}
@@ -162,7 +185,7 @@ class CartsModel extends AppModel {
 /**
  * View cart
  *
- * @return array Cart data
+ * @return array
  */
 	public function view() {
 		return array();

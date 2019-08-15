@@ -10,6 +10,28 @@ require_once($config->settings['base_path'] . '/models/app.php');
 class CartsModel extends AppModel {
 
 /**
+ * Calculate price for cart item
+ *
+ * @param array $cartItem Cart item
+ *
+ * @return array $response Response data
+ */
+	public function _calculateCartItemPrice($cartItem) {
+		$response = false;
+
+		if (
+			!empty($cartItem['price_per']) &&
+			!empty($cartItem['quantity']) &&
+			!empty($cartItem['volume_discount_divisor']) &&
+			!empty($cartItem['volume_discount_multiple'])
+		) {
+			$response = number_format(round(($cartItem['price_per'] * $cartItem['quantity']) - (($cartItem['price_per'] * $cartItem['quantity']) * (($cartItem['quantity'] / $cartItem['volume_discount_divisor']) * $cartItem['volume_discount_multiple'])), 2), 2);
+		}
+
+		return $response;
+	}
+
+/**
  * Retrieve cart from session
  *
  * @param array $parameters Parameters
@@ -69,7 +91,7 @@ class CartsModel extends AppModel {
 			foreach ($cartItems['data'] as $key => $cartItem) {
 				if (!empty($cartProductDetails = $cartProducts[$cartItem['product_id']])) {
 					$cartItem = array_merge($cartProductDetails, $cartItem);
-					$cartItem['price'] = number_format(round(($cartItem['price_per'] * $cartItem['quantity']) - (($cartItem['price_per'] * $cartItem['quantity']) * (($cartItem['quantity'] / $cartItem['volume_discount_divisor']) * $cartItem['volume_discount_multiple'])), 2), 2);
+					$cartItem['price'] = $this->_calculateCartItemPrice($cartItem);
 					$cartItems[$cartItem['id']] = $cartItem;
 				}
 			}
@@ -165,10 +187,15 @@ class CartsModel extends AppModel {
 							$response['message'] = $defaultMessage;
 							unset($cartItem['modified']);
 
-							if ($this->save('cart_items', array(
-								$cartItemData
-							))) {
+							if (
+								$cartItemData['quantity'] <= $cartItem['maximum_quantity'] &&
+								$cartItemData['quantity'] >= $cartItem['minimum_quantity'] &&
+								$this->save('cart_items', array(
+									$cartItemData
+								))
+							) {
 								$cartItems[$cartItemData['id']] = array_merge($cartItems[$cartItemData['id']], $cartItemData);
+								$cartItems[$cartItemData['id']]['price'] = $this->_calculateCartItemPrice($cartItems[$cartItemData['id']]);
 								$response['message'] = '';
 							}
 						}

@@ -28,7 +28,7 @@ var processCopy = (windowName, windowSelector) => {
 		element.removeEventListener('change', element.changeListener);
 		element.changeListener = () => {
 			processCopyFormat();
-		}
+		};
 		element.addEventListener('change', element.changeListener);
 	});
 
@@ -88,7 +88,7 @@ var processGroup = (windowName, windowSelector) => {
 			sendRequest((response) => {
 				processGroupTable(response);
 			});
-		}
+		};
 		var originalRow = row.querySelector('.table-text').innerHTML;
 		row.querySelector('.table-text').innerHTML = '<div class="field-group no-margin"><input class="group-name-edit-field no-margin" id="group-name-edit" name="group_name" type="text" value="' + row.querySelector('.view').innerText + '"><button class="button group-name-save-edit-button">Save</button><button class="button group-name-cancel-edit-button">Cancel</button></div>';
 		row = document.querySelector(windowSelector + ' tbody tr[group_id="' + row.getAttribute('group_id') + '"]');
@@ -262,7 +262,7 @@ var processProxies = (windowName = false, windowSelector = false, currentPage = 
 			totalResults = +elements.html('.item-configuration .total-results');
 		var itemGridLineSize = (key) => {
 			return Math.min(itemGridLineSizeMaximum, totalResults - (key * itemGridLineSizeMaximum)).toString();
-		}
+		};
 		var processItemGridSelection = (item) => {
 			var keyIndexes = range(0, Math.floor(totalResults / itemGridLineSizeMaximum));
 			elements.html('.total-checked', (selectionStatus = +item.getAttribute('status')) ? totalResults : 0);

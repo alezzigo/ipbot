@@ -53,6 +53,10 @@ var processGroup = (windowName, windowSelector) => {
 			var groupId = group.getAttribute('group_id');
 			group.setAttribute('checked', +groupState);
 			groupGrid[windowName + groupId] = groupId;
+
+			if (!+groupState) {
+				delete groupGrid[windowName + groupId];
+			}
 		});
 		requestParameters.items[requestParameters.table] = groupGrid;
 	};

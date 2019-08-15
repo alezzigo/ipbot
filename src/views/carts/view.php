@@ -19,7 +19,7 @@
 									<span class="button icon hidden tooltip tooltip-bottom window-button" data-title="Delete item from cart" item-function process="delete"></span>
 								</div>
 								<div class="clear"></div>
-								<p class="hidden item-controls no-margin-bottom"><span class="checked-container pull-left"><span class="total-checked">0</span> of <span class="total-results"></span> selected.</span> <a class="item-action hidden" href="javascript:void(0);" index="all" status="1"><span class="action">Select</span> all results</a><span class="clear"></span></p>
+								<p class="hidden item-controls no-margin-bottom"><span class="checked-container pull-left"><span class="total-checked">0</span> of <span class="total-results"></span> selected.</span><span class="clear"></span></p>
 							</div>
 						</div>
 						<div class="item-body">

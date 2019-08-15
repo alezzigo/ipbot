@@ -210,6 +210,15 @@ class CartsModel extends AppModel {
 	}
 
 /**
+ * Checkout
+ *
+ * @return array
+ */
+	public function checkout() {
+		return array();
+	}
+
+/**
  * View cart
  *
  * @return array

@@ -629,6 +629,13 @@ main {
 	display: block;
 	width: 100%;
 }
+.item-configuration-container .item-controls-container .main-button {
+	margin: 0;
+	padding-bottom: 14px;
+	position: absolute;
+	right: 0px;
+	top: 19px;
+}
 .item-configuration-container .item-controls-container.scrolling .item-header {
 	border-top: none !important;
 }

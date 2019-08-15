@@ -36,6 +36,11 @@
 			'url' => '/api/[table]'
 		),
 		array(
+			'file' => $config->settings['base_path'] . '/views/carts/checkout.php',
+			'title' => 'Checkout',
+			'url' => '/checkout'
+		),
+		array(
 			'file' => $config->settings['base_path'] . '/views/carts/view.php',
 			'title' => 'Shopping Cart',
 			'url' => '/cart'

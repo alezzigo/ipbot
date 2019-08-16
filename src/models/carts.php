@@ -178,6 +178,10 @@ class CartsModel extends AppModel {
 							unset($cartItem['modified']);
 
 							if (
+								!empty($cartItemData['interval_type']) &&
+								in_array($cartItemData['interval_type'], array('month', 'year')) &&
+								!empty($cartItemData['interval_value']) &&
+								is_numeric($cartItemData['interval_value']) &&
 								$cartItemData['quantity'] <= $cartItem['maximum_quantity'] &&
 								$cartItemData['quantity'] >= $cartItem['minimum_quantity'] &&
 								$this->save('cart_items', array(

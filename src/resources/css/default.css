@@ -175,7 +175,6 @@ main {
 	.field-group textarea {
 		float: left;
 		margin-left: -1px;
-		margin-top: -1px;
 		position: relative;
 	}
 	.field-group input,
@@ -212,6 +211,9 @@ main {
 		right: 7px;
 		top: 6px;
 		z-index: 3;
+	}
+	.field-group .group-name-field {
+		padding-right: 75px !important;
 	}
 .main-button {
 	background: #7773e3;
@@ -264,10 +266,17 @@ main {
 			}
 			.table tr td .table-text {
 				float: left;
+				padding-right: 0;
 				width: 100%;
 			}
+				.table tr td .table-text a {
+					display: flex;
+					float: left;
+					padding-right: 66px;
+					word-break: break-word;
+				}
 			.table tr td .group-name-edit-field {
-				padding-right: 145px;
+				padding-right: 149px;
 			}
 			.table tr td .field-group .button.group-name-save-edit-button {
 				right: 81px;
@@ -414,6 +423,7 @@ main {
 		line-height: 19px;
 		margin-bottom: 20px;
 		padding: 8px 11px 7px;
+		word-break: break-word;
 	}
 		.message a {
 			border-bottom: 1px dashed;

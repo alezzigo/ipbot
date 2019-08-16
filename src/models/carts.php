@@ -17,19 +17,8 @@ class CartsModel extends AppModel {
  * @return array $response Response data
  */
 	public function _calculateCartItemPrice($cartItem) {
-		$response = false;
-
-		if (
-			!empty($cartItem['price_per']) &&
-			!empty($cartItem['quantity']) &&
-			!empty($cartItem['volume_discount_divisor']) &&
-			!empty($cartItem['volume_discount_multiple'])
-		) {
-			$interval = $cartItem['interval_value'] * ($cartItem['interval_type'] == 'year' ? 12 : 1);
-			$response = number_format(round(($cartItem['price_per'] * $cartItem['quantity'] * $interval) - (($cartItem['price_per'] * $cartItem['quantity']) * (($cartItem['quantity'] / $cartItem['volume_discount_divisor']) * $cartItem['volume_discount_multiple'] * $cartItem['interval_value'])), 2), 2);
-		}
-
-		return $response;
+		$interval = $cartItem['interval_value'] * ($cartItem['interval_type'] == 'year' ? 12 : 1);
+		return number_format(round(($cartItem['price_per'] * $cartItem['quantity'] * $interval) - (($cartItem['price_per'] * $cartItem['quantity']) * (($cartItem['quantity'] / $cartItem['volume_discount_divisor']) * $cartItem['volume_discount_multiple'] * $cartItem['interval_value'])), 2), 2);
 	}
 
 /**

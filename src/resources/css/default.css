@@ -403,6 +403,9 @@ main {
 			line-height: 21px;
 			margin-bottom: -1px;
 		}
+			.item-container .item-header .item-controls .cart-subtotal .subtotal {
+				font-weight: 600;
+			}
 	.item-container .item-link-container {
 		height: 100%;
 		left: 0px;
@@ -499,7 +502,6 @@ main {
 		}
 		.icon[window="search"] {
 			background: url('../images/icons/icon-search.png') center no-repeat / 100%;
-			margin-left: 14px;
 		}
 	.flag {
 		display: inline-block;
@@ -639,19 +641,25 @@ main {
 	display: block;
 	width: 100%;
 }
-.item-configuration-container .item-controls-container .main-button {
+.item-configuration-container .item-controls-container .item-header .main-button {
 	margin: 0;
-	padding-bottom: 14px;
+	padding-bottom: 10px;
+	padding-top: 11px;
 	position: absolute;
 	right: 0px;
-	top: 19px;
+	top: 22px;
 }
+
 .item-configuration-container .item-controls-container.scrolling .item-header {
 	border-top: none !important;
 }
 .item-configuration-container .item-body {
 	border-top: none;
 	padding-top: 85px;
+}
+.item-controls .checkbox {
+	margin-bottom: 6px;
+	margin-right: 6px;
 }
 
 .cart-items-container .item-container .field-group .price {

@@ -6,6 +6,7 @@ var processCart = () => {
 		var cartItems = '',
 			cartItemAllVisible = document.querySelector('.item-container .checkbox[index="all-visible"]'),
 			cartItemContainer = document.querySelector('.cart-items-container'),
+			cartSubtotal = 0,
 			intervalTypes = ['month', 'year'],
 			intervalValues = range(1, 12),
 			messageContainer = document.querySelector('.carts-view .message-container');
@@ -67,6 +68,7 @@ var processCart = () => {
 				quantitySelectValues += '<option ' + (quantityValue == cartItem.quantity ? 'selected ' : '') + 'value="' + quantityValue + '">' + quantityValue + '</option>';
 			});
 			cartItems += '<div class="item-container item-button item-button-selectable" cart_item_id="' + cartItem.id + '"><span checked="' + +(typeof cartItemGrid['cartItem' + cartItem.id] !== 'undefined') + '" class="checkbox" index="' + index + '" cart_item_id="' + cartItem.id + '"></span><p><strong>' + cartItem.name + '</strong></p><div class="field-group"><span>Quantity:</span><select class="quantity" name="quantity">' + quantitySelectValues + '</select></div><div class="field-group no-margin"><span>USD Price:</span><span class="price">$' + cartItem.price + '</span><span>per</span><select class="interval-value" name="interval_value">' + intervalSelectValues + '</select><select class="interval-type" name="interval_type">' + intervalSelectTypes + '</select></div><div class="clear"></div></div>';
+			cartSubtotal += parseFloat(cartItem.price);
 		});
 		document.querySelector('.cart-items-container').innerHTML = cartItems;
 		cartItemAllVisible.removeEventListener('click', cartItemAllVisible.clickListener);
@@ -95,6 +97,7 @@ var processCart = () => {
 			cartItemUpdateIntervalValueSelect.addEventListener('change', cartItemUpdateIntervalValueSelect.changeListener);
 		});
 		elements.html('.item-configuration .total-results', cartItemData.length);
+		elements.html('.item-configuration .cart-subtotal .subtotal', '$' + (Math.round(cartSubtotal * 100) / 100) + ' USD');
 		elements.removeClass('.item-configuration .item-controls', 'hidden');
 		processWindowEvents(windowEvents, 'resize');
 	};

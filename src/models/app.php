@@ -332,13 +332,23 @@ class AppModel extends Config {
 
 		$findDataRowChunkSize = 100000;
 		$hasResults = (!empty($parameters['count']) && !empty($parameters['limit']));
+		$queryChunks = array_fill(0, max(1, ($hasResults ? ceil($parameters['limit'] / $findDataRowChunkSize) : 1)), true);
 
-		foreach (array_fill(0, max(1, ($hasResults ? round($parameters['limit'] / $findDataRowChunkSize, 1, PHP_ROUND_HALF_UP) : 1)), true) as $chunkIndex => $value) {
+		foreach ($queryChunks as $queryChunkIndex => $value) {
 			if ($hasResults) {
 				end($parameterized['parameterizedValues']);
-				$offset = $parameterized['parameterizedValues'][key($parameterized['parameterizedValues'])] = $chunkIndex * $findDataRowChunkSize;
+				$offset = $parameterized['parameterizedValues'][key($parameterized['parameterizedValues'])] = $parameters['offset'] + ($queryChunkIndex * $findDataRowChunkSize);
 				$limit = prev($parameterized['parameterizedValues']);
-				$parameterized['parameterizedValues'][key($parameterized['parameterizedValues'])] = $parameters['limit'] > $findDataRowChunkSize ? ($offset + $findDataRowChunkSize) < $parameters['count'] ? $findDataRowChunkSize : $parameters['count'] - $offset : $parameters['limit'];
+
+				if ($parameters['limit'] > $findDataRowChunkSize) {
+					if ($parameters['limit'] < (($queryChunkIndex + 1) * $limit)) {
+						$limit = $parameters['limit'] + $parameters['offset'] - $offset;
+					} else {
+						$limit = $findDataRowChunkSize;
+					}
+				}
+
+				$parameterized['parameterizedValues'][key($parameterized['parameterizedValues'])] = $limit;
 			}
 
 			$execute = $connection->execute($parameterized['parameterizedValues']);
@@ -851,8 +861,9 @@ class AppModel extends Config {
 			'count' => $count = $parameters['count'] = !empty($count[0]['COUNT(id)']) ? $count[0]['COUNT(id)'] : 0,
 			'field_count' => !empty($parameters['fields']) && is_array($parameters['fields']) ? count($parameters['fields']) : 0,
 			'limit' => !empty($parameters['limit']) && $parameters['limit'] < $count ? $parameters['limit'] : $count,
-			'offset' => !empty($parameters['offset']) ? !empty($parameters['offset']) : 0
+			'offset' => !empty($parameters['offset']) ? $parameters['offset'] : 0
 		));
+
 		$query = 'SELECT ' . (!empty($parameters['fields']) && is_array($parameters['fields']) ? implode(',', $parameters['fields']) : '*') . $query;
 		$query .= ' LIMIT ' . $this->_prepareValue($parameters['limit']) . ' OFFSET ' . $this->_prepareValue($parameters['offset']);
 		$data = $this->_query($query, $parameters);

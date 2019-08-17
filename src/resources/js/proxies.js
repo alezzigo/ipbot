@@ -31,7 +31,6 @@ var processCopy = (windowName, windowSelector) => {
 		};
 		element.addEventListener('change', element.changeListener);
 	});
-
 	var itemsCopy = document.querySelector(windowSelector + ' .button.' + windowName);
 	itemsCopy.removeEventListener('click', itemsCopy.clickListener);
 	itemsCopy.clickListener = () => {

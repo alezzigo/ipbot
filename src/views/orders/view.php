@@ -37,7 +37,7 @@
 									</span>
 								</div>
 								<div class="align-left item-controls">
-									<span checked="0" class="align-left checkbox icon no-margin-left" index="all-visible"></span>
+									<span checked="0" class="align-left checkbox no-margin-left" index="all-visible"></span>
 									<div class="search-container align-left">
 										<span class="button icon tooltip tooltip-bottom window-button" data-title="Advanced proxy search and filter" window="search"></span>
 									</div>
@@ -47,7 +47,7 @@
 									<span class="button icon hidden tooltip tooltip-bottom window-button" data-title="Copy selected proxies to clipboard" item-function process="copy" window="copy"></span>
 								</div>
 								<div class="clear"></div>
-								<p class="hidden item-controls no-margin-bottom"><span class="checked-container pull-left"><span class="total-checked">0</span> of <span class="total-results"></span> selected.</span> <a class="item-action hidden" href="javascript:void(0);" index="all" status="1"><span class="action">Select</span> all results</a><span class="clear"></span></p>
+								<p class="hidden item-controls no-margin-bottom"><span class="checked-container"><span class="total-checked">0</span> of <span class="total-results"></span> selected.</span> <a class="item-action hidden" href="javascript:void(0);" index="all" status="1"><span class="action">Select</span> all results</a><span class="clear"></span></p>
 							</div>
 						</div>
 						<div class="item-body">

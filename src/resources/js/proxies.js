@@ -386,7 +386,7 @@ var processProxies = (windowName = false, windowSelector = false, currentPage = 
 			response.message
 		) {
 			setTimeout(() => {
-				var itemsClear = items.querySelector('.clear');
+				var itemsClear = document.querySelector('.item-configuration a.clear');
 				itemsClear.removeEventListener('click', itemsClear.clickListener);
 				itemsClear.clickListener = () => {
 					previousAction = 'find';

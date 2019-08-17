@@ -171,10 +171,32 @@ class CartsModel extends AppModel {
 						'interval_value' => true,
 						'quantity' => true
 					)))) {
-						$response['message'] = 'Invalid cart item, please try again.';
+						$response['message'] = $defaultMessage;
 
-						if (!empty($cartItem = $cartItems[$cartItemData['id']])) {
-							$response['message'] = $defaultMessage;
+						if (
+							!empty($cartItemData['id']) &&
+							count($cartItemData) === 1 &&
+							$cartItemIds = array_values($cartItemData['id'])
+						) {
+							$cartItemIds = $this->find('cart_items', array(
+								'conditions' => array(
+									'id' => $cartItemIds,
+									'cart_id' => $parameters['session']
+								),
+								'fields' => array(
+									'id'
+								)
+							));
+							$response['message'] = 'Error deleting cart items, please try again.';
+
+							if (!empty($cartItemIds['count'])) {
+								$this->delete('cart_items', array(
+									'id' => $cartItemIds['data']
+								));
+								$response['message'] = 'Cart items deleted successfully.';
+								$cartItems = array_diff_key($cartItems, array_combine($cartItemIds['data'], array_fill(1, count($cartItemIds['data']), true)));
+							}
+						} elseif (!empty($cartItem = $cartItems[$cartItemData['id']])) {
 							unset($cartItem['modified']);
 
 							if (

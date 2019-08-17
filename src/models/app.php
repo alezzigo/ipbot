@@ -820,7 +820,7 @@ class AppModel extends Config {
 			$query .= ' WHERE ' . implode(' AND ', $this->_formatConditions($conditions));
 		}
 
-		$data = $this->_query($query, $parameters);
+		return $this->_query($query, $parameters);
 	}
 
 /**

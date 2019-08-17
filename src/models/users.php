@@ -127,10 +127,12 @@ class UsersModel extends AppModel {
 			)
 		));
 
-		if (!empty($tokens['count'])) {
+		if (
+			!empty($tokens['count']) &&
 			$this->delete('tokens', array(
 				'id' => $tokens['data']
-			));
+			))
+		) {
 			$message = 'Logged out successfully.';
 			$redirect = $this->settings['base_url'] . '#login';
 		}
@@ -252,12 +254,14 @@ class UsersModel extends AppModel {
 									'password_modified' => $password['modified']
 								);
 
-								if ($this->save($table, array(
-									$user
-								))) {
+								if (
 									$this->delete('tokens', array(
 										'foreign_value' => $existingToken['data']
-									));
+									)) &&
+									$this->save($table, array(
+										$user
+									))
+								) {
 									$message = 'Password reset successfully, you can now log in with your new password.';
 									$redirect = $this->settings['base_url'] . '#login';
 								}

@@ -231,16 +231,14 @@ class ProxiesModel extends AppModel {
 				$message = 'Error deleting group, please try again.';
 				$existingGroup = $this->find('proxy_groups', $groupParameters);
 
-				if (!empty($existingGroup['count'])) {
-					$this->delete('proxy_groups', $groupData);
-					$deletedGroup = $this->find('proxy_groups', $groupParameters);
-
-					if (empty($deletedGroup['count'])) {
-						$this->delete('proxy_group_proxies', array(
-							'proxy_group_id' => $groupData['id']
-						));
-						$message = 'Group deleted successfully.';
-					}
+				if (
+					!empty($existingGroup['count']) &&
+					$this->delete('proxy_groups', $groupData) &&
+					$this->delete('proxy_group_proxies', array(
+						'proxy_group_id' => $groupData['id']
+					))
+				) {
+					$message = 'Group deleted successfully.';
 				}
 			}
 		}

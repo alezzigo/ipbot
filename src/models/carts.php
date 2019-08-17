@@ -189,10 +189,12 @@ class CartsModel extends AppModel {
 							));
 							$response['message'] = 'Error deleting cart items, please try again.';
 
-							if (!empty($cartItemIds['count'])) {
+							if (
+								!empty($cartItemIds['count']) &&
 								$this->delete('cart_items', array(
 									'id' => $cartItemIds['data']
-								));
+								))
+							) {
 								$response['message'] = 'Cart items deleted successfully.';
 								$cartItems = array_diff_key($cartItems, array_combine($cartItemIds['data'], array_fill(1, count($cartItemIds['data']), true)));
 							}

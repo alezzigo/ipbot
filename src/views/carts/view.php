@@ -14,8 +14,8 @@
 					<div class="item-configuration">
 						<div class="item-controls-container controls-container scrollable">
 							<div class="item-header">
-								<a class="button main-button checkout" href="/checkout">Checkout</a>
-								<div class="align-left item-controls">
+								<div class="align-left hidden item-controls">
+									<a class="button main-button checkout" href="/checkout">Checkout</a>
 									<span checked="0" class="align-left checkbox no-margin-left" index="all-visible"></span>
 									<span class="button icon delete hidden tooltip tooltip-bottom window-button" data-title="Delete item from cart" item-function process="delete"></span>
 								</div>
@@ -25,10 +25,10 @@
 									<span class="align-right cart-subtotal">Cart Subtotal: <span class="subtotal"></span></span>
 								</p>
 								<div class="clear"></div>
+								<div class="message-container"><p class="message no-margin-top">Loading...</p></div>
 							</div>
 						</div>
 						<div class="item-body">
-							<div class="message-container"><p class="message">Loading...</p></div>
 							<div class="items-container cart-items-container"></div>
 						</div>
 					</div>

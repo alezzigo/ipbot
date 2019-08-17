@@ -403,6 +403,10 @@ main {
 			line-height: 21px;
 			margin-bottom: -1px;
 		}
+			.item-container .item-header .message {
+				margin-bottom: 8px;
+				margin-top: 15px;
+			}
 			.item-container .item-header .item-controls .cart-subtotal .subtotal {
 				font-weight: 600;
 			}

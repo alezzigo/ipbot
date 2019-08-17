@@ -4,6 +4,7 @@ var defaultTable = 'proxies',
 	defaultUrl = '/api/proxies',
 	itemGrid = [],
 	itemGridCount = 0,
+	messageContainer = document.querySelector('.orders-view .message-container'),
 	previousAction = 'find';
 var processCopy = (windowName, windowSelector) => {
 	previousAction = requestParameters.action;
@@ -118,7 +119,10 @@ var processGroup = (windowName, windowSelector) => {
 		groupTable.setAttribute('previous_checked', button.getAttribute('index'));
 	};
 	var groupView = (button, row) => {
-		document.querySelector('.item-configuration .item-table').innerHTML = '<p class="message">Loading ...</p>';
+		if (messageContainer) {
+			messageContainer.innerHTML = '<p class="message no-margin-top">Loading ...</p>';
+		}
+
 		elements.addClass('.item-configuration .item-controls', 'hidden');
 		closeWindows(defaultTable);
 		requestParameters.action = 'search';
@@ -205,8 +209,6 @@ var processOrdersView = () => {
 	requestParameters.table = 'orders';
 	requestParameters.url = '/api/orders';
 	sendRequest((response) => {
-		var messageContainer = document.querySelector('.orders-list .message-container');
-
 		if (messageContainer) {
 			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
 		}
@@ -361,7 +363,11 @@ var processProxies = (windowName = false, windowSelector = false, currentPage = 
 	elements.addClass('.item-configuration .item-controls', 'hidden');
 	pagination.querySelector('.next').setAttribute('page', 0);
 	pagination.querySelector('.previous').setAttribute('page', 0);
-	items.innerHTML = '<p class="message no-margin-bottom">Loading ...</p>';
+
+	if (messageContainer) {
+		messageContainer.innerHTML = '<p class="message no-margin-top">Loading ...</p>';
+	}
+
 	requestParameters.conditions = {
 		order_id: orderId
 	};
@@ -370,7 +376,9 @@ var processProxies = (windowName = false, windowSelector = false, currentPage = 
 	requestParameters.offset = ((currentPage * resultsPerPage) - resultsPerPage);
 	requestParameters.sort.field = 'modified';
 	sendRequest((response) => {
-		items.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+		if (messageContainer) {
+			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+		}
 
 		if (
 			requestParameters.action == 'search' &&
@@ -407,7 +415,7 @@ var processProxies = (windowName = false, windowSelector = false, currentPage = 
 			return false;
 		}
 
-		items.innerHTML += '<table class="table"><thead><th style="width: 35px;"></th><th>Proxy IP</th></thead></table>';
+		items.innerHTML = '<table class="table"><thead><th style="width: 35px;"></th><th>Proxy IP</th></thead></table>';
 		response.data.map((item, index) => {
 			items.querySelector('table').innerHTML += '<tbody><tr page="' + currentPage + '" proxy_id="' + item.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" proxy_id="' + item.id + '"></span></td><td><span class="details-container"><span class="details"><span class="detail"><strong>Status:</strong> ' + capitalizeString(item.status) + '</span><span class="detail"><strong>Proxy IP:</strong> ' + item.ip + '</span><span class="detail"><strong>Location:</strong> ' + item.city + ', ' + item.region + ' ' + item.country_code + ' <span class="icon-container"><img src="/resources/images/flags/' + item.country_code.toLowerCase() + '.png" class="flag" alt="' + item.country_code + ' flag"></span></span><span class="detail"><strong>ISP:</strong> ' + item.asn + ' </span><span class="detail"><strong>HTTP + HTTPS Port:</strong> ' + (item.disable_http == 1 ? 'Disabled' : '80') + '</span><span class="detail"><strong>Username:</strong> ' + (item.username ? item.username : 'N/A') + '</span><span class="detail"><strong>Password:</strong> ' + (item.password ? item.password : 'N/A') + '</span><span class="detail"><strong>Whitelisted IPs:</strong> ' + (item.whitelisted_ips ? '<textarea>' + item.whitelisted_ips + '</textarea>' : 'N/A') + '</span></span></span><span class="table-text">' + item.ip + '</span></td></tbody>';
 		});

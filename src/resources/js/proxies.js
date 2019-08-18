@@ -131,7 +131,7 @@ var processGroup = (windowName, windowSelector) => {
 		itemGrid = [];
 		itemGridCount = 0;
 		sendRequest(() => {
-			processProxies();
+			processProxies(false, false, 1);
 		});
 	};
 	var processGroupTable = (response) => {
@@ -245,7 +245,7 @@ var processOrdersView = () => {
 		}
 	});
 };
-var processProxies = (windowName = false, windowSelector = false, currentPage = 1) => {
+var processProxies = (windowName = false, windowSelector = false, currentPage = false) => {
 	previousAction = requestParameters.action;
 	var items = document.querySelector('.item-configuration .item-table'),
 		orderId = document.querySelector('input[name="order_id"]').value,
@@ -374,6 +374,10 @@ var processProxies = (windowName = false, windowSelector = false, currentPage = 
 		messageContainer.innerHTML = '<p class="message no-margin-top">Loading ...</p>';
 	}
 
+	if (!currentPage) {
+		currentPage = pagination.hasAttribute('current_page') ? Math.max(1, +pagination.getAttribute('current_page')) : 1;
+	}
+
 	requestParameters.conditions = {
 		order_id: orderId
 	};
@@ -400,7 +404,7 @@ var processProxies = (windowName = false, windowSelector = false, currentPage = 
 					closeWindows(defaultTable);
 					itemGrid = [];
 					itemGridCount = 0;
-					processProxies();
+					processProxies(false, false, 1);
 				};
 				itemsClear.addEventListener('click', itemsClear.clickListener);
 			}, 100);

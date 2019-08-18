@@ -478,7 +478,7 @@ class AppModel extends Config {
 								}
 
 								$parameters = array_merge($parameters, array(
-									'session' => $this->_createTokenString($table, array(), sha1($parameters['keys']['user'])),
+									'session' => $this->_createTokenString($table, array(), sha1($parameters['keys']['users'])),
 									'redirect' => ''
 								));
 								$queryResponse = $this->_processAction($table, $parameters);

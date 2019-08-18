@@ -217,6 +217,7 @@ main {
 	}
 .main-button,
 .alternate-button {
+	border: none;
 	color: #fff !important;
 	cursor: pointer;
 	display: inline-block;
@@ -229,7 +230,6 @@ main {
 }
 .main-button {
 	background: #7773e3;
-	border: none;
 }
 .alternate-button {
 	background: #2a2473;

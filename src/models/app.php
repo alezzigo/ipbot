@@ -873,7 +873,7 @@ class AppModel extends Config {
 		);
 
 		if (empty($count)) {
-			$response['message'] = 'No ' . $table . ' found, please try again.';
+			$response['message'] = 'No ' . str_replace('_', ' ', $table) . ' found, please try again.';
 		}
 
 		return $response;

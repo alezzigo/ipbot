@@ -243,47 +243,51 @@ class ProxiesModel extends AppModel {
 			}
 		}
 
-		if (
-			$table == 'proxies' &&
-			!empty($parameters['items']['proxies']['count']) &&
-			!empty($parameters['items']['proxy_groups']['count'])
-		) {
-			$groups = array();
-			$proxyIds = array();
-			$existingProxyGroupProxies = $this->find('proxy_group_proxies', array(
-				'conditions' => array(
-					'proxy_id' => $parameters['items']['proxies']['data'],
-					'proxy_group_id' => array_values($parameters['items']['proxy_groups']['data'])
-				),
-				'fields' => array(
-					'id',
-					'proxy_group_id',
-					'proxy_id'
-				)
-			));
+		if ($table == 'proxies') {
+			if (
+				!empty($parameters['items']['proxies']['count']) &&
+				!empty($parameters['items']['proxy_groups']['count'])
+			) {
+				$groups = array();
+				$proxyIds = array();
+				$existingProxyGroupProxies = $this->find('proxy_group_proxies', array(
+					'conditions' => array(
+						'proxy_id' => $parameters['items']['proxies']['data'],
+						'proxy_group_id' => array_values($parameters['items']['proxy_groups']['data'])
+					),
+					'fields' => array(
+						'id',
+						'proxy_group_id',
+						'proxy_id'
+					)
+				));
 
-			foreach ($parameters['items']['proxies']['data'] as $key => $proxyId) {
-				foreach ($parameters['items']['proxy_groups']['data'] as $key => $proxyGroupId) {
-					$groups[$proxyGroupId . '_' . $proxyId] = array(
-						'proxy_group_id' => $proxyGroupId,
-						'proxy_id' => $proxyId
-					);
-				}
-			}
-
-			if (!empty($existingProxyGroupProxies['count'])) {
-				foreach ($existingProxyGroupProxies['data'] as $existingProxyGroupProxy) {
-					if (!empty($groups[$key = $existingProxyGroupProxy['proxy_group_id'] . '_' . $existingProxyGroupProxy['proxy_id']])) {
-						$groups[$key]['id'] = $existingProxyGroupProxy['id'];
+				foreach ($parameters['items']['proxies']['data'] as $key => $proxyId) {
+					foreach ($parameters['items']['proxy_groups']['data'] as $key => $proxyGroupId) {
+						$groups[$proxyGroupId . '_' . $proxyId] = array(
+							'proxy_group_id' => $proxyGroupId,
+							'proxy_id' => $proxyId
+						);
 					}
 				}
-			}
 
-			$message = 'Error adding selected items to groups.';
+				if (!empty($existingProxyGroupProxies['count'])) {
+					foreach ($existingProxyGroupProxies['data'] as $existingProxyGroupProxy) {
+						if (!empty($groups[$key = $existingProxyGroupProxy['proxy_group_id'] . '_' . $existingProxyGroupProxy['proxy_id']])) {
+							$groups[$key]['id'] = $existingProxyGroupProxy['id'];
+						}
+					}
+				}
 
-			if ($this->save('proxy_group_proxies', array_values($groups))) {
-				$message = 'Items added to selected groups successfully.';
+				$message = 'Error adding selected items to groups.';
+
+				if ($this->save('proxy_group_proxies', array_values($groups))) {
+					$message = 'Items added to selected groups successfully.';
+				}
 			}
+		} else {
+			unset($parameters['limit']);
+			unset($parameters['offset']);
 		}
 
 		$parameters['fields'] = $this->permissions[$table]['find']['fields'];

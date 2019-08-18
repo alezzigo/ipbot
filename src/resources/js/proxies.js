@@ -135,6 +135,8 @@ var processGroup = (windowName, windowSelector) => {
 		});
 	};
 	var processGroupTable = (response) => {
+		requestParameters.limit = limit;
+		requestParameters.offset = offset;
 		groupTable.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
 
 		if (
@@ -197,6 +199,10 @@ var processGroup = (windowName, windowSelector) => {
 	requestParameters.action = 'find';
 	requestParameters.sort.field = 'created';
 	requestParameters.table = 'proxy_groups';
+	var limit = requestParameters.limit;
+	var offset = requestParameters.offset;
+	delete requestParameters.limit;
+	delete requestParameters.offset;
 	sendRequest((response) => {
 		processGroupTable(response);
 	});

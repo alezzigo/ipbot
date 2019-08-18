@@ -215,9 +215,8 @@ main {
 	.field-group .group-name-field {
 		padding-right: 75px !important;
 	}
-.main-button {
-	background: #7773e3;
-	border: none;
+.main-button,
+.alternate-button {
 	color: #fff !important;
 	cursor: pointer;
 	display: inline-block;
@@ -227,6 +226,13 @@ main {
 	outline: none;
 	padding: 15px 30px;
 	text-transform: uppercase;
+}
+.main-button {
+	background: #7773e3;
+	border: none;
+}
+.alternate-button {
+	background: #2a2473;
 }
 .text-button {
 	margin-left: 10px;
@@ -278,8 +284,12 @@ main {
 			.table tr td .group-name-edit-field {
 				padding-right: 149px;
 			}
+			.table tr td .field-group .button.group-name-cancel-edit-button {
+				background: #2a2473;
+				right: 6px;
+			}
 			.table tr td .field-group .button.group-name-save-edit-button {
-				right: 81px;
+				right: 80px;
 			}
 			.table tr td .table-actions {
 				bottom: 0;
@@ -653,7 +663,6 @@ main {
 	right: 0px;
 	top: 22px;
 }
-
 .item-configuration-container .item-controls-container.scrolling .item-header {
 	border-top: none !important;
 }

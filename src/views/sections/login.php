@@ -18,7 +18,7 @@
 						<a class="button clear window-button" href="javascript:void(0);" window="register">Don't have an account?</a>
 					</div>
 					<div class="item-footer">
-						<button class="button close main-button">Close</button>
+						<button class="button close alternate-button">Close</button>
 						<button class="button main-button submit" process="users" window="login">Log In</button>
 					</div>
 				</div>

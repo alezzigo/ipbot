@@ -18,7 +18,7 @@
 						<a class="button window-button" href="javascript:void(0);" window="login">Already have an account?</a>
 					</div>
 					<div class="item-footer">
-						<button class="button close main-button">Close</button>
+						<button class="button close alternate-button">Close</button>
 						<button class="button main-button submit" disabled process="users" window="register">Registration Disabled</button>
 					</div>
 				</div>

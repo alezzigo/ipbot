@@ -22,7 +22,7 @@
 						</div>
 					</div>
 					<div class="item-footer">
-						<button class="button close main-button">Close</button>
+						<button class="button close alternate-button">Close</button>
 						<button class="button close main-button submit" process="proxies" window="search">Search</button>
 					</div>
 				</div>

@@ -41,7 +41,7 @@
 						<div class="clear"></div>
 					</div>
 					<div class="item-footer">
-						<button class="button close main-button">Close</button>
+						<button class="button close alternate-button">Close</button>
 						<button class="button close main-button submit" process="proxies" window="replace">Apply Configuration</button>
 					</div>
 				</div>

@@ -497,7 +497,7 @@ class ProxiesModel extends AppModel {
 		$parameters['conditions'] = array_merge($conditions, $parameters['conditions']);
 		$response = $this->find($table, $parameters);
 		return array_merge($response, array(
-			'message' => $response['count'] . ' search results found. <a class="clear" href="javascript:void(0);">Clear search filter</a>.'
+			'message' => $response['count'] . ' search result' . ($response['count'] !== 1 ? 's' : '')  . ' found. <a class="clear" href="javascript:void(0);">Clear search filter</a>.'
 		));
 	}
 

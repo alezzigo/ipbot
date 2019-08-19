@@ -148,13 +148,17 @@ var processCartItems = (response) => {
 				cartItemGrid['cartItem' + cartItemId] = cartItemId;
 			}
 		});
-		var selectableItemsCount = selectAllElements('.cart-items-container .item-button-selectable').length;
-		elements.html('.item-configuration .total-checked', +(Object.entries(cartItemGrid).length));
+		var cartItemGridLength = +(Object.entries(cartItemGrid).length),
+			selectableItemsCount = selectAllElements('.cart-items-container .item-button-selectable').length;
+		elements.html('.item-configuration .total-checked', cartItemGridLength);
 		elements.html('.item-configuration .total-results', cartItemData.length);
 		elements.html('.item-configuration .cart-subtotal .subtotal', '$' + (Math.round(cartSubtotal * 100) / 100) + ' USD');
 		elements.removeClass('.item-configuration .item-controls', 'hidden');
 
-		if (!selectableItemsCount) {
+		if (
+			!selectableItemsCount ||
+			!cartItemGridLength
+		) {
 			cartItemAllVisible.setAttribute('checked', 0);
 			elements.addClass('.item-configuration span.icon[item-function]', 'hidden');
 		}

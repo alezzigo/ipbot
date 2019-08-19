@@ -65,18 +65,21 @@ class ProxiesModel extends AppModel {
 				$response['message'] = 'Both username and password must be set or empty.';
 			} else {
 				if (
+					empty($parameters['data']['generate_unique']) &&
 					(
-						!empty($parameters['data']['username']) &&
 						(
-							strlen($parameters['data']['username']) < 4 ||
-							strlen($parameters['data']['username']) > 15
-						)
-					) ||
-					(
-						!empty($parameters['data']['password']) &&
+							!empty($parameters['data']['username']) &&
+							(
+								strlen($parameters['data']['username']) < 4 ||
+								strlen($parameters['data']['username']) > 15
+							)
+						) ||
 						(
-							strlen($parameters['data']['password']) < 4 ||
-							strlen($parameters['data']['password']) > 15
+							!empty($parameters['data']['password']) &&
+							(
+								strlen($parameters['data']['password']) < 4 ||
+								strlen($parameters['data']['password']) > 15
+							)
 						)
 					)
 				) {
@@ -196,11 +199,14 @@ class ProxiesModel extends AppModel {
 			'message' => 'Error processing your group request, please try again.'
 		);
 
-		if (!empty($groupData = array_intersect_key($parameters['data'], array(
-			'id' => true,
-			'name' => true,
-			'order_id' => true
-		)))) {
+		if (
+			$table == 'proxy_groups' &&
+			!empty($groupData = array_intersect_key($parameters['data'], array(
+				'id' => true,
+				'name' => true,
+				'order_id' => true
+			)
+		))) {
 			if (!empty($parameters['conditions'])) {
 				$groupData = array_merge($groupData, $parameters['conditions']);
 			}

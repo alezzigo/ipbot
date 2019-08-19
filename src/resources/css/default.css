@@ -104,6 +104,9 @@ select {
 	cursor: default !important;
 	opacity: 0.50;
 }
+::placeholder {
+	color: #c9c7e6;
+}
 footer,
 header {
 	width: 100%;

@@ -39,9 +39,13 @@ var processCartItems = (response) => {
 		cartItemContainer.setAttribute('previous_checked', button.getAttribute('index'));
 	};
 	var cartItemToggleAllVisible = (button) => {
+		var selectableItemsCount = selectAllElements('.cart-items-container .item-button-selectable').length;
 		cartItemContainer.setAttribute('current_checked', 0);
 		cartItemContainer.setAttribute('previous_checked', 0);
-		processCartItemGrid(range(0, selectAllElements('.cart-items-container .item-button-selectable').length - 1), +button.getAttribute('checked') === 0);
+
+		if (selectableItemsCount) {
+			processCartItemGrid(range(0, selectableItemsCount - 1), +button.getAttribute('checked') === 0);
+		}
 	};
 	var processCartItemAdd = (cartItemAddButton) => {
 		requestParameters.data.interval_type = cartItemAddButton.hasAttribute('interval_type') ? cartItemAddButton.getAttribute('interval_type') : 'month';
@@ -144,10 +148,16 @@ var processCartItems = (response) => {
 				cartItemGrid['cartItem' + cartItemId] = cartItemId;
 			}
 		});
-		elements.html('.item-configuration .total-checked', +(Object.entries(cartItemGrid).length))
+		var selectableItemsCount = selectAllElements('.cart-items-container .item-button-selectable').length;
+		elements.html('.item-configuration .total-checked', +(Object.entries(cartItemGrid).length));
 		elements.html('.item-configuration .total-results', cartItemData.length);
 		elements.html('.item-configuration .cart-subtotal .subtotal', '$' + (Math.round(cartSubtotal * 100) / 100) + ' USD');
 		elements.removeClass('.item-configuration .item-controls', 'hidden');
+
+		if (!selectableItemsCount) {
+			cartItemAllVisible.setAttribute('checked', 0);
+			elements.addClass('.item-configuration span.icon[item-function]', 'hidden');
+		}
 	}
 
 	processWindowEvents(windowEvents, 'resize');

@@ -428,7 +428,7 @@ var processProxies = (windowName = false, windowSelector = false, currentPage = 
 			response.code !== 200 ||
 			!response.data.length
 		) {
-			return false;
+			return items.innerHTML = '';
 		}
 
 		items.innerHTML = '<table class="table"><thead><tr><th style="width: 35px;"></th><th>Proxy IP</th></tr></thead><tbody></tbody></table>';

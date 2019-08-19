@@ -267,7 +267,7 @@ class CartsModel extends AppModel {
 									$cartItemData
 								))
 							) {
-								$cartItems[$cartItemData['id']] = array_merge($cartItem, $cartItemData);
+								$cartItems[$cartItemData['id']] = $cartItem = array_merge($cartItem, $cartItemData);
 								$cartItems[$cartItemData['id']]['price'] = $this->_calculateCartItemPrice($cartItem);
 								$response['message'] = '';
 							}

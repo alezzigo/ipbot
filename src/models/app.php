@@ -511,11 +511,6 @@ class AppModel extends Config {
 
 		if (!empty($parameters['items'])) {
 			foreach ($parameters['items'] as $table => $items) {
-				$response[$table] = array(
-					'count' => count($items),
-					'data' => $items
-				);
-
 				if (
 					!empty($items) &&
 					is_numeric(array_search(current($items), $items))
@@ -548,12 +543,11 @@ class AppModel extends Config {
 						continue;
 					}
 
-					unset($parameters['offset']);
 					$ids = $this->find($table, array_merge($parameters, array(
 						'fields' => array(
 							'id'
 						),
-						'limit' => end($itemIndexes) ? key($itemIndexes) + 1 : $index,
+						'limit' => $index,
 						'offset' => 0
 					)));
 					$conditions = array(
@@ -855,7 +849,7 @@ class AppModel extends Config {
 		$count = $this->_query('SELECT COUNT(id)' . $query);
 
 		if (!empty($parameters['sort']['field'])) {
-			$query .= ' ORDER BY ' . $parameters['sort']['field'] . ' ' . (!empty($parameters['sort']['order']) ? $parameters['sort']['order'] : 'DESC');
+			$query .= ' ORDER BY ' . $parameters['sort']['field'] . ' ' . (!empty($parameters['sort']['order']) ? $parameters['sort']['order'] : 'DESC') . ($parameters['sort']['field'] != 'id' ? ', id' : '');
 		}
 
 		$parameters = array_merge($parameters, array(

@@ -74,6 +74,7 @@ var processCartItems = (response) => {
 		requestParameters.data.interval_type = cartItem.querySelector('select.interval-type').value;
 		requestParameters.data.interval_value = cartItem.querySelector('select.interval-value').value;
 		requestParameters.data.quantity = cartItem.querySelector('select.quantity').value;
+		elements.setAttribute('.button.checkout', 'disabled');
 		sendRequest((response) => {
 			processCartItems(response);
 		});
@@ -155,6 +156,7 @@ var processCartItems = (response) => {
 		elements.html('.item-configuration .total-results', cartItemData.length);
 		elements.html('.item-configuration .cart-subtotal .subtotal', '$' + (Math.round(cartSubtotal * 100) / 100) + ' USD');
 		elements.removeClass('.item-configuration .item-controls', 'hidden');
+		elements.removeAttribute('.button.checkout', 'disabled');
 
 		if (
 			!selectableItemsCount ||

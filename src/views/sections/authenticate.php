@@ -10,15 +10,15 @@
 					<div class="item-body">
 						<p class="message">These proxy usernames and passwords may be stored in plain text. Please make sure they don't include any sensitive information.</p>
 						<label for="username">Proxy Username</label>
-						<input class="username" id="username" name="username" type="text">
+						<input class="username" id="username" name="username" placeholder="Between 4 and 15 characters" type="text">
 						<label for="password">Proxy Password</label>
-						<input class="password" id="password" name="password" type="text">
+						<input class="password" id="password" name="password" placeholder="Between 4 and 15 characters" type="text">
 						<div class="checkbox-container">
 							<span checked="0" class="checkbox" id="generate-unique" name="generate_unique"></span>
 							<label class="custom-checkbox-label" for="generate-unique" name="generate_unique">Generate random unique usernames and passwords</label>
 						</div>
-						<label for="whitelisted_ips">Whitelisted IPs</label>
-						<textarea class="whitelisted-ips" id="whitelisted-ips" name="whitelisted_ips" type="text"></textarea>
+						<label for="whitelisted_ips">Whitelisted IPv4 Addresses</label>
+						<textarea class="whitelisted-ips" id="whitelisted-ips" name="whitelisted_ips" placeholder="<?php echo "127.0.0.1\n127.0.0.2\netc..." ?>" type="text"></textarea>
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>

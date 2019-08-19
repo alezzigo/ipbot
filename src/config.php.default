@@ -43,7 +43,6 @@ class Config {
 				'password',
 				'region',
 				'status',
-				'timezone',
 				'user_id',
 				'username',
 				'whitelisted_ips'

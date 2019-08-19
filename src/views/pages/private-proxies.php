@@ -5,20 +5,8 @@
 	require_once($config->settings['base_path'] . '/views/sections/header.php');
 	$items = array(
 		array(
-			'quantity' => 5,
-			'price' => 2.99
-		),
-		array(
 			'quantity' => 10,
 			'price' => 5.98
-		),
-		array(
-			'quantity' => 15,
-			'price' => 8.95
-		),
-		array(
-			'quantity' => 20,
-			'price' => 11.90
 		),
 		array(
 			'quantity' => 30,
@@ -33,16 +21,8 @@
 			'price' => 57.60
 		),
 		array(
-			'quantity' => 200,
-			'price' => 110.40
-		),
-		array(
 			'quantity' => 300,
 			'price' => 158.40
-		),
-		array(
-			'quantity' => 400,
-			'price' => 201.60
 		),
 		array(
 			'quantity' => 500,

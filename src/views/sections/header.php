@@ -30,6 +30,10 @@
 			'text' => 'Home'
 		),
 		array(
+			'href' => $config->settings['base_url'] . 'private-proxies',
+			'text' => 'Buy Proxies'
+		),
+		array(
 			'href' => $config->settings['base_url'] . 'features',
 			'text' => 'Features'
 		),

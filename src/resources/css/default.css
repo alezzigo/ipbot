@@ -101,7 +101,7 @@ select {
 		border-color: #dddbf4;
 	}
 [disabled] {
-	cursor: default;
+	cursor: default !important;
 	opacity: 0.50;
 }
 footer,

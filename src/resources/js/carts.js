@@ -98,6 +98,7 @@ var processCartItems = (response) => {
 			};
 			cartItemAddButton.addEventListener('click', cartItemAddButton.clickListener);
 		});
+		elements.removeAttribute('.button.add-to-cart', 'disabled');
 	}
 
 	if (cartItemContainer) {

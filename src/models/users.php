@@ -18,10 +18,12 @@ class UsersModel extends AppModel {
  * @return array $response Response data
  */
 	public function forgot($table, $parameters = array()) {
-		$message = $defaultMessage = 'Error sending password reset instructions, please try again.';
+		$response = array(
+			'message' => ($defaultMessage = 'Error sending password reset instructions, please try again.')
+		);
 
 		if (!empty($parameters['data']['email'])) {
-			$message = 'Password reset is required, please check your inbox for instructions.';
+			$response['message'] = 'Password reset is required, please check your inbox for instructions.';
 			$existingUser = $this->find($table, array(
 				'conditions' => array(
 					'email' => $email = $this->_validateEmailFormat($parameters['data']['email'])
@@ -49,9 +51,6 @@ class UsersModel extends AppModel {
 			}
 		}
 
-		$response = array(
-			'message' => $message
-		);
 		return $response;
 	}
 
@@ -60,15 +59,16 @@ class UsersModel extends AppModel {
  *
  * @param string $table Table name
  * @param array $parameters Parameters
- * @param string $redirect Redirect URL
  *
  * @return array $response Response data
  */
-	public function login($table, $parameters = array(), $redirect = '') {
-		$message = $defaultMessage = 'Error logging in, please try again.';
+	public function login($table, $parameters) {
+		$response = array(
+			'message' => ($defaultMessage = 'Error logging in, please try again.')
+		);
 
 		if (!empty($parameters['data']['email'])) {
-			$message = 'Invalid email or password, please try again.';
+			$response['message'] = 'Invalid email or password, please try again.';
 			$existingUser = $this->find($table, array(
 				'conditions' => array(
 					'email' => $email = $this->_validateEmailFormat($parameters['data']['email'])
@@ -77,10 +77,10 @@ class UsersModel extends AppModel {
 			));
 
 			if (!empty($email)) {
-				$message = 'Password is required, please try again.';
+				$response['message'] = 'Password is required, please try again.';
 
 				if (!empty($parameters['data']['password'])) {
-					$message = $defaultMessage;
+					$response['message'] = $defaultMessage;
 
 					if (!empty($existingUser['count'])) {
 						if (empty($existingUser['data'][0]['password'])) {
@@ -90,8 +90,10 @@ class UsersModel extends AppModel {
 								$this->_verifyPassword($parameters['data']['password'], $existingUser['data'][0]) &&
 								$this->_getToken($table, $parameters, 'id', $existingUser['data'][0]['id'], sha1($parameters['keys']['users']))
 							) {
-								$message = 'Logged in successfully.';
-								$redirect = $this->settings['base_url'] . 'orders';
+								$response = array(
+									'message' => 'Logged in successfully.',
+									'redirect' => $this->settings['base_url'] . 'orders'
+								);
 							}
 						}
 					}
@@ -99,10 +101,6 @@ class UsersModel extends AppModel {
 			}
 		}
 
-		$response = array(
-			'message' => $message,
-			'redirect' => $redirect
-		);
 		return $response;
 	}
 
@@ -115,7 +113,9 @@ class UsersModel extends AppModel {
  * @return array $response Response data
  */
 	public function logout($table, $parameters = array()) {
-		$message = 'Error logging out, please try again.';
+		$response = array(
+			'message' => 'Error logging out, please try again.',
+		);
 		$tokens = $this->find('tokens', array(
 			'fields' => array(
 				'id'
@@ -133,14 +133,13 @@ class UsersModel extends AppModel {
 				'id' => $tokens['data']
 			))
 		) {
-			$message = 'Logged out successfully.';
-			$redirect = $this->settings['base_url'] . '#login';
+			$response = array(
+				'message' => 'Logged out successfully.',
+				'redirect' => $this->settings['base_url'] . '#login'
+			);
 		}
 
-		return array(
-			'message' => $message,
-			'redirect' => (!empty($redirect) ? $redirect : '')
-		);
+		return $response;
 	}
 
 /**
@@ -152,10 +151,12 @@ class UsersModel extends AppModel {
  * @return array $response Response data
  */
 	public function register($table, $parameters = array()) {
-		$message = $defaultMessage = 'Error processing your user registration, please try again.';
+		$response = array(
+			'message' => ($defaultMessage = 'Error processing your user registration, please try again.')
+		);
 
 		if (!empty($parameters['data']['email'])) {
-			$message = 'Invalid email or password, please try again.';
+			$response['message'] = 'Invalid email or password, please try again.';
 			$existingUser = $this->find($table, array(
 				'conditions' => array(
 					'email' => $email = $this->_validateEmailFormat($parameters['data']['email'])
@@ -167,19 +168,19 @@ class UsersModel extends AppModel {
 				!empty($email) &&
 				empty($existingUser['count'])
 			) {
-				$message = 'Password and confirmation are required, please try again.';
+				$response['message'] = 'Password and confirmation are required, please try again.';
 
 				if (
 					!empty($parameters['data']['password']) &&
 					!empty($parameters['data']['confirm_password'])
 				) {
-					$message = 'Password must be at least 10 characters, please try again.';
+					$response['message'] = 'Password must be at least 10 characters, please try again.';
 
 					if (strlen($parameters['data']['password']) >= 10) {
-						$message = 'Password confirmation doesn\'t match password, please try again.';
+						$response['message'] = 'Password confirmation doesn\'t match password, please try again.';
 
 						if ($parameters['data']['password'] == $parameters['data']['confirm_password']) {
-							$message = $defaultMessage;
+							$response['message'] = $defaultMessage;
 							$password = $this->_hashPassword($parameters['data']['password'], time());
 							$user = array(
 								'email' => $email,
@@ -191,7 +192,7 @@ class UsersModel extends AppModel {
 							if ($this->save($table, array(
 								$user
 							))) {
-								$message = 'User account created successfully.';
+								$response['message'] = 'User account created successfully.';
 								return $this->login($table, $parameters);
 							}
 						}
@@ -200,11 +201,6 @@ class UsersModel extends AppModel {
 			}
 		}
 
-		$response = array(
-			'count' => !empty($user['count']) ? $user['count'] : 0,
-			'data' => !empty($user['data'][0]) ? $user['data'][0] : array(),
-			'message' => $message
-		);
 		return $response;
 	}
 

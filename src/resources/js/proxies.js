@@ -246,7 +246,6 @@ var processOrdersView = () => {
 	});
 };
 var processProxies = (windowName = false, windowSelector = false, currentPage = false) => {
-	previousAction = requestParameters.action;
 	var items = document.querySelector('.item-configuration .item-table'),
 		orderId = document.querySelector('input[name="order_id"]').value,
 		pagination = document.querySelector('.item-configuration .pagination');
@@ -376,6 +375,13 @@ var processProxies = (windowName = false, windowSelector = false, currentPage = 
 
 	if (!currentPage) {
 		currentPage = pagination.hasAttribute('current_page') ? Math.max(1, +pagination.getAttribute('current_page')) : 1;
+
+		if (
+			requestParameters.action == 'search' &&
+			previousAction == 'find'
+		) {
+			currentPage = 1;
+		}
 	}
 
 	requestParameters.conditions = {
@@ -443,9 +449,17 @@ var processProxies = (windowName = false, windowSelector = false, currentPage = 
 			};
 			item.addEventListener('click', item.clickListener);
 		});
-		itemGrid = response.items[requestParameters.table];
-		requestParameters.tokens[requestParameters.table] = response.tokens[requestParameters.table];
 		elements.removeClass('.item-configuration .item-controls', 'hidden');
+		itemGrid = response.items[requestParameters.table];
+
+		if (
+			requestParameters.action != 'search' &&
+			previousAction != 'find'
+		) {
+			requestParameters.action = previousAction;
+		}
+
+		requestParameters.tokens[requestParameters.table] = response.tokens[requestParameters.table];
 		processItemGrid(range(0, response.data.length - 1));
 	});
 };

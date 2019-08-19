@@ -42,10 +42,12 @@ class ProxiesModel extends AppModel {
  * @return array $response Response data
  */
 	public function authenticate($table, $parameters) {
-		$message = 'Error authenticating proxies, please try again.';
+		$response = array(
+			'message' => ($defaultMessage = 'Error authenticating proxies, please try again.')
+		);
 
 		if (empty($parameters['items'][$table]['count'])) {
-			$message = 'There are no ' . $table . ' selected to authenticate.';
+			$response['message'] = 'There are no ' . $table . ' selected to authenticate.';
 		} else {
 			$proxies = $parameters['items'][$table]['data'];
 
@@ -60,7 +62,7 @@ class ProxiesModel extends AppModel {
 					empty($parameters['data']['password'])
 				)
 			) {
-				$message = 'Both username and password must be set or empty.';
+				$response['message'] = 'Both username and password must be set or empty.';
 			} else {
 				if (
 					(
@@ -78,7 +80,7 @@ class ProxiesModel extends AppModel {
 						)
 					)
 				) {
-					$message = 'Both username and password must be between 4 and 15 characters.';
+					$response['message'] = 'Both username and password must be between 4 and 15 characters.';
 				} else {
 					if (
 						($usernames = array()) &&
@@ -119,18 +121,20 @@ class ProxiesModel extends AppModel {
 						!empty($parameters['data']['username']) &&
 						in_array($parameters['data']['username'], $usernames)
 					) {
-						$message = 'Username [' . $parameters['data']['username'] . '] is already in use, please try a different username.';
+						$response['message'] = 'Username [' . $parameters['data']['username'] . '] is already in use, please try a different username.';
 					} else {
-						$this->save('proxies', $proxies);
-						$message = 'Authentication saved successfully';
+						$response['message'] = $defaultMessage;
+
+						if ($this->save('proxies', $proxies)) {
+							$response['items'][$table] = array();
+							$response['message'] = 'Authentication saved successfully';
+						}
 					}
 				}
 			}
 		}
 
-		$response = array_merge($this->find($table, $parameters), array(
-			'message' => $message
-		));
+		$response = array_merge($this->find($table, $parameters), $response);
 		return $response;
 	}
 
@@ -188,7 +192,9 @@ class ProxiesModel extends AppModel {
  * @return array $response Response data
  */
 	public function group($table, $parameters) {
-		$message = 'Error processing your group request, please try again.';
+		$response = array(
+			'message' => 'Error processing your group request, please try again.'
+		);
 
 		if (!empty($groupData = array_intersect_key($parameters['data'], array(
 			'id' => true,
@@ -208,18 +214,18 @@ class ProxiesModel extends AppModel {
 				!empty($groupName = $groupData['name']) &&
 				!empty($groupData['order_id'])
 			) {
-				$message = 'Group "' . $groupName . '" already exists for this order.';
+				$response['message'] = 'Group "' . $groupName . '" already exists for this order.';
 				$existingGroup = $this->find('proxy_groups', $groupParameters);
 
 				if (empty($existingGroup['count'])) {
-					$message = 'Error creating new group, please try again.';
+					$response['message'] = 'Error creating new group, please try again.';
 					$this->save('proxy_groups', array(
 						$groupData
 					));
 					$groupData = $this->find('proxy_groups', $groupParameters);
 
 					if (!empty($groupData['count'])) {
-						$message = 'Group "' . $groupName . '" saved successfully.';
+						$response['message'] = 'Group "' . $groupName . '" saved successfully.';
 					}
 				}
 			}
@@ -228,7 +234,7 @@ class ProxiesModel extends AppModel {
 				!empty($groupData['id']) &&
 				!isset($groupData['name'])
 			) {
-				$message = 'Error deleting group, please try again.';
+				$response['message'] = 'Error deleting group, please try again.';
 				$existingGroup = $this->find('proxy_groups', $groupParameters);
 
 				if (
@@ -238,7 +244,7 @@ class ProxiesModel extends AppModel {
 						'proxy_group_id' => $groupData['id']
 					))
 				) {
-					$message = 'Group deleted successfully.';
+					$response['message'] = 'Group deleted successfully.';
 				}
 			}
 		}
@@ -279,10 +285,10 @@ class ProxiesModel extends AppModel {
 					}
 				}
 
-				$message = 'Error adding selected items to groups.';
+				$response['message'] = 'Error adding selected items to groups.';
 
 				if ($this->save('proxy_group_proxies', array_values($groups))) {
-					$message = 'Items added to selected groups successfully.';
+					$response['message'] = 'Items added to selected groups successfully.';
 				}
 			}
 		} else {
@@ -291,9 +297,8 @@ class ProxiesModel extends AppModel {
 		}
 
 		$parameters['fields'] = $this->permissions[$table]['find']['fields'];
-		return array_merge($this->find($table, $parameters), array(
-			'message' => $message
-		));
+		$response = array_merge($this->find($table, $parameters), $response);
+		return $response;
 	}
 
 /**
@@ -421,12 +426,11 @@ class ProxiesModel extends AppModel {
 			}
 		}
 
-		$response = array_merge($this->find($table, $parameters), $response);
-
 		if (($response['tokens'][$table] = $this->_getToken($table, $parameters, 'order_id', $orderId)) !== $parameters['tokens'][$table]) {
 			$response['items'][$table] = array();
 		}
 
+		$response = array_merge($this->find($table, $parameters), $response);
 		return $response;
 	}
 
@@ -495,10 +499,10 @@ class ProxiesModel extends AppModel {
 		}
 
 		$parameters['conditions'] = array_merge($conditions, $parameters['conditions']);
-		$response = $this->find($table, $parameters);
-		return array_merge($response, array(
+		$response = array_merge($response = $this->find($table, $parameters), array(
 			'message' => $response['count'] . ' search result' . ($response['count'] !== 1 ? 's' : '')  . ' found. <a class="clear" href="javascript:void(0);">Clear search filter</a>.'
 		));
+		return $response;
 	}
 
 }

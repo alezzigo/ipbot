@@ -14,7 +14,7 @@ class CartsModel extends AppModel {
  *
  * @param array $cartItem Cart item
  *
- * @return array $response Response data
+ * @return integer Cart item price
  */
 	public function _calculateCartItemPrice($cartItem) {
 		$interval = $cartItem['interval_value'] * ($cartItem['interval_type'] == 'year' ? 12 : 1);
@@ -42,7 +42,6 @@ class CartsModel extends AppModel {
 					'order' => 'DESC'
 				)
 			);
-
 			$this->save('carts', array(
 				$cartParameters['conditions']
 			));
@@ -149,10 +148,9 @@ class CartsModel extends AppModel {
  * @return array $response Response data
  */
 	public function cart($table, $parameters) {
-		$defaultMessage = 'Error processing your cart request, please try again.';
 		$response = array(
 			'data' => array(),
-			'message' => $defaultMessage
+			'message' => ($defaultMessage = 'Error processing your cart request, please try again.')
 		);
 
 		if ($cart = $this->_retrieveCart($parameters)) {

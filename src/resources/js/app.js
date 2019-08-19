@@ -48,9 +48,9 @@ onLoad(() => {
 	selectAllElements('.button.window-button, .window .button.submit').map((element) => {
 		element[1].addEventListener('click', (element) => {
 			var processName = element.target.hasAttribute('process') ? element.target.getAttribute('process') : '';
+			var method = 'process' + capitalizeString(processName);
 			var windowName = element.target.hasAttribute('window') ? element.target.getAttribute('window') : '';
 			var windowSelector = '.window-container[window="' + windowName + '"]';
-			var method = 'process' + capitalizeString(processName);
 
 			if (element.target.classList.contains('submit')) {
 				elements.loop(windowSelector + ' input, ' + windowSelector + ' select, ' + windowSelector + ' textarea', (index, element) => {
@@ -59,6 +59,7 @@ onLoad(() => {
 				elements.loop(windowSelector + ' .checkbox', (index, element) => {
 					requestParameters.data[element.getAttribute('name')] = +element.getAttribute('checked');
 				});
+				previousAction = requestParameters.action;
 				requestParameters.action = windowName;
 
 				if (windowName == 'search') {

@@ -257,7 +257,7 @@ class AppModel extends Config {
  * @param string $table Table name
  * @param array $parameters Parameters
  *
- * @return array Response data
+ * @return array $response Response data
  */
 	protected function _processAction($table, $parameters) {
 		if (
@@ -299,7 +299,8 @@ class AppModel extends Config {
 			$response['redirect'] = $parameters['redirect'];
 		}
 
-		return array_merge($response, $this->$action($table, $parameters));
+		$response = array_merge($response, $this->$action($table, $parameters));
+		return $response;
 	}
 
 /**

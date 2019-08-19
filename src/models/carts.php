@@ -158,23 +158,77 @@ class CartsModel extends AppModel {
 		if ($cart = $this->_retrieveCart($parameters)) {
 			$response['message'] = 'There are no items in your cart.';
 
-			if (
-				!empty($cart) &&
-				$cartProducts = $this->_retrieveProducts($cart)
-			) {
-				if ($cartItems = $this->_retrieveCartItems($cart, $cartProducts)) {
+			if (!empty($cart)) {
+				$cartProducts = $this->_retrieveProducts($cart);
+				$cartItems = $this->_retrieveCartItems($cart, $cartProducts);
+
+				if (
+					$cartProducts &&
+					$cartItems
+				) {
 					$response['message'] = '';
+				}
 
-					if (!empty($cartItemData = array_intersect_key($parameters['data'], array(
-						'id' => true,
-						'interval_type' => true,
-						'interval_value' => true,
-						'quantity' => true
-					)))) {
-						$response['message'] = $defaultMessage;
+				if (!empty($cartItemData = array_intersect_key($parameters['data'], array(
+					'id' => true,
+					'interval_type' => true,
+					'interval_value' => true,
+					'product_id' => true,
+					'quantity' => true
+				)))) {
+					$response['message'] = $defaultMessage;
 
+					if (empty($cartItemData['id'])) {
+						$response['message'] = 'Error adding item to your cart, please try again.';
+
+						if (count($cartItemData) === 4) {
+							$response['message'] = 'Invalid cart item parameters, please try again.';
+
+							if (
+								!empty($cartItemData['interval_type']) &&
+								in_array($cartItemData['interval_type'], array('month', 'year')) &&
+								!empty($cartItemData['interval_value']) &&
+								is_numeric($cartItemData['interval_value']) &&
+								in_array($cartItemData['interval_value'], range(1, 12)) &&
+								!empty($cartItemData['product_id']) &&
+								is_numeric($cartItemData['product_id']) &&
+								!empty($cartItemData['quantity']) &&
+								is_numeric($cartItemData['quantity'])
+							) {
+								$response['message'] = 'Invalid product ID, please try again.';
+								$cartProduct = $this->find('products', array(
+									'conditions' => array(
+										'id' => $cartItemData['product_id']
+									),
+									'sort' => array(
+										'field' => 'modified',
+										'modified' => 'DESC'
+									)
+								));
+
+								if (!empty($cartProduct = $cartProduct['data'][0])) {
+									$response['message'] = 'Invalid product quantity, please try again.';
+
+									if (
+										$cartItemData['quantity'] <= $cartProduct['maximum_quantity'] &&
+										$cartItemData['quantity'] >= $cartProduct['minimum_quantity']
+									) {
+										$cartItemData['cart_id'] = $parameters['session'];
+
+										if ($this->save('cart_items', array(
+											$cartItemData
+										))) {
+											$response = array(
+												'message' => 'Cart item added successfully.',
+												'redirect' => $this->settings['base_url'] . 'cart'
+											);
+										}
+									}
+								}
+							}
+						}
+					} else {
 						if (
-							!empty($cartItemData['id']) &&
 							count($cartItemData) === 1 &&
 							$cartItemIds = array_values($cartItemData['id'])
 						) {
@@ -218,9 +272,9 @@ class CartsModel extends AppModel {
 							}
 						}
 					}
-
-					$response['data'] = $cartItems;
 				}
+
+				$response['data'] = $cartItems;
 			}
 		}
 

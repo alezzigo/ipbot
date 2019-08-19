@@ -297,6 +297,8 @@ class ProxiesModel extends AppModel {
 					$response['message'] = 'Items added to selected groups successfully.';
 				}
 			}
+
+			$response['items'][$table] = array();
 		} else {
 			unset($parameters['limit']);
 			unset($parameters['offset']);

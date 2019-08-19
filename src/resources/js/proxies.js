@@ -452,10 +452,7 @@ var processProxies = (windowName = false, windowSelector = false, currentPage = 
 		elements.removeClass('.item-configuration .item-controls', 'hidden');
 		itemGrid = response.items[requestParameters.table];
 
-		if (
-			requestParameters.action != 'search' &&
-			previousAction != 'find'
-		) {
+		if (requestParameters.action != 'search') {
 			requestParameters.action = previousAction;
 		}
 

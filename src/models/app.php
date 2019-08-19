@@ -511,6 +511,11 @@ class AppModel extends Config {
 
 		if (!empty($parameters['items'])) {
 			foreach ($parameters['items'] as $table => $items) {
+				$response[$table] = array(
+					'count' => count($items),
+					'data' => $items
+				);
+
 				if (
 					!empty($items) &&
 					is_numeric(array_search(current($items), $items))
@@ -848,8 +853,8 @@ class AppModel extends Config {
 
 		$count = $this->_query('SELECT COUNT(id)' . $query);
 
-		if (!empty($parameters['sort']['field'])) {
-			$query .= ' ORDER BY ' . $parameters['sort']['field'] . ' ' . (!empty($parameters['sort']['order']) ? $parameters['sort']['order'] : 'DESC') . ($parameters['sort']['field'] != 'id' ? ', id' : '');
+		if (!empty($sortField = $parameters['sort']['field'])) {
+			$query .= ' ORDER BY ' . $sortField . ' ' . (!empty($parameters['sort']['order']) ? $parameters['sort']['order'] : 'DESC') . ', ' . implode(' DESC, ', array_diff(array('modified', 'created', 'id'), array($sortField))) . ' DESC';
 		}
 
 		$parameters = array_merge($parameters, array(

@@ -250,22 +250,25 @@ class CartsModel extends AppModel {
 								$response['message'] = 'Cart items deleted successfully.';
 								$cartItems = array_diff_key($cartItems, array_combine($cartItemIds['data'], array_fill(1, count($cartItemIds['data']), true)));
 							}
-						} elseif (!empty($cartItem = $cartItems[$cartItemData['id']])) {
-							unset($cartItem['modified']);
-
+						} elseif (
+							!empty($cartItem = $cartItems[$cartItemData['id']]) &&
+							count($cartItemData) === 4
+						) {
 							if (
 								!empty($cartItemData['interval_type']) &&
 								in_array($cartItemData['interval_type'], array('month', 'year')) &&
 								!empty($cartItemData['interval_value']) &&
 								is_numeric($cartItemData['interval_value']) &&
+								!empty($cartItemData['quantity']) &&
+								is_numeric($cartItemData['quantity']) &&
 								$cartItemData['quantity'] <= $cartItem['maximum_quantity'] &&
 								$cartItemData['quantity'] >= $cartItem['minimum_quantity'] &&
 								$this->save('cart_items', array(
 									$cartItemData
 								))
 							) {
-								$cartItems[$cartItemData['id']] = array_merge($cartItems[$cartItemData['id']], $cartItemData);
-								$cartItems[$cartItemData['id']]['price'] = $this->_calculateCartItemPrice($cartItems[$cartItemData['id']]);
+								$cartItems[$cartItemData['id']] = array_merge($cartItem, $cartItemData);
+								$cartItems[$cartItemData['id']]['price'] = $this->_calculateCartItemPrice($cartItem);
 								$response['message'] = '';
 							}
 						}

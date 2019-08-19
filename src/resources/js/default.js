@@ -186,6 +186,10 @@ if (
 }
 
 onLoad(() => {
+	if (document.querySelector('.hidden.base-url')) {
+		requestParameters.base_url = document.querySelector('.base-url').innerHTML;
+	}
+
 	if (document.querySelector('.hidden.keys')) {
 		requestParameters.keys = JSON.parse(document.querySelector('.keys').innerHTML);
 		requestParameters.keys.users += JSON.stringify(browserDetails());

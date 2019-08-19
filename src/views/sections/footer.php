@@ -8,6 +8,10 @@
 	</div>
 </footer>
 <?php
+	if (!empty($config->settings['base_url'])) {
+		echo '<div class="hidden base-url">' . $config->settings['base_url'] . '</div>';
+	}
+
 	if (!empty($config->keys['users'])) {
 		echo '<div class="hidden keys">' . json_encode(array('users' => $config->keys['users'])) . '</div>';
 	}

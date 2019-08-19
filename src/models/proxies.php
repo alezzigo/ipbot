@@ -129,12 +129,13 @@ class ProxiesModel extends AppModel {
 						$response['message'] = $defaultMessage;
 
 						if ($this->save('proxies', $proxies)) {
-							$response['items'][$table] = array();
 							$response['message'] = 'Authentication saved successfully';
 						}
 					}
 				}
 			}
+
+			$response['items'][$table] = array();
 		}
 
 		$response = array_merge($this->find($table, $parameters), $response);

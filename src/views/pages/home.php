@@ -10,10 +10,10 @@
 			<div class="feature-container">
 				<h1>Premium Proxy Services</h1>
 				<p>Power your web applications through the anonymous Eightomic IP network and open-source <a href="https://github.com/parsonsbots/proxies" target="_blank">proxy control panel</a>.</p>
-				<a class="button main-button" href="/contact#register">Get Started</a>
-				<a class="button text-button" href="/features">See Features</a>
+				<a class="button main-button" href="<?php echo $config->settings['base_url']; ?>contact#register">Get Started</a>
+				<a class="button text-button" href="<?php echo $config->settings['base_url']; ?>features">See Features</a>
 				<div class="feature-screenshot">
-					<img alt="Proxy control panel screenshot" src="/resources/images/screenshots/control-panel.png">
+					<img alt="Proxy control panel screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/control-panel.png">
 				</div>
 			</div>
 		</div>
@@ -23,12 +23,12 @@
 			<div class="item">
 				<h2>Private Proxies</h2>
 				<p>Buy elite (high-anonymous) HTTP proxies with private access, unlimited threads, fast speeds, stable uptime and unmetered data transfer.</p>
-				<a href="/private-proxies">Buy Private Proxies</a>
+				<a href="<?php echo $config->settings['base_url']; ?>private-proxies">Buy Private Proxies</a>
 			</div>
 			<div class="item no-margin-bottom">
 				<h2>SOCKS 5 Proxies</h2>
 				<p>Buy SOCKS 5 proxies with all outbound ports open. Private HTTP proxy access is included with all SOCKS 5 plans.</p>
-				<a href="/socks-proxies">Buy SOCKS Proxies</a>
+				<a href="<?php echo $config->settings['base_url']; ?>socks-proxies">Buy SOCKS Proxies</a>
 			</div>
 		</div>
 	</div>

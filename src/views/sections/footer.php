@@ -2,7 +2,7 @@
 	<div class="container small">
 		<div class="align-left navigation primary-navigation">
 			<div class="align-left">
-				<p>Product of <a href="https://eightomic.com" target="_blank">Eightomic</a>. Copyright <?php echo date('Y'); ?> <a href="https://parsonsbots.com" target="_blank">Will Parsons</a>. All rights reserved.</p>
+				<p>Product of <a href="https://eightomic.com" target="_blank">Eightomic</a>. Copyright <?php echo date('Y'); ?> <a href="https://parsonsbots.com" target="_blank">Will Parsons</a>.</p>
 			</div>
 		</div>
 	</div>
@@ -24,7 +24,7 @@
 ?>
 </body>
 </html>
-<!-- Copyright (c) 2019 Will Parsons
+<!-- Copyright (c) <?php echo date('Y'); ?> Will Parsons
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

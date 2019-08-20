@@ -144,7 +144,6 @@ class ProxiesModel extends AppModel {
 
 /**
  * Process copy requests
- * @todo File downloads for large lists
  *
  * @param string $table Table name
  * @param array $parameters Copy query parameters
@@ -312,7 +311,6 @@ class ProxiesModel extends AppModel {
 
 /**
  * Process replace requests
- * @todo Retrieve user ID from auth token, remove replaced proxies on replacement_removal_date with cron
  *
  * @param string $table Table name
  * @param array $parameters Replace query parameters

@@ -10,8 +10,8 @@
 					<div class="item-body">
 						<p class="hidden message submit">The items you've selected previously will be added to the groups selected below.</p>
 						<label for="group_name">Add New Group</label>
-						<div class="field-group">
-							<input class="group-name-field" id="group-name" name="group_name" type="text">
+						<div class="field-group no-margin-top">
+							<input class="group-name-field" id="group-name" name="group_name" placeholder="Enter group name" type="text">
 							<button class="button group-name-button">Save</button>
 						</div>
 						<div class="clear"></div>

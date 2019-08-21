@@ -178,7 +178,7 @@ main {
 	.field-group span,
 	.field-group textarea {
 		float: left;
-		margin-left: -1px !important;
+		margin: 0 0 0 -1px !important;
 		position: relative;
 	}
 	.field-group input,
@@ -209,6 +209,7 @@ main {
 		font-size: 11px;
 		font-weight: 600;
 		line-height: 1px;
+		margin: 0 !important;
 		outline: none;
 		padding: 0 15px;
 		position: absolute;
@@ -283,10 +284,10 @@ main {
 			}
 			.table tr td .field-group .button.group-name-cancel-edit-button {
 				background: #2a2473;
-				right: 6px;
+				right: 7px;
 			}
 			.table tr td .field-group .button.group-name-save-edit-button {
-				right: 87px;
+				right: 88px;
 			}
 			.table tr td .table-actions {
 				bottom: 0;

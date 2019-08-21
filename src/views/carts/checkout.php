@@ -20,7 +20,7 @@
 								</div>
 								<div class="clear"></div>
 								<p class="item-controls no-margin-bottom">
-									<span class="align-right cart-total">Total Due Today: <span class="total"></span></span>
+									<span class="align-right cart-total">Total: <span class="total"></span></span>
 								</p>
 								<div class="clear"></div>
 								<div class="message-container"><p class="message">Loading...</p></div>

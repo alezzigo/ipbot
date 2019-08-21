@@ -14,7 +14,7 @@ var processCartItems = (response) => {
 		cartItemAllVisible = document.querySelector('.item-container .checkbox[index="all-visible"]'),
 		cartItemContainer = document.querySelector('.cart-items-container'),
 		cartItems = checkoutItems = '',
-		cartTotal = 0,
+		cartSubtotal = cartTotal = 0,
 		checkoutItemContainer = document.querySelector('.checkout-items-container'),
 		intervalTypes = ['month', 'year'],
 		intervalValues = range(1, 12);
@@ -117,7 +117,7 @@ var processCartItems = (response) => {
 				quantitySelectValues += '<option ' + (quantityValue == cartItem.quantity ? 'selected ' : '') + 'value="' + quantityValue + '">' + quantityValue + '</option>';
 			});
 			cartItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem.id + '"><span checked="' + +(typeof cartItemGrid['cartItem' + cartItem.id] !== 'undefined') + '" class="checkbox" index="' + index + '" cart_item_id="' + cartItem.id + '"></span><p><a href="' + requestParameters.base_url + cartItem.uri + '">' + cartItem.name + '</a></p><div class="field-group"><span>Quantity:</span><select class="quantity" name="quantity">' + quantitySelectValues + '</select></div><div class="field-group no-margin"><span>USD Price:</span><span class="display">$' + cartItem.price + '</span><span>per</span><select class="interval-value" name="interval_value">' + intervalSelectValues + '</select><select class="interval-type" name="interval_type">' + intervalSelectTypes + '</select></div><div class="clear"></div></div>';
-			cartTotal += parseFloat(cartItem.price);
+			cartSubtotal += parseFloat(cartItem.price);
 		});
 		cartItemContainer.innerHTML = cartItems;
 		cartItemAllVisible.removeEventListener('click', cartItemAllVisible.clickListener);
@@ -155,7 +155,7 @@ var processCartItems = (response) => {
 			selectableItemsCount = selectAllElements('.cart-items-container .item-button-selectable').length;
 		elements.html('.item-configuration .total-checked', cartItemGridLength);
 		elements.html('.item-configuration .total-results', cartItemData.length);
-		elements.html('.item-configuration .cart-subtotal .total', '$' + (Math.round(cartTotal * 100) / 100) + ' USD');
+		elements.html('.item-configuration .cart-subtotal .total', '$' + (Math.round(cartSubtotal * 100) / 100) + ' USD');
 		elements.removeClass('.item-configuration .item-controls', 'hidden');
 		elements.removeAttribute('.button.checkout', 'disabled');
 
@@ -169,12 +169,13 @@ var processCartItems = (response) => {
 	}
 
 	if (checkoutItemContainer) {
-		checkoutItems += '<h2 class="no-margin-top">Review Items</h2>';
+		checkoutItems += '<h2 class="no-margin-top">Order Items</h2>';
 		cartItemData.map((cartItem, index) => {
 			checkoutItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem.id + '"><p><strong>' + cartItem.name + '</strong></p><div class="field-group"><span>Quantity:</span><span class="display">' + cartItem.quantity + '</span></div><div class="field-group no-margin"><span>USD Price:</span><span class="display">$' + cartItem.price + '</span><span>per</span><span class="display">' + cartItem.interval_value + ' ' + capitalizeString(cartItem.interval_type) + (cartItem.interval_value > 1 ? 's' : '') + '</span></div><div class="clear"></div></div>';
-			cartTotal += parseFloat(cartItem.price);
+			cartSubtotal += parseFloat(cartItem.price);
 		});
-		checkoutItems += '<h2>Discount Code</h2><div class="field-group no-margin-top"><input class="discount-code-field" id="discount-code" name="discount_code" placeholder="Enter discount code" type="text"><button class="button discount-code-button">Apply Discount</button></div>';
+		cartTotal = cartSubtotal;
+		checkoutItems += '<h2>Pricing Details</h2><p class="no-margin-bottom"><label>Subtotal</label></p><p>$' + (Math.round(cartSubtotal * 100) / 100) + ' USD</p><p class="no-margin-bottom"><label>Shipping</label></p><p>$0 USD</p><p class="no-margin-bottom"><label for="discount-code">Discount Code</label></p><div class="field-group no-margin-top"><input class="discount-code-field" id="discount-code" name="discount_code" placeholder="Enter discount code" type="text"><button class="button discount-code-button">Apply Discount</button></div><p class="no-margin-bottom"><label>Total</label></p><p>$' + (Math.round(cartTotal * 100) / 100) + ' USD</p>';
 		checkoutItemContainer.innerHTML = checkoutItems;
 		elements.html('.item-configuration .cart-total .total', '$' + (Math.round(cartTotal * 100) / 100) + ' USD');
 		elements.removeAttribute('.button.confirm', 'disabled');

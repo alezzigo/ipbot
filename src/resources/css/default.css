@@ -73,6 +73,7 @@ strong {
 }
 label {
 	display: block;
+	font-weight: 600;
 	padding: 2px 0;
 	width: 100%;
 }

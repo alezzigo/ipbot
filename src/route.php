@@ -2,6 +2,16 @@
 	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/config.php');
 
 	if (
+		strpos($_SERVER['HTTP_HOST'], '.') !== false &&
+	(
+		empty($_SERVER['HTTPS']) ||
+		strtolower($_SERVER['HTTPS']) != 'on'
+	)
+	) {
+		$config->redirect('https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+	}
+
+	if (
 		$_SERVER['REDIRECT_URL'] !== '/' &&
 		substr($_SERVER['REDIRECT_URL'], -1) === '/'
 	) {

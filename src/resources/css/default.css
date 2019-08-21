@@ -91,6 +91,7 @@ select {
 	cursor: pointer;
 	display: block;
 	font-size: 14px;
+	margin: 0;
 	outline: none;
 	padding: 9px 25px 9px 11px;
 }
@@ -177,7 +178,7 @@ main {
 	.field-group span,
 	.field-group textarea {
 		float: left;
-		margin-left: -1px;
+		margin-left: -1px !important;
 		position: relative;
 	}
 	.field-group input,

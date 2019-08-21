@@ -14,12 +14,12 @@
 					<div class="item-configuration">
 						<div class="controls-container item-controls-container scrollable">
 							<div class="item-header">
-								<div class="item-controls">
+								<div class="hidden item-controls">
 									<a class="button confirm main-button" disabled href="<?php echo $config->settings['base_url']; ?>confirm">Proceed to Payment</a>
 									<a class="alternate-button button cart" href="<?php echo $config->settings['base_url']; ?>cart">Return to Cart</a>
 								</div>
 								<div class="clear"></div>
-								<p class="item-controls no-margin-bottom">
+								<p class="hidden item-controls no-margin-bottom">
 									<span class="align-right cart-total">Total: <span class="total"></span></span>
 								</p>
 								<div class="clear"></div>

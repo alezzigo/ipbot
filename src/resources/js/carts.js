@@ -91,6 +91,10 @@ var processCartItems = (response) => {
 
 	var cartItemData = Object.values(response.data);
 
+	if (!cartItemData.length) {
+		elements.addClass('.item-configuration .item-controls', 'hidden');
+	}
+
 	if (cartItemAddButtons.length) {
 		cartItemAddButtons.map((cartItemAddButton, index) => {
 			cartItemAddButton = cartItemAddButton[1];
@@ -156,7 +160,6 @@ var processCartItems = (response) => {
 		elements.html('.item-configuration .total-checked', cartItemGridLength);
 		elements.html('.item-configuration .total-results', cartItemData.length);
 		elements.html('.item-configuration .cart-subtotal .total', '$' + (Math.round(cartSubtotal * 100) / 100) + ' USD');
-		elements.removeClass('.item-configuration .item-controls', 'hidden');
 		elements.removeAttribute('.button.checkout', 'disabled');
 
 		if (
@@ -169,6 +172,11 @@ var processCartItems = (response) => {
 	}
 
 	if (checkoutItemContainer) {
+		if (!cartItemData.length) {
+			window.location.href = requestParameters.base_url + 'cart';
+			return false;
+		}
+
 		checkoutItems += '<h2 class="no-margin-top">Order Items</h2>';
 		cartItemData.map((cartItem, index) => {
 			checkoutItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem.id + '"><p><strong>' + cartItem.name + '</strong></p><div class="field-group"><span>Quantity:</span><span class="display">' + cartItem.quantity + '</span></div><div class="field-group no-margin"><span>USD Price:</span><span class="display">$' + cartItem.price + '</span><span>for</span><span class="display">' + cartItem.interval_value + ' ' + capitalizeString(cartItem.interval_type) + (cartItem.interval_value > 1 ? 's' : '') + '</span></div><div class="clear"></div></div>';
@@ -179,6 +187,10 @@ var processCartItems = (response) => {
 		checkoutItemContainer.innerHTML = checkoutItems;
 		elements.html('.item-configuration .cart-total .total', '$' + (Math.round(cartTotal * 100) / 100) + ' USD');
 		elements.removeAttribute('.button.confirm', 'disabled');
+	}
+
+	if (cartItemData.length) {
+		elements.removeClass('.item-configuration .item-controls', 'hidden');
 	}
 
 	processWindowEvents(windowEvents, 'resize');

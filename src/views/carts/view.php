@@ -14,7 +14,7 @@
 					<div class="item-configuration">
 						<div class="controls-container item-controls-container scrollable">
 							<div class="item-header">
-								<div class="align-left hidden item-controls">
+								<div class="hidden item-controls">
 									<a class="button main-button checkout" href="/checkout">Checkout</a>
 									<span checked="0" class="align-left checkbox no-margin-left" index="all-visible"></span>
 									<span class="button icon delete hidden tooltip tooltip-bottom window-button" data-title="Delete item from cart" item-function process="delete"></span>

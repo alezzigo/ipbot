@@ -11,7 +11,7 @@
 				<h1>Premium Proxy Services</h1>
 				<p>Power your web applications through the anonymous Eightomic IP network and open-source <a href="https://github.com/parsonsbots/proxies" target="_blank">proxy control panel</a>.</p>
 				<a class="button main-button" href="<?php echo $config->settings['base_url']; ?>contact#register">Get Started</a>
-				<a class="button text-button" href="<?php echo $config->settings['base_url']; ?>features">See Features</a>
+				<a class="button alternate-button" href="<?php echo $config->settings['base_url']; ?>features">See Features</a>
 				<div class="feature-screenshot">
 					<img alt="Proxy control panel screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/control-panel.png">
 				</div>

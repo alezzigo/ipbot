@@ -116,7 +116,7 @@ var processCartItems = (response) => {
 			quantityValues.map((quantityValue, index) => {
 				quantitySelectValues += '<option ' + (quantityValue == cartItem.quantity ? 'selected ' : '') + 'value="' + quantityValue + '">' + quantityValue + '</option>';
 			});
-			cartItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem.id + '"><span checked="' + +(typeof cartItemGrid['cartItem' + cartItem.id] !== 'undefined') + '" class="checkbox" index="' + index + '" cart_item_id="' + cartItem.id + '"></span><p><a href="' + requestParameters.base_url + cartItem.uri + '">' + cartItem.name + '</a></p><div class="field-group"><span>Quantity:</span><select class="quantity" name="quantity">' + quantitySelectValues + '</select></div><div class="field-group no-margin"><span>USD Price:</span><span class="display">$' + cartItem.price + '</span><span>per</span><select class="interval-value" name="interval_value">' + intervalSelectValues + '</select><select class="interval-type" name="interval_type">' + intervalSelectTypes + '</select></div><div class="clear"></div></div>';
+			cartItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem.id + '"><span checked="' + +(typeof cartItemGrid['cartItem' + cartItem.id] !== 'undefined') + '" class="checkbox" index="' + index + '" cart_item_id="' + cartItem.id + '"></span><p><a href="' + requestParameters.base_url + cartItem.uri + '">' + cartItem.name + '</a></p><div class="field-group"><span>Quantity:</span><select class="quantity" name="quantity">' + quantitySelectValues + '</select></div><div class="field-group no-margin"><span>USD Price:</span><span class="display">$' + cartItem.price + '</span><span>for</span><select class="interval-value" name="interval_value">' + intervalSelectValues + '</select><select class="interval-type" name="interval_type">' + intervalSelectTypes + '</select></div><div class="clear"></div></div>';
 			cartSubtotal += parseFloat(cartItem.price);
 		});
 		cartItemContainer.innerHTML = cartItems;
@@ -171,7 +171,7 @@ var processCartItems = (response) => {
 	if (checkoutItemContainer) {
 		checkoutItems += '<h2 class="no-margin-top">Order Items</h2>';
 		cartItemData.map((cartItem, index) => {
-			checkoutItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem.id + '"><p><strong>' + cartItem.name + '</strong></p><div class="field-group"><span>Quantity:</span><span class="display">' + cartItem.quantity + '</span></div><div class="field-group no-margin"><span>USD Price:</span><span class="display">$' + cartItem.price + '</span><span>per</span><span class="display">' + cartItem.interval_value + ' ' + capitalizeString(cartItem.interval_type) + (cartItem.interval_value > 1 ? 's' : '') + '</span></div><div class="clear"></div></div>';
+			checkoutItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem.id + '"><p><strong>' + cartItem.name + '</strong></p><div class="field-group"><span>Quantity:</span><span class="display">' + cartItem.quantity + '</span></div><div class="field-group no-margin"><span>USD Price:</span><span class="display">$' + cartItem.price + '</span><span>for</span><span class="display">' + cartItem.interval_value + ' ' + capitalizeString(cartItem.interval_type) + (cartItem.interval_value > 1 ? 's' : '') + '</span></div><div class="clear"></div></div>';
 			cartSubtotal += parseFloat(cartItem.price);
 		});
 		cartTotal = cartSubtotal;

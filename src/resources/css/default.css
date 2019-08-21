@@ -59,10 +59,10 @@ h1 {
 }
 h2 {
 	border-bottom: 1px solid #dddbf4;
-	font-size: 20px;
+	font-size: 19px;
 	margin-bottom: 23px;
 	margin-top: 32px;
-	padding-bottom: 11px;
+	padding-bottom: 7px;
 }
 p {
 	line-height: 23px;
@@ -218,6 +218,14 @@ main {
 		top: 6px;
 		z-index: 3;
 	}
+	.field-group .display {
+		background: none;
+		font-size: 14px;
+		font-weight: 400;
+	}
+	.field-group .discount-code-field {
+		padding-right: 142px;
+	}
 	.field-group .group-name-field {
 		padding-right: 75px !important;
 	}
@@ -246,9 +254,6 @@ main {
 	.alternate-button:hover {
 		border-color: #7773e3;
 	}
-.text-button {
-	margin-left: 10px;
-}
 .table {
 	border: none;
 	border-spacing: 0;
@@ -396,6 +401,34 @@ main {
 	position: relative;
 	width: 100%;
 }
+	.item-container input,
+	.item-container textarea {
+		border: 1px solid #dddbf4;
+		box-sizing: border-box;
+		color: #616671;
+		display: block;
+		font-size: 14px;
+		margin-bottom: 17px;
+		outline: none;
+		padding: 10px 12px;
+		width: 100%;
+	}
+		.item-container input:hover,
+		.item-container textarea:hover {
+			border-color: #7773e3;
+		}
+		.item-container input:active,
+		.item-container input:focus,
+		.item-container input:visited,
+		.item-container textarea:active,
+		.item-container textarea:focus,
+		.item-container textarea:visited {
+			border-color: #7773e3;
+		}
+		.item-container textarea {
+			height: 140px;
+			line-height: 18px;
+		}
 	.item-container.item-button {
 		border: 1px solid #dddbf4;
 		padding: 15px;
@@ -411,7 +444,6 @@ main {
 			margin: 0;
 		}
 	.item-container.item-button-selectable {
-		padding-left: 51px;
 		position: relative;
 	}
 		.item-container.item-button-selectable:hover {
@@ -424,7 +456,8 @@ main {
 		}
 		.item-container.item-button-selectable p {
 			cursor: default;
-			margin-bottom: 11px;
+			line-height: 13px;
+			margin-bottom: 8px;
 			margin-left: -1px;
 		}
 	.item-container .item {
@@ -450,7 +483,7 @@ main {
 				margin-bottom: 8px;
 				margin-top: 15px;
 			}
-			.item-container .item-header .item-controls .cart-subtotal .subtotal {
+			.item-container .item-header .item-controls .total {
 				font-weight: 600;
 			}
 	.item-container .item-link-container {
@@ -595,34 +628,6 @@ main {
 			.window-container .item-container {
 				padding: 47px 0 88px;
 			}
-			.window-container .window input,
-			.window-container .window textarea {
-				border: 1px solid #dddbf4;
-				box-sizing: border-box;
-				color: #616671;
-				display: block;
-				font-size: 14px;
-				margin-bottom: 17px;
-				outline: none;
-				padding: 10px 12px;
-				width: 100%;
-			}
-				.window-container .window input:hover,
-				.window-container .window textarea:hover {
-					border-color: #7773e3;
-				}
-				.window-container .window input:active,
-				.window-container .window input:focus,
-				.window-container .window input:visited,
-				.window-container .window textarea:active,
-				.window-container .window textarea:focus,
-				.window-container .window textarea:visited {
-					border-color: #7773e3;
-				}
-				.window-container .window textarea {
-					height: 140px;
-					line-height: 18px;
-				}
 			.window-container .window .checkbox-container {
 				margin-bottom: 10px;
 				margin-top: 5px;
@@ -690,14 +695,22 @@ main {
 	display: block;
 	width: 100%;
 }
-.item-configuration-container .item-controls-container .item-header .main-button {
+.item-configuration-container .item-controls-container .item-header .main-button,
+.item-configuration-container .item-controls-container .item-header .alternate-button {
 	font-size: 11px;
 	margin: 0;
-	padding-bottom: 10px;
-	padding-top: 11px;
-	position: absolute;
-	right: 0px;
 	top: 22px;
+}
+.item-configuration-container .item-controls-container .item-header .main-button {
+	padding-top: 11px;
+	padding-bottom: 10px;
+	position: absolute;
+	right: 0;
+}
+.item-configuration-container .item-controls-container .item-header .alternate-button {
+	margin-bottom: 7px;
+	padding-top: 10px;
+	padding-bottom: 9px;
 }
 .item-configuration-container .item-controls-container.scrolling .item-header {
 	border-top: none !important;
@@ -710,9 +723,6 @@ main {
 	margin-bottom: 6px;
 	margin-right: 6px;
 }
-
-.cart-items-container .item-container .field-group .price {
-	background: none;
-	font-size: 14px;
-	font-weight: 400;
+.cart-items-container .item-button-selectable {
+	padding-left: 51px;
 }

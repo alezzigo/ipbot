@@ -1,7 +1,7 @@
 'use_strict';
 
 var cartItemGrid = {},
-	messageContainer = document.querySelector('.carts-view .message-container');
+	messageContainer = document.querySelector('.item-configuration .message-container');
 var processCart = () => {
 	requestParameters.action = 'cart';
 	requestParameters.table = 'carts';
@@ -10,11 +10,12 @@ var processCart = () => {
 	});
 };
 var processCartItems = (response) => {
-	var cartItems = '',
-		cartItemAddButtons = selectAllElements('.button.add-to-cart'),
+	var cartItemAddButtons = selectAllElements('.button.add-to-cart'),
 		cartItemAllVisible = document.querySelector('.item-container .checkbox[index="all-visible"]'),
 		cartItemContainer = document.querySelector('.cart-items-container'),
-		cartSubtotal = 0,
+		cartItems = checkoutItems = '',
+		cartTotal = 0,
+		checkoutItemContainer = document.querySelector('.checkout-items-container'),
 		intervalTypes = ['month', 'year'],
 		intervalValues = range(1, 12);
 	var processCartItemGrid = (cartItemIndexes, cartItemState) => {
@@ -115,8 +116,8 @@ var processCartItems = (response) => {
 			quantityValues.map((quantityValue, index) => {
 				quantitySelectValues += '<option ' + (quantityValue == cartItem.quantity ? 'selected ' : '') + 'value="' + quantityValue + '">' + quantityValue + '</option>';
 			});
-			cartItems += '<div class="item-container item-button item-button-selectable" cart_item_id="' + cartItem.id + '"><span checked="' + +(typeof cartItemGrid['cartItem' + cartItem.id] !== 'undefined') + '" class="checkbox" index="' + index + '" cart_item_id="' + cartItem.id + '"></span><p><a href="' + requestParameters.base_url + cartItem.uri + '">' + cartItem.name + '</a></p><div class="field-group"><span>Quantity:</span><select class="quantity" name="quantity">' + quantitySelectValues + '</select></div><div class="field-group no-margin"><span>USD Price:</span><span class="price">$' + cartItem.price + '</span><span>per</span><select class="interval-value" name="interval_value">' + intervalSelectValues + '</select><select class="interval-type" name="interval_type">' + intervalSelectTypes + '</select></div><div class="clear"></div></div>';
-			cartSubtotal += parseFloat(cartItem.price);
+			cartItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem.id + '"><span checked="' + +(typeof cartItemGrid['cartItem' + cartItem.id] !== 'undefined') + '" class="checkbox" index="' + index + '" cart_item_id="' + cartItem.id + '"></span><p><a href="' + requestParameters.base_url + cartItem.uri + '">' + cartItem.name + '</a></p><div class="field-group"><span>Quantity:</span><select class="quantity" name="quantity">' + quantitySelectValues + '</select></div><div class="field-group no-margin"><span>USD Price:</span><span class="display">$' + cartItem.price + '</span><span>per</span><select class="interval-value" name="interval_value">' + intervalSelectValues + '</select><select class="interval-type" name="interval_type">' + intervalSelectTypes + '</select></div><div class="clear"></div></div>';
+			cartTotal += parseFloat(cartItem.price);
 		});
 		cartItemContainer.innerHTML = cartItems;
 		cartItemAllVisible.removeEventListener('click', cartItemAllVisible.clickListener);
@@ -154,7 +155,7 @@ var processCartItems = (response) => {
 			selectableItemsCount = selectAllElements('.cart-items-container .item-button-selectable').length;
 		elements.html('.item-configuration .total-checked', cartItemGridLength);
 		elements.html('.item-configuration .total-results', cartItemData.length);
-		elements.html('.item-configuration .cart-subtotal .subtotal', '$' + (Math.round(cartSubtotal * 100) / 100) + ' USD');
+		elements.html('.item-configuration .cart-subtotal .total', '$' + (Math.round(cartTotal * 100) / 100) + ' USD');
 		elements.removeClass('.item-configuration .item-controls', 'hidden');
 		elements.removeAttribute('.button.checkout', 'disabled');
 
@@ -165,6 +166,17 @@ var processCartItems = (response) => {
 			cartItemAllVisible.setAttribute('checked', 0);
 			elements.addClass('.item-configuration span.icon[item-function]', 'hidden');
 		}
+	}
+
+	if (checkoutItemContainer) {
+		checkoutItems += '<h2 class="no-margin-top">Review Items</h2>';
+		cartItemData.map((cartItem, index) => {
+			checkoutItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem.id + '"><p><strong>' + cartItem.name + '</strong></p><div class="field-group"><span>Quantity:</span><span class="display">' + cartItem.quantity + '</span></div><div class="field-group no-margin"><span>USD Price:</span><span class="display">$' + cartItem.price + '</span><span>per</span><span class="display">' + cartItem.interval_value + ' ' + capitalizeString(cartItem.interval_type) + (cartItem.interval_value > 1 ? 's' : '') + '</span></div><div class="clear"></div></div>';
+			cartTotal += parseFloat(cartItem.price);
+		});
+		checkoutItemContainer.innerHTML = checkoutItems;
+		elements.html('.item-configuration .cart-total .total', '$' + (Math.round(cartTotal * 100) / 100) + ' USD');
+		elements.removeAttribute('.button.confirm', 'disabled');
 	}
 
 	processWindowEvents(windowEvents, 'resize');

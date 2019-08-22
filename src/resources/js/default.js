@@ -186,6 +186,20 @@ if (
 	};
 }
 
+if (!Object.entries) {
+	Object.entries = function(object) {
+		var objectKeys = Object.keys(object);
+		var objectKeysLength = objectKeys.length;
+		var responseEntries = new Array(objectKeysLength);
+
+		while (objectKeysLength--) {
+			responseEntries[objectKeysLength] = [objectKeys[objectKeysLength], object[objectKeys[objectKeysLength]]];
+		}
+
+		return responseEntries;
+	};
+}
+
 onLoad(function() {
 	if (document.querySelector('.hidden.base-url')) {
 		requestParameters.base_url = document.querySelector('.base-url').innerHTML;

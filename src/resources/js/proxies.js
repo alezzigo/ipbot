@@ -245,8 +245,9 @@ var processOrdersView = function() {
 		}
 	});
 };
-var processProxies = function(windowName = false, windowSelector = false, currentPage = false) {
-	var items = document.querySelector('.item-configuration .item-table'),
+var processProxies = function(windowName, windowSelector, currentPage) {
+	var currentPage = currentPage || 1;
+		items = document.querySelector('.item-configuration .item-table'),
 		orderId = document.querySelector('input[name="order_id"]').value,
 		pagination = document.querySelector('.item-configuration .pagination');
 	var resultsPerPage = +pagination.getAttribute('results');

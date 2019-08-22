@@ -51,9 +51,9 @@ var elements = {
 			element[1].classList.add(className);
 		});
 	},
-	html: function(selector, value = null) {
+	html: function(selector, value) {
 		return selectAllElements(selector).map(function(element) {
-			return value !== null ? element[1].innerHTML = value : element[1].innerHTML;
+			return typeof value !== 'undefined' ? element[1].innerHTML = value : element[1].innerHTML;
 		})[0];
 	},
 	loop: function(selector, callback) {
@@ -86,7 +86,7 @@ var openWindow = function(windowName, windowSelector) {
 	elements.addClass('footer, header, main', 'hidden');
 	elements.removeClass(windowSelector, 'hidden');
 };
-var processWindowEvents = function(windowEvents, event = null) {
+var processWindowEvents = function(windowEvents, event) {
 	var runWindowEvents = function(windowEvents) {
 		windowEvents.map(function(windowEvent) {
 			windowEvent();
@@ -94,7 +94,7 @@ var processWindowEvents = function(windowEvents, event = null) {
 	};
 
 	if (
-		event &&
+		typeof event !== 'undefined' &&
 		windowEvents[event]
 	) {
 		runWindowEvents(windowEvents[event]);
@@ -106,10 +106,11 @@ var processWindowEvents = function(windowEvents, event = null) {
 		});
 	}
 };
-var range = function(low, high, step = 1) {
+var range = function(low, high, step) {
 	var array = [],
 		high = +high,
-		low = +low;
+		low = +low,
+		step = step || 1;
 
 	if (low < high) {
 		while (low <= high) {

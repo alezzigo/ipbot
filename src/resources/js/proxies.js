@@ -336,7 +336,7 @@ var processProxies = (windowName = false, windowSelector = false, currentPage = 
 		itemAll.classList.add('hidden');
 		itemAll.removeEventListener('click', itemAll.clickListener);
 		itemAll.clickListener = () => {
-			processItemGridSelection(itemAll)
+			processItemGridSelection(itemAll);
 		};
 		itemAll.addEventListener('click', itemAll.clickListener);
 		itemAllVisible.setAttribute('checked', +(allVisibleChecked = (itemCount === pageResultCount)));

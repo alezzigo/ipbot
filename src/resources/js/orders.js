@@ -1,7 +1,7 @@
 'use_strict';
 
-var defaultTable = 'orders',
-	previousAction = 'find';
+var defaultTable = 'orders';
+var previousAction = 'find';
 var processOrdersList = function() {
 	requestParameters.action = previousAction;
 	requestParameters.table = defaultTable;

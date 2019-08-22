@@ -3,18 +3,18 @@
 var browserDetails = function() {
 	var browserDetails = window.clientInformation ? window.clientInformation : window.navigator;
 	var retrieveMimeTypes = function(mimeTypeObject) {
-		var mimeTypes = [];
+		var response = [];
 		Object.entries(mimeTypeObject).map(function(mimeType) {
-			mimeTypes.push(mimeType[1].description + mimeType[1].suffixes + mimeType[1].type + (mimeType[1].enabledPlugin ? mimeType[1].enabledPlugin.description + mimeType[1].enabledPlugin.filename + mimeType[1].enabledPlugin.length + mimeType[1].enabledPlugin.name : false));
+			response.push(mimeType[1].description + mimeType[1].suffixes + mimeType[1].type + (mimeType[1].enabledPlugin ? mimeType[1].enabledPlugin.description + mimeType[1].enabledPlugin.filename + mimeType[1].enabledPlugin.length + mimeType[1].enabledPlugin.name : false));
 		});
-		return mimeTypes;
+		return response;
 	};
 	var retrievePlugins = function(pluginObject) {
-		var plugins = [];
+		var response = [];
 		Object.entries(pluginObject).map(function(plugin) {
-			plugins.push(plugin[1].description + plugin[1].filename + plugin[1].length + plugin[1].name);
+			response.push(plugin[1].description + plugin[1].filename + plugin[1].length + plugin[1].name);
 		});
-		return plugins;
+		return response;
 	};
 	return {
 		appCodeName: browserDetails.appCodeName ? browserDetails.appCodeName : false,
@@ -40,10 +40,10 @@ var capitalizeString = function(string) {
 };
 var closeWindows = function(defaultTable) {
 	elements.addClass('.window-container', 'hidden');
+	elements.html('.window .message-container', '');
 	elements.removeClass('footer, header, main', 'hidden');
 	requestParameters.action = previousAction;
 	requestParameters.table = defaultTable;
-	elements.html('.window .message-container', '');
 };
 var elements = {
 	addClass: function(selector, className) {
@@ -107,38 +107,38 @@ var processWindowEvents = function(windowEvents, event) {
 	}
 };
 var range = function(low, high, step) {
-	var array = [],
-		high = +high,
-		low = +low,
-		step = step || 1;
+	var response = [];
+	high = +high;
+	low = +low;
+	step = step || 1;
 
 	if (low < high) {
 		while (low <= high) {
-			array.push(low);
+			response.push(low);
 			low += step;
 		}
 	} else {
 		while (low >= high) {
-			array.push(low);
+			response.push(low);
 			low -= step;
 		}
 	}
 
-	return array;
+	return response;
 };
 var repeat = function(count, pattern) {
-	var result = '';
+	var response = '';
 
 	while (count > 1) {
 		if (count & 1) {
-			result += pattern;
+			response += pattern;
 		}
 
 		count >>= 1;
 		pattern += pattern;
 	}
 
-	return result + (count < 1 ? '' : pattern);
+	return response + (count < 1 ? '' : pattern);
 };
 var replaceCharacter = function(string, index, character) {
 	return string.substr(0, index) + character + string.substr(index + Math.max(1, ('' + character).length));
@@ -190,13 +190,13 @@ if (!Object.entries) {
 	Object.entries = function(object) {
 		var objectKeys = Object.keys(object);
 		var objectKeysLength = objectKeys.length;
-		var responseEntries = new Array(objectKeysLength);
+		var response = new Array(objectKeysLength);
 
 		while (objectKeysLength--) {
-			responseEntries[objectKeysLength] = [objectKeys[objectKeysLength], object[objectKeys[objectKeysLength]]];
+			response[objectKeysLength] = [objectKeys[objectKeysLength], object[objectKeys[objectKeysLength]]];
 		}
 
-		return responseEntries;
+		return response;
 	};
 }
 

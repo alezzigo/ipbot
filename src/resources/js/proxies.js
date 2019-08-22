@@ -247,9 +247,9 @@ var processOrdersView = function() {
 };
 var processProxies = function(windowName, windowSelector, currentPage) {
 	var currentPage = currentPage || 1;
-		items = document.querySelector('.item-configuration .item-table'),
-		orderId = document.querySelector('input[name="order_id"]').value,
-		pagination = document.querySelector('.item-configuration .pagination');
+	var items = document.querySelector('.item-configuration .item-table');
+	var orderId = document.querySelector('input[name="order_id"]').value;
+	var pagination = document.querySelector('.item-configuration .pagination');
 	var resultsPerPage = +pagination.getAttribute('results');
 	var itemToggle = function(item) {
 		items.setAttribute('current_checked', item.getAttribute('index'));
@@ -285,12 +285,11 @@ var processProxies = function(windowName, windowSelector, currentPage) {
 		}
 
 		itemIndexes.map(function(itemIndex) {
-			var index = ((currentPage * resultsPerPage) - resultsPerPage) + +itemIndex,
-				item = document.querySelector('.item-configuration .checkbox[index="' + itemIndex + '"]'),
-				serializeCount = 1;
-			var key = Math.floor(index / itemGridLineSizeMaximum),
-				serializedGridLineItems = [];
-			var itemGridLineIndex = index - (key * itemGridLineSizeMaximum);
+			var index = ((currentPage * resultsPerPage) - resultsPerPage) + +itemIndex;
+			var item = document.querySelector('.item-configuration .checkbox[index="' + itemIndex + '"]');
+			var key = Math.floor(index / itemGridLineSizeMaximum);
+			var serializeCount = 1;
+			var serializedGridLineItems = [];
 
 			if (!itemGrid[key]) {
 				itemGrid[key] = repeat(itemGridLineSize(key), '0');
@@ -303,6 +302,8 @@ var processProxies = function(windowName, windowSelector, currentPage) {
 				});
 				itemGrid[key] = itemGrid[key].join("");
 			}
+
+			var itemGridLineIndex = index - (key * itemGridLineSizeMaximum);
 
 			if (typeof itemState === 'boolean') {
 				itemGrid[key] = replaceCharacter(itemGrid[key], itemGridLineIndex, +itemState);

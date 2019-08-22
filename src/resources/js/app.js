@@ -39,10 +39,10 @@ onLoad(function() {
 	});
 	selectAllElements('.window .checkbox, .window label.custom-checkbox-label').map(function(element) {
 		element[1].addEventListener('click', function(element) {
-			var hiddenField = document.querySelector('div[field="' + element.target.getAttribute('name') + '"]'),
-				item = document.querySelector('.checkbox[name="' + element.target.getAttribute('name') + '"]');
-			item.setAttribute('checked', +!+item.getAttribute('checked'));
+			var hiddenField = document.querySelector('div[field="' + element.target.getAttribute('name') + '"]');
+			var item = document.querySelector('.checkbox[name="' + element.target.getAttribute('name') + '"]');
 			hiddenField ? (hiddenField.classList.contains('hidden') ? hiddenField.classList.remove('hidden') : hiddenField.classList.add('hidden')) : null;
+			item.setAttribute('checked', +!+item.getAttribute('checked'));
 		});
 	});
 	selectAllElements('.button.window-button, .window .button.submit').map(function(element) {

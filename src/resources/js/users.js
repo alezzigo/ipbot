@@ -1,7 +1,7 @@
 'use_strict';
 
-var defaultTable = 'users',
-	previousAction = 'register';
+var defaultTable = 'users';
+var previousAction = 'register';
 var processUsers = function(windowName, windowSelector) {
 	requestParameters.action = windowName;
 	requestParameters.table = 'users';

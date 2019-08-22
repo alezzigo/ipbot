@@ -1,7 +1,7 @@
 'use_strict';
 
-var cartItemGrid = {},
-	messageContainer = document.querySelector('.item-configuration .message-container');
+var cartItemGrid = {};
+var messageContainer = document.querySelector('.item-configuration .message-container');
 var processCart = function() {
 	requestParameters.action = 'cart';
 	requestParameters.table = 'carts';
@@ -10,30 +10,9 @@ var processCart = function() {
 	});
 };
 var processCartItems = function(response) {
-	var cartItemAddButtons = selectAllElements('.button.add-to-cart'),
-		cartItemAllVisible = document.querySelector('.item-container .checkbox[index="all-visible"]'),
-		cartItemContainer = document.querySelector('.cart-items-container'),
-		cartItems = checkoutItems = '',
-		cartSubtotal = cartTotal = 0,
-		checkoutItemContainer = document.querySelector('.checkout-items-container'),
-		intervalTypes = ['month', 'year'],
-		intervalValues = range(1, 12);
-	var processCartItemGrid = function(cartItemIndexes, cartItemState) {
-		cartItemIndexes.map(function(cartItemIndex) {
-			var cartItem = cartItemContainer.querySelector('.checkbox[index="' + cartItemIndex + '"]');
-			var cartItemId = cartItem.getAttribute('cart_item_id');
-			cartItem.setAttribute('checked', +cartItemState);
-			cartItemGrid['cartItem' + cartItemId] = cartItemId;
-
-			if (!+cartItemState) {
-				delete cartItemGrid['cartItem' + cartItemId];
-			}
-		});
-		elements.html('.item-configuration .total-checked', +(allVisibleChecked = Object.keys(cartItemGrid).length));
-		allVisibleChecked ? elements.removeClass('.item-configuration span.icon[item-function]', 'hidden') : elements.addClass('.item-configuration span.icon[item-function]', 'hidden');
-		cartItemAllVisible.setAttribute('checked', +(allVisibleChecked === selectAllElements('.cart-items-container .item-button-selectable').length));
-		requestParameters.items[requestParameters.table] = cartItemGrid;
-	};
+	var cartItemAddButtons = selectAllElements('.button.add-to-cart');
+	var cartItemAllVisible = document.querySelector('.item-container .checkbox[index="all-visible"]');
+	var cartItemContainer = document.querySelector('.cart-items-container');
 	var cartItemToggle = function(button) {
 		cartItemContainer.setAttribute('current_checked', button.getAttribute('index'));
 		processCartItemGrid(window.event.shiftKey ? range(cartItemContainer.getAttribute('previous_checked'), button.getAttribute('index')) : [button.getAttribute('index')], window.event.shiftKey ? +cartItemContainer.querySelector('.checkbox[index="' + cartItemContainer.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +button.getAttribute('checked') === 0);
@@ -48,6 +27,11 @@ var processCartItems = function(response) {
 			processCartItemGrid(range(0, selectableItemsCount - 1), +button.getAttribute('checked') === 0);
 		}
 	};
+	var cartItems = checkoutItems = '';
+	var cartSubtotal = cartTotal = 0;
+	var checkoutItemContainer = document.querySelector('.checkout-items-container');
+	var intervalTypes = ['month', 'year'];
+	var intervalValues = range(1, 12);
 	var processCartItemAdd = function(cartItemAddButton) {
 		requestParameters.data.interval_type = cartItemAddButton.hasAttribute('interval_type') ? cartItemAddButton.getAttribute('interval_type') : 'month';
 		requestParameters.data.interval_value = cartItemAddButton.hasAttribute('interval_value') ? cartItemAddButton.getAttribute('interval_value') : 1;
@@ -68,6 +52,22 @@ var processCartItems = function(response) {
 				return false;
 			}
 		});
+	};
+	var processCartItemGrid = function(cartItemIndexes, cartItemState) {
+		cartItemIndexes.map(function(cartItemIndex) {
+			var cartItem = cartItemContainer.querySelector('.checkbox[index="' + cartItemIndex + '"]');
+			var cartItemId = cartItem.getAttribute('cart_item_id');
+			cartItem.setAttribute('checked', +cartItemState);
+			cartItemGrid['cartItem' + cartItemId] = cartItemId;
+
+			if (!+cartItemState) {
+				delete cartItemGrid['cartItem' + cartItemId];
+			}
+		});
+		elements.html('.item-configuration .total-checked', +(allVisibleChecked = Object.keys(cartItemGrid).length));
+		allVisibleChecked ? elements.removeClass('.item-configuration span.icon[item-function]', 'hidden') : elements.addClass('.item-configuration span.icon[item-function]', 'hidden');
+		cartItemAllVisible.setAttribute('checked', +(allVisibleChecked === selectAllElements('.cart-items-container .item-button-selectable').length));
+		requestParameters.items[requestParameters.table] = cartItemGrid;
 	};
 	var processCartItemUpdate = function(cartItemId) {
 		var cartItem = document.querySelector('.item-container[cart_item_id="' + cartItemId + '"]');
@@ -132,34 +132,34 @@ var processCartItems = function(response) {
 		cartItemGrid = {};
 		elements.loop('.cart-items-container .item-button-selectable', function(index, row) {
 			var cartItemToggleButton = row.querySelector('.checkbox');
-			var cartItemUpdateQuantitySelect = row.querySelector('select.quantity');
 			var cartItemUpdateIntervalTypeSelect = row.querySelector('select.interval-type');
 			var cartItemUpdateIntervalValueSelect = row.querySelector('select.interval-value');
-			var cartItemId = cartItemToggleButton.getAttribute('cart_item_id');
+			var cartItemUpdateQuantitySelect = row.querySelector('select.quantity');
 			cartItemToggleButton.removeEventListener('click', cartItemToggleButton.clickListener);
-			cartItemUpdateQuantitySelect.removeEventListener('change', cartItemUpdateQuantitySelect.changeListener);
 			cartItemUpdateIntervalTypeSelect.removeEventListener('change', cartItemUpdateIntervalTypeSelect.changeListener);
 			cartItemUpdateIntervalValueSelect.removeEventListener('change', cartItemUpdateIntervalValueSelect.changeListener);
+			cartItemUpdateQuantitySelect.removeEventListener('change', cartItemUpdateQuantitySelect.changeListener);
+			var cartItemId = cartItemToggleButton.getAttribute('cart_item_id');
 			cartItemToggleButton.clickListener = function() {
 				cartItemToggle(cartItemToggleButton);
 			};
-			cartItemUpdateQuantitySelect.changeListener = cartItemUpdateIntervalTypeSelect.changeListener = cartItemUpdateIntervalValueSelect.changeListener = function() {
+			cartItemUpdateIntervalTypeSelect.changeListener = cartItemUpdateIntervalValueSelect.changeListener = cartItemUpdateQuantitySelect.changeListener = function() {
 				processCartItemUpdate(cartItemId);
 			};
 			cartItemToggleButton.addEventListener('click', cartItemToggleButton.clickListener);
-			cartItemUpdateQuantitySelect.addEventListener('change', cartItemUpdateQuantitySelect.changeListener);
 			cartItemUpdateIntervalTypeSelect.addEventListener('change', cartItemUpdateIntervalTypeSelect.changeListener);
 			cartItemUpdateIntervalValueSelect.addEventListener('change', cartItemUpdateIntervalValueSelect.changeListener);
+			cartItemUpdateQuantitySelect.addEventListener('change', cartItemUpdateQuantitySelect.changeListener);
 
 			if (+cartItemToggleButton.getAttribute('checked')) {
 				cartItemGrid['cartItem' + cartItemId] = cartItemId;
 			}
 		});
-		var cartItemGridLength = +(Object.keys(cartItemGrid).length),
-			selectableItemsCount = selectAllElements('.cart-items-container .item-button-selectable').length;
+		var cartItemGridLength = +(Object.keys(cartItemGrid).length);
+		var selectableItemsCount = selectAllElements('.cart-items-container .item-button-selectable').length;
+		elements.html('.item-configuration .cart-subtotal .total', '$' + (Math.round(cartSubtotal * 100) / 100) + ' USD');
 		elements.html('.item-configuration .total-checked', cartItemGridLength);
 		elements.html('.item-configuration .total-results', cartItemData.length);
-		elements.html('.item-configuration .cart-subtotal .total', '$' + (Math.round(cartSubtotal * 100) / 100) + ' USD');
 		elements.removeAttribute('.button.checkout', 'disabled');
 
 		if (

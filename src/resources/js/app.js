@@ -17,7 +17,7 @@ var processLogout = function() {
 onLoad(function() {
 	if ((scrollableElements = selectAllElements('.scrollable')).length) {
 		scrollableElements.map(function(element) {
-			var scrollEvent = function() {
+			var event = function() {
 				var elementContainerDetails = element[1].parentNode.getBoundingClientRect();
 
 				if (elementContainerDetails.width) {
@@ -27,8 +27,8 @@ onLoad(function() {
 
 				element[1].setAttribute('scrolling', +(window.pageYOffset > (elementContainerDetails.top + window.pageYOffset)));
 			};
-			windowEvents.resize.push(scrollEvent);
-			windowEvents.scroll.push(scrollEvent);
+			windowEvents.resize.push(event);
+			windowEvents.scroll.push(event);
 		});
 	}
 
@@ -76,7 +76,13 @@ onLoad(function() {
 			}
 		});
 	});
-	processWindowEvents(windowEvents);
+
+	window.onresize = function() {
+		processWindowEvents('resize');
+	};
+	window.onscroll = function() {
+		processWindowEvents('scroll');
+	};
 
 	if (window.location.hash) {
 		var windowName = replaceCharacter(window.location.hash, 0, '').toLowerCase();

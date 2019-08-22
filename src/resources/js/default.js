@@ -86,23 +86,17 @@ var openWindow = function(windowName, windowSelector) {
 	elements.addClass('footer, header, main', 'hidden');
 	elements.removeClass(windowSelector, 'hidden');
 };
-var processWindowEvents = function(windowEvents, event) {
-	var runWindowEvents = function(windowEvents) {
-		windowEvents.map(function(windowEvent) {
-			windowEvent();
-		});
-	};
+var processWindowEvents = function(event) {
+	if (typeof event === 'undefined') {
+		return false;
+	}
 
 	if (
-		typeof event !== 'undefined' &&
+		typeof windowEvents[event] === 'object' &&
 		windowEvents[event]
 	) {
-		runWindowEvents(windowEvents[event]);
-	} else {
-		Object.entries(windowEvents).map(function(windowEvents) {
-			window['on' + windowEvents[0]] = function() {
-				runWindowEvents(windowEvents[1]);
-			};
+		windowEvents[event].map(function(windowEvent) {
+			windowEvent();
 		});
 	}
 };
@@ -149,7 +143,14 @@ var requestParameters = {
 	tokens: {}
 };
 var selectAllElements = function(selector) {
-	return Object.entries(document.querySelectorAll(selector));
+	var nodeList = document.querySelectorAll(selector);
+	var response = [];
+
+	if (nodeList.length) {
+		response = Object.entries(document.querySelectorAll(selector));
+	}
+
+	return response;
 };
 var sendRequest = function(callback) {
 	var request = new XMLHttpRequest();
@@ -188,12 +189,16 @@ if (
 
 if (!Object.entries) {
 	Object.entries = function(object) {
-		var objectKeys = Object.keys(object);
-		var objectKeysLength = objectKeys.length;
-		var response = new Array(objectKeysLength);
+		if (typeof object !== 'object') {
+			return false;
+		}
 
-		while (objectKeysLength--) {
-			response[objectKeysLength] = [objectKeys[objectKeysLength], object[objectKeys[objectKeysLength]]];
+		var response = [];
+
+		for (var objectKey in object) {
+			if (object.hasOwnProperty(objectKey)) {
+				response.push([objectKey, object[objectKey]]);
+			}
 		}
 
 		return response;

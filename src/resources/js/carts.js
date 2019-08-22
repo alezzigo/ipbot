@@ -64,7 +64,7 @@ var processCartItems = function(response) {
 				delete cartItemGrid['cartItem' + cartItemId];
 			}
 		});
-		elements.html('.item-configuration .total-checked', +(allVisibleChecked = Object.keys(cartItemGrid).length));
+		elements.html('.item-configuration .total-checked', +(allVisibleChecked = Object.entries(cartItemGrid).length));
 		allVisibleChecked ? elements.removeClass('.item-configuration span.icon[item-function]', 'hidden') : elements.addClass('.item-configuration span.icon[item-function]', 'hidden');
 		cartItemAllVisible.setAttribute('checked', +(allVisibleChecked === selectAllElements('.cart-items-container .item-button-selectable').length));
 		requestParameters.items[requestParameters.table] = cartItemGrid;
@@ -155,7 +155,7 @@ var processCartItems = function(response) {
 				cartItemGrid['cartItem' + cartItemId] = cartItemId;
 			}
 		});
-		var cartItemGridLength = +(Object.keys(cartItemGrid).length);
+		var cartItemGridLength = +(Object.entries(cartItemGrid).length);
 		var selectableItemsCount = selectAllElements('.cart-items-container .item-button-selectable').length;
 		elements.html('.item-configuration .cart-subtotal .total', '$' + (Math.round(cartSubtotal * 100) / 100) + ' USD');
 		elements.html('.item-configuration .total-checked', cartItemGridLength);
@@ -193,7 +193,7 @@ var processCartItems = function(response) {
 		elements.removeClass('.item-configuration .item-controls', 'hidden');
 	}
 
-	processWindowEvents(windowEvents, 'resize');
+	processWindowEvents('resize');
 };
 var processDelete = function() {
 	requestParameters.data = {

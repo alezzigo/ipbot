@@ -1,11 +1,11 @@
 'use_strict';
 
-var defaultTable = 'proxies',
-	defaultUrl = '/api/proxies',
-	itemGrid = [],
-	itemGridCount = 0,
-	messageContainer = document.querySelector('.orders-view .message-container'),
-	previousAction = 'find';
+var defaultTable = 'proxies';
+var defaultUrl = '/api/proxies';
+var itemGrid = [];
+var itemGridCount = 0;
+var messageContainer = document.querySelector('.orders-view .message-container');
+var previousAction = 'find';
 var processCopy = function(windowName, windowSelector) {
 	previousAction = requestParameters.action;
 	var processCopyFormat = function() {
@@ -42,24 +42,11 @@ var processCopy = function(windowName, windowSelector) {
 	processCopyFormat();
 };
 var processGroup = function(windowName, windowSelector) {
-	var groupGrid = {},
-		groupNameField = document.querySelector(windowSelector + ' .group-name-field'),
-		groupNameButton = document.querySelector(windowSelector + ' .group-name-button'),
-		groupTable = document.querySelector(windowSelector + ' .group-table'),
-		orderId = document.querySelector('input[name="order_id"]').value;
-	var processGroupGrid = function(groupIndexes, groupState) {
-		groupIndexes.map(function(groupIndex) {
-			var group = document.querySelector(windowSelector + ' .checkbox[index="' + groupIndex + '"]');
-			var groupId = group.getAttribute('group_id');
-			group.setAttribute('checked', +groupState);
-			groupGrid[windowName + groupId] = groupId;
-
-			if (!+groupState) {
-				delete groupGrid[windowName + groupId];
-			}
-		});
-		requestParameters.items[requestParameters.table] = groupGrid;
-	};
+	var groupGrid = {};
+	var groupNameButton = document.querySelector(windowSelector + ' .group-name-button');
+	var groupNameField = document.querySelector(windowSelector + ' .group-name-field');
+	var groupTable = document.querySelector(windowSelector + ' .group-table');
+	var orderId = document.querySelector('input[name="order_id"]').value;
 	var groupAdd = function(groupName) {
 		requestParameters.action = windowName;
 		requestParameters.data.name = groupName;
@@ -133,6 +120,19 @@ var processGroup = function(windowName, windowSelector) {
 		sendRequest(function() {
 			processProxies(false, false, 1);
 		});
+	};
+	var processGroupGrid = function(groupIndexes, groupState) {
+		groupIndexes.map(function(groupIndex) {
+			var group = document.querySelector(windowSelector + ' .checkbox[index="' + groupIndex + '"]');
+			var groupId = group.getAttribute('group_id');
+			group.setAttribute('checked', +groupState);
+			groupGrid[windowName + groupId] = groupId;
+
+			if (!+groupState) {
+				delete groupGrid[windowName + groupId];
+			}
+		});
+		requestParameters.items[requestParameters.table] = groupGrid;
 	};
 	var processGroupTable = function(response) {
 		requestParameters.limit = limit;
@@ -363,7 +363,7 @@ var processProxies = function(windowName, windowSelector, currentPage) {
 			itemAll.setAttribute('status', +(selectionStatus === 0));
 		}
 
-		processWindowEvents(windowEvents, 'resize');
+		processWindowEvents('resize');
 		+elements.html('.total-checked') ? elements.removeClass('.item-configuration span.icon[item-function]', 'hidden') : elements.addClass('.item-configuration span.icon[item-function]', 'hidden');
 		itemGridCount = itemCount;
 	};

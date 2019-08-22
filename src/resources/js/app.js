@@ -1,10 +1,10 @@
 'use_strict';
 
-var processLogout = () => {
+var processLogout = function() {
 	requestParameters.table = 'users';
 	requestParameters.action = 'logout';
 	requestParameters.url = '/api/users';
-	sendRequest((response) => {
+	sendRequest(function(response) {
 		if (
 			typeof response.redirect === 'string' &&
 			response.redirect
@@ -14,10 +14,10 @@ var processLogout = () => {
 		}
 	});
 };
-onLoad(() => {
+onLoad(function() {
 	if ((scrollableElements = selectAllElements('.scrollable')).length) {
-		scrollableElements.map((element) => {
-			var scrollEvent = () => {
+		scrollableElements.map(function(element) {
+			var scrollEvent = function() {
 				var elementContainerDetails = element[1].parentNode.getBoundingClientRect();
 
 				if (elementContainerDetails.width) {
@@ -32,31 +32,31 @@ onLoad(() => {
 		});
 	}
 
-	selectAllElements('.window .button.close').map((element) => {
-		element[1].addEventListener('click', (element) => {
+	selectAllElements('.window .button.close').map(function(element) {
+		element[1].addEventListener('click', function(element) {
 			closeWindows(defaultTable);
 		});
 	});
-	selectAllElements('.window .checkbox, .window label.custom-checkbox-label').map((element) => {
-		element[1].addEventListener('click', (element) => {
+	selectAllElements('.window .checkbox, .window label.custom-checkbox-label').map(function(element) {
+		element[1].addEventListener('click', function(element) {
 			var hiddenField = document.querySelector('div[field="' + element.target.getAttribute('name') + '"]'),
 				item = document.querySelector('.checkbox[name="' + element.target.getAttribute('name') + '"]');
 			item.setAttribute('checked', +!+item.getAttribute('checked'));
 			hiddenField ? (hiddenField.classList.contains('hidden') ? hiddenField.classList.remove('hidden') : hiddenField.classList.add('hidden')) : null;
 		});
 	});
-	selectAllElements('.button.window-button, .window .button.submit').map((element) => {
-		element[1].addEventListener('click', (element) => {
+	selectAllElements('.button.window-button, .window .button.submit').map(function(element) {
+		element[1].addEventListener('click', function(element) {
 			var processName = element.target.hasAttribute('process') ? element.target.getAttribute('process') : '';
 			var method = 'process' + capitalizeString(processName);
 			var windowName = element.target.hasAttribute('window') ? element.target.getAttribute('window') : '';
 			var windowSelector = '.window-container[window="' + windowName + '"]';
 
 			if (element.target.classList.contains('submit')) {
-				elements.loop(windowSelector + ' input, ' + windowSelector + ' select, ' + windowSelector + ' textarea', (index, element) => {
+				elements.loop(windowSelector + ' input, ' + windowSelector + ' select, ' + windowSelector + ' textarea', function(index, element) {
 					requestParameters.data[element.getAttribute('name')] = element.value;
 				});
-				elements.loop(windowSelector + ' .checkbox', (index, element) => {
+				elements.loop(windowSelector + ' .checkbox', function(index, element) {
 					requestParameters.data[element.getAttribute('name')] = +element.getAttribute('checked');
 				});
 				previousAction = requestParameters.action;

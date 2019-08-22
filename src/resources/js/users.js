@@ -2,10 +2,10 @@
 
 var defaultTable = 'users',
 	previousAction = 'register';
-var processUsers = (windowName, windowSelector) => {
+var processUsers = function(windowName, windowSelector) {
 	requestParameters.action = windowName;
 	requestParameters.table = 'users';
-	sendRequest((response) => {
+	sendRequest(function(response) {
 		var messageContainer = document.querySelector('.' + windowName + ' .message-container');
 
 		if (messageContainer) {

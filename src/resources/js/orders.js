@@ -2,10 +2,10 @@
 
 var defaultTable = 'orders',
 	previousAction = 'find';
-var processOrdersList = () => {
+var processOrdersList = function() {
 	requestParameters.action = previousAction;
 	requestParameters.table = defaultTable;
-	sendRequest((response) => {
+	sendRequest(function(response) {
 		var messageContainer = document.querySelector('.orders-list .message-container');
 
 		if (messageContainer) {
@@ -21,15 +21,15 @@ var processOrdersList = () => {
 		}
 
 		if (response.data.length) {
-			response.data.map((item, index) => {
+			response.data.map(function(item, index) {
 				document.querySelector('.orders-container').innerHTML += '<div class="item-container item-button"><div class="item"><div class="item-body"><p><strong>' + item.name + '</strong></p><p>$' + item.price + ' per ' + (item.interval_value > 1 ? item.interval_value + ' ' : '') + item.interval_type + (item.interval_value > 1 ? 's' : '') + '</p></div></div><div class="item-link-container"><a class="item-link" href="/orders/' + item.id + '"></a></div></div>';
 			});
 		}
 	});
 };
 requestParameters.url = '/api/orders';
-onLoad(() => {
-	setTimeout(() => {
+onLoad(function() {
+	setTimeout(function() {
 		processOrdersList();
 	}, 100)
 });

@@ -1,17 +1,17 @@
 'use_strict';
 
-var browserDetails = () => {
+var browserDetails = function() {
 	var browserDetails = window.clientInformation ? window.clientInformation : window.navigator;
-	var retrieveMimeTypes = (mimeTypeObject) => {
+	var retrieveMimeTypes = function(mimeTypeObject) {
 		var mimeTypes = [];
-		Object.entries(mimeTypeObject).map((mimeType) => {
+		Object.entries(mimeTypeObject).map(function(mimeType) {
 			mimeTypes.push(mimeType[1].description + mimeType[1].suffixes + mimeType[1].type + (mimeType[1].enabledPlugin ? mimeType[1].enabledPlugin.description + mimeType[1].enabledPlugin.filename + mimeType[1].enabledPlugin.length + mimeType[1].enabledPlugin.name : false));
 		});
 		return mimeTypes;
 	};
-	var retrievePlugins = (pluginObject) => {
+	var retrievePlugins = function(pluginObject) {
 		var plugins = [];
-		Object.entries(pluginObject).map((plugin) => {
+		Object.entries(pluginObject).map(function(plugin) {
 			plugins.push(plugin[1].description + plugin[1].filename + plugin[1].length + plugin[1].name);
 		});
 		return plugins;
@@ -35,10 +35,10 @@ var browserDetails = () => {
 		vendor: browserDetails.vendor ? browserDetails.vendor : false
 	};
 };
-var capitalizeString = (string) => {
+var capitalizeString = function(string) {
 	return string.charAt(0).toUpperCase() + string.substr(1);
 };
-var closeWindows = (defaultTable) => {
+var closeWindows = function(defaultTable) {
 	elements.addClass('.window-container', 'hidden');
 	elements.removeClass('footer, header, main', 'hidden');
 	requestParameters.action = previousAction;
@@ -46,49 +46,49 @@ var closeWindows = (defaultTable) => {
 	elements.html('.window .message-container', '');
 };
 var elements = {
-	addClass: (selector, className) => {
-		selectAllElements(selector).map((element) => {
+	addClass: function(selector, className) {
+		selectAllElements(selector).map(function(element) {
 			element[1].classList.add(className);
 		});
 	},
-	html: (selector, value = null) => {
-		return selectAllElements(selector).map((element) => {
+	html: function(selector, value = null) {
+		return selectAllElements(selector).map(function(element) {
 			return value !== null ? element[1].innerHTML = value : element[1].innerHTML;
 		})[0];
 	},
-	loop: (selector, callback) => {
-		selectAllElements(selector).map((element) => {
+	loop: function(selector, callback) {
+		selectAllElements(selector).map(function(element) {
 			callback(element[0], element[1]);
 		});
 	},
-	removeAttribute: (selector, attribute) => {
-		selectAllElements(selector).map((element) => {
+	removeAttribute: function(selector, attribute) {
+		selectAllElements(selector).map(function(element) {
 			if (element[1].hasAttribute(attribute)) {
 				element[1].removeAttribute(attribute);
 			}
 		});
 	},
-	removeClass: (selector, className) => {
-		selectAllElements(selector).map((element) => {
+	removeClass: function(selector, className) {
+		selectAllElements(selector).map(function(element) {
 			element[1].classList.remove(className);
 		});
 	},
-	setAttribute: (selector, attribute, value) => {
-		selectAllElements(selector).map((element) => {
+	setAttribute: function(selector, attribute, value) {
+		selectAllElements(selector).map(function(element) {
 			element[1].setAttribute(attribute, value);
 		});
 	}
 };
-var onLoad = (callback) => {
+var onLoad = function(callback) {
 	document.readyState != 'complete' ? setTimeout('onLoad(' + callback + ')', 10) : callback();
 };
-var openWindow = (windowName, windowSelector) => {
+var openWindow = function(windowName, windowSelector) {
 	elements.addClass('footer, header, main', 'hidden');
 	elements.removeClass(windowSelector, 'hidden');
 };
-var processWindowEvents = (windowEvents, event = null) => {
-	var runWindowEvents = (windowEvents) => {
-		windowEvents.map((windowEvent) => {
+var processWindowEvents = function(windowEvents, event = null) {
+	var runWindowEvents = function(windowEvents) {
+		windowEvents.map(function(windowEvent) {
 			windowEvent();
 		});
 	};
@@ -99,14 +99,14 @@ var processWindowEvents = (windowEvents, event = null) => {
 	) {
 		runWindowEvents(windowEvents[event]);
 	} else {
-		Object.entries(windowEvents).map((windowEvents) => {
-			window['on' + windowEvents[0]] = () => {
+		Object.entries(windowEvents).map(function(windowEvents) {
+			window['on' + windowEvents[0]] = function() {
 				runWindowEvents(windowEvents[1]);
 			};
 		});
 	}
 };
-var range = (low, high, step = 1) => {
+var range = function(low, high, step = 1) {
 	var array = [],
 		high = +high,
 		low = +low;
@@ -125,7 +125,7 @@ var range = (low, high, step = 1) => {
 
 	return array;
 };
-var repeat = (count, pattern) => {
+var repeat = function(count, pattern) {
 	var result = '';
 
 	while (count > 1) {
@@ -139,7 +139,7 @@ var repeat = (count, pattern) => {
 
 	return result + (count < 1 ? '' : pattern);
 };
-var replaceCharacter = (string, index, character) => {
+var replaceCharacter = function(string, index, character) {
 	return string.substr(0, index) + character + string.substr(index + Math.max(1, ('' + character).length));
 };
 var requestParameters = {
@@ -147,10 +147,10 @@ var requestParameters = {
 	items: {},
 	tokens: {}
 };
-var selectAllElements = (selector) => {
+var selectAllElements = function(selector) {
 	return Object.entries(document.querySelectorAll(selector));
 };
-var sendRequest = (callback) => {
+var sendRequest = function(callback) {
 	var request = new XMLHttpRequest();
 	request.open('POST', requestParameters.url, true);
 	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -159,7 +159,7 @@ var sendRequest = (callback) => {
 		callback(JSON.parse(response.target.response));
 	};
 };
-var unique = (value, index, self) => {
+var unique = function(value, index, self) {
 	return self.indexOf(value) === index;
 };
 var windowEvents = {
@@ -185,7 +185,7 @@ if (
 	};
 }
 
-onLoad(() => {
+onLoad(function() {
 	if (document.querySelector('.hidden.base-url')) {
 		requestParameters.base_url = document.querySelector('.base-url').innerHTML;
 	}

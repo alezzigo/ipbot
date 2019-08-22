@@ -2,14 +2,14 @@
 
 var cartItemGrid = {},
 	messageContainer = document.querySelector('.item-configuration .message-container');
-var processCart = () => {
+var processCart = function() {
 	requestParameters.action = 'cart';
 	requestParameters.table = 'carts';
-	sendRequest((response) => {
+	sendRequest(function(response) {
 		processCartItems(response);
 	});
 };
-var processCartItems = (response) => {
+var processCartItems = function(response) {
 	var cartItemAddButtons = selectAllElements('.button.add-to-cart'),
 		cartItemAllVisible = document.querySelector('.item-container .checkbox[index="all-visible"]'),
 		cartItemContainer = document.querySelector('.cart-items-container'),
@@ -18,8 +18,8 @@ var processCartItems = (response) => {
 		checkoutItemContainer = document.querySelector('.checkout-items-container'),
 		intervalTypes = ['month', 'year'],
 		intervalValues = range(1, 12);
-	var processCartItemGrid = (cartItemIndexes, cartItemState) => {
-		cartItemIndexes.map((cartItemIndex) => {
+	var processCartItemGrid = function(cartItemIndexes, cartItemState) {
+		cartItemIndexes.map(function(cartItemIndex) {
 			var cartItem = cartItemContainer.querySelector('.checkbox[index="' + cartItemIndex + '"]');
 			var cartItemId = cartItem.getAttribute('cart_item_id');
 			cartItem.setAttribute('checked', +cartItemState);
@@ -34,12 +34,12 @@ var processCartItems = (response) => {
 		cartItemAllVisible.setAttribute('checked', +(allVisibleChecked === selectAllElements('.cart-items-container .item-button-selectable').length));
 		requestParameters.items[requestParameters.table] = cartItemGrid;
 	};
-	var cartItemToggle = (button) => {
+	var cartItemToggle = function(button) {
 		cartItemContainer.setAttribute('current_checked', button.getAttribute('index'));
 		processCartItemGrid(window.event.shiftKey ? range(cartItemContainer.getAttribute('previous_checked'), button.getAttribute('index')) : [button.getAttribute('index')], window.event.shiftKey ? +cartItemContainer.querySelector('.checkbox[index="' + cartItemContainer.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +button.getAttribute('checked') === 0);
 		cartItemContainer.setAttribute('previous_checked', button.getAttribute('index'));
 	};
-	var cartItemToggleAllVisible = (button) => {
+	var cartItemToggleAllVisible = function(button) {
 		var selectableItemsCount = selectAllElements('.cart-items-container .item-button-selectable').length;
 		cartItemContainer.setAttribute('current_checked', 0);
 		cartItemContainer.setAttribute('previous_checked', 0);
@@ -48,12 +48,12 @@ var processCartItems = (response) => {
 			processCartItemGrid(range(0, selectableItemsCount - 1), +button.getAttribute('checked') === 0);
 		}
 	};
-	var processCartItemAdd = (cartItemAddButton) => {
+	var processCartItemAdd = function(cartItemAddButton) {
 		requestParameters.data.interval_type = cartItemAddButton.hasAttribute('interval_type') ? cartItemAddButton.getAttribute('interval_type') : 'month';
 		requestParameters.data.interval_value = cartItemAddButton.hasAttribute('interval_value') ? cartItemAddButton.getAttribute('interval_value') : 1;
 		requestParameters.data.product_id = cartItemAddButton.hasAttribute('product_id') ? cartItemAddButton.getAttribute('product_id') : 0;
 		requestParameters.data.quantity = cartItemAddButton.hasAttribute('quantity') ? cartItemAddButton.getAttribute('quantity') : 0;
-		sendRequest((response) => {
+		sendRequest(function(response) {
 			var messageContainer = document.querySelector('main.product .message-container');
 
 			if (messageContainer) {
@@ -69,14 +69,14 @@ var processCartItems = (response) => {
 			}
 		});
 	};
-	var processCartItemUpdate = (cartItemId) => {
+	var processCartItemUpdate = function(cartItemId) {
 		var cartItem = document.querySelector('.item-container[cart_item_id="' + cartItemId + '"]');
 		requestParameters.data.id = cartItemId;
 		requestParameters.data.interval_type = cartItem.querySelector('select.interval-type').value;
 		requestParameters.data.interval_value = cartItem.querySelector('select.interval-value').value;
 		requestParameters.data.quantity = cartItem.querySelector('select.quantity').value;
 		elements.setAttribute('.button.checkout', 'disabled');
-		sendRequest((response) => {
+		sendRequest(function(response) {
 			processCartItems(response);
 		});
 	};
@@ -96,10 +96,10 @@ var processCartItems = (response) => {
 	}
 
 	if (cartItemAddButtons.length) {
-		cartItemAddButtons.map((cartItemAddButton, index) => {
+		cartItemAddButtons.map(function(cartItemAddButton, index) {
 			cartItemAddButton = cartItemAddButton[1];
 			cartItemAddButton.removeEventListener('click', cartItemAddButton.clickListener);
-			cartItemAddButton.clickListener = () => {
+			cartItemAddButton.clickListener = function() {
 				processCartItemAdd(cartItemAddButton);
 			};
 			cartItemAddButton.addEventListener('click', cartItemAddButton.clickListener);
@@ -108,16 +108,16 @@ var processCartItems = (response) => {
 	}
 
 	if (cartItemContainer) {
-		cartItemData.map((cartItem, index) => {
+		cartItemData.map(function(cartItem, index) {
 			var intervalSelectTypes = intervalSelectValues = quantitySelectValues = '';
 			var quantityValues = range(cartItem.minimum_quantity, cartItem.maximum_quantity);
-			intervalTypes.map((intervalType, index) => {
+			intervalTypes.map(function(intervalType, index) {
 				intervalSelectTypes += '<option ' + (intervalType == cartItem.interval_type ? 'selected ' : '') + 'value="' + intervalType + '">' + capitalizeString(intervalType) + (cartItem.interval_value > 1 ? 's' : '') + '</option>';
 			});
-			intervalValues.map((intervalValue, index) => {
+			intervalValues.map(function(intervalValue, index) {
 				intervalSelectValues += '<option ' + (intervalValue == cartItem.interval_value ? 'selected ' : '') + 'value="' + intervalValue + '">' + intervalValue + '</option>';
 			});
-			quantityValues.map((quantityValue, index) => {
+			quantityValues.map(function(quantityValue, index) {
 				quantitySelectValues += '<option ' + (quantityValue == cartItem.quantity ? 'selected ' : '') + 'value="' + quantityValue + '">' + quantityValue + '</option>';
 			});
 			cartItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem.id + '"><span checked="' + +(typeof cartItemGrid['cartItem' + cartItem.id] !== 'undefined') + '" class="checkbox" index="' + index + '" cart_item_id="' + cartItem.id + '"></span><p><a href="' + requestParameters.base_url + cartItem.uri + '">' + cartItem.name + '</a></p><div class="field-group"><span>Quantity:</span><select class="quantity" name="quantity">' + quantitySelectValues + '</select></div><div class="field-group no-margin"><span>USD Price:</span><span class="display">$' + cartItem.price + '</span><span>for</span><select class="interval-value" name="interval_value">' + intervalSelectValues + '</select><select class="interval-type" name="interval_type">' + intervalSelectTypes + '</select></div><div class="clear"></div></div>';
@@ -125,12 +125,12 @@ var processCartItems = (response) => {
 		});
 		cartItemContainer.innerHTML = cartItems;
 		cartItemAllVisible.removeEventListener('click', cartItemAllVisible.clickListener);
-		cartItemAllVisible.clickListener = () => {
+		cartItemAllVisible.clickListener = function() {
 			cartItemToggleAllVisible(cartItemAllVisible);
 		};
 		cartItemAllVisible.addEventListener('click', cartItemAllVisible.clickListener);
 		cartItemGrid = {};
-		elements.loop('.cart-items-container .item-button-selectable', (index, row) => {
+		elements.loop('.cart-items-container .item-button-selectable', function(index, row) {
 			var cartItemToggleButton = row.querySelector('.checkbox');
 			var cartItemUpdateQuantitySelect = row.querySelector('select.quantity');
 			var cartItemUpdateIntervalTypeSelect = row.querySelector('select.interval-type');
@@ -140,10 +140,10 @@ var processCartItems = (response) => {
 			cartItemUpdateQuantitySelect.removeEventListener('change', cartItemUpdateQuantitySelect.changeListener);
 			cartItemUpdateIntervalTypeSelect.removeEventListener('change', cartItemUpdateIntervalTypeSelect.changeListener);
 			cartItemUpdateIntervalValueSelect.removeEventListener('change', cartItemUpdateIntervalValueSelect.changeListener);
-			cartItemToggleButton.clickListener = () => {
+			cartItemToggleButton.clickListener = function() {
 				cartItemToggle(cartItemToggleButton);
 			};
-			cartItemUpdateQuantitySelect.changeListener = cartItemUpdateIntervalTypeSelect.changeListener = cartItemUpdateIntervalValueSelect.changeListener = () => {
+			cartItemUpdateQuantitySelect.changeListener = cartItemUpdateIntervalTypeSelect.changeListener = cartItemUpdateIntervalValueSelect.changeListener = function() {
 				processCartItemUpdate(cartItemId);
 			};
 			cartItemToggleButton.addEventListener('click', cartItemToggleButton.clickListener);
@@ -178,7 +178,7 @@ var processCartItems = (response) => {
 		}
 
 		checkoutItems += '<h2 class="no-margin-top">Order Items</h2>';
-		cartItemData.map((cartItem, index) => {
+		cartItemData.map(function(cartItem, index) {
 			checkoutItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem.id + '"><p><strong>' + cartItem.name + '</strong></p><div class="field-group"><span>Quantity:</span><span class="display">' + cartItem.quantity + '</span></div><div class="field-group no-margin"><span>USD Price:</span><span class="display">$' + cartItem.price + '</span><span>for</span><span class="display">' + cartItem.interval_value + ' ' + capitalizeString(cartItem.interval_type) + (cartItem.interval_value > 1 ? 's' : '') + '</span></div><div class="clear"></div></div>';
 			cartSubtotal += parseFloat(cartItem.price);
 		});
@@ -195,17 +195,17 @@ var processCartItems = (response) => {
 
 	processWindowEvents(windowEvents, 'resize');
 };
-var processDelete = () => {
+var processDelete = function() {
 	requestParameters.data = {
 		id: cartItemGrid
 	};
-	sendRequest((response) => {
+	sendRequest(function(response) {
 		processCartItems(response);
 	});
 };
 requestParameters.url = '/api/carts';
-onLoad(() => {
-	setTimeout(() => {
+onLoad(function() {
+	setTimeout(function() {
 		processCart();
 	}, 100)
 });

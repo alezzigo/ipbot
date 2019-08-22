@@ -22,7 +22,6 @@
 			'text' => 'Cart'
 		)
 	);
-
 	$secondaryNavigationItems = array(
 		array(
 			'href' => $config->settings['base_url'],

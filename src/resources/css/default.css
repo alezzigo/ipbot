@@ -99,6 +99,13 @@ select {
 	outline: none;
 	padding: 9px 24px 9px 10px;
 }
+	select::-ms-expand {
+		clear: both;
+		display: flex;
+		margin-top: 100px;
+		position: absolute;
+		width: 0;
+	}
 	select:hover {
 		border-color: #7773e3;
 	}

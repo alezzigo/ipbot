@@ -272,8 +272,6 @@ var processProxies = (windowName = false, windowSelector = false, currentPage = 
 		var processItemGridSelection = (item) => {
 			var keyIndexes = range(0, Math.floor(totalResults / itemGridLineSizeMaximum));
 			elements.html('.total-checked', (selectionStatus = +item.getAttribute('status')) ? totalResults : 0);
-			item.querySelector('.item-configuration .action').innerText = (selectionStatus ? 'Unselect' : 'Select');
-			item.setAttribute('status', +(selectionStatus === 0));
 			keyIndexes.map((key) => {
 				itemGrid[key] = selectionStatus + itemGridLineSize(key);
 			});
@@ -359,6 +357,8 @@ var processProxies = (windowName = false, windowSelector = false, currentPage = 
 			)
 		) {
 			itemAll.classList.remove('hidden');
+			itemAll.querySelector('.action').innerText = (selectionStatus = +(+elements.html('.total-checked') === totalResults)) ? 'Unselect' : 'Select';
+			itemAll.setAttribute('status', +(selectionStatus === 0));
 		}
 
 		processWindowEvents(windowEvents, 'resize');

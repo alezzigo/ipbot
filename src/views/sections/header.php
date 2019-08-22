@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="x-ua-compatible" content="IE=edge">
 <link rel="shortcut icon" type="image/png" href="/resources/images/icons/favicon.png">
 <title><?php echo $config->parameters['title']; ?></title>
 <?php

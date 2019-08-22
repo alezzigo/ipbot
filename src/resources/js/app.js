@@ -74,6 +74,8 @@ onLoad(function() {
 			if (typeof window[method] === 'function') {
 				window[method](windowName, windowSelector);
 			}
+
+			processWindowEvents('resize');
 		});
 	});
 

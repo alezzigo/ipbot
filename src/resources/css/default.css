@@ -95,7 +95,7 @@ select {
 	font-size: 14px;
 	margin: 0;
 	outline: none;
-	padding: 9px 25px 9px 11px;
+	padding: 9px 24px 9px 10px;
 }
 	select:hover {
 		border-color: #7773e3;

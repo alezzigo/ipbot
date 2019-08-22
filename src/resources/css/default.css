@@ -318,13 +318,11 @@ main {
 				right: 88px;
 			}
 			.table tr td .table-actions {
-				bottom: 0;
 				display: none;
 				height: 19px;
-				margin: auto;
+				margin: 1px auto;
 				position: absolute;
 				right: 6px;
-				top: 0;
 			}
 			.table tr td .details-container {
 				box-sizing: border-box;

@@ -85,7 +85,8 @@ select {
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
-	background: url('../images/icons/icon-select-arrow.png') #fff right center no-repeat / auto 100%;
+	background: url('../images/icons/icon-select-arrow.png') #fff right center no-repeat;
+	background-size: auto 100% !important;
 	border: 1px solid #dddbf4;
 	border-radius: 0;
 	color: #8986ae;
@@ -542,24 +543,24 @@ main {
 				margin-top: 23px;
 			}
 		.icon.close {
-			background: url('../images/icons/icon-close.png') #fff 9px center no-repeat / 100%;
-			margin-top: 0;
-		}
-		.icon.edit {
-			background: url('../images/icons/icon-edit.png') center no-repeat / 100%;
+			background: url('../images/icons/icon-close.png') #fff 9px center no-repeat;
 			margin-top: 0;
 		}
 		.icon.delete {
-			background: url('../images/icons/icon-delete.png') center no-repeat / 100%;
+			background: url('../images/icons/icon-delete.png') center no-repeat;
+			margin-top: 0;
+		}
+		.icon.edit {
+			background: url('../images/icons/icon-edit.png') center no-repeat;
 			margin-top: 0;
 		}
 		.icon.next {
-			background: url('../images/icons/icon-next.png') #7773e3 center no-repeat / 100%;
+			background: url('../images/icons/icon-next.png') #7773e3 center no-repeat;
 			border: 1px solid #7773e3;
 			margin-top: 0;
 		}
 		.icon.previous {
-			background: url('../images/icons/icon-previous.png') #7773e3 center no-repeat / 100%;
+			background: url('../images/icons/icon-previous.png') #7773e3 center no-repeat;
 			border: 1px solid #7773e3;
 			margin-top: 0;
 		}
@@ -571,19 +572,31 @@ main {
 				margin-top: 0;
 			}
 		.icon[window="authenticate"] {
-			background: url('../images/icons/icon-authenticate.png') center no-repeat / 100%;
+			background: url('../images/icons/icon-authenticate.png') center no-repeat;
 		}
 		.icon[window="copy"] {
-			background: url('../images/icons/icon-copy.png') center no-repeat / 100%;
+			background: url('../images/icons/icon-copy.png') center no-repeat;
 		}
 		.icon[window="group"] {
-			background: url('../images/icons/icon-group.png') center no-repeat / 100%;
+			background: url('../images/icons/icon-group.png') center no-repeat;
 		}
 		.icon[window="replace"] {
-			background: url('../images/icons/icon-replace.png') center no-repeat / 100%;
+			background: url('../images/icons/icon-replace.png') center no-repeat;
 		}
 		.icon[window="search"] {
-			background: url('../images/icons/icon-search.png') center no-repeat / 100%;
+			background: url('../images/icons/icon-search.png') center no-repeat;
+		}
+		.icon.close,
+		.icon.delete,
+		.icon.edit,
+		.icon.next,
+		.icon.previous,
+		.icon[window="authenticate"],
+		.icon[window="copy"],
+		.icon[window="group"],
+		.icon[window="replace"],
+		.icon[window="search"] {
+			background-size: 100% !important;
 		}
 	.flag {
 		display: inline-block;
@@ -606,7 +619,8 @@ main {
 		border-color: #7773e3;
 	}
 	.checkbox[checked="1"] {
-		background: url('../images/icons/icon-check.png') #7773e3 center no-repeat / 100%;
+		background: url('../images/icons/icon-check.png') #7773e3 center no-repeat;
+		background-size: 100% !important;
 		border-color: #7773e3;
 	}
 .window-container,

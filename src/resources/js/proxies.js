@@ -207,7 +207,7 @@ var processGroup = function(windowName, windowSelector) {
 		processGroupTable(response);
 	});
 };
-var processOrdersView = function() {
+var processOrder = function() {
 	var orderId = document.querySelector('input[name="order_id"]').value;
 	requestParameters.conditions = {
 		id: orderId
@@ -469,8 +469,3 @@ requestParameters.sort = {
 };
 requestParameters.table = defaultTable;
 requestParameters.url = defaultUrl;
-onLoad(function() {
-	setTimeout(function() {
-		processOrdersView();
-	}, 100);
-});

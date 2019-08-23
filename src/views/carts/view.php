@@ -5,7 +5,7 @@
 	require_once($config->settings['base_path'] . '/controllers/carts.php');
 	require_once($config->settings['base_path'] . '/views/sections/header.php');
 ?>
-<main class="carts-view">
+<main class="carts-view" process="cart">
 	<div class="section">
 		<div class="container small">
 			<h1>Shopping Cart</h1>

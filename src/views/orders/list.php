@@ -5,7 +5,7 @@
 	require_once($config->settings['base_path'] . '/controllers/orders.php');
 	require_once($config->settings['base_path'] . '/views/sections/header.php');
 ?>
-<main class="orders-list">
+<main class="orders-list" process="orders">
 	<div class="section">
 		<div class="container small">
 			<h1>Orders</h1>

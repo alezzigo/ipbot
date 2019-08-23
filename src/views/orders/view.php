@@ -18,7 +18,7 @@
 		}
 	}
 ?>
-<main class="orders-view">
+<main class="orders-view" process="order">
 	<div class="section">
 		<div class="container small">
 			<h1 class="order-name"></h1>

@@ -48,7 +48,6 @@ onLoad(function() {
 	selectAllElements('.button.window-button, .window .button.submit').map(function(element) {
 		element[1].addEventListener('click', function(element) {
 			var processName = element.target.hasAttribute('process') ? element.target.getAttribute('process') : '';
-			var method = 'process' + capitalizeString(processName);
 			var windowName = element.target.hasAttribute('window') ? element.target.getAttribute('window') : '';
 			var windowSelector = '.window-container[window="' + windowName + '"]';
 
@@ -70,6 +69,8 @@ onLoad(function() {
 				closeWindows(defaultTable);
 				openWindow(windowName, windowSelector);
 			}
+
+			var method = 'process' + capitalizeString(processName);
 
 			if (typeof window[method] === 'function') {
 				window[method](windowName, windowSelector);
@@ -93,6 +94,16 @@ onLoad(function() {
 		if (document.querySelector(windowSelector)) {
 			closeWindows(defaultTable);
 			openWindow(windowName, windowSelector);
+		}
+	}
+
+	if (document.querySelector('main[process]')) {
+		var method = 'process' + capitalizeString(document.querySelector('main[process]').getAttribute('process'));
+
+		if (typeof window[method] === 'function') {
+			setTimeout(function() {
+				window[method]();
+			}, 100);
 		}
 	}
 });

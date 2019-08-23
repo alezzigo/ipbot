@@ -204,8 +204,3 @@ var processDelete = function() {
 	});
 };
 requestParameters.url = '/api/carts';
-onLoad(function() {
-	setTimeout(function() {
-		processCart();
-	}, 100)
-});

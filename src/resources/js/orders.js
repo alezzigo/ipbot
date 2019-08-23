@@ -2,7 +2,7 @@
 
 var defaultTable = 'orders';
 var previousAction = 'find';
-var processOrdersList = function() {
+var processOrders = function() {
 	requestParameters.action = previousAction;
 	requestParameters.table = defaultTable;
 	sendRequest(function(response) {
@@ -28,8 +28,3 @@ var processOrdersList = function() {
 	});
 };
 requestParameters.url = '/api/orders';
-onLoad(function() {
-	setTimeout(function() {
-		processOrdersList();
-	}, 100)
-});

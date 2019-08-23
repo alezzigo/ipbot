@@ -40,7 +40,7 @@
 		'name' => 'Proxies'
 	);
 ?>
-<main class="private-proxies product" process="cart">
+<main process="cart">
 	<div class="section">
 		<div class="container small">
 			<h1>Private HTTP Proxies</h1>

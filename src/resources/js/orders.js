@@ -6,7 +6,7 @@ var processOrders = function() {
 	requestParameters.action = previousAction;
 	requestParameters.table = defaultTable;
 	sendRequest(function(response) {
-		var messageContainer = document.querySelector('.orders-list .message-container');
+		var messageContainer = document.querySelector('main .message-container');
 
 		if (messageContainer) {
 			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');

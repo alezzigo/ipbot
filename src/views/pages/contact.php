@@ -4,7 +4,7 @@
 	);
 	require_once($config->settings['base_path'] . '/views/sections/header.php');
 ?>
-<main class="contact">
+<main>
 	<div class="section">
 		<div class="container small">
 			<h1>Contact</h1>

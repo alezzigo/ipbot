@@ -16,7 +16,7 @@ class CartsModel extends AppModel {
  *
  * @return integer Cart item price
  */
-	public function _calculateCartItemPrice($cartItem) {
+	protected function _calculateCartItemPrice($cartItem) {
 		$interval = $cartItem['interval_value'] * ($cartItem['interval_type'] == 'year' ? 12 : 1);
 		return number_format(($cartItem['price_per'] * $cartItem['quantity'] * $interval) - (($cartItem['price_per'] * $cartItem['quantity']) * (($cartItem['quantity'] / $cartItem['volume_discount_divisor']) * $cartItem['volume_discount_multiple'] * $cartItem['interval_value'])), 2, '.', '');
 	}
@@ -28,7 +28,7 @@ class CartsModel extends AppModel {
  *
  * @return array $response Response data
  */
-	public function _retrieveCart($parameters) {
+	protected function _retrieveCart($parameters) {
 		$response = false;
 
 		if (!empty($parameters['session'])) {
@@ -63,7 +63,7 @@ class CartsModel extends AppModel {
  *
  * @return array $response Response data
  */
-	public function _retrieveCartItems($cart, $cartProducts) {
+	protected function _retrieveCartItems($cart, $cartProducts) {
 		$response = false;
 		$cartItemParameters = array(
 			'conditions' => array(
@@ -100,7 +100,7 @@ class CartsModel extends AppModel {
  *
  * @return array $response Response data
  */
-	public function _retrieveProducts($cart) {
+	protected function _retrieveProducts($cart) {
 		$response = false;
 		$cartItemProductIds = $this->find('cart_items', array(
 			'conditions' => array(

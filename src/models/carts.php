@@ -292,6 +292,15 @@ class CartsModel extends AppModel {
 	}
 
 /**
+ * Confirm order
+ *
+ * @return array
+ */
+	public function confirm() {
+		return array();
+	}
+
+/**
  * View cart
  *
  * @return array

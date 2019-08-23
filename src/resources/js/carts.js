@@ -9,6 +9,9 @@ var processCart = function() {
 		processCartItems(response);
 	});
 };
+var processConfirm = function() {
+	// ..
+};
 var processCartItems = function(response) {
 	var cartItemAddButtons = selectAllElements('.button.add-to-cart');
 	var cartItemAllVisible = document.querySelector('.item-container .checkbox[index="all-visible"]');
@@ -30,6 +33,7 @@ var processCartItems = function(response) {
 	var cartItems = checkoutItems = '';
 	var cartSubtotal = cartTotal = 0;
 	var checkoutItemContainer = document.querySelector('.checkout-items-container');
+	var confirmContainer = document.querySelector('.confirm-items-container');
 	var intervalTypes = ['month', 'year'];
 	var intervalValues = range(1, 12);
 	var processCartItemAdd = function(cartItemAddButton) {

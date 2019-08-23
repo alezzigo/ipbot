@@ -51,6 +51,11 @@
 			'url' => '/checkout'
 		),
 		array(
+			'file' => $config->settings['base_path'] . '/views/carts/confirm.php',
+			'title' => 'Confirm',
+			'url' => '/confirm'
+		),
+		array(
 			'file' => $config->settings['base_path'] . '/views/carts/view.php',
 			'title' => 'Shopping Cart',
 			'url' => '/cart'

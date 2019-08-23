@@ -22,7 +22,7 @@ onLoad(function() {
 
 				if (elementContainerDetails.width) {
 					element[1].parentNode.querySelector('.item-body').setAttribute('style', 'padding-top: ' + (element[1].querySelector('.item-header').clientHeight + 1) + 'px');
-					element[1].setAttribute('style', 'max-width: ' + elementContainerDetails.width + 'px;');
+					element[1].setAttribute('style', 'width: ' + elementContainerDetails.width + 'px;');
 				}
 
 				element[1].setAttribute('scrolling', +(window.pageYOffset > (elementContainerDetails.top + window.pageYOffset)));

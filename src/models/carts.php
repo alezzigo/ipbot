@@ -301,6 +301,103 @@ class CartsModel extends AppModel {
 	}
 
 /**
+ * Complete order
+ *
+ * @param string $table Table name
+ * @param array $parameters Group query parameters
+ *
+ * @return array $response Response data
+ */
+	public function complete($table, $parameters) {
+		$response = array(
+			'message' => 'Error processing your order completion request, please try again.',
+			'redirect' => $this->settings['base_url'] . 'cart'
+		);
+
+		if (
+			($cart = $this->_retrieveCart($parameters)) &&
+			($cartProducts = $this->_retrieveProducts($cart)) &&
+			($cartItems = $this->_retrieveCartItems($cart, $cartProducts))
+		) {
+			$conditions = array(
+				'session_id' => $cart['id'],
+				'status' => 'pending'
+			);
+			$orders = $invoiceOrders = array();
+			$total = 0;
+
+			if ($cart['user_id']) {
+				$conditions['user_id'] = $cartItem['user_id'];
+			}
+
+			foreach ($cartItems as $cartItem) {
+				$orders[] = array_merge($conditions, array(
+					'interval_type' => $cartItem['interval_type'],
+					'interval_value' => $cartItem['interval_value'],
+					'name' => $cartItem['name'],
+					'price' => $cartItem['price'],
+					'product_id' => $cartItem['product_id'],
+					'quantity' => $cartItem['quantity'],
+					'type' => $cartItem['type']
+				));
+				$total += $cartItem['price'];
+			}
+
+			$total = number_format(round($total * 100) / 100, 2, '.', '');
+
+			if (
+				$this->save('invoices', array(
+					$conditions
+				)) &&
+				$this->save('orders', $orders)
+			) {
+				$invoice = $this->find('invoices', array(
+					'conditions' => $conditions,
+					'limit' => 1,
+					'sort' => array(
+						'field' => 'created',
+						'order' => 'DESC'
+					)
+				));
+				$orderIds = $this->find('orders', array(
+					'conditions' => $conditions,
+					'fields' => array(
+						'id'
+					)
+				));
+
+				if (
+					!empty($invoice['count']) &&
+					!empty($orderIds['count'])
+				) {
+					foreach ($orderIds['data'] as $orderId) {
+						$invoiceOrders[] = array(
+							'invoice_id' => $invoice['data'][0]['id'],
+							'order_id' => $orderId
+						);
+					}
+
+					if (
+						$this->save('invoice_orders', $invoiceOrders) &&
+						$this->delete('carts', array(
+							'id' => $cart['id']
+						)) &&
+						$this->delete('cart_items', array(
+							'cart_id' => $cart['id']
+						))
+					) {
+						$response = array(
+							'redirect' => $this->settings['base_url'] . 'invoices/' . $invoice['data'][0]['id']
+						);
+					}
+				}
+			}
+		}
+
+		return $response;
+	}
+
+/**
  * View cart
  *
  * @return array

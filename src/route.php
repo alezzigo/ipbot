@@ -76,11 +76,6 @@
 			'url' => '/features'
 		),
 		array(
-			'file' => $config->settings['base_path'] . '/views/pages/free-proxy-trial.php',
-			'title' => 'Free Trial',
-			'url' => '/free-proxy-trial'
-		),
-		array(
 			'file' => $config->settings['base_path'] . '/views/pages/home.php',
 			'title' => 'Buy Premium Proxies',
 			'url' => '/'

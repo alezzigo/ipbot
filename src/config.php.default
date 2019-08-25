@@ -79,6 +79,9 @@ class Config {
 						'created',
 						'modified'
 					))
+				),
+				'complete' => array(
+					'fields' => array()
 				)
 			),
 			'orders' => array(

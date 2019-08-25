@@ -10,7 +10,21 @@ var processCart = function() {
 	});
 };
 var processConfirm = function() {
-	// ..
+	requestParameters.action = 'complete';
+	requestParameters.table = 'carts';
+	sendRequest(function(response) {
+		if (
+			typeof response.redirect === 'string' &&
+			response.redirect
+		) {
+			window.location.href = response.redirect;
+			return false;
+		}
+
+		if (messageContainer) {
+			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+		}
+	});
 };
 var processCartItems = function(response) {
 	var cartItemAddButtons = selectAllElements('.button.add-to-cart');

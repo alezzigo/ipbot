@@ -168,6 +168,7 @@ header .navigation {
 	border-bottom: 1px solid #dddbf4;
 }
 main {
+	min-height: 300px;
 	padding: 88px 15px 169px;
 }
 	main img {

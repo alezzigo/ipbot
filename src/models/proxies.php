@@ -12,34 +12,34 @@ class ProxiesModel extends AppModel {
 /**
  * Generate random proxy username:password authentication
  *
- * @param array $proxy Proxy data
+ * @param array $proxyData
  *
- * @return array $proxy Proxy data
+ * @return array $response
  */
-	protected function _generateRandomAuthentication($proxy) {
+	protected function _generateRandomAuthentication($proxyData) {
 		$characters = 'bcdfghjklmnpqrstvwxyzbcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ01234567890123456789012345678901234567890123456789012345678901234567890123456789';
-
-		$proxy['username'] .= uniqid();
-		$proxy['password'] .= uniqid();
+		$proxyData['username'] .= uniqid();
+		$proxyData['password'] .= uniqid();
 
 		for ($i = 0; $i < mt_rand(5, 10); $i++) {
-			$proxy['username'] .= $characters[mt_rand(0, strlen($characters) - 1)];
+			$proxyData['username'] .= $characters[mt_rand(0, strlen($characters) - 1)];
 		}
 
 		for ($i = 0; $i < mt_rand(5, 10); $i++) {
-			$proxy['password'] .= $characters[mt_rand(0, strlen($characters) - 1)];
+			$proxyData['password'] .= $characters[mt_rand(0, strlen($characters) - 1)];
 		}
 
-		return $proxy;
+		$response = $proxyData;
+		return $response;
 	}
 
 /**
  * Process authenticate requests
  *
- * @param string $table Table name
- * @param array $parameters Parameters
+ * @param string $table
+ * @param array $parameters
  *
- * @return array $response Response data
+ * @return array $response
  */
 	public function authenticate($table, $parameters) {
 		$response = array(
@@ -145,10 +145,10 @@ class ProxiesModel extends AppModel {
 /**
  * Process copy requests
  *
- * @param string $table Table name
- * @param array $parameters Copy query parameters
+ * @param string $table
+ * @param array $parameters
  *
- * @return array $response Response data
+ * @return array $response
  */
 	public function copy($table, $parameters) {
 		$items = array();
@@ -189,10 +189,10 @@ class ProxiesModel extends AppModel {
 /**
  * Process group requests
  *
- * @param string $table Table name
- * @param array $parameters Group query parameters
+ * @param string $table
+ * @param array $parameters
  *
- * @return array $response Response data
+ * @return array $response
  */
 	public function group($table, $parameters) {
 		$response = array(
@@ -312,10 +312,10 @@ class ProxiesModel extends AppModel {
 /**
  * Process replace requests
  *
- * @param string $table Table name
- * @param array $parameters Replace query parameters
+ * @param string $table
+ * @param array $parameters
  *
- * @return array $response Response data
+ * @return array $response
  */
 	public function replace($table, $parameters) {
 		$response = array(
@@ -444,10 +444,10 @@ class ProxiesModel extends AppModel {
 /**
  * Process search requests
  *
- * @param string $table Table name
- * @param array $parameters Search query parameters
+ * @param string $table
+ * @param array $parameters
  *
- * @return array $response Response data
+ * @return array $response
  */
 	public function search($table, $parameters) {
 		$conditions = array();
@@ -468,7 +468,7 @@ class ProxiesModel extends AppModel {
 			($conditions['ip LIKE'] = $this->_parseIps($parameters['data']['granular_search'], true))
 		) {
 			array_walk($conditions['ip LIKE'], function(&$value, $key) {
-				$value .= '%'; // Add trailing wildcard for A/B/C class subnet search
+				$value .= '%';
 			});
 		}
 

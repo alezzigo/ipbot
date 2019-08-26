@@ -12,10 +12,10 @@ class UsersModel extends AppModel {
 /**
  * Request user password reset
  *
- * @param string $table Table name
- * @param array $parameters Parameters
+ * @param string $table
+ * @param array $parameters
  *
- * @return array $response Response data
+ * @return array $response
  */
 	public function forgot($table, $parameters = array()) {
 		$response = array(
@@ -57,10 +57,10 @@ class UsersModel extends AppModel {
 /**
  * Log in user
  *
- * @param string $table Table name
- * @param array $parameters Parameters
+ * @param string $table
+ * @param array $parameters
  *
- * @return array $response Response data
+ * @return array $response
  */
 	public function login($table, $parameters) {
 		$response = array(
@@ -107,10 +107,10 @@ class UsersModel extends AppModel {
 /**
  * Log out user
  *
- * @param string $table Table name
- * @param array $parameters Parameters
+ * @param string $table
+ * @param array $parameters
  *
- * @return array $response Response data
+ * @return array $response
  */
 	public function logout($table, $parameters = array()) {
 		$response = array(
@@ -145,10 +145,10 @@ class UsersModel extends AppModel {
 /**
  * Register user
  *
- * @param string $table Table name
- * @param array $parameters Parameters
+ * @param string $table
+ * @param array $parameters
  *
- * @return array $response Response data
+ * @return array $response
  */
 	public function register($table, $parameters = array()) {
 		$response = array(
@@ -207,25 +207,27 @@ class UsersModel extends AppModel {
 /**
  * Reset user password
  *
- * @param string $table Table name
- * @param array $parameters Parameters
+ * @param string $table
+ * @param array $parameters
  *
- * @return array $response Response data
+ * @return array $response
  */
 	public function reset($table, $parameters = array()) {
-		$message = 'Password and confirmation are required, please try again.';
+		$response = array(
+			'message' => 'Password and confirmation are required, please try again.'
+		);
 
 		if (
 			!empty($parameters['data']['password']) &&
 			!empty($parameters['data']['confirm_password'])
 		) {
-			$message = 'Password must be at least 10 characters, please try again.';
+			$response['message'] = 'Password must be at least 10 characters, please try again.';
 
 			if (strlen($parameters['data']['password']) >= 10) {
-				$message = 'Password confirmation doesn\'t match password, please try again.';
+				$response['message'] = 'Password confirmation doesn\'t match password, please try again.';
 
 				if ($parameters['data']['password'] == $parameters['data']['confirm_password']) {
-					$message = 'Invalid or expired password reset token.';
+					$response['message'] = 'Invalid or expired password reset token.';
 
 					if (!empty($token = $parameters['data']['password_token'])) {
 						$existingToken = $this->find('tokens', array(
@@ -239,7 +241,7 @@ class UsersModel extends AppModel {
 						));
 
 						if (!empty($existingToken['count'])) {
-							$message = 'Error resetting password, please try again.';
+							$response['message'] = 'Error resetting password, please try again.';
 
 							if ($this->_verifyKeys()) {
 								$password = $this->_hashPassword($parameters['data']['password'], time());
@@ -258,8 +260,10 @@ class UsersModel extends AppModel {
 										$user
 									))
 								) {
-									$message = 'Password reset successfully, you can now log in with your new password.';
-									$redirect = $this->settings['base_url'] . '#login';
+									$response = array(
+										'message' => 'Password reset successfully, you can now log in with your new password.',
+										'redirect' => $this->settings['base_url'] . '#login'
+									);
 								}
 							}
 						}
@@ -268,10 +272,7 @@ class UsersModel extends AppModel {
 			}
 		}
 
-		return array(
-			'message' => $message,
-			'redirect' => (!empty($redirect) ? $redirect : '')
-		);
+		return $response;
 	}
 
 }

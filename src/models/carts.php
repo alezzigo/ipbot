@@ -12,21 +12,22 @@ class CartsModel extends AppModel {
 /**
  * Calculate price for cart item
  *
- * @param array $cartItem Cart item
+ * @param array $cartItem
  *
- * @return integer Cart item price
+ * @return integer $response
  */
 	protected function _calculateCartItemPrice($cartItem) {
 		$interval = $cartItem['interval_value'] * ($cartItem['interval_type'] == 'year' ? 12 : 1);
-		return number_format(($cartItem['price_per'] * $cartItem['quantity'] * $interval) - (($cartItem['price_per'] * $cartItem['quantity']) * (($cartItem['quantity'] / $cartItem['volume_discount_divisor']) * $cartItem['volume_discount_multiple'] * $cartItem['interval_value'])), 2, '.', '');
+		$response = number_format(($cartItem['price_per'] * $cartItem['quantity'] * $interval) - (($cartItem['price_per'] * $cartItem['quantity']) * (($cartItem['quantity'] / $cartItem['volume_discount_divisor']) * $cartItem['volume_discount_multiple'] * $cartItem['interval_value'])), 2, '.', '');
+		return $response;
 	}
 
 /**
  * Retrieve cart from session
  *
- * @param array $parameters Parameters
+ * @param array $parameters
  *
- * @return array $response Response data
+ * @return array $response
  */
 	protected function _retrieveCart($parameters) {
 		$response = false;
@@ -45,10 +46,10 @@ class CartsModel extends AppModel {
 			$this->save('carts', array(
 				$cartParameters['conditions']
 			));
-			$cart = $this->find('carts', $cartParameters);
+			$cartData = $this->find('carts', $cartParameters);
 
-			if (!empty($cart['count'])) {
-				$response = $cart['data'][0];
+			if (!empty($cartData['count'])) {
+				$response = $cartData['data'][0];
 			}
 		}
 
@@ -58,16 +59,16 @@ class CartsModel extends AppModel {
 /**
  * Retrieve items for cart
  *
- * @param array $cart Cart data
- * @param array $cartProducts Cart products
+ * @param array $cartData
+ * @param array $cartProducts
  *
  * @return array $response Response data
  */
-	protected function _retrieveCartItems($cart, $cartProducts) {
+	protected function _retrieveCartItems($cartData, $cartProducts) {
 		$response = false;
 		$cartItemParameters = array(
 			'conditions' => array(
-				'cart_id' => $cart['id']
+				'cart_id' => $cartData['id']
 			),
 			'sort' => array(
 				'field' => 'created',
@@ -96,15 +97,15 @@ class CartsModel extends AppModel {
 /**
  * Retrieve products for cart
  *
- * @param array $cart Cart data
+ * @param array $cartData
  *
- * @return array $response Response data
+ * @return array $response
  */
-	protected function _retrieveProducts($cart) {
+	protected function _retrieveProducts($cartData) {
 		$response = false;
 		$cartItemProductIds = $this->find('cart_items', array(
 			'conditions' => array(
-				'cart_id' => $cart['id']
+				'cart_id' => $cartData['id']
 			),
 			'fields' => array(
 				'product_id'
@@ -142,10 +143,10 @@ class CartsModel extends AppModel {
 /**
  * Process cart requests
  *
- * @param string $table Table name
- * @param array $parameters Group query parameters
+ * @param string $table
+ * @param array $parameters
  *
- * @return array $response Response data
+ * @return array $response
  */
 	public function cart($table, $parameters) {
 		$response = array(
@@ -153,12 +154,12 @@ class CartsModel extends AppModel {
 			'message' => ($defaultMessage = 'Error processing your cart request, please try again.')
 		);
 
-		if ($cart = $this->_retrieveCart($parameters)) {
+		if ($cartData = $this->_retrieveCart($parameters)) {
 			$response['message'] = 'There are no items in your cart.';
 
-			if (!empty($cart)) {
-				$cartProducts = $this->_retrieveProducts($cart);
-				$cartItems = $this->_retrieveCartItems($cart, $cartProducts);
+			if (!empty($cartData)) {
+				$cartProducts = $this->_retrieveProducts($cartData);
+				$cartItems = $this->_retrieveCartItems($cartData, $cartProducts);
 
 				if (
 					$cartProducts &&
@@ -303,10 +304,10 @@ class CartsModel extends AppModel {
 /**
  * Complete order
  *
- * @param string $table Table name
- * @param array $parameters Group query parameters
+ * @param string $table
+ * @param array $parameters
  *
- * @return array $response Response data
+ * @return array $response
  */
 	public function complete($table, $parameters) {
 		$response = array(

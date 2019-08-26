@@ -12,7 +12,7 @@ class InvoicesModel extends AppModel {
 /**
  * List invoices
  *
- * @return array Invoices data
+ * @return array
  */
 	public function list() {
 		return array();
@@ -21,9 +21,9 @@ class InvoicesModel extends AppModel {
 /**
  * View invoice
  *
- * @param array $parameters Parameters
+ * @param array $parameters
  *
- * @return array Invoice data
+ * @return array $response
  */
 	public function view($parameters) {
 		if (
@@ -33,9 +33,10 @@ class InvoicesModel extends AppModel {
 			$this->redirect($this->settings['base_url'] . 'invoices');
 		}
 
-		return array(
+		$response = array(
 			'invoice_id' => $parameters['id']
 		);
+		return $response;
 	}
 
 }

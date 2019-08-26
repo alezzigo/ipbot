@@ -11,8 +11,8 @@ class AppModel extends Config {
 /**
  * Authenticate requests
  *
- * @param string $table Table name
- * @param array $parameters Parameters
+ * @param string $table
+ * @param array $parameters
  *
  * @return mixed [string/boolean] $response Response data if authentication is successful, false if user request is invalid or expired
  */
@@ -64,19 +64,19 @@ class AppModel extends Config {
 /**
  * Create token string from parameters and results
  *
- * @param string $table Table name
- * @param array $parameters Parameters
- * @param string $salt Salt for token string
+ * @param string $table
+ * @param array $parameters
+ * @param string $salt
  *
- * @return array Token string
+ * @return array $response
  */
 	protected function _createTokenString($table, $parameters, $salt = false) {
-		$tokenParts = array(
+		$response = array(
 			$this->keys['start']
 		);
 
 		if (!empty($parameters['conditions'])) {
-			$tokenParts[] = $this->find($table, array(
+			$response[] = $this->find($table, array(
 				'conditions' => $parameters['conditions'],
 				'fields' => array(
 					'id'
@@ -90,19 +90,20 @@ class AppModel extends Config {
 		}
 
 		if (!empty($salt)) {
-			$tokenParts[] = $salt;
+			$response[] = $salt;
 		}
 
-		return sha1(json_encode(implode(')-(', $tokenParts)));
+		$response = sha1(json_encode(implode(')-(', $response)));
+		return $response;
 	}
 
 /**
  * Format array of data to SQL query conditions
  *
- * @param array $conditions Conditions
- * @param string $condition Condition
+ * @param array $conditions
+ * @param string $condition
  *
- * @return array $conditions SQL query conditions
+ * @return array $response
  */
 	protected function _formatConditions($conditions = array(), $condition = 'OR') {
 		$operators = array('>', '>=', '<', '<=', '=', '!=', 'LIKE');
@@ -126,20 +127,21 @@ class AppModel extends Config {
 			}
 		}
 
-		return $conditions;
+		$response = $conditions;
+		return $response;
 	}
 
 /**
  * Save and retrieve database token based on parameters
  *
- * @param string $table Table name
- * @param array $parameters Parameters
- * @param string $foreignKey Foreign key
- * @param string $foreignValue Foreign value
- * @param string $salt Salt for token string
- * @param integer $expirationMinutes Number of minutes before token expires
+ * @param string $table
+ * @param array $parameters
+ * @param string $foreignKey
+ * @param string $foreignValue
+ * @param string $salt
+ * @param integer $expirationMinutes
  *
- * @return array $token Token
+ * @return array $response
  */
 	protected function _getToken($table, $parameters, $foreignKey, $foreignValue, $salt = false, $expirationMinutes = false) {
 		$tokenParameters = array(
@@ -177,21 +179,21 @@ class AppModel extends Config {
 			'foreign_value',
 			'string'
 		);
-		$token = $this->find('tokens', $tokenParameters);
-		return !empty($token['data'][0]) ? $token['data'][0] : array();
+		$response = $this->find('tokens', $tokenParameters);
+		return !empty($response['data'][0]) ? $response['data'][0] : array();
 	}
 
 /**
  * Hash password
  *
- * @param string $string Raw password string
- * @param string $time Timestamp
+ * @param string $string
+ * @param string $timestamp
  *
- * @return array $response Response with hashed password
+ * @return array $response
  */
-	protected function _hashPassword($string, $time) {
+	protected function _hashPassword($string, $timestamp) {
 		$response = array(
-			'modified' => $modified = date('Y-m-d h:i:s', $time),
+			'modified' => $modified = date('Y-m-d h:i:s', $timestamp),
 			'string' => 'e1Gh7$' . sha1($string . $modified . $this->keys['start'])
 		);
 		return $response;
@@ -200,9 +202,9 @@ class AppModel extends Config {
 /**
  * Retrieve parameterized SQL query and array of values
  *
- * @param string $query Query
+ * @param string $query
  *
- * @return array Parameterized SQL query and array of values
+ * @return array $response
  */
 	protected function _parameterizeSQL($query) {
 		$queryChunks = explode($this->keys['start'], $query);
@@ -218,26 +220,28 @@ class AppModel extends Config {
 			}
 		}
 
-		return array(
+		$response = array(
 			'parameterizedQuery' => implode('', $queryChunks),
 			'parameterizedValues' => $parameterValues
 		);
+		return $response;
 	}
 
 /**
  * Parse and filter IPv4 address list.
  *
- * @param array $ips Unfiltered IPv4 address list
- * @param boolean $subnets Allow partial IPv4 subnets instead of full /32 mask
+ * @param array $ips
+ * @param boolean $subnets
  *
- * @return array $ips Filtered IPv4 address list
+ * @return array $response
  */
 	protected function _parseIps($ips = array(), $subnets = false) {
 		$ips = implode("\n", array_map(function($ip) {
 			return trim($ip, '.');
 		}, array_filter(preg_split("/[](\r\n|\n|\r) <>()~{}|`\"'=?!*&@#$+,[;:_-]/", $ips))));
 		$ips = $this->_validateIps($ips, $subnets);
-		return explode("\n", $ips);
+		$response = explode("\n", $ips);
+		return $response;
 	}
 
 /**
@@ -245,19 +249,20 @@ class AppModel extends Config {
  *
  * @param string $value Value
  *
- * @return string Prepared value
+ * @return string $response
  */
 	protected function _prepareValue($value) {
-		return $this->keys['start'] . (is_bool($value) ? (integer) $value : $value) . $this->keys['stop'];
+		$response = $this->keys['start'] . (is_bool($value) ? (integer) $value : $value) . $this->keys['stop'];
+		return $response;
 	}
 
 /**
  * Process API action requests
  *
- * @param string $table Table name
- * @param array $parameters Parameters
+ * @param string $table
+ * @param array $parameters
  *
- * @return array $response Response data
+ * @return array $response
  */
 	protected function _processAction($table, $parameters) {
 		$response = array();
@@ -307,8 +312,8 @@ class AppModel extends Config {
 /**
  * Construct and execute database queries
  *
- * @param string $query Query string
- * @param array $parameters Parameters
+ * @param string $query
+ * @param array $parameters
  *
  * @return array $response Return data if query results exists, otherwise return boolean status
  */
@@ -365,9 +370,9 @@ class AppModel extends Config {
 /**
  * Validate and structure API request based on parameters
  *
- * @param array $parameters Parameters
+ * @param array $parameters
  *
- * @return array $response Response data
+ * @return array $response
  */
 	protected function _request($parameters) {
 		$response = array(
@@ -511,9 +516,9 @@ class AppModel extends Config {
 /**
  * Unserialize indexes and retrieve corresponding item IDs based on parameters
  *
- * @param array $parameters Parameters
+ * @param array $parameters
  *
- * @return array $response Response data
+ * @return array $response
  */
 	protected function _retrieveItems($parameters) {
 		$response = array();
@@ -594,9 +599,9 @@ class AppModel extends Config {
 /**
  * Send mail
  *
- * @param string $parameters Parameters
+ * @param string $parameters
  *
- * @return boolean True if mail is sent
+ * @return boolean $response
  */
 	protected function _sendMail($parameters) {
 		if (
@@ -617,15 +622,16 @@ class AppModel extends Config {
 			return false;
 		}
 
-		return mail($to, $subject, $message, $headers);
+		$response = mail($to, $subject, $message, $headers);
+		return $response;
 	}
 
 /**
  * Validate email address format
  *
- * @param string $email Email address
+ * @param string $email
  *
- * @return mixed [string/boolean] $email Email if valid email address format, false if invalid
+ * @return mixed [string/boolean] $response Email if valid email address format, false if invalid
  */
 	protected function _validateEmailFormat($email) {
 		$email = strtolower(trim($email));
@@ -686,7 +692,8 @@ class AppModel extends Config {
 			return false;
 		}
 
-		return $email;
+		$response = $email;
+		return $response;
 	}
 
 /**
@@ -695,7 +702,7 @@ class AppModel extends Config {
  * @param array $ips Filtered IPv4 address/subnet list
  * @param boolean $subnets Allow partial IPv4 subnets instead of full /32 mask
  *
- * @return array $ips Validated IPv4 address/subnet list
+ * @return array $response
  */
 	protected function _validateIps($ips, $subnets = false) {
 		$ips = array_values(array_filter(explode("\n", $ips)));
@@ -727,13 +734,15 @@ class AppModel extends Config {
 				$ips[$key] = implode('.', $splitIpSubnets);
 			}
 		}
-		return implode("\n", array_unique($ips));
+
+		$response = implode("\n", array_unique($ips));
+		return $response;
 	}
 
 /**
  * Verify configuration keys
  *
- * @return boolean $response True if keys are verified, false if new keys are set
+ * @return boolean $response
  */
 	protected function _verifyKeys() {
 		$response = false;
@@ -802,10 +811,10 @@ class AppModel extends Config {
 /**
  * Verify password
  *
- * @param string $password Raw password string
- * @param array $user User data
+ * @param string $password
+ * @param array $user
  *
- * @return boolean $response True/false if password is valid/invalid
+ * @return boolean $response
  */
 	protected function _verifyPassword($password, $user) {
 		$response = false;
@@ -824,10 +833,10 @@ class AppModel extends Config {
 /**
  * Database helper method for deleting data
  *
- * @param string $table Table name
- * @param array $conditions Conditions for deletion
+ * @param string $table
+ * @param array $conditions
  *
- * @return boolean True if all data is deleted
+ * @return boolean $response
  */
 	public function delete($table, $conditions = array()) {
 		$query = 'DELETE FROM ' . $table;
@@ -839,16 +848,17 @@ class AppModel extends Config {
 			$query .= ' WHERE ' . implode(' AND ', $this->_formatConditions($conditions));
 		}
 
-		return $this->_query($query, $parameters);
+		$response = $this->_query($query, $parameters);
+		return $response;
 	}
 
 /**
  * Database helper method for retrieving data
  *
- * @param string $table Table name
- * @param array $parameters Parameters
+ * @param string $table
+ * @param array $parameters
  *
- * @return array $response Return associative array if it exists, otherwise return boolean ($execute)
+ * @return mixed [array/boolean] $response Return associative array if it exists, otherwise return boolean ($execute)
  */
 	public function find($table, $parameters = array()) {
 		$query = ' FROM ' . $table;
@@ -891,19 +901,20 @@ class AppModel extends Config {
 /**
  * Routing helper method
  *
- * @param array $parameters Parameters
+ * @param array $parameters
  *
- * @return mixed [array/exit] Return data if action exists, redirect to base URL if action doesn't exist
+ * @return mixed [array/exit] $response Return data if action exists, redirect to base URL if action doesn't exist
  */
 	public function route($parameters) {
 		if (
 			!empty($action = array_shift(array_reverse(explode('/', str_replace('.php', '', $parameters['route']['file']))))) &&
 			method_exists($this, $action)
 		) {
-			return array_merge($this->$action($parameters), array(
+			$response = array_merge($this->$action($parameters), array(
 				'action' => $action,
 				'table' => str_replace('/', '', strrchr(dirname($parameters['route']['file']), '/'))
 			));
+			return $response;
 		}
 
 		$this->redirect($this->settings['base_url']);
@@ -912,10 +923,10 @@ class AppModel extends Config {
 /**
  * Database helper method for saving data
  *
- * @param string $table Table name
- * @param array $rows Data to save
+ * @param string $table
+ * @param array $rows
  *
- * @return boolean True if all data is saved
+ * @return boolean $response
  */
 	public function save($table, $rows = array()) {
 		$ids = array();
@@ -956,7 +967,8 @@ class AppModel extends Config {
 			}
 		}
 
-		return $success;
+		$response = $success;
+		return $response;
 	}
 
 }

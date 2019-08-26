@@ -12,7 +12,7 @@ class OrdersModel extends AppModel {
 /**
  * List orders
  *
- * @return array Orders data
+ * @return array
  */
 	public function list() {
 		return array();
@@ -21,9 +21,9 @@ class OrdersModel extends AppModel {
 /**
  * View order
  *
- * @param array $parameters Parameters
+ * @param array $parameters
  *
- * @return array Order data
+ * @return array $response
  */
 	public function view($parameters) {
 		if (
@@ -33,10 +33,11 @@ class OrdersModel extends AppModel {
 			$this->redirect($this->settings['base_url'] . 'orders');
 		}
 
-		return array(
+		$response = array(
 			'order_id' => $parameters['id'],
 			'results_per_page' => 50
 		);
+		return $response;
 	}
 
 }

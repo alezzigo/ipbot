@@ -81,7 +81,7 @@
 
 						foreach ($primaryNavigationItems as $navigationItem) {
 							if (!empty($navigationItem['text'])) {
-								$class = (!empty($navigationItem['class']) ? $navigationItem['class'] : 'button') . ($config->parameters['route']['url'] === $navigationItem['href'] ? ' active' : false);
+								$class = (!empty($navigationItem['class']) ? $navigationItem['class'] : 'button') . ($config->settings['base_url'] . $config->parameters['route']['parts'][1] === $navigationItem['href'] ? ' active' : false);
 								$href = !empty($navigationItem['href']) ? $navigationItem['href'] : 'javascript:void(0);';
 								$process = !empty($navigationItem['process']) ? $navigationItem['process'] : '';
 								$window = !empty($navigationItem['window']) ? $navigationItem['window'] : '';
@@ -102,7 +102,7 @@
 						<?php
 							foreach ($secondaryNavigationItems as $navigationItem) {
 								if (!empty($navigationItem['text'])) {
-									$class = (!empty($navigationItem['class']) ? $navigationItem['class'] : 'button') . ($config->parameters['route']['url'] === $navigationItem['href'] ? ' active' : false);
+									$class = (!empty($navigationItem['class']) ? $navigationItem['class'] : 'button') . ($config->settings['base_url'] . $config->parameters['route']['parts'][1] === $navigationItem['href'] ? ' active' : false);
 									$href = !empty($navigationItem['href']) ? $navigationItem['href'] : 'javascript:void(0);';
 									$process = !empty($navigationItem['process']) ? $navigationItem['process'] : '';
 									$window = !empty($navigationItem['window']) ? $navigationItem['window'] : '';

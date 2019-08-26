@@ -115,15 +115,15 @@
 	foreach ($routes as $key => $route) {
 		$routes['files'][$key] = $route['file'];
 		$routes['headers'][$key] = !empty($route['headers']) ? $route['headers'] : array();
-		$routes['paths'][$key] = array_filter(explode('/', $route['url']));
+		$routes['parts'][$key] = array_filter(explode('/', $route['url']));
 		$routes['titles'][$key] = (!empty($route['title']) ? $route['title'] : false) . (!empty($config->settings['site_name']) ? ' | ' . $config->settings['site_name'] : false);
 		$routes['urls'][$key] = $route['url'];
 		unset($routes[$key]);
 		unset($route);
 	}
 
-	if (!is_numeric($route = array_search($pathParts, $routes['paths']))) {
-		foreach ($routes['paths'] as $routeKey => $routePathParts) {
+	if (!is_numeric($route = array_search($pathParts, $routes['parts']))) {
+		foreach ($routes['parts'] as $routeKey => $routePathParts) {
 			if (
 				count($routePathParts) !== count($pathParts) ||
 				$routePathParts[0] !== $pathParts[0]
@@ -167,6 +167,7 @@
 		'title' => $routes['titles'][$route],
 		'route' => array(
 			'file' => $routes['files'][$route],
+			'parts' => $routes['parts'][$route],
 			'url' => $routes['urls'][$route]
 		)
 	);
@@ -182,7 +183,7 @@
 		}
 	}
 
-	if (!empty($routePathParts = $routes['paths'][$route])) {
+	if (!empty($routePathParts = $routes['parts'][$route])) {
 		foreach ($routePathParts as $routePathPartKey => $routePathPart) {
 			if (
 				substr($routePathPart, 0, 1) === '[' &&

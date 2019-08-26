@@ -260,23 +260,24 @@ class AppModel extends Config {
  * @return array $response Response data
  */
 	protected function _processAction($table, $parameters) {
+		$response = array();
+
 		if (
 			!method_exists($this, $action = $parameters['action']) ||
 			(
-				($itemTable = (in_array($table, array('proxies')))) &&
-				!empty($orderId = $parameters['conditions']['order_id']) &&
-				($token = $this->_getToken($table, $parameters, 'order_id', $orderId)) === false
+				(!empty($serialize = $this->serialize[$table])) &&
+				(!empty($foreignKey = $serialize['foreign_key'])) &&
+				(!empty($foreignValue = $parameters['conditions'][$foreignKey])) &&
+				($token = $this->_getToken($table, $parameters, $foreignKey, $foreignValue)) === false
 			)
 		) {
 			return false;
 		}
 
-		$noItems = array(
+		$clearItems = array(
 			$table => array()
 		);
-		$response = array(
-			'items' => $parameters['items'] = isset($parameters['items']) ? $parameters['items'] : $noItems
-		);
+		$response['items'] = $parameters['items'] = isset($parameters['items']) ? $parameters['items'] : $clearItems;
 		$response['tokens'][$table] = $token;
 
 		if (
@@ -284,14 +285,14 @@ class AppModel extends Config {
 			$parameters['tokens'][$table] === $token
 		) {
 			if (
-				$itemTable &&
+				$serialize &&
 				!in_array($action, array('find',  'search'))
 			) {
 				$parameters['items'] = $this->_retrieveItems($parameters);
 			}
 		} else {
 			$action = 'find';
-			$response['items'] = $noItems;
+			$response['items'] = $clearItems;
 			$response['message'] = 'Your ' . $table . ' have been recently modified and your previously-selected results have been deselected automatically.';
 		}
 
@@ -438,6 +439,10 @@ class AppModel extends Config {
 						) {
 							$response['message'] = 'Invalid request parameters, please try again.';
 						} else {
+							$parameters = array_merge($parameters, array(
+								'redirect' => '',
+								'session' => $this->_createTokenString($table, array(), sha1($parameters['keys']['users']))
+							));
 							$response = array(
 								'code' => 407,
 								'message' => 'Authentication required, please log in and try again.',
@@ -450,21 +455,29 @@ class AppModel extends Config {
 									($parameters['user'] = $this->_authenticate('users', $parameters)) &&
 									in_array('user_id', $this->permissions[$table][$action]['fields']) &&
 									($parameters['conditions']['user_id'] = $parameters['user']['id'])
+								) ||
+								(
+									in_array('session_id', $this->permissions[$table][$action]['fields']) &&
+									($parameters['conditions']['session_id'] = $parameters['session'])
 								)
 							) {
 								if (array_search($parameters['user']['permissions'], $this->groups) > 1) {
+									$foreignId = substr_replace($table, ($consonantPlural = (substr($table, -3) === 'ies')) ? 'y_id' : '_id', $consonantPlural ? -3 : -1);
 									unset($parameters['conditions']['user_id']);
 
 									if (
 										(
-											$table == 'orders' &&
-											!empty($orderId = $parameters['conditions']['id'])
-										) ||
-										!empty($orderId = $parameters['conditions']['order_id'])
+											$table == 'users' ||
+											in_array('user_id', $this->permissions[$table][$action]['fields'])
+										) &&
+										(
+											!empty($id = $parameters['conditions'][$foreignId]) ||
+											!empty($id = $parameters['conditions']['id'])
+										)
 									) {
-										$userData = $this->find('orders', array(
+										$userData = $this->find($table, array(
 											'conditions' => array(
-												'id' => $orderId
+												'id' => $id
 											),
 											'fields' => array(
 												'user_id'
@@ -478,10 +491,6 @@ class AppModel extends Config {
 									}
 								}
 
-								$parameters = array_merge($parameters, array(
-									'session' => $this->_createTokenString($table, array(), sha1($parameters['keys']['users'])),
-									'redirect' => ''
-								));
 								$queryResponse = $this->_processAction($table, $parameters);
 
 								if (!empty($queryResponse)) {

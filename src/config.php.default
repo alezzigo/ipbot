@@ -173,6 +173,12 @@ class Config {
 			)
 		);
 
+		$this->serialize = array(
+			'proxies' => array(
+				'foreign_key' => 'order_id'
+			)
+		);
+
 		$this->settings = array(
 			'base_path' => $_SERVER['DOCUMENT_ROOT'] . '/src',
 			'base_url' => '/',

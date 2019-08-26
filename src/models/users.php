@@ -127,14 +127,11 @@ class UsersModel extends AppModel {
 			)
 		));
 
-		if (
-			!empty($tokens['count']) &&
-			$this->delete('tokens', array(
-				'id' => $tokens['data']
-			))
-		) {
+		if ($this->delete('tokens', array(
+			'id' => $tokens['data']
+		))) {
 			$response = array(
-				'message' => 'Logged out successfully.',
+				'message' => !empty($tokens['count']) ? 'Logged out successfully.' : '',
 				'redirect' => $this->settings['base_url'] . '#login'
 			);
 		}

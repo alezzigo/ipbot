@@ -10,6 +10,44 @@ require_once($config->settings['base_path'] . '/models/app.php');
 class UsersModel extends AppModel {
 
 /**
+ * Apply saved session data to current user
+ *
+ * @param array $parameters
+ * @param array $user
+ *
+ * @return boolean $response
+ */
+	protected function _applySessionToUser($parameters, $user) {
+		$response = true;
+
+		if (!empty($this->defaultFields)) {
+			foreach ($this->defaultFields as $defaultFieldTable => $defaultFields) {
+				if (in_array('session_id', $defaultFields)) {
+					$sessionData = $this->find($defaultFieldTable, array(
+						'conditions' => array(
+							'session_id' => $parameters['session'],
+							'user_id' => null
+						),
+						'fields' => array(
+							'id',
+							'session_id',
+							'user_id'
+						)
+					));
+
+					if (!empty($sessionData['count'])) {
+						if (!$this->save($defaultFieldTable, array_replace_recursive($sessionData['data'], array_fill(0, $sessionData['count'], array('user_id' => $user['id']))))) {
+							$response = false;
+						}
+					}
+				}
+			}
+		}
+
+		return $response;
+	}
+
+/**
  * Request user password reset
  *
  * @param string $table
@@ -88,7 +126,8 @@ class UsersModel extends AppModel {
 						} else {
 							if (
 								$this->_verifyPassword($parameters['data']['password'], $existingUser['data'][0]) &&
-								$this->_getToken($table, $parameters, 'id', $existingUser['data'][0]['id'], sha1($parameters['keys']['users']))
+								$this->_getToken($table, $parameters, 'id', $existingUser['data'][0]['id'], sha1($parameters['keys']['users'])) &&
+								$this->_applySessionToUser($parameters, $existingUser['data'][0])
 							) {
 								$response = array(
 									'message' => 'Logged in successfully.',

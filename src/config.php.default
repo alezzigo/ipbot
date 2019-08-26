@@ -9,9 +9,15 @@ class Config {
 
 	public function __construct() {
 
-		$defaultFields = array(
+		$this->defaultFields = $defaultFields = array(
 			'carts' => array(
 				'id',
+				'user_id'
+			),
+			'invoices' => array(
+				'id',
+				'session_id',
+				'status',
 				'user_id'
 			),
 			'orders' => array(
@@ -82,6 +88,22 @@ class Config {
 				),
 				'complete' => array(
 					'fields' => array()
+				)
+			),
+			'invoices' => array(
+				'find' => array(
+					'fields' => array_merge($defaultFields['invoices'], array(
+						'created',
+						'modified'
+					)),
+					'group' => 'user'
+				),
+				'list' => array(
+					'fields' => array(),
+					'group' => 'user'
+				),
+				'view' => array(
+					'fields' => $defaultFields['invoices']
 				)
 			),
 			'orders' => array(

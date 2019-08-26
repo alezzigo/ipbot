@@ -61,6 +61,26 @@
 			'url' => '/cart'
 		),
 		array(
+			'file' => $config->settings['base_path'] . '/views/invoices/list.php',
+			'title' => 'Proxy Invoices',
+			'url' => '/invoices'
+		),
+		array(
+			'file' => $config->settings['base_path'] . '/views/invoices/view.php',
+			'title' => 'Proxy Invoice [id]',
+			'url' => '/invoices/[id]'
+		),
+		array(
+			'file' => $config->settings['base_path'] . '/views/orders/list.php',
+			'title' => 'Proxy Orders',
+			'url' => '/orders'
+		),
+		array(
+			'file' => $config->settings['base_path'] . '/views/orders/view.php',
+			'title' => 'Proxy Order [id]',
+			'url' => '/orders/[id]'
+		),
+		array(
 			'file' => $config->settings['base_path'] . '/views/pages/contact.php',
 			'title' => 'Contact',
 			'url' => '/contact'
@@ -89,16 +109,6 @@
 			'file' => $config->settings['base_path'] . '/views/pages/socks-proxies.php',
 			'title' => 'SOCKS 5 Proxies',
 			'url' => '/socks-proxies'
-		),
-		array(
-			'file' => $config->settings['base_path'] . '/views/orders/list.php',
-			'title' => 'Proxy Orders',
-			'url' => '/orders'
-		),
-		array(
-			'file' => $config->settings['base_path'] . '/views/orders/view.php',
-			'title' => 'Proxy Order [id]',
-			'url' => '/orders/[id]'
 		)
 	);
 

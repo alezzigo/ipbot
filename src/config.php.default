@@ -27,6 +27,7 @@ class Config {
 				'name',
 				'price',
 				'quantity',
+				'session_id',
 				'status',
 				'user_id'
 			),

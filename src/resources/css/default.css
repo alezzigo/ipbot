@@ -630,11 +630,6 @@ main {
 		.icon[window="search"] {
 			background-size: 100% !important;
 		}
-	.flag {
-		display: inline-block;
-		margin: 0 0 0 2px;
-		width: 16px;
-	}
 .checkbox {
 	background: #fff;
 	border: 1px solid #dddbf4;

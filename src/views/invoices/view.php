@@ -3,7 +3,16 @@
 		$config->settings['base_url'] . 'resources/css/default.css'
 	);
 	require_once($config->settings['base_path'] . '/controllers/invoices.php');
-	require_once($config->settings['base_path'] . '/views/sections/header.php');
+	require_once($config->settings['base_path'] . '/views/sections/invoice_header.php');
+	$windows = array(
+		'payment'
+	);
+
+	foreach ($windows as $window) {
+		if (file_exists($file = $config->settings['base_path'] . '/views/sections/' . $window . '.php')) {
+			require_once($file);
+		}
+	}
 ?>
 <main process="invoice">
 	<div class="section">
@@ -42,5 +51,5 @@
 		$config->settings['base_url'] . 'resources/js/invoices.js',
 		$config->settings['base_url'] . 'resources/js/app.js'
 	);
-	require_once($config->settings['base_path'] . '/views/sections/footer.php');
+	require_once($config->settings['base_path'] . '/views/sections/invoice_footer.php');
 ?>

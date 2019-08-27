@@ -10,6 +10,25 @@ require_once($config->settings['base_path'] . '/models/app.php');
 class InvoicesModel extends AppModel {
 
 /**
+ * Process invoice requests
+ *
+ * @param string $table
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	public function invoice($table, $parameters) {
+		$response = array(
+			'data' => array(),
+			'message' => ($defaultMessage = 'Error processing your invoice request, please try again.')
+		);
+
+		// ..
+
+		return $response;
+	}
+
+/**
  * List invoices
  *
  * @return array

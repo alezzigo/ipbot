@@ -3,15 +3,21 @@
 var defaultTable = 'invoices';
 var previousAction = 'find';
 var processInvoice = function() {
+	requestParameters.action = 'invoice';
 	var invoiceId = document.querySelector('input[name="invoice_id"]').value;
 	requestParameters.conditions = {
 		id: invoiceId
 	};
 	sendRequest(function(response) {
-		// ..
+		var messageContainer = document.querySelector('main .message-container');
+
+		if (messageContainer) {
+			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+		}
 	});
 };
 var processInvoices = function() {
+	requestParameters.action = previousAction;
 	sendRequest(function(response) {
 		var messageContainer = document.querySelector('main .message-container');
 
@@ -29,11 +35,10 @@ var processInvoices = function() {
 
 		if (response.data.length) {
 			response.data.map(function(item, index) {
-				document.querySelector('.invoices-container').innerHTML += '<div class="item-container item-button"><div class="item"><div class="item-body"><p><strong>Invoice #' + item.id + '</strong></p><p>Status: ' + item.status + '</p></div></div><div class="item-link-container"><a class="item-link" href="/invoices/' + item.id + '"></a></div></div>';
+				document.querySelector('.invoices-container').innerHTML += '<div class="item-container item-button"><div class="item"><div class="item-body"><p><strong>Invoice #' + item.id + '</strong></p><label class="' + item.status + '">' + capitalizeString(item.status) + '</label></div></div><div class="item-link-container"><a class="item-link" href="/invoices/' + item.id + '"></a></div></div>';
 			});
 		}
 	});
 };
-requestParameters.action = previousAction;
 requestParameters.table = defaultTable;
 requestParameters.url = '/api/invoices';

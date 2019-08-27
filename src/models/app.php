@@ -453,6 +453,8 @@ class AppModel extends Config {
 								'message' => 'Authentication required, please log in and try again.',
 								'redirect' => $this->settings['base_url'] . '#login'
 							);
+							unset($parameters['conditions']['session_id']);
+							unset($parameters['conditions']['user_id']);
 
 							if (
 								empty($this->permissions[$table][$action]['group']) ||

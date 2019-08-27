@@ -23,7 +23,16 @@ class InvoicesModel extends AppModel {
 			'message' => ($defaultMessage = 'Error processing your invoice request, please try again.')
 		);
 
-		// ..
+		$invoice = $this->find($table, array(
+			'conditions' => $parameters['conditions']
+		));
+
+		if (!empty($invoice['count'])) {
+			$response = array(
+				'data' => $invoice['data'],
+				'message' => ''
+			);
+		}
 
 		return $response;
 	}

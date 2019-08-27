@@ -15,7 +15,7 @@
 	}
 ?>
 <main process="invoice">
-	<div class="section">
+	<div class="no-margin-top section">
 		<div class="container small">
 			<h1 class="invoice-name"></h1>
 			<div class="item-container item-configuration-container">
@@ -25,12 +25,8 @@
 							<div class="item-header">
 								<div class="hidden item-controls">
 									<a class="button main-button" disabled href="javascript:void(0);">Pay Invoice</a>
-									<a class="alternate-button button" href="<?php echo $config->settings['base_url']; ?>cart">Return to Invoices</a>
+									<a class="alternate-button button" href="<?php echo $config->settings['base_url']; ?>invoices">Return to Invoices</a>
 								</div>
-								<div class="clear"></div>
-								<p class="hidden item-controls no-margin-bottom">
-									<span class="align-right cart-total">Total: <span class="total"></span></span>
-								</p>
 								<div class="clear"></div>
 								<div class="message-container"><p class="message">Loading...</p></div>
 							</div>

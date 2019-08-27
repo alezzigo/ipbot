@@ -14,6 +14,11 @@ var processInvoice = function() {
 		if (messageContainer) {
 			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
 		}
+
+		if (response.data.length) {
+			document.querySelector('.invoice-name').innerHTML = 'Invoice #' + response.data[0].id;
+			elements.removeClass('.item-configuration .item-controls', 'hidden');
+		}
 	});
 };
 var processInvoices = function() {

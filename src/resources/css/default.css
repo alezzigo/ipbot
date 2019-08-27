@@ -453,6 +453,30 @@ main {
 			line-height: 20px;
 			margin: 0;
 		}
+		.item-container.item-button label {
+			border-left: 2px solid;
+			color: #fff;
+			display: inline-block;
+			font-size: 12px;
+			margin: 5px 0 0 0;
+			padding: 0 10px;
+			width: auto;
+		}
+			.item-container.item-button label.active {
+				background: #eaf9e4;
+				border-left-color: #bceaa6;
+				color: #77a960;
+			}
+			.item-container.item-button label.inactive {
+				background: #f9d3d3;
+				border-left-color: #e8abab;
+				color: #bd6b6b;
+			}
+			.item-container.item-button label.pending {
+				background: #f3f3fd;
+				border-left-color: #dddbf4;
+				color: #8986ae;
+			}
 	.item-container.item-button-selectable {
 		position: relative;
 	}

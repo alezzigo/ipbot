@@ -212,6 +212,15 @@ class Config {
 		$this->settings = array(
 			'base_path' => $_SERVER['DOCUMENT_ROOT'] . '/src',
 			'base_url' => '/',
+			'billing' => array(
+				'address_1' => '',
+				'address_2' => '',
+				'city' => '',
+				'company' => '',
+				'country_code' => 'US',
+				'country_name' => '',
+				'region' => ''
+			),
 			'database' => array(
 				'charset' => 'utf8',
 				'hostname' => '127.0.0.1',

@@ -325,10 +325,11 @@ class CartsModel extends AppModel {
 				'status' => 'pending'
 			);
 			$orders = $invoiceOrders = array();
+			$parameters['user'] = $this->_authenticate('users', $parameters);
 			$total = 0;
 
-			if ($cart['user_id']) {
-				$conditions['user_id'] = $cartItem['user_id'];
+			if (!empty($parameters['user']['id'])) {
+				$conditions['user_id'] = $parameters['user']['id'];
 			}
 
 			foreach ($cartItems as $cartItem) {

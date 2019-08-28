@@ -15,8 +15,8 @@ var processInvoice = function() {
 			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
 		}
 
-		if (response.data.length) {
-			document.querySelector('.invoice-name').innerHTML = 'Invoice #' + response.data[0].id;
+		if (response.data.invoice) {
+			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label> Invoice #' + response.data.invoice.id;
 			elements.removeClass('.item-configuration .item-controls', 'hidden');
 		}
 	});
@@ -40,7 +40,7 @@ var processInvoices = function() {
 
 		if (response.data.length) {
 			response.data.map(function(item, index) {
-				document.querySelector('.invoices-container').innerHTML += '<div class="item-container item-button"><div class="item"><div class="item-body"><p><strong>Invoice #' + item.id + '</strong></p><label class="' + item.status + '">' + capitalizeString(item.status) + '</label></div></div><div class="item-link-container"><a class="item-link" href="/invoices/' + item.id + '"></a></div></div>';
+				document.querySelector('.invoices-container').innerHTML += '<div class="item-container item-button"><div class="item"><div class="item-body"><p><strong>Invoice #' + item.id + '</strong></p><label class="label ' + item.status + '">' + capitalizeString(item.status) + '</label></div></div><div class="item-link-container"><a class="item-link" href="/invoices/' + item.id + '"></a></div></div>';
 			});
 		}
 	});

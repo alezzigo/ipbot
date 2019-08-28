@@ -361,8 +361,7 @@ class ProxiesModel extends AppModel {
 					'next_replacement_available' => date('Y-m-d H:i:s', strtotime('+1 week')),
 					'order_id' => $orderId,
 					'status' => 'online',
-					'user_id' => 1,
-					'whitelisted_ips' => ''
+					'user_id' => 1
 				);
 			}
 

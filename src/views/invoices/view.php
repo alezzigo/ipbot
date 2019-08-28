@@ -25,7 +25,7 @@
 							<div class="item-header">
 								<div class="hidden item-controls">
 									<a class="button main-button" disabled href="javascript:void(0);">Pay Invoice</a>
-									<a class="alternate-button button" href="<?php echo $config->settings['base_url']; ?>invoices">Return to Invoices</a>
+									<a class="alternate-button button" href="<?php echo $config->settings['base_url']; ?>invoices">Back to Invoices</a>
 								</div>
 								<div class="clear"></div>
 								<div class="message-container"><p class="message">Loading...</p></div>

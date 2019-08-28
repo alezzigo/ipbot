@@ -29,6 +29,20 @@ class InvoicesModel extends AppModel {
 
 		if (!empty($invoiceOrders['count'])) {
 			$orders = $this->find('orders', array(
+				'fields' => array(
+					'created',
+					'interval_type',
+					'interval_value',
+					'modified',
+					'name',
+					'price',
+					'product_id',
+					'quantity',
+					'session_id',
+					'status',
+					'type',
+					'user_id'
+				),
 				'conditions' => array(
 					'id' => $invoiceOrders['data']
 				)
@@ -51,7 +65,23 @@ class InvoicesModel extends AppModel {
  */
 	protected function _retrieveInvoiceSubscriptions($invoiceData) {
 		$response = array();
-		// ..
+		$invoiceSubscriptions = $this->find('subscriptions', array(
+			'fields' => array(
+				'created',
+				'id',
+				'invoice_id',
+				'modified',
+				'plan_id'
+			),
+			'conditions' => array(
+				'invoice_id' => $invoiceData['id']
+			)
+		));
+
+		if (!empty($invoiceSubscriptions['count'])) {
+			$response = $invoiceSubscriptions['data'];
+		}
+
 		return $response;
 	}
 
@@ -64,7 +94,50 @@ class InvoicesModel extends AppModel {
  */
 	protected function _retrieveInvoiceTransactions($invoiceData) {
 		$response = array();
-		// ..
+		$invoiceTransactions = $this->find('transactions', array(
+			'fields' => array(
+				'billing_address_1',
+				'billing_address_2',
+				'billing_city',
+				'billing_country_code',
+				'billing_country_name',
+				'billing_name',
+				'billing_region',
+				'created',
+				'customer_email',
+				'customer_first_name',
+				'customer_id',
+				'customer_last_name',
+				'customer_status',
+				'id',
+				'invoice_id',
+				'payment_amount',
+				'payment_currency',
+				'payment_external_fee',
+				'payment_handling_amount',
+				'payment_method_id',
+				'payment_shipping_amount',
+				'payment_status',
+				'payment_tax_amount',
+				'provider_country_code',
+				'provider_email',
+				'provider_id',
+				'sandbox',
+				'transaction_charset',
+				'transaction_id',
+				'transaction_raw',
+				'transaction_token',
+				'transaction_type'
+			),
+			'conditions' => array(
+				'invoice_id' => $invoiceData['id']
+			)
+		));
+
+		if (!empty($invoiceTransactions['count'])) {
+			$response = $invoiceTransactions['data'];
+		}
+
 		return $response;
 	}
 

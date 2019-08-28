@@ -349,12 +349,14 @@ class CartsModel extends AppModel {
 
 			if (
 				$this->save('invoices', array(
-					$conditions
+					$invoiceConditions = array_merge($conditions, array(
+						'status' => 'unpaid'
+					))
 				)) &&
 				$this->save('orders', $orders)
 			) {
 				$invoice = $this->find('invoices', array(
-					'conditions' => $conditions,
+					'conditions' => $invoiceConditions,
 					'limit' => 1,
 					'sort' => array(
 						'field' => 'created',

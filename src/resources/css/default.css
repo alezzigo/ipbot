@@ -360,7 +360,9 @@ main {
 							box-sizing: border-box;
 							color: #fff;
 							line-height: 14px;
-							margin: 2px 0 -3px 0;
+							font-size: 12px;
+							margin: 2px 0;
+							max-height: 101px;
 							min-height: 69px;
 							outline: none;
 							padding: 7px 8px 5px 8px;

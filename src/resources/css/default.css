@@ -58,10 +58,17 @@ h1 {
 	line-height: 36px;
 	margin: 0 0 22px;
 }
+	h1 .label {
+		display: inline-block;
+		float: left;
+		line-height: 36px;
+		margin: 0;
+		margin-right: 10px;
+	}
 h2 {
 	border-bottom: 1px solid #dddbf4;
 	font-size: 19px;
-	margin-bottom: 23px;
+	margin-bottom: 16px;
 	margin-top: 32px;
 	padding-bottom: 7px;
 }
@@ -382,6 +389,32 @@ main {
 	.table tbody tr:hover {
 		background: #f5f5f7;
 	}
+.label {
+	border-left: 2px solid;
+	color: #fff;
+	display: inline-block;
+	font-size: 12px;
+	margin: 5px 0 0 0;
+	padding: 0 10px;
+	width: auto;
+}
+	.label.active,
+	.label.paid {
+		background: #eaf9e4;
+		border-left-color: #bceaa6;
+		color: #77a960;
+	}
+	.label.inactive,
+	.label.unpaid {
+		background: #fbe1e1;
+		border-left-color: #f1b9b9;
+		color: #c57777;
+	}
+	.label.pending {
+		background: #f3f3fd;
+		border-left-color: #dddbf4;
+		color: #8986ae;
+	}
 .section {
 	margin-top: 88px;
 }
@@ -453,30 +486,6 @@ main {
 			line-height: 20px;
 			margin: 0;
 		}
-		.item-container.item-button label {
-			border-left: 2px solid;
-			color: #fff;
-			display: inline-block;
-			font-size: 12px;
-			margin: 5px 0 0 0;
-			padding: 0 10px;
-			width: auto;
-		}
-			.item-container.item-button label.active {
-				background: #eaf9e4;
-				border-left-color: #bceaa6;
-				color: #77a960;
-			}
-			.item-container.item-button label.inactive {
-				background: #f9d3d3;
-				border-left-color: #e8abab;
-				color: #bd6b6b;
-			}
-			.item-container.item-button label.pending {
-				background: #f3f3fd;
-				border-left-color: #dddbf4;
-				color: #8986ae;
-			}
 	.item-container.item-button-selectable {
 		position: relative;
 	}

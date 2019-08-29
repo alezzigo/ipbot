@@ -201,7 +201,7 @@ var processCartItems = function(response) {
 			cartSubtotal += parseFloat(cartItem[1].price);
 		});
 		cartTotal = cartSubtotal;
-		checkoutItems += '<h2>Pricing Details</h2><p class="no-margin-bottom"><label>Subtotal</label></p><p>$' + (Math.round(cartSubtotal * 100) / 100) + ' USD</p><p class="no-margin-bottom"><label>Shipping</label></p><p>$0 USD</p><p class="no-margin-bottom"><label>Taxes</label></p><p>$0 USD</p><p class="no-margin-bottom"><label for="discount-code">Discount Code</label></p><div class="field-group no-margin-top"><input class="discount-code-field" id="discount-code" name="discount_code" placeholder="Enter discount code" type="text"><button class="button discount-code-button">Apply Discount</button></div><p class="no-margin-bottom"><label>Total</label></p><p>$' + (Math.round(cartTotal * 100) / 100) + ' USD</p>';
+		checkoutItems += '<h2>Pricing Details</h2><p class="no-margin-bottom"><label>Subtotal</label></p><p>$' + (Math.round(cartSubtotal * 100) / 100) + ' USD</p><p class="no-margin-bottom"><label for="discount-code">Discount Code</label></p><div class="field-group no-margin-top"><input class="discount-code-field" id="discount-code" name="discount_code" placeholder="Enter discount code" type="text"><button class="button discount-code-button">Apply Discount</button></div><p class="no-margin-bottom"><label>Cart Total</label></p><p>$' + (Math.round(cartTotal * 100) / 100) + ' USD</p><p class="message">Additional fees for shipping, handling and/or tax may apply before submitting final payment.</p>';
 		checkoutItemContainer.innerHTML = checkoutItems;
 		elements.html('.item-configuration .cart-total .total', '$' + (Math.round(cartTotal * 100) / 100) + ' USD');
 		elements.removeAttribute('.button.confirm', 'disabled');

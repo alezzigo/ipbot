@@ -197,7 +197,7 @@ var processCartItems = function(response) {
 
 		checkoutItems += '<h2 class="no-margin-top">Order Items</h2>';
 		cartItemData.map(function(cartItem, index) {
-			checkoutItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem[1].id + '"><p><strong>' + cartItem[1].name + '</strong></p><div class="field-group"><span>Quantity:</span><span class="display">' + cartItem[1].quantity + '</span></div><div class="field-group no-margin"><span>USD Price:</span><span class="display">$' + cartItem[1].price + '</span><span>for</span><span class="display">' + cartItem[1].interval_value + ' ' + capitalizeString(cartItem[1].interval_type) + (cartItem[1].interval_value > 1 ? 's' : '') + '</span></div><div class="clear"></div></div>';
+			checkoutItems += '<div class="item-container item-button"><p class="no-margin-bottom"><label>' + cartItem[1].quantity + ' ' + cartItem[1].name + '</label></p><p>$' + cartItem[1].price + ' USD for ' + cartItem[1].interval_value + ' ' + cartItem[1].interval_type + '</p><div class="item-link-container"><a class="item-link" href="/orders/' + cartItem[1].id + '"></a></div></div>';
 			cartSubtotal += parseFloat(cartItem[1].price);
 		});
 		cartTotal = cartSubtotal;

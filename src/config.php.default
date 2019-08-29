@@ -219,7 +219,8 @@ class Config {
 				'company' => '',
 				'country_code' => 'US',
 				'country_name' => '',
-				'region' => ''
+				'region' => '',
+				'zip' => ''
 			),
 			'database' => array(
 				'charset' => 'utf8',

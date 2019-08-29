@@ -188,6 +188,10 @@ class InvoicesModel extends AppModel {
 				!empty($invoiceData) &&
 				!empty($invoiceOrders)
 			) {
+				if (!empty($this->settings['billing'])) {
+					$invoiceData['billing'] = $this->settings['billing'];
+				}
+
 				$invoiceData['created'] = date('M d Y', strtotime($invoiceData['created'])) . ' at ' . date('g:ia', strtotime($invoiceData['created'])) . ' ' . $this->settings['timezone'];
 				$response = array(
 					'data' => array(

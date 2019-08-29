@@ -6,7 +6,7 @@ var processInvoice = function() {
 	requestParameters.action = 'invoice';
 	var invoiceContainer = document.querySelector('.invoice-container');
 	var invoiceId = document.querySelector('input[name="invoice_id"]').value;
-	var invoiceItems = '';
+	var invoiceData = '';
 	requestParameters.conditions = {
 		id: invoiceId
 	};
@@ -21,16 +21,26 @@ var processInvoice = function() {
 			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label> Invoice #' + response.data.invoice.id;
 
 			if (response.data.orders.length) {
-				invoiceItems += '<h2>Invoice Orders</h2>';
+				invoiceData += '<h2>Invoice Orders</h2>';
 				response.data.orders.map(function(order) {
-					invoiceItems += '<div class="item-container item-button"><p class="no-margin-bottom"><label>' + order.quantity + ' ' + order.name + '</label></p><p>$' + order.price + ' USD for ' + order.interval_value + ' ' + order.interval_type + '</p><div class="item-link-container"><a class="item-link" href="/orders/' + order.id + '"></a></div></div>';
+					invoiceData += '<div class="item-container item-button"><p class="no-margin-bottom"><label>' + order.quantity + ' ' + order.name + '</label></p><p>$' + order.price + ' USD for ' + order.interval_value + ' ' + order.interval_type + '</p><div class="item-link-container"><a class="item-link" href="/orders/' + order.id + '"></a></div></div>';
 				});
 			}
 
+			invoiceData += '<h2>Invoice Transactions</h2>';
+			invoiceData	+= '<div class="invoice-section-container transactions"><label class="label">Invoice Created</label><div class="transaction"><p><strong>' + response.data.invoice.created + '</strong></p></div>';
+
+			if (response.data.transactions.length) {
+				response.data.transactions.map(function(transaction) {
+					invoiceData += '<label class="label ' + transaction.transaction_type + '">' + capitalizeString(transaction.transaction_type) + '</label><div class="transaction"><p><strong>' + transaction.transaction_date + '</strong><br>' + transaction.payment_amount + ' ' + transaction.payment_currency + '<br>Transaction ID ' + transaction.id + '</p><p><strong>' + transaction.billing_name + '</strong><br>' + transaction.billing_address_1 + ' ' + transaction.billing_address_2 + '<br>' + transaction.billing_city + ' ' + transaction.billing_region + ' ' + transaction.billing_zip + ' ' + transaction.billing_country_code + '</p></div>';
+				});
+			}
+
+			invoiceData	+= '</div>';
 			elements.removeClass('.item-configuration .item-controls', 'hidden');
 		}
 
-		invoiceContainer.innerHTML = invoiceItems;
+		invoiceContainer.innerHTML = invoiceData;
 	});
 };
 var processInvoices = function() {

@@ -777,6 +777,26 @@ main {
 .cart-items-container .item-button-selectable {
 	padding-left: 51px;
 }
-.transaction {
-	margin-bottom: 10px;
+.transactions .label {
+	display: block;
+	margin-bottom: 0;
+	margin-right: 0;
 }
+	.transactions .transaction {
+		font-size: 12px;
+		margin-bottom: 10px;
+		padding: 7px 0 0 12px;
+	}
+		.transactions .transaction.payment {
+			border-left-color: #bceaa6;
+		}
+		.transactions .transaction.refund {
+			border-left-color: #f1b9b9;
+		}
+		.transactions .transaction p {
+			line-height: 20px;
+			margin-bottom: 8px;
+		}
+			.transactions .transaction p:last-child {
+				margin-bottom: 15px;
+			}

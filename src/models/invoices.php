@@ -104,9 +104,9 @@ class InvoicesModel extends AppModel {
 				'billing_address_2',
 				'billing_city',
 				'billing_country_code',
-				'billing_country_name',
 				'billing_name',
 				'billing_region',
+				'billing_zip',
 				'created',
 				'customer_email',
 				'customer_first_name',
@@ -115,6 +115,7 @@ class InvoicesModel extends AppModel {
 				'customer_status',
 				'id',
 				'invoice_id',
+				'modified',
 				'payment_amount',
 				'payment_currency',
 				'payment_external_fee',
@@ -127,8 +128,8 @@ class InvoicesModel extends AppModel {
 				'provider_email',
 				'provider_id',
 				'sandbox',
+				'transaction_date',
 				'transaction_charset',
-				'transaction_id',
 				'transaction_raw',
 				'transaction_token',
 				'transaction_type'
@@ -136,6 +137,11 @@ class InvoicesModel extends AppModel {
 		));
 
 		if (!empty($invoiceTransactions['count'])) {
+			foreach ($invoiceTransactions['data'] as $key => $invoiceTransaction) {
+				$transactionTime = strtotime($invoiceTransaction['transaction_date']);
+				$invoiceTransactions['data'][$key]['transaction_date'] = date('M d Y', $transactionTime) . ' at ' . date('g:ia', $transactionTime) . ' ' . $this->settings['timezone'];
+			}
+
 			$response = $invoiceTransactions['data'];
 		}
 
@@ -178,6 +184,7 @@ class InvoicesModel extends AppModel {
 				!empty($invoiceData) &&
 				!empty($invoiceOrders)
 			) {
+				$invoiceData['created'] = date('M d Y', strtotime($invoiceData['created'])) . ' at ' . date('g:ia', strtotime($invoiceData['created'])) . ' ' . $this->settings['timezone'];
 				$response = array(
 					'data' => array(
 						'invoice' => $invoiceData,

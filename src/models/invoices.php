@@ -133,6 +133,10 @@ class InvoicesModel extends AppModel {
 				'transaction_raw',
 				'transaction_token',
 				'transaction_type'
+			),
+			'sort' => array(
+				'field' => 'transaction_date',
+				'order' => 'ASC'
 			)
 		));
 

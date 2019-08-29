@@ -37,6 +37,12 @@ class CartsModel extends AppModel {
 				'conditions' => array(
 					'id' => $parameters['session']
 				),
+				'fields' => array(
+					'created',
+					'id',
+					'modified',
+					'user_id'
+				),
 				'limit' => 1,
 				'sort' => array(
 					'field' => 'modified',
@@ -66,16 +72,24 @@ class CartsModel extends AppModel {
  */
 	protected function _retrieveCartItems($cartData, $cartProducts) {
 		$response = false;
-		$cartItemParameters = array(
+		$cartItems = $this->find('cart_items', array(
 			'conditions' => array(
 				'cart_id' => $cartData['id']
+			),
+			'fields' => array(
+				'cart_id',
+				'id',
+				'interval_type',
+				'interval_value',
+				'product_id',
+				'quantity',
+				'user_id'
 			),
 			'sort' => array(
 				'field' => 'created',
 				'order' => 'DESC'
 			)
-		);
-		$cartItems = $this->find('cart_items', $cartItemParameters);
+		));
 
 		if (!empty($cartItems['count'])) {
 			foreach ($cartItems['data'] as $key => $cartItem) {
@@ -116,6 +130,18 @@ class CartsModel extends AppModel {
 			$cartProductParameters = array(
 				'conditions' => array(
 					'id' => array_unique(array_filter($cartItemProductIds['data']))
+				),
+				'fields' => array(
+					'created',
+					'name',
+					'maximum_quantity',
+					'minimum_quantity',
+					'modified',
+					'price_per',
+					'type',
+					'uri',
+					'volume_discount_divisor',
+					'volume_discount_multiple'
 				),
 				'sort' => array(
 					'field' => 'created',
@@ -199,6 +225,18 @@ class CartsModel extends AppModel {
 									'conditions' => array(
 										'id' => $cartItemData['product_id']
 									),
+									'fields' => array(
+										'created',
+										'name',
+										'maximum_quantity',
+										'minimum_quantity',
+										'modified',
+										'price_per',
+										'type',
+										'uri',
+										'volume_discount_divisor',
+										'volume_discount_multiple'
+									),
 									'sort' => array(
 										'field' => 'modified',
 										'modified' => 'DESC'
@@ -232,12 +270,12 @@ class CartsModel extends AppModel {
 							$cartItemIds = array_values($cartItemData['id'])
 						) {
 							$cartItemIds = $this->find('cart_items', array(
+								'fields' => array(
+									'id'
+								),
 								'conditions' => array(
 									'id' => $cartItemIds,
 									'cart_id' => $parameters['session']
-								),
-								'fields' => array(
-									'id'
 								)
 							));
 							$response['message'] = 'Error deleting cart items, please try again.';
@@ -357,6 +395,15 @@ class CartsModel extends AppModel {
 			) {
 				$invoice = $this->find('invoices', array(
 					'conditions' => $invoiceConditions,
+					'fields' => array(
+						'created',
+						'id',
+						'initial_invoice_id',
+						'modified',
+						'session_id',
+						'status',
+						'user_id'
+					),
 					'limit' => 1,
 					'sort' => array(
 						'field' => 'created',

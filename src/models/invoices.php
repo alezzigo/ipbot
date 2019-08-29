@@ -19,16 +19,19 @@ class InvoicesModel extends AppModel {
 	protected function _retrieveInvoiceOrders($invoiceData) {
 		$response = array();
 		$invoiceOrders = $this->find('invoice_orders', array(
-			'fields' => array(
-				'order_id'
-			),
 			'conditions' => array(
 				'invoice_id' => $invoiceData['id']
+			),
+			'fields' => array(
+				'order_id'
 			)
 		));
 
 		if (!empty($invoiceOrders['count'])) {
 			$orders = $this->find('orders', array(
+				'conditions' => array(
+					'id' => $invoiceOrders['data']
+				),
 				'fields' => array(
 					'created',
 					'interval_type',
@@ -42,9 +45,6 @@ class InvoicesModel extends AppModel {
 					'status',
 					'type',
 					'user_id'
-				),
-				'conditions' => array(
-					'id' => $invoiceOrders['data']
 				)
 			));
 
@@ -66,15 +66,15 @@ class InvoicesModel extends AppModel {
 	protected function _retrieveInvoiceSubscriptions($invoiceData) {
 		$response = array();
 		$invoiceSubscriptions = $this->find('subscriptions', array(
+			'conditions' => array(
+				'invoice_id' => $invoiceData['id']
+			),
 			'fields' => array(
 				'created',
 				'id',
 				'invoice_id',
 				'modified',
 				'plan_id'
-			),
-			'conditions' => array(
-				'invoice_id' => $invoiceData['id']
 			)
 		));
 
@@ -95,6 +95,9 @@ class InvoicesModel extends AppModel {
 	protected function _retrieveInvoiceTransactions($invoiceData) {
 		$response = array();
 		$invoiceTransactions = $this->find('transactions', array(
+			'conditions' => array(
+				'invoice_id' => $invoiceData['id']
+			),
 			'fields' => array(
 				'billing_address_1',
 				'billing_address_2',
@@ -128,9 +131,6 @@ class InvoicesModel extends AppModel {
 				'transaction_raw',
 				'transaction_token',
 				'transaction_type'
-			),
-			'conditions' => array(
-				'invoice_id' => $invoiceData['id']
 			)
 		));
 
@@ -155,7 +155,16 @@ class InvoicesModel extends AppModel {
 			'message' => ($defaultMessage = 'Error processing your invoice request, please try again.')
 		);
 		$invoiceData = $this->find($table, array(
-			'conditions' => $parameters['conditions']
+			'conditions' => $parameters['conditions'],
+			'fields' => array(
+				'created',
+				'id',
+				'initial_invoice_id',
+				'modified',
+				'session_id',
+				'status',
+				'user_id'
+			)
 		));
 
 		if (!empty($invoiceData['count'])) {

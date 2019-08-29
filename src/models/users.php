@@ -66,6 +66,10 @@ class UsersModel extends AppModel {
 				'conditions' => array(
 					'email' => $email = $this->_validateEmailFormat($parameters['data']['email'])
 				),
+				'fields' => array(
+					'id',
+					'password_modified'
+				),
 				'limit' => 1
 			));
 
@@ -110,6 +114,15 @@ class UsersModel extends AppModel {
 			$existingUser = $this->find($table, array(
 				'conditions' => array(
 					'email' => $email = $this->_validateEmailFormat($parameters['data']['email'])
+				),
+				'fields' => array(
+					'created',
+					'email',
+					'id',
+					'modified',
+					'password',
+					'password_modified',
+					'permissions'
 				),
 				'limit' => 1
 			));
@@ -196,6 +209,9 @@ class UsersModel extends AppModel {
 			$existingUser = $this->find($table, array(
 				'conditions' => array(
 					'email' => $email = $this->_validateEmailFormat($parameters['data']['email'])
+				),
+				'fields' => array(
+					'id'
 				),
 				'limit' => 1
 			));

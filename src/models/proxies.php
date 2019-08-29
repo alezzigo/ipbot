@@ -213,6 +213,14 @@ class ProxiesModel extends AppModel {
 
 			$groupParameters = array(
 				'conditions' => $groupData,
+				'fields' => array(
+					'created',
+					'id',
+					'modified',
+					'name',
+					'order_id',
+					'user_id'
+				),
 				'limit' => 1
 			);
 

@@ -4,7 +4,9 @@ var defaultTable = 'invoices';
 var previousAction = 'find';
 var processInvoice = function() {
 	requestParameters.action = 'invoice';
+	var invoiceContainer = document.querySelector('.invoice-container');
 	var invoiceId = document.querySelector('input[name="invoice_id"]').value;
+	var invoiceItems = '';
 	requestParameters.conditions = {
 		id: invoiceId
 	};
@@ -17,8 +19,18 @@ var processInvoice = function() {
 
 		if (response.data.invoice) {
 			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label> Invoice #' + response.data.invoice.id;
+
+			if (response.data.orders.length) {
+				invoiceItems += '<h2>Invoice Orders</h2>';
+				response.data.orders.map(function(order) {
+					invoiceItems += '<div class="item-container item-button"><p class="no-margin-bottom"><label>' + order.quantity + ' ' + order.name + '</label></p><p>$' + order.price + ' USD for ' + order.interval_value + ' ' + order.interval_type + '</p><div class="item-link-container"><a class="item-link" href="/orders/' + order.id + '"></a></div></div>';
+				});
+			}
+
 			elements.removeClass('.item-configuration .item-controls', 'hidden');
 		}
+
+		invoiceContainer.innerHTML = invoiceItems;
 	});
 };
 var processInvoices = function() {

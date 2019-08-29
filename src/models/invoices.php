@@ -10,6 +10,128 @@ require_once($config->settings['base_path'] . '/models/app.php');
 class InvoicesModel extends AppModel {
 
 /**
+ * Calculate invoice payment details
+ *
+ * @param array $invoiceData
+ *
+ * @return array $response
+ */
+	protected function _calculateInvoicePaymentDetails($invoiceData) {
+		$response = $invoiceData;
+
+		if (
+			$response['invoice']['status'] === 'unpaid' ||
+			$response['invoice']['amount_paid'] < $response['invoice']['total']
+		) {
+			$response['invoice']['total'] = $response['invoice']['subtotal'] = 0;
+
+			if (!empty($response['orders'])) {
+				$invoiceOrderProducts = array();
+				foreach ($response['orders'] as $key => $invoiceOrder) {
+					if (empty($invoiceOrderProducts[$invoiceOrder['product_id']])) {
+						$invoiceOrderProduct = $this->find('products', array(
+							'conditions' => array(
+								'id' => $invoiceOrder['product_id']
+							),
+							'fields' => array(
+								'created',
+								'has_handling',
+								'has_shipping',
+								'has_tax',
+								'name',
+								'maximum_quantity',
+								'minimum_quantity',
+								'modified',
+								'price_per',
+								'type',
+								'uri',
+								'volume_discount_divisor',
+								'volume_discount_multiple'
+							)
+						));
+
+						if (empty($invoiceOrderProduct['count'])) {
+							$this->delete('orders', array(
+								'id' => $invoiceOrder['id']
+							));
+							continue;
+						}
+
+						$invoiceOrderProducts[$invoiceOrder['product_id']] = $invoiceOrderProduct['data'][0];
+					}
+
+					$invoiceOrderProduct = $invoiceOrderProducts[$invoiceOrder['product_id']];
+					$response['invoice']['handling'] += $this->_calculateInvoiceOrderHandlingPrice($response['invoice'], $invoiceOrder, $invoiceOrderProduct);
+					$response['invoice']['shipping'] += $this->_calculateInvoiceOrderShippingPrice($response['invoice'], $invoiceOrder, $invoiceOrderProduct);
+					$response['invoice']['subtotal'] += $invoiceOrder['price'];
+					$response['invoice']['tax'] += $this->_calculateInvoiceOrderTaxPrice($response['invoice'], $invoiceOrder, $invoiceOrderProduct);
+					$response['invoice']['total'] += $invoiceOrder['handling'] + $invoiceOrder['shipping'] + $invoiceOrder['tax'];
+				}
+			}
+
+			$response['invoice']['total'] += $response['invoice']['subtotal'];
+			unset($response['invoice']['billing']);
+			unset($response['invoice']['created']);
+			unset($response['invoice']['initial_invoice_id']);
+			unset($response['invoice']['modified']);
+
+			if (!$this->save('invoices', array(
+				$response['invoice']
+			))) {
+				return $invoiceData;
+			}
+		}
+
+		$response['invoice']['amount_applied_to_balance'] = max(0, $invoiceData['amount_paid'] - $invoiceData['amount_applied']);
+		return $response;
+	}
+
+/**
+ * Calculate invoice order handling price
+ *
+ * @param array $invoiceData
+ * @param array $orderData
+ * @param array $productData
+ *
+ * @return float $response
+ */
+	protected function _calculateInvoiceOrderHandlingPrice($invoiceData, $orderData, $productData) {
+		$response = 0.00;
+		// ..
+		return $response;
+	}
+
+/**
+ * Calculate invoice order shipping price
+ *
+ * @param array $invoiceData
+ * @param array $orderData
+ * @param array $productData
+ *
+ * @return float $response
+ */
+	protected function _calculateInvoiceOrderShippingPrice($invoiceData, $orderData, $productData) {
+		$response = 0.00;
+		// ..
+		return $response;
+	}
+
+/**
+ * Calculate invoice order tax price
+ *
+ * @param array $invoiceData
+ * @param array $orderData
+ * @param array $productData
+ *
+ * @return float $response
+ */
+	protected function _calculateInvoiceOrderTaxPrice($invoiceData, $orderData, $productData) {
+		$response = 0.00;
+		// ..
+		return $response;
+	}
+
+/**
  * Retrieve invoice order data
  *
  * @param array $invoiceData
@@ -34,6 +156,7 @@ class InvoicesModel extends AppModel {
 				),
 				'fields' => array(
 					'created',
+					'handling',
 					'id',
 					'interval_type',
 					'interval_value',
@@ -43,7 +166,9 @@ class InvoicesModel extends AppModel {
 					'product_id',
 					'quantity',
 					'session_id',
+					'shipping',
 					'status',
+					'tax',
 					'type',
 					'user_id'
 				)
@@ -168,6 +293,9 @@ class InvoicesModel extends AppModel {
 		$invoiceData = $this->find($table, array(
 			'conditions' => $parameters['conditions'],
 			'fields' => array(
+				'amount_applied',
+				'amount_paid',
+				'amount_refunded',
 				'created',
 				'handling',
 				'id',
@@ -176,7 +304,9 @@ class InvoicesModel extends AppModel {
 				'session_id',
 				'shipping',
 				'status',
+				'subtotal',
 				'tax',
+				'total',
 				'user_id'
 			)
 		));
@@ -205,6 +335,7 @@ class InvoicesModel extends AppModel {
 					),
 					'message' => ''
 				);
+				$response['data'] = array_replace_recursive($response['data'], $this->_calculateInvoicePaymentDetails($response['data']));
 			}
 		}
 

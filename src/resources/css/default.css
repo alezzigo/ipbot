@@ -66,7 +66,8 @@ h1 {
 	}
 h2 {
 	border-bottom: 1px solid #dddbf4;
-	font-size: 19px;
+	font-size: 17px;
+	font-weight: 400;
 	margin-bottom: 16px;
 	margin-top: 32px;
 	padding-bottom: 7px;
@@ -406,7 +407,6 @@ main {
 	.label.payment {
 		background: #eaf9e4;
 		border-left-color: #bceaa6;
-		color: #77a960;
 	}
 	.label.chargeback,
 	.label.inactive,
@@ -414,8 +414,18 @@ main {
 	.label.refund {
 		background: #fbe1e1;
 		border-left-color: #f1b9b9;
-		color: #c57777;
 	}
+.active,
+.paid,
+.payment {
+	color: #77a960;
+}
+.chargeback,
+.inactive,
+.unpaid,
+.refund {
+	color: #c57777;
+}
 .section {
 	margin-top: 88px;
 }

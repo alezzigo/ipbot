@@ -7,6 +7,7 @@ var processInvoice = function() {
 	var invoiceContainer = document.querySelector('.invoice-container');
 	var invoiceId = document.querySelector('input[name="invoice_id"]').value;
 	var invoiceData = '';
+	var invoiceSubtotal = invoiceTotal = 0;
 	requestParameters.conditions = {
 		id: invoiceId
 	};
@@ -24,11 +25,25 @@ var processInvoice = function() {
 				invoiceData += '<h2>Invoice Orders</h2>';
 				response.data.orders.map(function(order) {
 					invoiceData += '<div class="item-container item-button"><p class="no-margin-bottom"><label>' + order.quantity + ' ' + order.name + '</label></p><p>$' + order.price + ' USD for ' + order.interval_value + ' ' + order.interval_type + '</p><div class="item-link-container"><a class="item-link" href="/orders/' + order.id + '"></a></div></div>';
+					invoiceSubtotal += parseFloat(order.price);
 				});
 			}
 
+			var invoiceShipping = parseFloat(response.data.invoice.handling) + parseFloat(response.data.invoice.shipping);
+			var invoiceTax = parseFloat(response.data.invoice.tax);
+			invoiceData += '<h2>Invoice Pricing Details</h2>';
+			invoiceData += '<p><strong>Subtotal</strong><br>$' + invoiceSubtotal + ' USD</p>';
+			invoiceData += '<p><strong>Shipping + Handling</strong><br>$' + invoiceShipping + ' USD</p>';
+			invoiceData += '<p><strong>Tax</strong><br>$' + invoiceTax + ' USD</p>';
+			invoiceTotal = invoiceSubtotal + invoiceShipping + invoiceTax;
+			invoiceData += '<p><strong>Total</strong><br>$' + invoiceTotal + ' USD</p>';
+
+			if (response.data.invoice.status === 'unpaid') {
+				invoiceData += '<p class="message">Additional fees for shipping, handling and/or tax may apply before submitting final payment.</p>';
+			}
+
 			invoiceData += '<h2>Invoice Transactions</h2>';
-			invoiceData	+= '<div class="invoice-section-container transactions"><label class="label">Invoice Created</label><div class="transaction"><p><strong>' + response.data.invoice.created + '</strong></p></div>';
+			invoiceData += '<div class="invoice-section-container transactions"><label class="label">Invoice Created</label><div class="transaction"><p><strong>' + response.data.invoice.created + '</strong></p></div>';
 
 			if (response.data.transactions.length) {
 				response.data.transactions.map(function(transaction) {

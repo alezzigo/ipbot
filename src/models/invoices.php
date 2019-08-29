@@ -169,11 +169,14 @@ class InvoicesModel extends AppModel {
 			'conditions' => $parameters['conditions'],
 			'fields' => array(
 				'created',
+				'handling',
 				'id',
 				'initial_invoice_id',
 				'modified',
 				'session_id',
+				'shipping',
 				'status',
+				'tax',
 				'user_id'
 			)
 		));

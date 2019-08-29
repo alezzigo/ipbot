@@ -358,20 +358,22 @@ class CartsModel extends AppModel {
 			($cartProducts = $this->_retrieveProducts($cart)) &&
 			($cartItems = $this->_retrieveCartItems($cart, $cartProducts))
 		) {
-			$conditions = array(
-				'session_id' => $cart['id'],
-				'status' => 'pending'
+			$invoiceConditions = $orderConditions = array(
+				'session_id' => $cart['id']
 			);
+			$invoiceConditions['status'] = 'unpaid';
+			$orderConditions['status'] = 'pending';
 			$orders = $invoiceOrders = array();
 			$parameters['user'] = $this->_authenticate('users', $parameters);
 			$total = 0;
 
 			if (!empty($parameters['user']['id'])) {
-				$conditions['user_id'] = $parameters['user']['id'];
+				$invoiceConditions['user_id'] = $orderConditions['user_id'] = $parameters['user']['id'];
 			}
 
 			foreach ($cartItems as $cartItem) {
-				$orders[] = array_merge($conditions, array(
+				$orders[] = array_merge($orderConditions, array(
+					'cart_item_id' => $cartItem['id'],
 					'interval_type' => $cartItem['interval_type'],
 					'interval_value' => $cartItem['interval_value'],
 					'name' => $cartItem['name'],
@@ -380,6 +382,7 @@ class CartsModel extends AppModel {
 					'quantity' => $cartItem['quantity'],
 					'type' => $cartItem['type']
 				));
+				$orderConditions['cart_item_id'][] = $cartItem['id'];
 				$total += $cartItem['price'];
 			}
 
@@ -387,9 +390,7 @@ class CartsModel extends AppModel {
 
 			if (
 				$this->save('invoices', array(
-					$invoiceConditions = array_merge($conditions, array(
-						'status' => 'unpaid'
-					))
+					$invoiceConditions
 				)) &&
 				$this->save('orders', $orders)
 			) {
@@ -411,7 +412,7 @@ class CartsModel extends AppModel {
 					)
 				));
 				$orderIds = $this->find('orders', array(
-					'conditions' => $conditions,
+					'conditions' => $orderConditions,
 					'fields' => array(
 						'id'
 					)

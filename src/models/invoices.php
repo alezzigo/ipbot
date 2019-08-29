@@ -34,6 +34,7 @@ class InvoicesModel extends AppModel {
 				),
 				'fields' => array(
 					'created',
+					'id',
 					'interval_type',
 					'interval_value',
 					'modified',

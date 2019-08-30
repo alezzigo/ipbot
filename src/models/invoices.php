@@ -27,6 +27,7 @@ class InvoicesModel extends AppModel {
 
 			if (!empty($response['orders'])) {
 				$invoiceOrderProducts = array();
+
 				foreach ($response['orders'] as $key => $invoiceOrder) {
 					if (empty($invoiceOrderProducts[$invoiceOrder['product_id']])) {
 						$invoiceOrderProduct = $this->find('products', array(
@@ -78,7 +79,7 @@ class InvoicesModel extends AppModel {
 			if (!$this->save('invoices', array(
 				$response['invoice']
 			))) {
-				return $invoiceData;
+				$response = $invoiceData;
 			}
 		}
 

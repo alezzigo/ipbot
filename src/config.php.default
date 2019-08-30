@@ -219,6 +219,7 @@ class Config {
 				'company' => '',
 				'country_code' => 'US',
 				'country_name' => '',
+				'currency' => 'USD',
 				'region' => '',
 				'zip' => ''
 			),

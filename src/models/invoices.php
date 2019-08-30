@@ -84,6 +84,7 @@ class InvoicesModel extends AppModel {
 		}
 
 		$response['invoice']['amount_applied_to_balance'] = max(0, $invoiceData['amount_paid'] - $invoiceData['amount_applied']);
+		$response['invoice']['payment_currency'] = $this->settings['billing']['currency'];
 		return $response;
 	}
 

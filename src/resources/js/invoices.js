@@ -42,6 +42,8 @@ var processInvoice = function() {
 				invoiceData += '<p class="message">Additional fees for shipping, handling and/or tax may apply before submitting final payment.</p>';
 			}
 
+			invoiceData += '<h2>Invoice Payment Details</h2>';
+			invoiceData += '<p><strong>Amount Applied to Account Balance</strong><br>' + response.data.invoice.amount_applied_to_balance + ' ' + response.data.invoice.payment_currency + '</p>';
 			invoiceData += '<h2>Invoice Transactions</h2>';
 			invoiceData += '<div class="invoice-section-container transactions"><label class="label">Invoice Created</label><div class="transaction"><p><strong>' + response.data.invoice.created + '</strong></p></div>';
 

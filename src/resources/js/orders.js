@@ -9,6 +9,12 @@ var processOrders = function() {
 		var messageContainer = document.querySelector('main .message-container');
 
 		if (messageContainer) {
+			if (response.user === false) {
+				elements.addClass('nav .user', 'hidden');
+				elements.removeClass('nav .guest', 'hidden');
+				response.message = 'You\'re currently not logged in, please <a href="' + requestParameters.base_url + '?#login">log in</a> or <a href="' + requestParameters.base_url + '?#register">register an account</a>.';
+			}
+
 			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
 		}
 

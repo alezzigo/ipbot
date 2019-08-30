@@ -48,7 +48,17 @@
 	if (!empty($config->permissions[$data['table']][$data['action']]['group'])) {
 		$primaryNavigationItems = array(
 			array(
-				'class' => 'button window-button',
+				'class' => 'button hidden guest window-button',
+				'href' => $config->settings['base_url'] . '?#login',
+				'text' => 'Log In'
+			),
+			array(
+				'class' => 'button hidden guest window-button',
+				'href' => $config->settings['base_url'] . '?#register',
+				'text' => 'Register'
+			),
+			array(
+				'class' => 'button user window-button',
 				'process' => 'logout',
 				'text' => 'Log Out'
 			)

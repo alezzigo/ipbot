@@ -265,7 +265,9 @@ class AppModel extends Config {
  * @return array $response
  */
 	protected function _processAction($table, $parameters) {
-		$response = array();
+		$response = array(
+			'user' => $parameters['user']
+		);
 
 		if (
 			!method_exists($this, $action = $parameters['action']) ||
@@ -446,7 +448,8 @@ class AppModel extends Config {
 						} else {
 							$parameters = array_merge($parameters, array(
 								'redirect' => '',
-								'session' => $this->_createTokenString($table, array(), sha1($parameters['keys']['users']))
+								'session' => $this->_createTokenString($table, array(), sha1($parameters['keys']['users'])),
+								'user' => $this->_authenticate('users', $parameters)
 							));
 							$response = array(
 								'code' => 407,
@@ -459,7 +462,7 @@ class AppModel extends Config {
 							if (
 								empty($this->permissions[$table][$action]['group']) ||
 								(
-									($parameters['user'] = $this->_authenticate('users', $parameters)) &&
+									!empty($parameters['user']) &&
 									in_array('user_id', $this->permissions[$table][$action]['fields']) &&
 									($parameters['conditions']['user_id'] = $parameters['user']['id'])
 								) ||

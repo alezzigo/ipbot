@@ -43,7 +43,24 @@ var processInvoice = function() {
 			}
 
 			invoiceData += '<h2>Invoice Payment Details</h2>';
-			invoiceData += '<p><strong>Amount Applied to Account Balance</strong><br>' + response.data.invoice.amount_applied_to_balance + ' ' + response.data.invoice.payment_currency + '</p>';
+
+			if (response.data.invoice.amount_paid) {
+				invoiceData += '<p><strong>Total Amount Paid</strong><br><span class="paid">' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_paid + ' ' + response.data.invoice.payment_currency_name + '</span></p>';
+			}
+
+			if (response.data.invoice.amount_refunded) {
+				invoiceData += '<p><strong>Total Amount Refunded</strong><br><span class="refund">' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_refunded + ' ' + response.data.invoice.payment_currency_name + '</span></p>';
+			}
+
+			if (response.data.invoice.amount_applied) {
+				invoiceData += '<p><strong>Amount Applied to Invoice</strong><br><span class="paid">' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_applied + ' ' + response.data.invoice.payment_currency_name + '</span></p>';
+			}
+
+			if (response.data.invoice.amount_applied_to_balance) {
+				invoiceData += '<p><strong>Amount Applied to Account Balance</strong><br><span class="paid">' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_applied_to_balance + ' ' + response.data.invoice.payment_currency_name + '</span></p>';
+			}
+
+			invoiceData += '<p><strong>Remaining Amount Due</strong><br>' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_due + ' ' + response.data.invoice.payment_currency_name + '</p>';
 			invoiceData += '<h2>Invoice Transactions</h2>';
 			invoiceData += '<div class="invoice-section-container transactions"><label class="label">Invoice Created</label><div class="transaction"><p><strong>' + response.data.invoice.created + '</strong></p></div>';
 

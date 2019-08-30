@@ -219,7 +219,8 @@ class Config {
 				'company' => '',
 				'country_code' => 'US',
 				'country_name' => '',
-				'currency' => 'USD',
+				'currency_name' => 'USD',
+				'currency_symbol' => '$',
 				'region' => '',
 				'zip' => ''
 			),

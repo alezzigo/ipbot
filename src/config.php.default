@@ -9,6 +9,12 @@ class Config {
 
 	public function __construct() {
 
+		$keys = array(
+			'salt' => '-_-',
+			'start' => 'o_o',
+			'stop' => '._.'
+		);
+
 		$this->defaultFields = $defaultFields = array(
 			'carts' => array(
 				'id',
@@ -58,12 +64,6 @@ class Config {
 				'email',
 				'id'
 			)
-		);
-
-		$keys = array(
-			'salt' => '-_-',
-			'start' => 'o_o',
-			'stop' => '._.'
 		);
 
 		$this->groups = array(

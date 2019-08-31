@@ -158,8 +158,8 @@ class CartsModel extends AppModel {
 			$cartProductIds = $this->find('products', $cartProductParameters);
 
 			if (
-				!empty($cartProductIds['count']) &&
 				!empty($cartProducts['count']) &&
+				!empty($cartProductIds['count']) &&
 				$cartProductIds['count'] === $cartProducts['count']
 			) {
 				$response = array_combine($cartProductIds['data'], $cartProducts['data']);
@@ -364,12 +364,12 @@ class CartsModel extends AppModel {
 			($cartProducts = $this->_retrieveProducts($cart)) &&
 			($cartItems = $this->_retrieveCartItems($cart, $cartProducts))
 		) {
+			$invoices = $orders = array();
 			$invoiceConditions = $orderConditions = array(
 				'session_id' => $cart['id']
 			);
 			$invoiceConditions['status'] = 'unpaid';
 			$orderConditions['status'] = 'pending';
-			$orders = $invoiceOrders = array();
 			$parameters['user'] = $this->_authenticate('users', $parameters);
 			$total = 0;
 
@@ -378,6 +378,7 @@ class CartsModel extends AppModel {
 			}
 
 			foreach ($cartItems as $cartItem) {
+				$invoices[$cartItem['interval_value'] . '_' . $cartItem['interval_type']][] = $cartItem['id'];
 				$orders[] = array_merge($orderConditions, array(
 					'cart_item_id' => $cartItem['id'],
 					'interval_type' => $cartItem['interval_type'],
@@ -395,59 +396,78 @@ class CartsModel extends AppModel {
 			$total = number_format(round($total * 100) / 100, 2, '.', '');
 
 			if (
-				$this->save('invoices', array(
-					$invoiceConditions
-				)) &&
+				!empty($orders) &&
 				$this->save('orders', $orders)
 			) {
-				$invoice = $this->find('invoices', array(
-					'conditions' => $invoiceConditions,
-					'fields' => array(
-						'created',
-						'id',
-						'initial_invoice_id',
-						'modified',
-						'session_id',
-						'status',
-						'user_id'
-					),
-					'limit' => 1,
-					'sort' => array(
-						'field' => 'created',
-						'order' => 'DESC'
-					)
+				foreach ($invoices as $interval => $cartItemIds) {
+					$interval = explode('_', $interval);
+					$intervalType = $interval[0];
+					$intervalValue = $interval[1];
+					$invoiceConditions['cart_items'] = sha1(json_encode($cartItemIds));
+					$invoiceOrders = array();
+
+					if ($this->save('invoices', array(
+						$invoiceConditions
+					))) {
+						$invoice = $this->find('invoices', array(
+							'conditions' => $invoiceConditions,
+							'fields' => array(
+								'created',
+								'id',
+								'initial_invoice_id',
+								'modified',
+								'session_id',
+								'status',
+								'user_id'
+							),
+							'limit' => 1,
+							'sort' => array(
+								'field' => 'created',
+								'order' => 'DESC'
+							)
+						));
+						$orderIds = $this->find('orders', array(
+							'conditions' => array_merge($orderConditions, array(
+								'cart_item_id' => $cartItemIds
+							)),
+							'fields' => array(
+								'id'
+							)
+						));
+
+						if (
+							!empty($invoice['count']) &&
+							!empty($orderIds['count'])
+						) {
+							foreach ($orderIds['data'] as $orderId) {
+								$invoiceOrders[] = array(
+									'invoice_id' => $invoice['data'][0]['id'],
+									'order_id' => $orderId
+								);
+							}
+
+							if ($this->save('invoice_orders', $invoiceOrders)) {
+								$invoiceId = $invoice['data'][0]['id'];
+								$response = array(
+									'redirect' => $this->settings['base_url'] . 'invoices'
+								);
+							}
+						}
+					}
+				}
+
+				$this->delete('carts', array(
+					'id' => $cart['id']
 				));
-				$orderIds = $this->find('orders', array(
-					'conditions' => $orderConditions,
-					'fields' => array(
-						'id'
-					)
+				$this->delete('cart_items', array(
+					'cart_id' => $cart['id']
 				));
 
 				if (
-					!empty($invoice['count']) &&
-					!empty($orderIds['count'])
+					count($invoices) === 1 &&
+					!empty($invoiceId)
 				) {
-					foreach ($orderIds['data'] as $orderId) {
-						$invoiceOrders[] = array(
-							'invoice_id' => $invoice['data'][0]['id'],
-							'order_id' => $orderId
-						);
-					}
-
-					if (
-						$this->save('invoice_orders', $invoiceOrders) &&
-						$this->delete('carts', array(
-							'id' => $cart['id']
-						)) &&
-						$this->delete('cart_items', array(
-							'cart_id' => $cart['id']
-						))
-					) {
-						$response = array(
-							'redirect' => $this->settings['base_url'] . 'invoices/' . $invoice['data'][0]['id']
-						);
-					}
+					$response['redirect'] .= '/' . $invoiceId;
 				}
 			}
 		}

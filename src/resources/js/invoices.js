@@ -84,6 +84,10 @@ var processInvoice = function() {
 };
 var processInvoices = function() {
 	requestParameters.action = previousAction;
+	requestParameters.sort = {
+		field: 'created',
+		order: 'DESC'
+	};
 	sendRequest(function(response) {
 		var messageContainer = document.querySelector('main .message-container');
 

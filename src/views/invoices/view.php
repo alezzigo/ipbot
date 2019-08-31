@@ -24,7 +24,7 @@
 						<div class="controls-container item-controls-container scrollable">
 							<div class="item-header">
 								<div class="hidden item-controls">
-									<a class="button main-button" disabled href="javascript:void(0);">Payment Disabled</a>
+									<a class="button main-button window-button" href="javascript:void(0);" process="payment" window="payment">Pay Invoice</a>
 									<a class="alternate-button button" href="<?php echo $config->settings['base_url']; ?>invoices">Back to Invoices</a>
 								</div>
 								<div class="clear"></div>

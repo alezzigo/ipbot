@@ -105,6 +105,7 @@ select {
 	margin: 0;
 	outline: none;
 	padding: 9px 24px 9px 10px;
+	width: 100%;
 }
 	select::-ms-expand {
 		clear: both;
@@ -199,6 +200,7 @@ main {
 		float: left;
 		margin: 0 0 0 -1px !important;
 		position: relative;
+		width: auto;
 	}
 	.field-group input,
 	.field-group select,
@@ -217,7 +219,28 @@ main {
 		font-size: 12px;
 		font-weight: 600;
 		padding: 4px 11px 3px;
+		z-index: 2;
 	}
+	.field-group label[type="radio"] {
+		border: 1px solid #dddbf4;
+		cursor: pointer;
+		height: 36px;
+		line-height: 36px;
+		margin-bottom: 10px;
+		padding: 0;
+	}
+		.field-group label[type="radio"] input {
+			cursor: pointer;
+			height: auto;
+			margin: 11px 10px 0 13px !important;
+			width: auto;
+		}
+		.field-group label[type="radio"]:hover {
+			border-color: #7773e3;
+		}
+		.field-group label[type="radio"]:last-child {
+			margin-bottom: 0;
+		}
 	.field-group .button {
 		background: #7773e3;
 		border: none;
@@ -455,6 +478,11 @@ main {
 	position: relative;
 	width: 100%;
 }
+	.item-container input[type="email"],
+	.item-container input[type="number"],
+	.item-container input[type="text"] {
+		height: 36px;
+	}
 	.item-container input,
 	.item-container textarea {
 		border: 1px solid #dddbf4;
@@ -810,3 +838,15 @@ main {
 			.transactions .transaction p:last-child {
 				margin-bottom: 15px;
 			}
+.field-group .billing-cc-code {
+	height: 36px;
+	position: absolute;
+	right: 0;
+	width: 93px;
+	z-index: 1;
+}
+@media (max-width: 480px) {
+	.field-group .billing-cc-code {
+		position: relative;
+	}
+}

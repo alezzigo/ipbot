@@ -77,6 +77,13 @@ var processInvoice = function() {
 
 			invoiceData	+= '</div>';
 			elements.removeClass('.item-configuration .item-controls', 'hidden');
+
+			selectAllElements('.payment-methods input').map(function(element) {
+				element[1].addEventListener('change', function(element) {
+					elements.addClass('.payment-method', 'hidden');
+					elements.removeClass('.payment-method.' + element.target.getAttribute('id'), 'hidden');
+				});
+			});
 		}
 
 		invoiceContainer.innerHTML = invoiceData;

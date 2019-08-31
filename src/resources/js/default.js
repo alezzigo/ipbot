@@ -85,6 +85,7 @@ var onLoad = function(callback) {
 var openWindow = function(windowName, windowSelector) {
 	elements.addClass('footer, header, main', 'hidden');
 	elements.removeClass(windowSelector, 'hidden');
+	window.scroll(0, 0);
 };
 var processWindowEvents = function(event) {
 	if (typeof event === 'undefined') {

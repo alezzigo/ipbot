@@ -467,7 +467,7 @@ class CartsModel extends AppModel {
 					count($invoices) === 1 &&
 					!empty($invoiceId)
 				) {
-					$response['redirect'] .= '/' . $invoiceId;
+					$response['redirect'] .= '/' . $invoiceId . '#payment';
 				}
 			}
 		}

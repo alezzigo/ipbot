@@ -4,6 +4,8 @@ var defaultTable = 'invoices';
 var previousAction = 'find';
 var processInvoice = function() {
 	requestParameters.action = 'invoice';
+	requestParameters.table = 'invoices';
+	requestParameters.url = '/api/invoices';
 	var invoiceContainer = document.querySelector('.invoice-container');
 	var invoiceId = document.querySelector('input[name="invoice_id"]').value;
 	var invoiceData = '';
@@ -77,7 +79,6 @@ var processInvoice = function() {
 
 			invoiceData	+= '</div>';
 			elements.removeClass('.item-configuration .item-controls', 'hidden');
-
 			selectAllElements('.payment-methods input').map(function(element) {
 				element[1].addEventListener('change', function(element) {
 					elements.addClass('.payment-method', 'hidden');
@@ -90,11 +91,13 @@ var processInvoice = function() {
 	});
 };
 var processInvoices = function() {
-	requestParameters.action = previousAction;
+	requestParameters.action = 'find';
 	requestParameters.sort = {
 		field: 'created',
 		order: 'DESC'
 	};
+	requestParameters.table = 'invoices';
+	requestParameters.url = '/api/invoices';
 	sendRequest(function(response) {
 		var messageContainer = document.querySelector('main .message-container');
 
@@ -123,5 +126,16 @@ var processInvoices = function() {
 		}
 	});
 };
-requestParameters.table = defaultTable;
-requestParameters.url = '/api/invoices';
+var processPayment = function(windowName, windowSelector) {
+	requestParameters.action = 'payment';
+	requestParameters.table = 'transactions';
+	requestParameters.url = '/api/transactions';
+	sendRequest(function(response) {
+		window.scroll(0, 0);
+		var messageContainer = document.querySelector(windowSelector + ' .message-container');
+
+		if (messageContainer) {
+			messageContainer.innerHTML = (response.message ? '<p class="message' + (response.status ? ' .' + response.status : '') + '">' + response.message + '</p>' : '');
+		}
+	});
+};

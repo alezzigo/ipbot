@@ -26,11 +26,18 @@
 						<h1>Payment</h1>
 					</div>
 					<div class="item-body">
-						<!--<div class="account-details">
-							<h2>Account Details</h2>
+						<div class="message-container"></div>
+						<h2 class="no-margin-top">Account Details</h2>
+						<div class="account-details">
 							<p class="message">Create a new <?php echo $config->settings['site_name']; ?> account or log in with an existing email and password below.</p>
-						</div>-->
-						<h2 class="no-margin-top">Payment Method</h2>
+							<label for="register-email">Email</label>
+							<input class="email" id="register-email" name="email" placeholder="Enter account email address" type="text">
+							<label for="register-password">Password</label>
+							<input class="password" id="register-password" name="password" placeholder="Enter account password" type="password">
+							<label for="confirm_password">Confirm Password</label>
+							<input class="confirm-password" id="register-confirm-password" name="confirm_password" placeholder="Confirm account password" type="password">
+						</div>
+						<h2>Payment Method</h2>
 						<div class="field-group payment-methods">
 							<label for="paypal" type="radio"><input checked id="paypal" name="payment_method" type="radio" value="paypal"> PayPal</label>
 							<label for="credit-card" type="radio"><input id="credit-card" name="payment_method" type="radio" value="credit_card"> Credit Card</label>
@@ -68,8 +75,8 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<!--<button class="button close main-button submit" process="payment" window="payment">Complete Payment</button>-->
-						<button class="button close main-button submit" disabled process="payment" window="payment">Payment Disabled</button>
+						<!--<button class="button main-button submit" process="payment" window="payment">Complete Payment</button>-->
+						<button class="button main-button submit" disabled process="payment" window="payment">Payment Disabled</button>
 					</div>
 				</div>
 			</div>

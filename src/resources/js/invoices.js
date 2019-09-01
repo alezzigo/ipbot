@@ -85,6 +85,13 @@ var processInvoice = function() {
 					elements.removeClass('.payment-method.' + element.target.getAttribute('id'), 'hidden');
 				});
 			});
+
+			if (
+				response.user !== false &&
+				response.user.email
+			) {
+				document.querySelector('.account-details').innerHTML = '<p class="message">You\'re currently logged in as ' + response.user.email + '</p>';
+			}
 		}
 
 		invoiceContainer.innerHTML = invoiceData;

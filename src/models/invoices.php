@@ -75,6 +75,7 @@ class InvoicesModel extends UsersModel {
 			unset($response['invoice']['created']);
 			unset($response['invoice']['initial_invoice_id']);
 			unset($response['invoice']['modified']);
+			unset($response['invoice']['user_id']);
 
 			if (!$this->save('invoices', array(
 				$response['invoice']

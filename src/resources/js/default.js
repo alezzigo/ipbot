@@ -44,6 +44,7 @@ var closeWindows = function(defaultTable) {
 	elements.removeClass('footer, header, main', 'hidden');
 	requestParameters.action = previousAction;
 	requestParameters.table = defaultTable;
+	window.scroll(0, 0);
 };
 var elements = {
 	addClass: function(selector, className) {

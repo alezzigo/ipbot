@@ -856,6 +856,17 @@ main {
 			.transactions .transaction p:last-child {
 				margin-bottom: 15px;
 			}
+.billing-country {
+	margin-bottom: 10px;
+}
+.billing-view-details {
+	margin-left: 13px;
+	margin-top: 4px;
+	display: inline-block;
+}
+.field-group .billing-amount {
+	width: 88px;
+}
 .field-group .billing-cc-code {
 	height: 36px;
 	position: absolute;

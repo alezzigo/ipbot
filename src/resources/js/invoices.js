@@ -22,6 +22,12 @@ var processInvoice = function() {
 
 		if (response.data.invoice) {
 			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label> Invoice #' + response.data.invoice.id;
+			document.querySelector('.billing-amount').value = response.data.invoice.amount_due;
+			document.querySelector('.billing-currency-name').innerHTML = response.data.invoice.payment_currency_name;
+			document.querySelector('.billing-currency-symbol').innerHTML = response.data.invoice.payment_currency_symbol;
+			document.querySelector('.billing-view-details').addEventListener('click', function(element) {
+				closeWindows(defaultTable);
+			});
 
 			if (response.data.orders.length) {
 				invoiceData += '<h2>Invoice Orders</h2>';

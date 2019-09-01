@@ -72,6 +72,18 @@
 							<label for="billing-country">Billing Country</label>
 							<select class="billing-country" id="billing-country" name="billing_country"><?php echo $countrySelectValues; ?></select>
 						</div>
+						<label for="billing-amount">Payment Amount</label>
+						<div class="field-group">
+							<span class="billing-currency-symbol"></span>
+							<input class="billing-amount" id="billing_amount" name="billing_amount" type="number">
+							<span class="billing-currency-name"></span>
+							<a class="billing-view-details" href="javascript:void(0);">View invoice details</a>
+						</div>
+						<div class="clear"></div>
+						<div class="checkbox-container">
+							<span checked="1" class="checkbox" id="billing-recurring" name="billing_recurring"></span>
+							<label class="custom-checkbox-label" for="billing-recurring" name="billing_recurring">Recurring subscription</label>
+						</div>
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>

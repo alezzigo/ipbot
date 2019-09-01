@@ -5,9 +5,9 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
-require_once($config->settings['base_path'] . '/models/app.php');
+require_once($config->settings['base_path'] . '/models/users.php');
 
-class InvoicesModel extends AppModel {
+class InvoicesModel extends UsersModel {
 
 /**
  * Calculate invoice payment details

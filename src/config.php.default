@@ -184,6 +184,11 @@ class Config {
 					'group' => 'user'
 				)
 			),
+			'transactions' => array(
+				'payment' => array(
+					'fields' => array()
+				)
+			),
 			'users' => array(
 				'forgot' => array(
 					'fields' => $defaultFields['users']

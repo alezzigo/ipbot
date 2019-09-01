@@ -45,8 +45,8 @@
 							<label for="billing-cc-number">Card Number</label>
 							<input class="billing-cc-number no-margin-bottom" id="billing-cc-number" name="billing_cc_number" placeholder="Enter 16-digit number on credit card" type="text">
 							<div class="field-group">
-								<span>Month</span><select><?php echo $monthSelectValues; ?></select>
-								<span>Year</span><select><?php echo $yearSelectValues; ?></select>
+								<span>Month</span><select class="billing-cc-month" name="billing_cc_month"><?php echo $monthSelectValues; ?></select>
+								<span>Year</span><select class="billing-cc-year" name="billing_cc_year"><?php echo $yearSelectValues; ?></select>
 								<span>CVV Code</span><input class="billing-cc-code" name="billing_cc_code" type="number" placeholder="123">
 							</div>
 							<label for="billing-name">Billing Name</label>

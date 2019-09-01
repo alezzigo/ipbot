@@ -180,11 +180,14 @@ class CartsModel extends AppModel {
 	public function cart($table, $parameters) {
 		$response = array(
 			'data' => array(),
-			'message' => ($defaultMessage = 'Error processing your cart request, please try again.')
+			'message' => array(
+				'status' => 'error',
+				'text' => ($defaultMessage = 'Error processing your cart request, please try again.')
+			)
 		);
 
 		if ($cartData = $this->_retrieveCart($parameters)) {
-			$response['message'] = 'There are no items in your cart.';
+			$response['message']['text'] = 'There are no items in your cart.';
 
 			if (!empty($cartData)) {
 				$cartProducts = $this->_retrieveProducts($cartData);
@@ -194,7 +197,7 @@ class CartsModel extends AppModel {
 					$cartProducts &&
 					$cartItems
 				) {
-					$response['message'] = '';
+					$response['message']['text'] = '';
 				}
 
 				if (!empty($cartItemData = array_intersect_key($parameters['data'], array(
@@ -204,13 +207,16 @@ class CartsModel extends AppModel {
 					'product_id' => true,
 					'quantity' => true
 				)))) {
-					$response['message'] = $defaultMessage;
+					$response['message'] = array(
+						'status' => 'error',
+						'text' => $defaultMessage
+					);
 
 					if (empty($cartItemData['id'])) {
-						$response['message'] = 'Error adding item to your cart, please try again.';
+						$response['message']['text'] = 'Error adding item to your cart, please try again.';
 
 						if (count($cartItemData) === 4) {
-							$response['message'] = 'Invalid cart item parameters, please try again.';
+							$response['message']['text'] = 'Invalid cart item parameters, please try again.';
 
 							if (
 								!empty($cartItemData['interval_type']) &&
@@ -223,7 +229,7 @@ class CartsModel extends AppModel {
 								!empty($cartItemData['quantity']) &&
 								is_numeric($cartItemData['quantity'])
 							) {
-								$response['message'] = 'Invalid product ID, please try again.';
+								$response['message']['text'] = 'Invalid product ID, please try again.';
 								$cartProduct = $this->find('products', array(
 									'conditions' => array(
 										'id' => $cartItemData['product_id']
@@ -250,7 +256,7 @@ class CartsModel extends AppModel {
 								));
 
 								if (!empty($cartProduct = $cartProduct['data'][0])) {
-									$response['message'] = 'Invalid product quantity, please try again.';
+									$response['message']['text'] = 'Invalid product quantity, please try again.';
 
 									if (
 										$cartItemData['quantity'] <= $cartProduct['maximum_quantity'] &&
@@ -262,7 +268,10 @@ class CartsModel extends AppModel {
 											$cartItemData
 										))) {
 											$response = array(
-												'message' => 'Cart item added successfully.',
+												'message' => array(
+													'status' => 'success',
+													'text' => 'Cart item added successfully.'
+												),
 												'redirect' => $this->settings['base_url'] . 'cart'
 											);
 										}
@@ -284,7 +293,7 @@ class CartsModel extends AppModel {
 									'cart_id' => $parameters['session']
 								)
 							));
-							$response['message'] = 'Error deleting cart items, please try again.';
+							$response['message']['text'] = 'Error deleting cart items, please try again.';
 
 							if (
 								!empty($cartItemIds['count']) &&
@@ -292,8 +301,11 @@ class CartsModel extends AppModel {
 									'id' => $cartItemIds['data']
 								))
 							) {
-								$response['message'] = 'Cart items deleted successfully.';
 								$cartItems = array_diff_key($cartItems, array_combine($cartItemIds['data'], array_fill(1, count($cartItemIds['data']), true)));
+								$response['message'] = array(
+									'status' => 'success',
+									'text' => 'Cart items deleted successfully.'
+								);
 							}
 						} elseif (
 							!empty($cartItem = $cartItems[$cartItemData['id']]) &&
@@ -314,7 +326,7 @@ class CartsModel extends AppModel {
 							) {
 								$cartItems[$cartItemData['id']] = $cartItem = array_merge($cartItem, $cartItemData);
 								$cartItems[$cartItemData['id']]['price'] = $this->_calculateCartItemPrice($cartItem);
-								$response['message'] = '';
+								$response['message']['text'] = '';
 							}
 						}
 					}
@@ -355,7 +367,10 @@ class CartsModel extends AppModel {
  */
 	public function complete($table, $parameters) {
 		$response = array(
-			'message' => 'Error processing your order completion request, please try again.',
+			'message' => array(
+				'status' => 'error',
+				'text' => 'Error processing your order completion request, please try again.'
+			),
 			'redirect' => $this->settings['base_url'] . 'cart'
 		);
 

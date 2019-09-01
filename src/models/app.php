@@ -300,7 +300,10 @@ class AppModel extends Config {
 		} else {
 			$action = 'find';
 			$response['items'] = $clearItems;
-			$response['message'] = 'Your ' . $table . ' have been recently modified and your previously-selected results have been deselected automatically.';
+			$response['message'] = array(
+				'status' => 'error',
+				'text' => 'Your ' . $table . ' have been recently modified and your previously-selected results have been deselected automatically.'
+			);
 		}
 
 		if (!empty($parameters['redirect'])) {
@@ -379,7 +382,10 @@ class AppModel extends Config {
 	protected function _request($parameters) {
 		$response = array(
 			'code' => 400,
-			'message' => 'Request parameters are required for API.'
+			'message' => array(
+				'status' => 'error',
+				'text' => 'Request parameters are required for API.'
+			)
 		);
 
 		if (
@@ -387,13 +393,13 @@ class AppModel extends Config {
 			is_string($_POST['json'])
 		) {
 			$parameters = json_decode($_POST['json'], true);
-			$response['message'] = 'No results found, please try again.';
+			$response['message']['text'] = 'No results found, please try again.';
 
 			if (
 				empty($table = $parameters['table']) ||
 				empty($this->permissions[$table])
 			) {
-				$response['message'] = 'Invalid request table, please try again.';
+				$response['message']['text'] = 'Invalid request table, please try again.';
 			} else {
 				if (
 					($parameters['action'] = $action = (!empty($parameters['action']) ? $parameters['action'] : 'find')) &&
@@ -402,14 +408,14 @@ class AppModel extends Config {
 						!method_exists($this, $action)
 					)
 				) {
-					$response['message'] = 'Invalid request action, please try again.';
+					$response['message']['text'] = 'Invalid request action, please try again.';
 				} else {
 					if (
 						($fieldPermissions = $this->permissions[$table][$action]['fields']) &&
 						($parameters['fields'] = $fields = !empty($parameters['fields']) ? $parameters['fields'] : $fieldPermissions) &&
 						count(array_intersect($fields, $fieldPermissions)) !== count($fields)
 					) {
-						$response['message'] = 'Invalid request fields, please try again.';
+						$response['message']['text'] = 'Invalid request fields, please try again.';
 					} else {
 						if (
 							(
@@ -444,7 +450,7 @@ class AppModel extends Config {
 								)
 							)
 						) {
-							$response['message'] = 'Invalid request parameters, please try again.';
+							$response['message']['text'] = 'Invalid request parameters, please try again.';
 						} else {
 							$parameters = array_merge($parameters, array(
 								'redirect' => '',
@@ -453,7 +459,10 @@ class AppModel extends Config {
 							));
 							$response = array(
 								'code' => 407,
-								'message' => 'Authentication required, please log in and try again.',
+								'message' => array(
+									'status' => 'error',
+									'text' => 'Authentication required, please log in and try again.'
+								),
 								'redirect' => $this->settings['base_url'] . '#login'
 							);
 							unset($parameters['conditions']['session_id']);
@@ -897,7 +906,10 @@ class AppModel extends Config {
 		);
 
 		if (empty($count)) {
-			$response['message'] = 'No ' . str_replace('_', ' ', $table) . ' found, please try again.';
+			$response['message'] = array(
+				'status' => 'error',
+				'text' => 'No ' . str_replace('_', ' ', $table) . ' found, please try again.'
+			);
 		}
 
 		return $response;

@@ -137,7 +137,7 @@ var processGroup = function(windowName, windowSelector) {
 	var processGroupTable = function(response) {
 		requestParameters.limit = limit;
 		requestParameters.offset = offset;
-		groupTable.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+		groupTable.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 
 		if (
 			response.code !== 200 ||
@@ -216,7 +216,7 @@ var processOrder = function() {
 	requestParameters.url = '/api/orders';
 	sendRequest(function(response) {
 		if (messageContainer) {
-			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
 
 		if (
@@ -395,7 +395,7 @@ var processProxies = function(windowName, windowSelector, currentPage) {
 	requestParameters.sort.field = 'modified';
 	sendRequest(function(response) {
 		if (messageContainer) {
-			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
 
 		if (

@@ -22,7 +22,7 @@ var processConfirm = function() {
 		}
 
 		if (messageContainer) {
-			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
 	});
 };
@@ -59,7 +59,7 @@ var processCartItems = function(response) {
 			var messageContainer = document.querySelector('main.product .message-container');
 
 			if (messageContainer) {
-				messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : 'asdf');
+				messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 			}
 
 			if (
@@ -100,7 +100,7 @@ var processCartItems = function(response) {
 	};
 
 	if (messageContainer) {
-		messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+		messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 	}
 
 	if (response.code !== 200) {

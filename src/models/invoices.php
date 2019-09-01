@@ -292,7 +292,10 @@ class InvoicesModel extends UsersModel {
 	public function invoice($table, $parameters) {
 		$response = array(
 			'data' => array(),
-			'message' => ($defaultMessage = 'Error processing your invoice request, please try again.')
+			'message' => array(
+				'status' => 'error',
+				'text' => ($defaultMessage = 'Error processing your invoice request, please try again.')
+			)
 		);
 		$invoiceData = $this->find($table, array(
 			'conditions' => $parameters['conditions'],
@@ -337,7 +340,10 @@ class InvoicesModel extends UsersModel {
 						'subscriptions' => $invoiceSubscriptions,
 						'transactions' => $invoiceTransactions
 					),
-					'message' => ''
+					'message' => array(
+						'status' => 'success',
+						'text' => ''
+					)
 				);
 				$response['data'] = array_replace_recursive($response['data'], $this->_calculateInvoicePaymentDetails($response['data']));
 			}

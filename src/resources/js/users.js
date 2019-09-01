@@ -9,7 +9,7 @@ var processUsers = function(windowName, windowSelector) {
 		var messageContainer = document.querySelector('.' + windowName + ' .message-container');
 
 		if (messageContainer) {
-			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
 
 		if (

@@ -17,7 +17,7 @@ var processInvoice = function() {
 		var messageContainer = document.querySelector('main .message-container');
 
 		if (messageContainer) {
-			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
 
 		if (response.data.invoice) {
@@ -105,10 +105,13 @@ var processInvoices = function() {
 			if (response.user === false) {
 				elements.addClass('nav .user', 'hidden');
 				elements.removeClass('nav .guest', 'hidden');
-				response.message = 'You\'re currently not logged in, please <a href="' + requestParameters.base_url + '?#login">log in</a> or <a href="' + requestParameters.base_url + '?#register">register an account</a>.';
+				response.message = {
+					status: 'error',
+					text: 'You\'re currently not logged in, please <a href="' + requestParameters.base_url + '?#login">log in</a> or <a href="' + requestParameters.base_url + '?#register">register an account</a>.'
+				};
 			}
 
-			messageContainer.innerHTML = (response.message ? '<p class="message">' + response.message + '</p>' : '');
+			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
 
 		if (
@@ -135,7 +138,8 @@ var processPayment = function(windowName, windowSelector) {
 		var messageContainer = document.querySelector(windowSelector + ' .message-container');
 
 		if (messageContainer) {
-			messageContainer.innerHTML = (response.message ? '<p class="message' + (response.status ? ' .' + response.status : '') + '">' + response.message + '</p>' : '');
+			console.log(response);
+			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
 	});
 };

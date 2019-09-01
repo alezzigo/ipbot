@@ -15,7 +15,7 @@
 						<div class="controls-container item-controls-container scrollable">
 							<div class="item-header">
 								<div class="hidden item-controls">
-									<a class="button confirm main-button" disabled href="<?php echo $config->settings['base_url']; ?>confirm">Complete Order</a>
+									<a class="button confirm main-button" disabled href="<?php echo $config->settings['base_url']; ?>confirm">Proceed to Payment</a>
 									<a class="alternate-button button cart" href="<?php echo $config->settings['base_url']; ?>cart">Return to Cart</a>
 								</div>
 								<div class="clear"></div>

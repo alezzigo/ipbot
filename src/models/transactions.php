@@ -31,7 +31,7 @@ class TransactionsModel extends InvoicesModel {
  * @return array $response
  */
 	public function payment($table, $parameters) {
-		$response = array(
+		$response = $defaultResponse = array(
 			'message' => array(
 				'status' => 'error',
 				'text' => ($defaultMessage = 'Error processing your payment request, please try again')
@@ -41,11 +41,20 @@ class TransactionsModel extends InvoicesModel {
 		if (
 			!empty($parameters['user']) ||
 			(
-				($response = $this->register('users', $parameters)) &&
-				!empty($response['message']['status']) &&
-				$response['message']['status'] === 'success'
+				(
+					($response = $this->register('users', $parameters)) &&
+					!empty($response['message']['status']) &&
+					$response['message']['status'] === 'success'
+				) ||
+				(
+					($response = $this->login('users', $parameters)) &&
+					!empty($response['message']['status']) &&
+					$response['message']['status'] === 'success'
+				)
 			)
 		) {
+			$response['message'] = $defaultResponse['message'];
+			unset($response['redirect']);
 			// ..
 		}
 

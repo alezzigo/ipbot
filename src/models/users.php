@@ -153,7 +153,8 @@ class UsersModel extends AppModel {
 										'status' => 'success',
 										'text' => 'Logged in successfully.'
 									),
-									'redirect' => $this->settings['base_url'] . 'orders'
+									'redirect' => $this->settings['base_url'] . 'orders',
+									'user' => $existingUser['data'][0]
 								);
 							}
 						}
@@ -262,10 +263,6 @@ class UsersModel extends AppModel {
 							if ($this->save($table, array(
 								$user
 							))) {
-								$response['message'] = array(
-									'status' => 'success',
-									'text' => 'User account created successfully.'
-								);
 								return $this->login($table, $parameters);
 							}
 						}

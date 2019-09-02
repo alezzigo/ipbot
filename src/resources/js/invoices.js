@@ -7,8 +7,8 @@ var processInvoice = function() {
 	requestParameters.table = 'invoices';
 	requestParameters.url = '/api/invoices';
 	var invoiceContainer = document.querySelector('.invoice-container');
-	var invoiceId = document.querySelector('input[name="invoice_id"]').value;
 	var invoiceData = '';
+	var invoiceId = document.querySelector('input[name="invoice_id"]').value;
 	var invoiceSubtotal = invoiceTotal = 0;
 	requestParameters.conditions = {
 		id: invoiceId
@@ -91,13 +91,7 @@ var processInvoice = function() {
 					elements.removeClass('.payment-method.' + element.target.getAttribute('id'), 'hidden');
 				});
 			});
-
-			if (
-				response.user !== false &&
-				response.user.email
-			) {
-				document.querySelector('.account-details').innerHTML = '<p class="message">You\'re currently logged in as ' + response.user.email + '</p>';
-			}
+			processLoginVerification(response);
 		}
 
 		invoiceContainer.innerHTML = invoiceData;
@@ -142,15 +136,39 @@ var processInvoices = function() {
 		}
 	});
 };
+var processLoginVerification = function(response) {
+	if (
+		response.user !== false &&
+		response.user.email
+	) {
+		document.querySelector('.account-details').innerHTML = '<p class="message">You\'re currently logged in as ' + response.user.email + '</p>';
+	}
+};
 var processPayment = function(windowName, windowSelector) {
+	var invoiceId = document.querySelector('input[name="invoice_id"]').value;
 	requestParameters.action = 'payment';
+	requestParameters.data.invoice_id = invoiceId;
 	requestParameters.table = 'transactions';
 	requestParameters.url = '/api/transactions';
+	delete requestParameters.conditions;
 	sendRequest(function(response) {
 		var messageContainer = document.querySelector(windowSelector + ' .message-container');
 
 		if (messageContainer) {
 			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		}
+
+		processLoginVerification(response);
+		window.scroll(0, 0);
+
+		if (response.message.status === 'success') {
+			if (
+				typeof response.redirect === 'string' &&
+				response.redirect
+			) {
+				window.location.href = response.redirect;
+				return false;
+			}
 		}
 	});
 };

@@ -58,6 +58,9 @@ onLoad(function() {
 				elements.loop(windowSelector + ' .checkbox', function(index, element) {
 					requestParameters.data[element.getAttribute('name')] = +element.getAttribute('checked');
 				});
+				elements.loop(windowSelector + ' input[type="radio"]:checked', function(index, element) {
+					requestParameters.data[element.getAttribute('name')] = element.value;
+				});
 				previousAction = requestParameters.action;
 				requestParameters.action = windowName;
 

@@ -43,7 +43,6 @@ class TransactionsModel extends InvoicesModel {
  * @return array $response
  */
 	protected function _processPaypal($parameters) {
-		$response = array();
 		$parameters['request'] = array(
 			'business' => $config->settings['billing']['merchant_ids']['paypal'],
 			'cancel_return' => $_SERVER['HTTP_REFERER'] . '#payment',
@@ -68,7 +67,14 @@ class TransactionsModel extends InvoicesModel {
 			));
 		}
 
-		$this->redirect('https://www.paypal.com/cgi-bin/webscr?' . http_build_query($parameters['request']));
+		$response = array(
+			'message' => array(
+				'status' => 'success',
+				'text' => 'Redirecting to PayPal for payment, please wait.'
+			),
+			'redirect' => 'https://www.paypal.com/cgi-bin/webscr?' . http_build_query($parameters['request'])
+		);
+		return $response;
 	}
 
 /**

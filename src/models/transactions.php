@@ -50,7 +50,7 @@ class TransactionsModel extends InvoicesModel {
 			'cmd' => '_xclick',
 			'item_name' => '',
 			'item_number' => '',
-			'notify_url' => '',
+			'notify_url' => $_SERVER['HTTP_REFERER'] . $_SERVER['REDIRECT_URL'],
 			'return' => $_SERVER['HTTP_REFERER'],
 			'src' => '1'
 		);

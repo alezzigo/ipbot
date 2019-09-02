@@ -226,6 +226,10 @@ class Config {
 				'country_name' => '',
 				'currency_name' => 'USD',
 				'currency_symbol' => '$',
+				'merchant_ids' => array(
+					'credit_card' => '',
+					'paypal' => ''
+				),
 				'region' => '',
 				'zip' => ''
 			),

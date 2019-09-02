@@ -44,8 +44,32 @@ class TransactionsModel extends InvoicesModel {
  */
 	protected function _processPaypal($parameters) {
 		$response = array();
-		// ..
-		return $response;
+		$parameters['request'] = array(
+			'business' => $config->settings['billing']['merchant_ids']['paypal'],
+			'item_name' => '',
+			'item_number' => '',
+			'return' => $_SERVER['HTTP_REFERER'],
+			'cancel_return' => $_SERVER['HTTP_REFERER'] . '#payment',
+			'notify_url' => ''
+		);
+
+		if (!empty($parameters['data']['billing_recurring'])) {
+			$parameters['request'] = array_merge($parameters['request'], array(
+				'cmd' => '_xclick-subscriptions',
+				'a3' => $parameters['data']['billing_amount'],
+				'p3' => $parameters['data']['orders'][0]['interval_value'],
+				't3' => ucwords(substr($parameters['data']['orders'][0]['interval_type'], 0, 1)),
+				'src' => '1'
+			));
+		} else {
+			$parameters['request'] = array_merge($parameters['request'], array(
+				'cmd' => '_xclick',
+				'amount' => $parameters['data']['billing_amount'],
+				'src' => '1'
+			));
+		}
+
+		$this->redirect('https://www.paypal.com/cgi-bin/webscr?' . http_build_query($parameters['request']));
 	}
 
 /**

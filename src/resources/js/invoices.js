@@ -147,11 +147,9 @@ var processPayment = function(windowName, windowSelector) {
 	requestParameters.table = 'transactions';
 	requestParameters.url = '/api/transactions';
 	sendRequest(function(response) {
-		window.scroll(0, 0);
 		var messageContainer = document.querySelector(windowSelector + ' .message-container');
 
 		if (messageContainer) {
-			console.log(response);
 			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
 	});

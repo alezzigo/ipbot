@@ -46,25 +46,25 @@ class TransactionsModel extends InvoicesModel {
 		$response = array();
 		$parameters['request'] = array(
 			'business' => $config->settings['billing']['merchant_ids']['paypal'],
+			'cancel_return' => $_SERVER['HTTP_REFERER'] . '#payment',
 			'item_name' => '',
 			'item_number' => '',
-			'return' => $_SERVER['HTTP_REFERER'],
-			'cancel_return' => $_SERVER['HTTP_REFERER'] . '#payment',
-			'notify_url' => ''
+			'notify_url' => '',
+			'return' => $_SERVER['HTTP_REFERER']
 		);
 
 		if (!empty($parameters['data']['billing_recurring'])) {
 			$parameters['request'] = array_merge($parameters['request'], array(
-				'cmd' => '_xclick-subscriptions',
 				'a3' => $parameters['data']['billing_amount'],
+				'cmd' => '_xclick-subscriptions',
 				'p3' => $parameters['data']['orders'][0]['interval_value'],
-				't3' => ucwords(substr($parameters['data']['orders'][0]['interval_type'], 0, 1)),
-				'src' => '1'
+				'src' => '1',
+				't3' => ucwords(substr($parameters['data']['orders'][0]['interval_type'], 0, 1))
 			));
 		} else {
 			$parameters['request'] = array_merge($parameters['request'], array(
-				'cmd' => '_xclick',
 				'amount' => $parameters['data']['billing_amount'],
+				'cmd' => '_xclick',
 				'src' => '1'
 			));
 		}

@@ -31,7 +31,21 @@ class TransactionsModel extends InvoicesModel {
  */
 	protected function _processTransaction($transactionData) {
 		$response = array();
-		// ..
+
+		if (
+			!empty($transactionData) &&
+			is_string($transactionData)
+		) {
+			$transactionData = json_decode($transactionData, true);
+		}
+
+		if (
+			is_array($transactionData) &&
+			empty($transactionData['json'])
+		) {
+			// ..
+		}
+
 		return $response;
 	}
 

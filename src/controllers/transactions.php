@@ -15,7 +15,16 @@ class TransactionsController extends TransactionsModel {
  * @return array Response
  */
 	public function api() {
-		return $this->_request($_POST);
+		$response = $this->_processTransaction($_POST);
+
+		if (
+			!empty($_POST['json']) &&
+			is_string($_POST['json'])
+		) {
+			$response = $this->_request($_POST);
+		}
+
+		return $response; ;
 	}
 
 }

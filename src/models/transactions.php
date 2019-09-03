@@ -118,7 +118,7 @@ class TransactionsModel extends InvoicesModel {
 	protected function _savePaypalNotification($parameters) {
 		$response = $transaction = array();
 
-		if ($this->_validatePaypalNotification($parameters) || true) {
+		if ($this->_validatePaypalNotification($parameters)) {
 			$itemNumberIds = explode('_', $parameters['item_number']);
 			$transaction = array(
 				'billing_address_1' => $parameters['address_street'],
@@ -138,6 +138,7 @@ class TransactionsModel extends InvoicesModel {
 				'payment_amount' => $parameters['mc_gross'],
 				'payment_currency' => $parameters['mc_currency'],
 				'payment_external_fee' => $parameters['mc_fee'],
+				'payment_method_id' => 'paypal',
 				'payment_shipping_amount' => $parameters['shipping'],
 				'payment_status' => $parameters['payment_status'],
 				'payment_tax_amount' => $parameters['tax'],

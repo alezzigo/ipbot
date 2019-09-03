@@ -135,7 +135,12 @@ class TransactionsModel extends InvoicesModel {
  */
 	protected function _validatePaypalNotification($parameters) {
 		$response = false;
+		$urlParameters = $parameters;
+		array_walk($urlParameters, function(&$value, $key) {
+			$value = $key . '=' . $value;
+		});
 		$validNotification = (
+			strtolower(file_get_contents('https://ipnpb.paypal.com/cgi-bin/webscr?cmd=_notify-validate&' . implode('&', $urlParameters))) === 'verified' &&
 			(
 				!empty($parameters['address_city']) &&
 				is_string($parameters['address_city'])
@@ -269,7 +274,6 @@ class TransactionsModel extends InvoicesModel {
 		);
 
 		if ($validNotification) {
-			// ..
 			$response = true;
 		}
 

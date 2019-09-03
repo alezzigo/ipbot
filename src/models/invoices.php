@@ -285,6 +285,7 @@ class InvoicesModel extends UsersModel {
 				'amount_applied',
 				'amount_paid',
 				'amount_refunded',
+				'cart_items',
 				'created',
 				'id',
 				'initial_invoice_id',

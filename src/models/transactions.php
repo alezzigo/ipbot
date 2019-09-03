@@ -390,8 +390,49 @@ class TransactionsModel extends InvoicesModel {
 						)));
 
 						if ($invoice['message']['status'] === 'success') {
+							$response['message']['text'] = $defaultMessage;
 							$parameters['data'] = array_merge($parameters['data'], $invoice['data']);
-							$response = $this->$method($parameters);
+							$planData = array(
+								'cart_items' => $parameters['data']['invoice']['cart_items'],
+								'invoice_id' => $parameters['data']['invoice']['id'],
+								'price' => $parameters['data']['invoice']['total']
+							);
+							$existingPlan = $this->find('plans', array(
+								'conditions' => $planData,
+								'fields' => array(
+									'id'
+								),
+								'limit' => 1
+							));
+
+							if (
+								!empty($existingPlan['count']) ||
+								$this->save('plans', array(
+									$planData
+								))
+							) {
+								$plan = $this->find('plans', array(
+									'conditions' => $planData,
+									'fields' => array(
+										'cart_items',
+										'created',
+										'id',
+										'invoice_id',
+										'modified',
+										'price'
+									),
+									'limit' => 1,
+									'sort' => array(
+										'field' => 'created',
+										'order' => 'DESC'
+									)
+								));
+
+								if (!empty($plan['count'])) {
+									$parameters['data']['plan'] = $plan['data'][0];
+									$response = $this->$method($parameters);
+								}
+							}
 						}
 					}
 				}

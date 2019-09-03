@@ -118,7 +118,8 @@ class TransactionsModel extends InvoicesModel {
 	protected function _savePaypalNotification($parameters) {
 		$response = $transaction = array();
 
-		if ($this->_validatePaypalNotification($parameters)) {
+		if ($this->_validatePaypalNotification($parameters) || true) {
+			$itemNumberIds = explode('_', $parameters['item_number']);
 			$transaction = array(
 				'billing_address_1' => $parameters['address_street'],
 				'billing_address_status' => $parameters['address_status'],
@@ -133,12 +134,14 @@ class TransactionsModel extends InvoicesModel {
 				'customer_last_name' => $parameters['last_name'],
 				'customer_status' => $parameters['payer_status'],
 				'id' => $parameters['txn_id'],
+				'invoice_id' => (!empty($itemNumberIds[0]) && is_numeric($itemNumberIds[0]) ? $itemNumberIds[0] : 0),
 				'payment_amount' => $parameters['mc_gross'],
 				'payment_currency' => $parameters['mc_currency'],
 				'payment_external_fee' => $parameters['mc_fee'],
 				'payment_shipping_amount' => $parameters['shipping'],
 				'payment_status' => $parameters['payment_status'],
 				'payment_tax_amount' => $parameters['tax'],
+				'plan_id' => (!empty($itemNumberIds[1]) && is_numeric($itemNumberIds[1]) ? $itemNumberIds[1] : 0),
 				'provider_country_code' => $parameters['residence_country'],
 				'provider_email' => $parameters['receiver_email'],
 				'provider_id' => $parameters['receiver_id'],
@@ -148,7 +151,8 @@ class TransactionsModel extends InvoicesModel {
 				'transaction_processed' => 0,
 				'transaction_raw' => json_encode($parameters),
 				'transaction_token' => $parameters['verify_sign'],
-				'transaction_type' => $parameters['txn_type']
+				'transaction_type' => $parameters['txn_type'],
+				'user_id' => (!empty($itemNumberIds[2]) && is_numeric($itemNumberIds[2]) ? $itemNumberIds[2] : 0)
 			);
 			$existingTransaction = $this->find('transactions', array(
 				'conditions' => array(

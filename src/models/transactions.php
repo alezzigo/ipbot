@@ -31,11 +31,11 @@ class TransactionsModel extends InvoicesModel {
  */
 	protected function _processPaypal($parameters) {
 		$parameters['request'] = array(
-			'business' => $config->settings['billing']['merchant_ids']['paypal'],
+			'business' => $this->settings['billing']['merchant_ids']['paypal'],
 			'cancel_return' => $_SERVER['HTTP_REFERER'] . '#payment',
 			'cmd' => '_xclick',
-			'item_name' => '',
-			'item_number' => '',
+			'item_name' => $this->settings['site_name'] . ' Plan #' . $parameters['data']['plan']['id'],
+			'item_number' => $parameters['data']['invoice']['id'] . '_' . $parameters['data']['plan']['id'] . '_' . $parameters['data']['invoice']['user_id'],
 			'notify_url' => $_SERVER['HTTP_REFERER'] . $_SERVER['REDIRECT_URL'],
 			'return' => $_SERVER['HTTP_REFERER'],
 			'src' => '1'
@@ -388,14 +388,17 @@ class TransactionsModel extends InvoicesModel {
 								'id' => $parameters['data']['invoice_id']
 							)
 						)));
+						$parameters['data'] = array_merge($parameters['data'], $invoice['data']);
 
-						if ($invoice['message']['status'] === 'success') {
+						if (
+							$invoice['message']['status'] === 'success' &&
+							$parameters['user']['id'] === $parameters['data']['invoice']['user_id']
+						) {
 							$response['message']['text'] = $defaultMessage;
-							$parameters['data'] = array_merge($parameters['data'], $invoice['data']);
 							$planData = array(
 								'cart_items' => $parameters['data']['invoice']['cart_items'],
 								'invoice_id' => $parameters['data']['invoice']['id'],
-								'price' => $parameters['data']['invoice']['total']
+								'price' => $parameters['data']['billing_amount']
 							);
 							$existingPlan = $this->find('plans', array(
 								'conditions' => $planData,

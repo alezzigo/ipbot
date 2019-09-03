@@ -37,17 +37,17 @@ var processInvoice = function() {
 				});
 			}
 
-			var invoiceShipping = parseFloat(response.data.invoice.handling) + parseFloat(response.data.invoice.shipping);
+			var invoiceShipping = parseFloat(response.data.invoice.shipping);
 			var invoiceTax = parseFloat(response.data.invoice.tax);
 			invoiceData += '<h2>Invoice Pricing Details</h2>';
 			invoiceData += '<p><strong>Subtotal</strong><br>' + response.data.invoice.payment_currency_symbol + invoiceSubtotal + ' ' + response.data.invoice.payment_currency_name + '</p>';
-			invoiceData += '<p><strong>Shipping + Handling</strong><br>' + response.data.invoice.payment_currency_symbol + invoiceShipping + ' ' + response.data.invoice.payment_currency_name + '</p>';
+			invoiceData += '<p><strong>Shipping</strong><br>' + response.data.invoice.payment_currency_symbol + invoiceShipping + ' ' + response.data.invoice.payment_currency_name + '</p>';
 			invoiceData += '<p><strong>Tax</strong><br>' + response.data.invoice.payment_currency_symbol + invoiceTax + ' ' + response.data.invoice.payment_currency_name + '</p>';
 			invoiceTotal = invoiceSubtotal + invoiceShipping + invoiceTax;
 			invoiceData += '<p><strong>Total</strong><br>' + response.data.invoice.payment_currency_symbol + invoiceTotal + ' ' + response.data.invoice.payment_currency_name + '</p>';
 
 			if (response.data.invoice.status === 'unpaid') {
-				invoiceData += '<p class="message">Additional fees for shipping, handling and/or tax may apply before submitting final payment.</p>';
+				invoiceData += '<p class="message">Additional fees for shipping and/or tax may apply before submitting final payment.</p>';
 			}
 
 			invoiceData += '<h2>Invoice Payment Details</h2>';

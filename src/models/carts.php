@@ -133,7 +133,6 @@ class CartsModel extends AppModel {
 				),
 				'fields' => array(
 					'created',
-					'has_handling',
 					'has_shipping',
 					'has_tax',
 					'name',
@@ -236,7 +235,6 @@ class CartsModel extends AppModel {
 									),
 									'fields' => array(
 										'created',
-										'has_handling',
 										'has_shipping',
 										'has_tax',
 										'name',

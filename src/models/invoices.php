@@ -36,7 +36,6 @@ class InvoicesModel extends UsersModel {
 							),
 							'fields' => array(
 								'created',
-								'has_handling',
 								'has_shipping',
 								'has_tax',
 								'name',
@@ -62,11 +61,10 @@ class InvoicesModel extends UsersModel {
 					}
 
 					$invoiceOrderProduct = $invoiceOrderProducts[$invoiceOrder['product_id']];
-					$response['invoice']['handling'] += $this->_calculateInvoiceOrderHandlingPrice($response['invoice'], $invoiceOrder, $invoiceOrderProduct);
 					$response['invoice']['shipping'] += $this->_calculateInvoiceOrderShippingPrice($response['invoice'], $invoiceOrder, $invoiceOrderProduct);
 					$response['invoice']['subtotal'] += $invoiceOrder['price'];
 					$response['invoice']['tax'] += $this->_calculateInvoiceOrderTaxPrice($response['invoice'], $invoiceOrder, $invoiceOrderProduct);
-					$response['invoice']['total'] += $invoiceOrder['handling'] + $invoiceOrder['shipping'] + $invoiceOrder['tax'];
+					$response['invoice']['total'] += $invoiceOrder['shipping'] + $invoiceOrder['tax'];
 				}
 			}
 
@@ -88,21 +86,6 @@ class InvoicesModel extends UsersModel {
 		$response['invoice']['amount_due'] = max(0, $response['invoice']['total'] - $response['invoice']['amount_paid']);
 		$response['invoice']['payment_currency_name'] = $this->settings['billing']['currency_name'];
 		$response['invoice']['payment_currency_symbol'] = $this->settings['billing']['currency_symbol'];
-		return $response;
-	}
-
-/**
- * Calculate invoice order handling price
- *
- * @param array $invoiceData
- * @param array $orderData
- * @param array $productData
- *
- * @return float $response
- */
-	protected function _calculateInvoiceOrderHandlingPrice($invoiceData, $orderData, $productData) {
-		$response = 0.00;
-		// ..
 		return $response;
 	}
 
@@ -161,7 +144,6 @@ class InvoicesModel extends UsersModel {
 				),
 				'fields' => array(
 					'created',
-					'handling',
 					'id',
 					'interval_type',
 					'interval_value',
@@ -249,7 +231,6 @@ class InvoicesModel extends UsersModel {
 				'payment_amount',
 				'payment_currency',
 				'payment_external_fee',
-				'payment_handling_amount',
 				'payment_method_id',
 				'payment_shipping_amount',
 				'payment_status',
@@ -305,7 +286,6 @@ class InvoicesModel extends UsersModel {
 				'amount_paid',
 				'amount_refunded',
 				'created',
-				'handling',
 				'id',
 				'initial_invoice_id',
 				'modified',

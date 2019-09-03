@@ -117,10 +117,57 @@ class TransactionsModel extends InvoicesModel {
  */
 	protected function _savePaypalNotification($parameters) {
 		$response = $transaction = array();
-		$validNotification = $this->_validatePaypalNotification($parameters);
 
-		if ($validNotification) {
-			// ..
+		if ($this->_validatePaypalNotification($parameters)) {
+			$transaction = array(
+				'billing_address_1' => $parameters['address_street'],
+				'billing_address_status' => $parameters['address_status'],
+				'billing_city' => $parameters['address_city'],
+				'billing_country_code' => $parameters['address_country_code'],
+				'billing_name' => $parameters['address_country_code'],
+				'billing_region' => $parameters['address_state'],
+				'billing_zip' => $parameters['address_zip'],
+				'customer_email' => $parameters['payer_email'],
+				'customer_first_name' => $parameters['first_name'],
+				'customer_id' => $parameters['payer_id'],
+				'customer_last_name' => $parameters['last_name'],
+				'customer_status' => $parameters['payer_status'],
+				'id' => $parameters['txn_id'],
+				'payment_amount' => $parameters['mc_gross'],
+				'payment_currency' => $parameters['mc_currency'],
+				'payment_external_fee' => $parameters['mc_fee'],
+				'payment_shipping_amount' => $parameters['shipping'],
+				'payment_status' => $parameters['payment_status'],
+				'payment_tax_amount' => $parameters['tax'],
+				'provider_country_code' => $parameters['residence_country'],
+				'provider_email' => $parameters['receiver_email'],
+				'provider_id' => $parameters['receiver_id'],
+				'sandbox' => (!empty($parameters['test_ipn']) ? true : false),
+				'transaction_charset' => $this->settings['database']['charset'],
+				'transaction_date' => date('Y-m-d h:i:s', strtotime($parameters['payment_date'])),
+				'transaction_processed' => 0,
+				'transaction_raw' => json_encode($parameters),
+				'transaction_token' => $parameters['verify_sign'],
+				'transaction_type' => $parameters['txn_type']
+			);
+			$existingTransaction = $this->find('transactions', array(
+				'conditions' => array(
+					'id' => $parameters['txn_id']
+				),
+				'fields' => array(
+					'id'
+				),
+				'limit' => 1
+			));
+
+			if (
+				empty($existingTransaction['count']) &&
+				$this->save('transactions', array(
+					$transaction
+				))
+			) {
+				$response = $transaction;
+			}
 		}
 
 		return $response;

@@ -215,6 +215,7 @@ class Config {
 		);
 
 		$this->settings = array(
+			'base_domain' => 'proxies.eightomic.com',
 			'base_path' => $_SERVER['DOCUMENT_ROOT'] . '/src',
 			'base_url' => '/',
 			'billing' => array(

@@ -9,13 +9,16 @@
 	}
 
 	if (
-		strpos($_SERVER['HTTP_HOST'], '.') !== false &&
-	(
-		empty($_SERVER['HTTPS']) ||
-		strtolower($_SERVER['HTTPS']) != 'on'
-	)
+		$_SERVER['HTTP_HOST'] !== $config->settings['base_domain'] ||
+		(
+			strpos($config->settings['base_domain'], '.') !== false &&
+			(
+				empty($_SERVER['HTTPS']) ||
+				strtolower($_SERVER['HTTPS']) != 'on'
+			)
+		)
 	) {
-		$config->redirect('https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+		$config->redirect('https://' . $config->settings['base_domain'] . $_SERVER['REQUEST_URI']);
 	}
 
 	if (

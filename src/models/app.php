@@ -5,7 +5,6 @@
  * @author Will Parsons
  * @link   https://parsonsbots.com
  */
-
 class AppModel extends Config {
 
 /**

@@ -107,6 +107,19 @@ class TransactionsModel extends InvoicesModel {
 	}
 
 /**
+ * Process payment failed transaction
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _processTransactionPaymentFailed($parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
  * Process payment pending transaction
  *
  * @param array $parameters
@@ -211,13 +224,13 @@ class TransactionsModel extends InvoicesModel {
 	}
 
 /**
- * Process subscription payment failed transaction
+ * Process subscription failed transaction
  *
  * @param array $parameters
  *
  * @return array $response
  */
-	protected function _processTransactionSubscriptionPaymentFailed($parameters) {
+	protected function _processTransactionSubscriptionFailed($parameters) {
 		$response = array();
 		// ..
 		return $response;

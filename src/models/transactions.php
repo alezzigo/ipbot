@@ -65,6 +65,162 @@ class TransactionsModel extends InvoicesModel {
 	}
 
 /**
+ * Process transaction
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _processTransaction($parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
+ * Process transactions
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _processTransactions($parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
+ * Process payment completed transaction
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _processTransactionPaymentCompleted($parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
+ * Process payment pending transaction
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _processTransactionPaymentPending($parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
+ * Process payment refund transaction
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _processTransactionPaymentRefunded($parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
+ * Process payment reversal cancellation transaction
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _processTransactionPaymentReversalCanceled($parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
+ * Process payment reversal transaction
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _processTransactionPaymentReversed($parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
+ * Process subscription canceled transaction
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _processTransactionSubscriptionCanceled($parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
+ * Process subscription created transaction
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _processTransactionSubscriptionCreated($parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
+ * Process subscription expired transaction
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _processTransactionSubscriptionExpired($parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
+ * Process subscription modified transaction
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _processTransactionSubscriptionModified($parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
+ * Process subscription payment failed transaction
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _processTransactionSubscriptionPaymentFailed($parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
  * Save transaction notification
  *
  * @param mixed [string/array] $parameters

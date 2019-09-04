@@ -65,7 +65,7 @@ class ProxiesModel extends AppModel {
 					empty($parameters['data']['password'])
 				)
 			) {
-				$response['message']['text'] = 'Both username and password must be set or empty.';
+				$response['message']['text'] = 'Both username and password must be either set or empty.';
 			} else {
 				if (
 					empty($parameters['data']['generate_unique']) &&

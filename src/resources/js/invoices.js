@@ -141,7 +141,7 @@ var processLoginVerification = function(response) {
 		response.user !== false &&
 		response.user.email
 	) {
-		document.querySelector('.account-details').innerHTML = '<p class="message">You\'re currently logged in as ' + response.user.email + '</p>';
+		document.querySelector('.account-details').innerHTML = '<p class="message">You\'re currently logged in as ' + response.user.email + '.</p>';
 	}
 };
 var processPayment = function(windowName, windowSelector) {

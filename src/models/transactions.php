@@ -313,6 +313,8 @@ class TransactionsModel extends InvoicesModel {
 				'payment_method_id' => 'paypal',
 				'payment_shipping_amount' => $parameters['shipping'],
 				'payment_status' => $parameters['payment_status'],
+				'payment_status_code' => '',
+				'payment_status_message' => '',
 				'payment_tax_amount' => $parameters['tax'],
 				'plan_id' => (!empty($itemNumberIds[1]) && is_numeric($itemNumberIds[1]) ? $itemNumberIds[1] : 0),
 				'provider_country_code' => $parameters['residence_country'],

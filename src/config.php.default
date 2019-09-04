@@ -242,6 +242,10 @@ class Config {
 				'username' => 'root'
 			),
 			'default_email' => 'email@localhost',
+			'session_cookies' => array(
+				'enabled' => true,
+				'lifetime' => 88888888
+			),
 			'site_name' => 'Proxies',
 			'timezone' => 'PDT'
 		);

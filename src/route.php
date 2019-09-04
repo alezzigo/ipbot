@@ -201,5 +201,23 @@
 		}
 	}
 
+	if (
+		(
+			!empty($cookiesEnabled = $config->settings['session_cookies']['enabled']) &&
+			$cookiesEnabled === true
+		) &&
+		(
+			!empty($cookieLifetime = $config->settings['session_cookies']['lifetime']) &&
+			is_numeric($cookieLifetime)
+		)
+	) {
+		session_set_cookie_params($cookieLifetime, '/', $_SERVER['HTTP_HOST'], true);
+		session_start();
+
+		if (empty($_SESSION['key'])) {
+			$_SESSION['key'] = md5(uniqid() . time() . $config->keys['start']);
+		}
+	}
+
 	require_once($routes['files'][$route]);
 ?>

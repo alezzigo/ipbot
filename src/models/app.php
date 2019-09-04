@@ -89,8 +89,8 @@ class AppModel extends Config {
 			));
 		}
 
-		if (!empty($salt)) {
-			$response[] = $salt;
+		if ($salt !== false) {
+			$response[] = (!empty($_SESSION['key']) ? $_SESSION['key'] : $salt);
 		}
 
 		$response = sha1(json_encode(implode(')-(', $response)));

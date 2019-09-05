@@ -395,7 +395,7 @@ class TransactionsModel extends InvoicesModel {
 	protected function _savePaypalNotification($parameters) {
 		$response = $transaction = array();
 
-		if ($this->_validatePaypalNotification($parameters) || true) {
+		if ($this->_validatePaypalNotification($parameters)) {
 			$itemNumberIds = explode('_', $parameters['item_number']);
 			$transaction = array(
 				'billing_address_1' => $parameters['address_street'],

@@ -407,8 +407,6 @@ class TransactionsModel extends InvoicesModel {
 				'payment_method_id' => 'paypal',
 				'payment_shipping_amount' => $parameters['shipping'],
 				'payment_status' => $parameters['payment_status'],
-				'payment_status_code' => '',
-				'payment_status_message' => '',
 				'payment_tax_amount' => $parameters['tax'],
 				'plan_id' => (!empty($itemNumberIds[1]) && is_numeric($itemNumberIds[1]) ? $itemNumberIds[1] : 0),
 				'provider_country_code' => $parameters['residence_country'],
@@ -423,6 +421,16 @@ class TransactionsModel extends InvoicesModel {
 				'transaction_type' => $parameters['txn_type'],
 				'user_id' => (!empty($itemNumberIds[2]) && is_numeric($itemNumberIds[2]) ? $itemNumberIds[2] : 0)
 			);
+
+			if (!empty($parameters['pending_reason'])) {
+				$transaction['payment_status_code'] = $parameters['pending_reason'];
+			}
+
+			if (!empty($parameters['reason_code'])) {
+				$transaction['payment_status_code'] = $parameters['reason_code'];
+			}
+
+			$transaction['payment_status_message'] = $this->_saveTransactionPaymentStatusMessage($transaction);
 			$existingTransaction = $this->find('transactions', array(
 				'conditions' => array(
 					'id' => $parameters['txn_id']
@@ -443,6 +451,19 @@ class TransactionsModel extends InvoicesModel {
 			}
 		}
 
+		return $response;
+	}
+
+/**
+ * Save transaction payment status message
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _saveTransactionPaymentStatusMessage($parameters) {
+		$response = array();
+		// ..
 		return $response;
 	}
 

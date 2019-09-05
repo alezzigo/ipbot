@@ -305,7 +305,8 @@ class TransactionsModel extends InvoicesModel {
 		$subscription = array(
 			'id' => $parameters['subscription_id'],
 			'invoice_id' => $parameters['invoice_id'],
-			'plan_id' => $parameters['plan_id']
+			'plan_id' => $parameters['plan_id'],
+			'price' => $parameters['payment_amount']
 		);
 
 		if (count($subscription) === count(array_filter($subscription))) {
@@ -424,7 +425,7 @@ class TransactionsModel extends InvoicesModel {
 				'customer_status' => $parameters['payer_status'],
 				'id' => $parameters['txn_id'],
 				'invoice_id' => (!empty($itemNumberIds[0]) && is_numeric($itemNumberIds[0]) ? $itemNumberIds[0] : 0),
-				'payment_amount' => $parameters['mc_gross'],
+				'payment_amount' => (!empty($parameters['mc_gross']) ? $parameters['mc_gross'] : $parameters['amount3']),
 				'payment_currency' => $parameters['mc_currency'],
 				'payment_external_fee' => $parameters['mc_fee'],
 				'payment_method_id' => 'paypal',

@@ -212,11 +212,14 @@ class InvoicesModel extends UsersModel {
 		$response = array();
 		$invoiceTransactions = $this->find('transactions', array(
 			'conditions' => array(
-				'invoice_id' => $invoiceData['id']
+				'invoice_id' => $invoiceData['id'],
+				'transaction_processed' => true,
+				'transaction_processing' => false
 			),
 			'fields' => array(
 				'billing_address_1',
 				'billing_address_2',
+				'billing_address_status',
 				'billing_city',
 				'billing_country_code',
 				'billing_name',
@@ -237,16 +240,22 @@ class InvoicesModel extends UsersModel {
 				'payment_method_id',
 				'payment_shipping_amount',
 				'payment_status',
+				'payment_status_code',
+				'payment_status_message',
 				'payment_tax_amount',
+				'plan_id',
 				'provider_country_code',
 				'provider_email',
 				'provider_id',
 				'sandbox',
-				'transaction_date',
 				'transaction_charset',
+				'transaction_date',
+				'transaction_processed',
+				'transaction_processing',
 				'transaction_raw',
 				'transaction_token',
-				'transaction_type'
+				'transaction_type',
+				'user_id'
 			),
 			'sort' => array(
 				'field' => 'transaction_date',

@@ -72,10 +72,10 @@ class TransactionsModel extends InvoicesModel {
  *
  * @param array $parameters
  *
- * @return array $response
+ * @return boolean $response
  */
 	protected function _processTransaction($parameters) {
-		$response = array();
+		$response = true;
 		// ..
 		return $response;
 	}
@@ -160,14 +160,19 @@ class TransactionsModel extends InvoicesModel {
 			}
 
 			if ($this->save('transactions', $transactions)) {
-				// ..
-				$transactions = array_replace_recursive($transactions, array_fill(0, $transactionsToProcess['count'], array(
-					'transaction_processed' => true,
-					'transaction_processing' => false
-				)));
+				$processedTransactions = array();
+
+				foreach($transactionsToProcess['data'] as $transaction) {
+					$processed = $this->_processTransaction($transaction);
+					$processedTransactions[] = array(
+						'transaction_processed' => $processed,
+						'transaction_processing' => !$processed
+					);
+				}
+
+				$transactions = array_replace_recursive($transactions, $processedTransactions);
 
 				if ($this->save('transactions', $transactions)) {
-					// ..
 					$response = array(
 						'data' => $transactionsToProcess,
 						'message' => array(

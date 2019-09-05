@@ -945,18 +945,18 @@ class TransactionsModel extends InvoicesModel {
 
 					if (method_exists($this, $method)) {
 						$response['message']['text'] = 'Invalid invoice ID, please try again.';
-						$invoice = $this->invoice('invoices', array_merge($parameters, array(
+						$invoice = $this->invoice('invoices', array(
 							'conditions' => array(
 								'id' => $parameters['data']['invoice_id']
 							)
-						)));
-						$parameters['data'] = array_merge($parameters['data'], $invoice['data']);
+						));
 
 						if (
-							$invoice['message']['status'] === 'success' &&
-							$parameters['user']['id'] === $parameters['data']['invoice']['user_id']
+							!empty($invoice['data']) &&
+							$parameters['user']['id'] === $invoice['data']['invoice']['user_id']
 						) {
 							$response['message']['text'] = $defaultMessage;
+							$parameters['data'] = array_merge($parameters['data'], $invoice['data']);
 							$planData = array(
 								'cart_items' => $parameters['data']['invoice']['cart_items'],
 								'invoice_id' => $parameters['data']['invoice']['id'],

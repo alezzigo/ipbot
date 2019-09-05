@@ -250,7 +250,7 @@ class TransactionsModel extends InvoicesModel {
 			if (!empty($invoice['data'])) {
 				$invoiceData = array(
 					'id' => $parameters['invoice_id'],
-					'amount_applied' => $invoice['data']['invoice']['amount_applied'] + ($amountToApplyToInvoice = min(($invoice['data']['invoice']['total'] - $invoice['data']['invoice']['amount_applied']), $parameters['payment_amount'])),
+					'amount_applied' => $invoice['data']['invoice']['amount_applied'] + ($amountToApplyToInvoice = min($parameters['payment_amount'], round(($invoice['data']['invoice']['total'] - $invoice['data']['invoice']['amount_applied']) * 100) / 100)),
 					'amount_paid' => $invoice['data']['invoice']['amount_paid'] + $parameters['payment_amount']
 				);
 
@@ -261,7 +261,7 @@ class TransactionsModel extends InvoicesModel {
 					// ..
 				}
 
-				if ($amountToApplyToBalance = max(0, $parameters['payment_amount'] - $amountToApplyToInvoice)) {
+				if ($amountToApplyToBalance = max(0, round(($parameters['payment_amount'] - $amountToApplyToInvoice) * 100) / 100)) {
 					$user = $this->find('users', array(
 						'conditions' => array(
 							'id' => $invoice['data']['invoice']['user_id']
@@ -273,6 +273,7 @@ class TransactionsModel extends InvoicesModel {
 
 					if (!empty($user['count'])) {
 						$userData = array(
+							'id' => $invoice['data']['invoice']['user_id'],
 							'balance' => ($user['data'][0] + $amountToApplyToBalance)
 						);
 						$this->save('users', array(

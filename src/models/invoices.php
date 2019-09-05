@@ -232,6 +232,8 @@ class InvoicesModel extends UsersModel {
 				'customer_last_name',
 				'customer_status',
 				'id',
+				'interval_type',
+				'interval_value',
 				'invoice_id',
 				'modified',
 				'payment_amount',
@@ -254,7 +256,6 @@ class InvoicesModel extends UsersModel {
 				'transaction_processing',
 				'transaction_raw',
 				'transaction_token',
-				'transaction_type',
 				'user_id'
 			),
 			'sort' => array(

@@ -127,6 +127,8 @@ class TransactionsModel extends InvoicesModel {
 				'customer_last_name',
 				'customer_status',
 				'id',
+				'interval_type',
+				'interval_value',
 				'invoice_id',
 				'payment_amount',
 				'payment_currency',
@@ -150,7 +152,6 @@ class TransactionsModel extends InvoicesModel {
 				'transaction_processing',
 				'transaction_raw',
 				'transaction_token',
-				'transaction_type',
 				'user_id'
 			),
 			'sort' => array(
@@ -303,10 +304,14 @@ class TransactionsModel extends InvoicesModel {
  */
 	protected function _processTransactionSubscriptionCreated($parameters) {
 		$subscription = array(
+			'created' => $parameters['transaction_date'],
 			'id' => $parameters['subscription_id'],
 			'invoice_id' => $parameters['invoice_id'],
+			'interval_type' => $parameters['interval_type'],
+			'interval_value' => $parameters['interval_value'],
 			'plan_id' => $parameters['plan_id'],
-			'price' => $parameters['payment_amount']
+			'price' => $parameters['payment_amount'],
+			'status' => 'active'
 		);
 
 		if (count($subscription) === count(array_filter($subscription))) {
@@ -439,16 +444,46 @@ class TransactionsModel extends InvoicesModel {
 				'sandbox' => (!empty($parameters['test_ipn']) ? true : false),
 				'subscription_id' => (!empty($parameters['subscr_id']) ? $parameters['subscr_id'] : null),
 				'transaction_charset' => $this->settings['database']['charset'],
-				'transaction_date' => date('Y-m-d h:i:s', strtotime($parameters['payment_date'])),
+				'transaction_date' => date('Y-m-d h:i:s', strtotime((!empty($parameters['subscr_date']) ? $parameters['subscr_date'] : $parameters['payment_date']))),
 				'transaction_processed' => 0,
 				'transaction_raw' => json_encode($parameters),
 				'transaction_token' => $parameters['verify_sign'],
-				'transaction_type' => $parameters['txn_type'],
 				'user_id' => (!empty($itemNumberIds[2]) && is_numeric($itemNumberIds[2]) ? $itemNumberIds[2] : 0)
 			);
 
 			if (!empty($parameters['pending_reason'])) {
 				$transaction['payment_status_code'] = $parameters['pending_reason'];
+			}
+
+			if (!empty($parameters['period3'])) {
+				$subscriptionPeriod = explode(' ', $parameters['period3']);
+
+				if (
+					!empty($subscriptionPeriod[0]) &&
+					is_numeric($subscriptionPeriod[0]) &&
+					!empty($subscriptionPeriod[1]) &&
+					is_string($subscriptionPeriod[1]) &&
+					strlen($subscriptionPeriod[1]) === 1
+				) {
+					switch ($subscriptionPeriod[1]) {
+						case 'D':
+							$transaction['interval_type'] = 'day';
+							break;
+						case 'M':
+							$transaction['interval_type'] = 'month';
+							break;
+						case 'W':
+							$transaction['interval_type'] = 'week';
+							break;
+						case 'Y':
+							$transaction['interval_type'] = 'year';
+							break;
+					}
+
+					if (!empty($transaction['interval_type'])) {
+						$transaction['interval_value'] = $subscriptionPeriod[0];
+					}
+				}
 			}
 
 			if (!empty($parameters['reason_code'])) {

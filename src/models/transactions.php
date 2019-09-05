@@ -219,6 +219,27 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionPaymentCompleted($parameters) {
+		if (!empty($parameters['subscription_id'])) {
+			$existingSubscription = $this->find('subscriptions', array(
+				'conditions' => array(
+					'id' => $parameters['subscription_id']
+				),
+				'fields' => array(
+					'payment_attempts'
+				)
+			));
+
+			if (!empty($existingSubscription['count'])) {
+				$subscription = array(
+					'id' => $parameters['subscription_id'],
+					'payment_attempts' => 0
+				);
+				$this->save('subscriptions', array(
+					$subscription
+				));
+			}
+		}
+
 		// ..
 		return;
 	}

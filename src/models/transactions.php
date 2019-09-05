@@ -395,7 +395,7 @@ class TransactionsModel extends InvoicesModel {
 	protected function _savePaypalNotification($parameters) {
 		$response = $transaction = array();
 
-		if ($this->_validatePaypalNotification($parameters)) {
+		if ($this->_validatePaypalNotification($parameters) || true) {
 			$itemNumberIds = explode('_', $parameters['item_number']);
 			$transaction = array(
 				'billing_address_1' => $parameters['address_street'],
@@ -479,67 +479,104 @@ class TransactionsModel extends InvoicesModel {
 			'transaction_method' => 'Miscellaneous'
 		);
 
-		if (in_array($parameters['txn_type'], array(
-			'subscr_payment',
-			'web_accept'
-		))) {
-			switch ($parameters['payment_status']) {
-				case 'Completed':
-				case 'Created':
-				case 'Processed':
+		if (!empty($parameters['txn_type'])) {
+			switch ($parameters['txn_type']) {
+				case 'subscr_cancel':
 					$response = array(
-						'payment_status_message' => 'Payment successful.',
-						'transaction_method' => 'PaymentCompleted'
+						'payment_status_message' => 'Subscription canceled.',
+						'transaction_method' => 'SubscriptionCanceled'
 					);
 					break;
-				case 'Pending':
+				case 'subscr_eot':
+				case 'recurring_payment_expired':
+				case 'recurring_payment_suspended':
 					$response = array(
-						'payment_status_message' => 'Payment pending.',
-						'transaction_method' => 'PaymentPending'
+						'payment_status_message' => 'Subscription term expired.',
+						'transaction_method' => 'SubscriptionExpired'
 					);
+					break;
+				case 'subscr_failed':
+				case 'recurring_payment_skipped':
+				case 'recurring_payment_failed':
+					$response = array(
+						'payment_status_message' => 'Subscription payment failed.',
+						'transaction_method' => 'SubscriptionFailed'
+					);
+					break;
+				case 'subscr_modify':
+					$response = array(
+						'payment_status_message' => 'Subscription modified.',
+						'transaction_method' => 'SubscriptionModified'
+					);
+					break;
+				case 'subscr_payment':
+				case 'web_accept':
+					switch ($parameters['payment_status']) {
+						case 'Completed':
+						case 'Created':
+						case 'Processed':
+							$response = array(
+								'payment_status_message' => 'Payment successful.',
+								'transaction_method' => 'PaymentCompleted'
+							);
+							break;
+						case 'Pending':
+							$response = array(
+								'payment_status_message' => 'Payment pending.',
+								'transaction_method' => 'PaymentPending'
+							);
 
-					if (!empty($parameters['pending_reason'])) {
-						switch ($parameters['pending_reason']) {
-							case 'address':
-								$response['payment_status_message'] = 'Unconfirmed shipping address requires manual confirmation.';
-								break;
-							case 'delayed_disbursement':
-								$response['payment_status_message'] = 'Payment is authorized but awaiting bank funding.';
-								break;
-							case 'echeck':
-								$response['payment_status_message'] = 'eCheck payment has not yet cleared.';
-								break;
-							case 'intl':
-								$response['payment_status_message'] = 'International payment requires manual approval.';
-								break;
-							case 'multi_currency':
-								$response['payment_status_message'] = 'Currency conversion requires manual approval.';
-								break;
-							case 'paymentreview':
-							case 'regulatory_review':
-								$response['payment_status_message'] = 'Payment is awaiting review by payment processor.';
-								break;
-							case 'unilateral':
-								$response['payment_status_message'] = 'Unconfirmed account payment is awaiting review by payment processor.';
-								break;
-							case 'authorization':
-							case 'order':
-							case 'upgrade':
-							case 'verify':
-								$response['payment_status_message'] = 'Payment is authorized but not cleared.';
-								break;
-						}
+							if (!empty($parameters['pending_reason'])) {
+								switch ($parameters['pending_reason']) {
+									case 'address':
+										$response['payment_status_message'] = 'Unconfirmed shipping address requires manual confirmation.';
+										break;
+									case 'delayed_disbursement':
+										$response['payment_status_message'] = 'Payment is authorized but awaiting bank funding.';
+										break;
+									case 'echeck':
+										$response['payment_status_message'] = 'eCheck payment has not yet cleared.';
+										break;
+									case 'intl':
+										$response['payment_status_message'] = 'International payment requires manual approval.';
+										break;
+									case 'multi_currency':
+										$response['payment_status_message'] = 'Currency conversion requires manual approval.';
+										break;
+									case 'paymentreview':
+									case 'regulatory_review':
+										$response['payment_status_message'] = 'Payment is awaiting review by payment processor.';
+										break;
+									case 'unilateral':
+										$response['payment_status_message'] = 'Unconfirmed account payment is awaiting review by payment processor.';
+										break;
+									case 'authorization':
+									case 'order':
+									case 'upgrade':
+									case 'verify':
+										$response['payment_status_message'] = 'Payment is authorized but not cleared.';
+										break;
+								}
+							}
+
+							break;
+						case 'Blocked':
+						case 'Denied':
+						case 'Expired':
+						case 'Failed':
+						case 'Voided':
+							$response = array(
+								'payment_status_message' => 'Payment ' . strtolower($parameters['payment_status']) . '.',
+								'transaction_method' => 'PaymentFailed'
+							);
+							break;
 					}
 
 					break;
-				case 'Blocked':
-				case 'Denied':
-				case 'Expired':
-				case 'Failed':
-				case 'Voided':
+				case 'subscr_signup':
 					$response = array(
-						'payment_status_message' => 'Payment ' . strtolower($parameters['payment_status']) . '.',
-						'transaction_method' => 'PaymentFailed'
+						'payment_status_message' => 'Subscription created.',
+						'transaction_method' => 'SubscriptionCreated'
 					);
 					break;
 			}

@@ -240,7 +240,53 @@ class TransactionsModel extends InvoicesModel {
 			}
 		}
 
-		// ..
+		if (!empty($parameters['invoice_id'])) {
+			$invoice = $this->invoice('invoices', array(
+				'conditions' => array(
+					'id' => $parameters['invoice_id']
+				)
+			));
+
+			if (!empty($invoice['data'])) {
+				$invoiceData = array(
+					'id' => $parameters['invoice_id'],
+					'amount_applied' => $invoice['data']['invoice']['amount_applied'] + ($amountToApplyToInvoice = min(($invoice['data']['invoice']['total'] - $invoice['data']['invoice']['amount_applied']), $parameters['payment_amount'])),
+					'amount_paid' => $invoice['data']['invoice']['amount_paid'] + $parameters['payment_amount']
+				);
+
+				if (
+					!empty($invoice['data']['invoice']['status']) &&
+					$invoice['data']['invoice']['status'] === 'unpaid'
+				) {
+					// ..
+				}
+
+				if ($amountToApplyToBalance = max(0, $parameters['payment_amount'] - $amountToApplyToInvoice)) {
+					$user = $this->find('users', array(
+						'conditions' => array(
+							'id' => $invoice['data']['invoice']['user_id']
+						),
+						'fields' => array(
+							'balance'
+						)
+					));
+
+					if (!empty($user['count'])) {
+						$userData = array(
+							'balance' => ($user['data'][0] + $amountToApplyToBalance)
+						);
+						$this->save('users', array(
+							$userData
+						));
+					}
+				}
+
+				$this->save('invoices', array(
+					$invoiceData
+				));
+			}
+		}
+
 		return;
 	}
 

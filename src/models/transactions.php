@@ -291,7 +291,19 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionSubscriptionCanceled($parameters) {
-		// ..
+		$subscription = array(
+			'id' => $parameters['subscription_id'],
+			'status' => 'canceled'
+		);
+
+		if (
+			$this->save('subscriptions', array(
+				$subscription
+			))
+		) {
+			// ..
+		}
+
 		return;
 	}
 
@@ -314,10 +326,13 @@ class TransactionsModel extends InvoicesModel {
 			'status' => 'active'
 		);
 
-		if (count($subscription) === count(array_filter($subscription))) {
+		if (
+			count($subscription) === count(array_filter($subscription)) &&
 			$this->save('subscriptions', array(
 				$subscription
-			));
+			))
+		) {
+			// ..
 		}
 
 		return;
@@ -343,7 +358,24 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionSubscriptionModified($parameters) {
-		// ..
+		$subscription = array(
+			'id' => $parameters['subscription_id'],
+			'invoice_id' => $parameters['invoice_id'],
+			'interval_type' => $parameters['interval_type'],
+			'interval_value' => $parameters['interval_value'],
+			'plan_id' => $parameters['plan_id'],
+			'price' => $parameters['payment_amount']
+		);
+
+		if (
+			count($subscription) === count(array_filter($subscription)) &&
+			$this->save('subscriptions', array(
+				$subscription
+			))
+		) {
+			// ..
+		}
+
 		return;
 	}
 
@@ -355,7 +387,32 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionSubscriptionFailed($parameters) {
-		// ..
+		if (!empty($parameters['subscription_id'])) {
+			$existingSubscription = $this->find('subscriptions', array(
+				'conditions' => array(
+					'id' => $parameters['subscription_id']
+				),
+				'fields' => array(
+					'payment_attempts'
+				)
+			));
+
+			if (!empty($existingSubscription['count'])) {
+				$subscription = array(
+					'id' => $parameters['subscription_id'],
+					'payment_attempts' => ($existingSubscription['data'][0] + 1)
+				);
+
+				if (
+					$this->save('subscriptions', array(
+						$subscription
+					))
+				) {
+					// ..
+				}
+			}
+		}
+
 		return;
 	}
 
@@ -539,6 +596,7 @@ class TransactionsModel extends InvoicesModel {
 				case 'subscr_eot':
 				case 'recurring_payment_expired':
 				case 'recurring_payment_suspended':
+				case 'recurring_payment_suspended_due_to_max_failed_payment':
 					$response = array(
 						'payment_status_message' => 'Subscription term expired.',
 						'transaction_method' => 'SubscriptionExpired'

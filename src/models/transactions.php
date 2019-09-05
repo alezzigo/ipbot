@@ -88,8 +88,97 @@ class TransactionsModel extends InvoicesModel {
  * @return array $response
  */
 	protected function _processTransactions($parameters) {
-		$response = array();
-		// ..
+		$response = array(
+			'message' => array(
+				'status' => 'error',
+				'text' => 'There aren\'t any new transactions to process, please try again.'
+			)
+		);
+		$transactionsToProcess = $this->find('transactions', array(
+			'conditions' => array(
+				'AND' => array(
+					'transaction_processed' => false,
+					'OR' => array(
+						'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute')),
+						'transaction_processing' => false
+					)
+				)
+			),
+			'fields' => array(
+				'billing_address_1',
+				'billing_address_status',
+				'billing_city',
+				'billing_country_code',
+				'billing_name',
+				'billing_region',
+				'billing_zip',
+				'customer_email',
+				'customer_first_name',
+				'customer_id',
+				'customer_last_name',
+				'customer_status',
+				'id',
+				'invoice_id',
+				'payment_amount',
+				'payment_currency',
+				'payment_external_fee',
+				'payment_method_id',
+				'payment_shipping_amount',
+				'payment_status',
+				'payment_status_code',
+				'payment_status_message',
+				'payment_tax_amount',
+				'plan_id',
+				'provider_country_code',
+				'provider_email',
+				'provider_id',
+				'sandbox',
+				'transaction_charset',
+				'transaction_date',
+				'transaction_processed',
+				'transaction_processing',
+				'transaction_raw',
+				'transaction_token',
+				'transaction_type',
+				'user_id'
+			),
+			'sort' => array(
+				'field' => 'created',
+				'order' => 'DESC'
+			)
+		));
+
+		if (!empty($transactionsToProcess['count'])) {
+			$response['message']['text'] = ($defaultMessage = 'Error processing transactions, please try again.');
+			$transactions = array();
+
+			foreach ($transactionsToProcess['data'] as $transaction) {
+				$transactions[] = array(
+					'id' => $transaction['id'],
+					'transaction_processing' => true
+				);
+			}
+
+			if ($this->save('transactions', $transactions)) {
+				// ..
+				$transactions = array_replace_recursive($transactions, array_fill(0, $transactionsToProcess['count'], array(
+					'transaction_processed' => true,
+					'transaction_processing' => false
+				)));
+
+				if ($this->save('transactions', $transactions)) {
+					// ..
+					$response = array(
+						'data' => $transactionsToProcess,
+						'message' => array(
+							'status' => 'success',
+							'text' => 'Transactions processed successfully.'
+						)
+					);
+				}
+			}
+		}
+
 		return $response;
 	}
 

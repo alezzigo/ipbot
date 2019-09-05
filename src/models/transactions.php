@@ -188,6 +188,19 @@ class TransactionsModel extends InvoicesModel {
 	}
 
 /**
+ * Process miscellaneous transaction
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _processTransactionMiscellaneous() {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
  * Process payment completed transaction
  *
  * @param array $parameters
@@ -406,7 +419,7 @@ class TransactionsModel extends InvoicesModel {
 				'payment_external_fee' => $parameters['mc_fee'],
 				'payment_method_id' => 'paypal',
 				'payment_shipping_amount' => $parameters['shipping'],
-				'payment_status' => $parameters['payment_status'],
+				'payment_status' => strtolower($parameters['payment_status']),
 				'payment_tax_amount' => $parameters['tax'],
 				'plan_id' => (!empty($itemNumberIds[1]) && is_numeric($itemNumberIds[1]) ? $itemNumberIds[1] : 0),
 				'provider_country_code' => $parameters['residence_country'],
@@ -430,7 +443,7 @@ class TransactionsModel extends InvoicesModel {
 				$transaction['payment_status_code'] = $parameters['reason_code'];
 			}
 
-			$transaction['payment_status_message'] = $this->_saveTransactionPaymentStatusMessage($transaction);
+			$transaction = array_merge($transaction, $this->_savePayPalTransactionMethod($parameters, $transaction));
 			$existingTransaction = $this->find('transactions', array(
 				'conditions' => array(
 					'id' => $parameters['txn_id']
@@ -455,15 +468,80 @@ class TransactionsModel extends InvoicesModel {
 	}
 
 /**
- * Save transaction payment status message
+ * Save transaction method and custom status message
  *
  * @param array $parameters
+ * @param array $transactionData
  *
  * @return array $response
  */
-	protected function _saveTransactionPaymentStatusMessage($parameters) {
-		$response = array();
-		// ..
+	protected function _savePayPalTransactionMethod($parameters, $transactionData) {
+		$response = array(
+			'payment_status_message' => 'Transaction processed.',
+			'transaction_method' => 'Miscellaneous'
+		);
+
+		if (in_array($parameters['txn_type'], array(
+			'subscr_payment',
+			'web_accept'
+		))) {
+			if (in_array($parameters['payment_type'], array(
+				'echeck',
+				'instant'
+			))) {
+				switch ($parameters['payment_status']) {
+					case 'Completed':
+					case 'Created':
+					case 'Processed':
+						$response = array(
+							'payment_status_message' => 'Payment successful.',
+							'transaction_method' => 'PaymentCompleted'
+						);
+						break;
+					case 'Pending':
+						$response = array(
+							'payment_status_message' => 'Payment pending.',
+							'transaction_method' => 'PaymentPending'
+						);
+
+						if (!empty($parameters['pending_reason'])) {
+							switch ($parameters['pending_reason']) {
+								case 'address':
+									$response['payment_status_message'] = 'Unconfirmed shipping address requires manual confirmation.';
+									break;
+								case 'delayed_disbursement':
+									$response['payment_status_message'] = 'Payment is authorized but awaiting bank funding.';
+									break;
+								case 'echeck':
+									$response['payment_status_message'] = 'eCheck payment has not yet cleared.';
+									break;
+								case 'intl':
+									$response['payment_status_message'] = 'International payment requires manual approval.';
+									break;
+								case 'multi_currency':
+									$response['payment_status_message'] = 'Currency conversion requires manual approval.';
+									break;
+								case 'paymentreview':
+								case 'regulatory_review':
+									$response['payment_status_message'] = 'Payment is awaiting review by payment processor.';
+									break;
+								case 'unilateral':
+									$response['payment_status_message'] = 'Unconfirmed account payment is awaiting review by payment processor.';
+									break;
+								case 'authorization':
+								case 'order':
+								case 'upgrade':
+								case 'verify':
+									$response['payment_status_message'] = 'Payment is authorized but not cleared.';
+									break;
+							}
+						}
+
+						break;
+				}
+			}
+		}
+
 		return $response;
 	}
 

@@ -536,6 +536,16 @@ class TransactionsModel extends InvoicesModel {
 						}
 
 						break;
+					case 'Blocked':
+					case 'Denied':
+					case 'Expired':
+					case 'Failed':
+					case 'Voided':
+						$response = array(
+							'payment_status_message' => 'Payment ' . strtolower($parameters['payment_status']) . '.',
+							'transaction_method' => 'PaymentFailed'
+						);
+						break;
 				}
 			}
 		}

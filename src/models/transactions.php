@@ -142,6 +142,7 @@ class TransactionsModel extends InvoicesModel {
 				'provider_email',
 				'provider_id',
 				'sandbox',
+				'subscription_id',
 				'transaction_charset',
 				'transaction_date',
 				'transaction_method',
@@ -301,7 +302,18 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionSubscriptionCreated($parameters) {
-		// ..
+		$subscription = array(
+			'id' => $parameters['subscription_id'],
+			'invoice_id' => $parameters['invoice_id'],
+			'plan_id' => $parameters['plan_id']
+		);
+
+		if (count($subscription) === count(array_filter($subscription))) {
+			$this->save('subscriptions', array(
+				$subscription
+			));
+		}
+
 		return;
 	}
 
@@ -424,6 +436,7 @@ class TransactionsModel extends InvoicesModel {
 				'provider_email' => $parameters['receiver_email'],
 				'provider_id' => $parameters['receiver_id'],
 				'sandbox' => (!empty($parameters['test_ipn']) ? true : false),
+				'subscription_id' => (!empty($parameters['subscr_id']) ? $parameters['subscr_id'] : null),
 				'transaction_charset' => $this->settings['database']['charset'],
 				'transaction_date' => date('Y-m-d h:i:s', strtotime($parameters['payment_date'])),
 				'transaction_processed' => 0,

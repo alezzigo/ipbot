@@ -252,6 +252,7 @@ class InvoicesModel extends UsersModel {
 				'sandbox',
 				'transaction_charset',
 				'transaction_date',
+				'transaction_method',
 				'transaction_processed',
 				'transaction_processing',
 				'transaction_raw',

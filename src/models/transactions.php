@@ -579,6 +579,28 @@ class TransactionsModel extends InvoicesModel {
 						'transaction_method' => 'SubscriptionCreated'
 					);
 					break;
+				default:
+					switch ($parameters['payment_status']) {
+						case 'Reversed':
+							$response = array(
+								'payment_status_message' => 'Payment reversal pending' . (!empty($parameters['reason_code']) && $parameters['reason_code'] !== 'other' ? ' from ' . str_replace('_', ' ', $parameters['reason_code']) : '') . '.',
+								'transaction_method' => 'PaymentReversed'
+							);
+							break;
+						case 'Canceled_Reversal':
+							$response = array(
+								'payment_status_message' => 'Payment reversal canceled.',
+								'transaction_method' => 'PaymentReversalCanceled'
+							);
+							break;
+						case 'Refunded':
+							$response = array(
+								'payment_status_message' => 'Payment refunded.',
+								'transaction_method' => 'PaymentRefunded'
+							);
+							break;
+					}
+					break;
 			}
 		}
 

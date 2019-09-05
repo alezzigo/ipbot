@@ -75,8 +75,17 @@ class TransactionsModel extends InvoicesModel {
  * @return boolean $response
  */
 	protected function _processTransaction($parameters) {
-		$response = true;
-		// ..
+		$response = false;
+
+		if (
+			!empty($parameters['transaction_method']) &&
+			strlen($parameters['transaction_method']) > 1 &&
+			method_exists($this, ($method = '_processTransaction' . $parameters['transaction_method']))
+		) {
+			$this->$method($parameters);
+			$response = true;
+		}
+
 		return $response;
 	}
 
@@ -135,6 +144,7 @@ class TransactionsModel extends InvoicesModel {
 				'sandbox',
 				'transaction_charset',
 				'transaction_date',
+				'transaction_method',
 				'transaction_processed',
 				'transaction_processing',
 				'transaction_raw',
@@ -192,12 +202,11 @@ class TransactionsModel extends InvoicesModel {
  *
  * @param array $parameters
  *
- * @return array $response
+ * @return void
  */
-	protected function _processTransactionMiscellaneous() {
-		$response = array();
+	protected function _processTransactionMiscellaneous($parameters) {
 		// ..
-		return $response;
+		return;
 	}
 
 /**
@@ -205,12 +214,11 @@ class TransactionsModel extends InvoicesModel {
  *
  * @param array $parameters
  *
- * @return array $response
+ * @return void
  */
 	protected function _processTransactionPaymentCompleted($parameters) {
-		$response = array();
 		// ..
-		return $response;
+		return;
 	}
 
 /**
@@ -218,12 +226,11 @@ class TransactionsModel extends InvoicesModel {
  *
  * @param array $parameters
  *
- * @return array $response
+ * @return void
  */
 	protected function _processTransactionPaymentFailed($parameters) {
-		$response = array();
 		// ..
-		return $response;
+		return;
 	}
 
 /**
@@ -231,12 +238,11 @@ class TransactionsModel extends InvoicesModel {
  *
  * @param array $parameters
  *
- * @return array $response
+ * @return void
  */
 	protected function _processTransactionPaymentPending($parameters) {
-		$response = array();
 		// ..
-		return $response;
+		return;
 	}
 
 /**
@@ -244,12 +250,11 @@ class TransactionsModel extends InvoicesModel {
  *
  * @param array $parameters
  *
- * @return array $response
+ * @return void
  */
 	protected function _processTransactionPaymentRefunded($parameters) {
-		$response = array();
 		// ..
-		return $response;
+		return;
 	}
 
 /**
@@ -257,12 +262,11 @@ class TransactionsModel extends InvoicesModel {
  *
  * @param array $parameters
  *
- * @return array $response
+ * @return void
  */
 	protected function _processTransactionPaymentReversalCanceled($parameters) {
-		$response = array();
 		// ..
-		return $response;
+		return;
 	}
 
 /**
@@ -270,12 +274,11 @@ class TransactionsModel extends InvoicesModel {
  *
  * @param array $parameters
  *
- * @return array $response
+ * @return void
  */
 	protected function _processTransactionPaymentReversed($parameters) {
-		$response = array();
 		// ..
-		return $response;
+		return;
 	}
 
 /**
@@ -283,12 +286,11 @@ class TransactionsModel extends InvoicesModel {
  *
  * @param array $parameters
  *
- * @return array $response
+ * @return void
  */
 	protected function _processTransactionSubscriptionCanceled($parameters) {
-		$response = array();
 		// ..
-		return $response;
+		return;
 	}
 
 /**
@@ -296,12 +298,11 @@ class TransactionsModel extends InvoicesModel {
  *
  * @param array $parameters
  *
- * @return array $response
+ * @return void
  */
 	protected function _processTransactionSubscriptionCreated($parameters) {
-		$response = array();
 		// ..
-		return $response;
+		return;
 	}
 
 /**
@@ -309,12 +310,11 @@ class TransactionsModel extends InvoicesModel {
  *
  * @param array $parameters
  *
- * @return array $response
+ * @return void
  */
 	protected function _processTransactionSubscriptionExpired($parameters) {
-		$response = array();
 		// ..
-		return $response;
+		return;
 	}
 
 /**
@@ -322,12 +322,11 @@ class TransactionsModel extends InvoicesModel {
  *
  * @param array $parameters
  *
- * @return array $response
+ * @return void
  */
 	protected function _processTransactionSubscriptionModified($parameters) {
-		$response = array();
 		// ..
-		return $response;
+		return;
 	}
 
 /**
@@ -335,12 +334,11 @@ class TransactionsModel extends InvoicesModel {
  *
  * @param array $parameters
  *
- * @return array $response
+ * @return void
  */
 	protected function _processTransactionSubscriptionFailed($parameters) {
-		$response = array();
 		// ..
-		return $response;
+		return;
 	}
 
 /**

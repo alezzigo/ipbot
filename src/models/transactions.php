@@ -293,7 +293,6 @@ class TransactionsModel extends InvoicesModel {
 								count($processingNodes['data']) === $order['quantity']
 							) {
 								$newItemData = array(
-									'next_replacement_available' => date('Y-m-d H:i:s', strtotime('+1 week')),
 									'order_id' => $order['id'],
 									'status' => 'online',
 									'user_id' => $order['user_id']

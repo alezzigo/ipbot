@@ -310,10 +310,11 @@ class TransactionsModel extends InvoicesModel {
 									foreach ($processingNodes['data'] as $key => $row) {
 										$allocatedNodes[] = array(
 											'allocated' => true,
-											'id' => $row['id'],
+											'id' => ($processingNodes['data'][$key]['node_id'] = $row['id']),
 											'processing' => false
 										);
 										$processingNodes['data'][$key] += $newItemData;
+										unset($processingNodes['data'][$key]['id']);
 										unset($processingNodes['data'][$key]['processing']);
 									}
 
@@ -1021,7 +1022,7 @@ class TransactionsModel extends InvoicesModel {
 		$response = $defaultResponse = array(
 			'message' => array(
 				'status' => 'error',
-				'text' => ($defaultMessage = 'Error processing your payment request, please try again')
+				'text' => ($defaultMessage = 'Error processing your payment request, please try again.')
 			)
 		);
 

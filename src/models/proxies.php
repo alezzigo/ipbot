@@ -453,8 +453,8 @@ class ProxiesModel extends AppModel {
 							}
 
 							if (
-								$this->save($table, $processingNodes['data']) &&
-								$this->save('nodes', $allocatedNodes)
+								$this->save('nodes', $allocatedNodes) &&
+								$this->save($table, $processingNodes['data'])
 							) {
 								$response['items'][$table] = array();
 								$response['message'] = array(

@@ -256,9 +256,83 @@ class TransactionsModel extends InvoicesModel {
 
 				if (
 					!empty($invoice['data']['invoice']['status']) &&
-					$invoice['data']['invoice']['status'] === 'unpaid'
+					$invoice['data']['invoice']['status'] === 'unpaid' &&
+					$invoiceData['amount_paid'] >= $invoice['data']['invoice']['total']
 				) {
-					// ..
+					foreach ($invoice['data']['orders'] as $order) {
+						if ($order['status'] !== 'active') {
+							$processingNodes = $this->find('nodes', array(
+								'conditions' => array(
+									'AND' => array(
+										'allocated' => false,
+										'OR' => array(
+											'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute')),
+											'processing' => false
+										)
+									)
+								),
+								'fields' => array(
+									'asn',
+									'city',
+									'country_code',
+									'country_name',
+									'id',
+									'ip',
+									'isp',
+									'region'
+								),
+								'limit' => $order['quantity'],
+								'sort' => array(
+									'field' => 'id',
+									'order' => 'ASC'
+								)
+							));
+
+							if (
+								!empty($processingNodes['count']) &&
+								count($processingNodes['data']) === $order['quantity']
+							) {
+								$newItemData = array(
+									'next_replacement_available' => date('Y-m-d H:i:s', strtotime('+1 week')),
+									'order_id' => $order['id'],
+									'status' => 'online',
+									'user_id' => $order['user_id']
+								);
+								$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, $order['quantity'], array(
+									'processing' => true
+								)));
+
+								if ($this->save('nodes', $processingNodes['data'])) {
+									$orderData = array(
+										'id' => $order['id'],
+										'status' => 'active'
+									);
+
+									foreach ($processingNodes['data'] as $key => $row) {
+										$allocatedNodes[] = array(
+											'allocated' => true,
+											'id' => $row['id'],
+											'processing' => false
+										);
+										$processingNodes['data'][$key] += $newItemData;
+										unset($processingNodes['data'][$key]['processing']);
+									}
+
+									if (
+										$this->save('nodes', $allocatedNodes) &&
+										$this->save('orders', array(
+											$orderData
+										)) &&
+										$this->save('proxies', $processingNodes['data'])
+									) {
+										// Send order activation email
+									}
+								}
+							}
+						}
+					}
+
+					$invoiceData['status'] = 'paid';
 				}
 
 				if ($amountToApplyToBalance = max(0, round(($parameters['payment_amount'] - $amountToApplyToInvoice) * 100) / 100)) {

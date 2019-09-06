@@ -432,35 +432,36 @@ class ProxiesModel extends AppModel {
 					$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, count($processingNodes['data']), array(
 						'processing' => true
 					)));
-					$this->save('nodes', $processingNodes['data']);
 
-					foreach ($processingNodes['data'] as $key => $row) {
-						$allocatedNodes[] = array(
-							'allocated' => true,
-							'id' => ($processingNodes['data'][$key]['node_id'] = $processingNodes['data'][$key]['id']),
-							'processing' => false
-						);
-						$processingNodes['data'][$key] += $newItemData;
-						unset($processingNodes['data'][$key]['id']);
-						unset($processingNodes['data'][$key]['processing']);
-						$oldItemIds[]['id'] = $parameters['items'][$table]['data'][$key];
-					}
-
-					if ($parameters['tokens'][$table] === $this->_getToken($table, $parameters, 'order_id', $orderId)) {
-						if (!empty($oldItemData)) {
-							$oldItemData = array_replace_recursive(array_fill(0, $parameters['items'][$table]['count'], $oldItemData), $oldItemIds);
-							$this->save($table, $oldItemData);
+					if ($this->save('nodes', $processingNodes['data'])) {
+						foreach ($processingNodes['data'] as $key => $row) {
+							$allocatedNodes[] = array(
+								'allocated' => true,
+								'id' => ($processingNodes['data'][$key]['node_id'] = $processingNodes['data'][$key]['id']),
+								'processing' => false
+							);
+							$processingNodes['data'][$key] += $newItemData;
+							unset($processingNodes['data'][$key]['id']);
+							unset($processingNodes['data'][$key]['processing']);
+							$oldItemIds[]['id'] = $parameters['items'][$table]['data'][$key];
 						}
 
-						if (
-							$this->save($table, $processingNodes['data']) &&
-							$this->save('nodes', $allocatedNodes)
-						) {
-							$response['items'][$table] = array();
-							$response['message'] = array(
-								'status' => 'success',
-								'text' => $parameters['items'][$table]['count'] . ' of your selected ' . $table . ' replaced successfully.'
-							);
+						if ($parameters['tokens'][$table] === $this->_getToken($table, $parameters, 'order_id', $orderId)) {
+							if (!empty($oldItemData)) {
+								$oldItemData = array_replace_recursive(array_fill(0, $parameters['items'][$table]['count'], $oldItemData), $oldItemIds);
+								$this->save($table, $oldItemData);
+							}
+
+							if (
+								$this->save($table, $processingNodes['data']) &&
+								$this->save('nodes', $allocatedNodes)
+							) {
+								$response['items'][$table] = array();
+								$response['message'] = array(
+									'status' => 'success',
+									'text' => $parameters['items'][$table]['count'] . ' of your selected ' . $table . ' replaced successfully.'
+								);
+							}
 						}
 					}
 				}

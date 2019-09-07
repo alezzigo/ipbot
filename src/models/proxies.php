@@ -358,7 +358,7 @@ class ProxiesModel extends AppModel {
 			!empty($parameters['items'][$table]['count']) &&
 			is_array($parameters['items'][$table]['data'])
 		) {
-			$response['message']['text'] = 'There was an error applying the replacement settings to your ' . $table . ', please try again';
+			$response['message']['text'] = 'There was an error applying the replacement settings to your ' . $table . ', please try again.';
 			$newItemData = $oldItemData = $oldItemIds = array();
 
 			if (

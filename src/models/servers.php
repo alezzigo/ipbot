@@ -213,6 +213,9 @@ class ServersModel extends AppModel {
 								is_array($this->proxyConfigurations)
 							) {
 								$response = array(
+									'data' => array(
+										'server' => $serverConfiguration
+									),
 									'message' => array(
 										'status' => 'success',
 										'text' => 'Proxies retrieved for server ' . $serverIp . ' successfully.'

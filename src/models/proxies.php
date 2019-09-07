@@ -176,6 +176,20 @@ class ProxiesModel extends AppModel {
 				''
 			);
 			$delimiterMask = implode('', array_unique(array_filter($delimiters)));
+			$separators = array(
+				'comma' => ',',
+				'new_line' => "\n",
+				'semicolon' => ';',
+				'space' => ' ',
+				'underscore' => '_'
+			);
+
+			if (
+				empty($parameters['data']['separated_by']) ||
+				empty($separator = $separators[$parameters['data']['separated_by']])
+			) {
+				$separator = "\n";
+			}
 
 			foreach ($response['data'] as $key => $data) {
 				$items[$key] = '';
@@ -190,7 +204,7 @@ class ProxiesModel extends AppModel {
 
 		$response = array(
 			'count' => count($items),
-			'data' => implode("\n", $items)
+			'data' => implode($separator, $items)
 		);
 		return $response;
 	}

@@ -25,7 +25,7 @@ var processCopy = function(windowName, windowSelector) {
 			requestParameters.action = previousAction;
 		});
 	};
-	elements.loop(windowSelector + ' .list-format select', function(index, element) {
+	elements.loop(windowSelector + ' select', function(index, element) {
 		element.removeEventListener('change', element.changeListener);
 		element.changeListener = function() {
 			processCopyFormat();

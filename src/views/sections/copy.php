@@ -9,7 +9,7 @@
 					</div>
 					<div class="item-body">
 						<label>Proxy List Format</label>
-						<div class="field-group list-format">
+						<div class="field-group list-format no-margin-top">
 							<select class="ipv4-column-1" name="ipv4_column_1">
 								<option value=""></option>
 								<option selected value="ip">ip</option>
@@ -59,6 +59,27 @@
 								<option value="username">user</option>
 								<option selected value="password">pass</option>
 							</select>
+						</div>
+						<div class="clear"></div>
+						<div class="align-left">
+							<label>Proxy List Type</label>
+							<div class="field-group no-margin-top proxy-list-type">
+								<select class="proxy-list-type" name="proxy_list_type">
+									<option selected value="80">Port 80 HTTP</option>
+								</select>
+							</div>
+						</div>
+						<div class="align-left">
+							<label>Separated By</label>
+							<div class="field-group no-margin-top separated-by">
+								<select class="separated-by" name="separated_by">
+									<option selected value="new_line">New Line</option>
+									<option value="comma">Comma</option>
+									<option value="semicolon">Semicolon</option>
+									<option value="space">Space</option>
+									<option value="underscore">Underscore</option>
+								</select>
+							</div>
 						</div>
 						<div class="clear"></div>
 						<p class="message loading">Loading...</p>

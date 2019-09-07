@@ -875,7 +875,7 @@ main {
 	z-index: 1;
 }
 .field-group.proxy-list-type {
-	margin-right: 8px;
+	margin-right: 18px;
 }
 @media (max-width: 480px) {
 	.field-group .billing-cc-code {

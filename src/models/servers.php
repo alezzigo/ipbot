@@ -13,6 +13,119 @@ require_once($config->settings['base_path'] . '/models/app.php');
 class ServersModel extends AppModel {
 
 /**
+ * Format Squid access controls for list of proxies
+ *
+ * @param array $proxies
+ *
+ * @return array $response
+ */
+	protected function _formatSquidAccessControls($proxies) {
+		$formattedAcls = $formattedFiles = $formattedProxies = $formattedUsers = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = $proxyIps = array();
+		$userIndex = 0;
+
+		foreach ($proxies as $key => $proxy) {
+			if (
+				!empty($proxy['whitelisted_ips']) &&
+				!empty($proxy['require_authentication'])
+			) {
+				$sources = json_encode(array_filter(explode("\n", $proxy['whitelisted_ips'])));
+
+				if (
+					empty($formattedProxies['whitelist'][$sources]) ||
+					!in_array($proxy['ip'], $formattedProxies['whitelist'][$sources])
+				) {
+					$formattedProxies['whitelist'][$sources][] = $proxy['ip'];
+				}
+			}
+
+			if (
+				!empty($proxy['username']) &&
+				!empty($proxy['password']) &&
+				!empty($proxy['require_authentication'])
+			) {
+				if (
+					empty($formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']]) ||
+					!in_array($proxy['ip'], $formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']])
+				) {
+					$formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']][] = $proxy['ip'];
+				}
+			}
+
+			if (empty($proxy['require_authentication'])) {
+				$formattedProxies['public'][] = $proxy['ip'];
+			}
+
+			if (!empty($proxy['disable_http'])) {
+				$disabledProxies[$proxy['ip']]['disable_http'] = true;
+			}
+
+			if (!in_array(($proxyIp = $proxy['ip']), $proxyIps)) {
+				$proxyIpAcls[] = 'acl ip' . $key . ' localip ' . $proxyIp;
+				$proxyIpAcls[] = 'tcp_outgoing_address ' . $proxyIp . ' ip' . $key;
+				$proxyIps[] = $proxyIp;
+			}
+		}
+
+		if (!empty($formattedProxies['authentication'])) {
+			foreach ($formattedProxies['authentication'] as $credentials => $destinations) {
+				$splitAuthentication = explode($this->keys['start'], $credentials);
+				$formattedAcls[] = 'acl user' . $userIndex . ' proxy_auth ' . $splitAuthentication[0];
+				$formattedFiles[] = array(
+					'path' => '/etc/squid3/users/' . $userIndex . '/d.txt',
+					'contents' => implode("\n", $destinations)
+				);
+				$formattedUsers[$splitAuthentication[0]] = $splitAuthentication[1];
+				$proxyAuthenticationAcls[] = 'acl d' . $userIndex . ' localip "/etc/squid3/users/' . $userIndex . '/d.txt"';
+				$proxyAuthenticationAcls[] = 'http_access allow d' . $userIndex . ' user' . $userIndex;
+				$userIndex++;
+			}
+		}
+
+		$formattedAcls = array_merge($formattedAcls, $proxyIpAcls);
+
+		if (!empty($formattedProxies['whitelist'])) {
+			foreach ($formattedProxies['whitelist'] as $sources => $destinations) {
+				$sources = json_decode($sources, true);
+				$splitSources = array_chunk($sources, '500');
+
+				foreach ($splitSources as $sourceChunk) {
+					$formattedFiles[] = array(
+						'path' => '/etc/squid3/users/' . $userIndex . '/d.txt',
+						'contents' => implode("\n", $destinations)
+					);
+					$formattedFiles[] = array(
+						'path' => '/etc/squid3/users/' . $userIndex . '/s.txt',
+						'contents' => implode("\n", $sourceChunk)
+					);
+					$proxyWhitelistAcls[] = 'acl d' . $userIndex . ' localip "/etc/squid3/users/' . $userIndex . '/d.txt"';
+					$proxyWhitelistAcls[] = 'acl s' . $userIndex . ' src "/etc/squid3/users/' . $userIndex . '/s.txt"';
+					$proxyWhitelistAcls[] = 'http_access allow s' . $userIndex . ' d' . $userIndex;
+					$userIndex++;
+				}
+			}
+		}
+
+		$formattedAcls = array_merge($formattedAcls, $proxyWhitelistAcls, $proxyAuthenticationAcls);
+
+		if (!empty($formattedProxies['public'])) {
+			$formattedFiles[] = array(
+				'path' => '/etc/squid3/users/' . $userIndex . '/d.txt',
+				'contents' => implode("\n", $formattedProxies['public'])
+			);
+			$formattedAcls[] = 'acl d' . $userIndex . ' localip "/etc/squid3/users/' . $userIndex . '/d.txt"';
+			$formattedAcls[] = 'http_access allow d' . $userIndex . ' all';
+		}
+
+		$formattedAcls[] = 'http_access deny all';
+		$response = array(
+			'acls' => $formattedAcls,
+			'files' => $formattedFiles,
+			'users' => $formattedUsers
+		);
+		return $response;
+	}
+
+/**
  * Retrieve server data
  *
  * @return array $response
@@ -30,19 +143,25 @@ class ServersModel extends AppModel {
 				'status' => 'online'
 			),
 			'fields' => array(
-				'id'
+				'http_proxy_configuration',
+				'id',
+				'ip',
+				'server_configuration',
+				'server_configuration_type',
+				'socks_proxy_configuration'
 			)
 		));
+		$serverConfiguration = $proxyConfiguration = array();
 
 		if (!empty($server['count'])) {
-			$response['message']['status'] = 'Duplicate server IPs, please check database.';
+			$response['message']['status'] = 'Duplicate server IPs, please check server options in database.';
 
 			if ($server['count'] === 1) {
 				$response['message']['status'] = 'No active nodes available on gateway server.';
 				$nodeIds = $this->find('nodes', array(
 					'conditions' => array(
 						'allocated' => true,
-						'server_id' => $server['data'][0]
+						'server_id' => $server['data'][0]['id']
 					),
 					'fields' => array(
 						'id'
@@ -81,114 +200,43 @@ class ServersModel extends AppModel {
 					));
 
 					if (!empty($proxies['count'])) {
-						$response = array(
-							'message' => array(
-								'status' => 'success',
-								'text' => 'Proxies retrieved for server ' . $serverIp . ' successfully.'
-							)
-						);
-						$formattedAcls = $formattedFiles = $formattedProxies = $formattedUsers = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = $proxyIps = array();
-						$userIndex = 0;
+						$response['message']['status'] = 'Invalid server configuration type, please check your configuration file and server options in database.';
 
-						foreach ($proxies['data'] as $key => $proxy) {
-							if (
-								!empty($proxy['whitelisted_ips']) &&
-								!empty($proxy['require_authentication'])
-							) {
-								$sources = json_encode(array_filter(explode("\n", $proxy['whitelisted_ips'])));
-
-								if (
-									empty($formattedProxies['whitelist'][$sources]) ||
-									!in_array($proxy['ip'], $formattedProxies['whitelist'][$sources])
-								) {
-									$formattedProxies['whitelist'][$sources][] = $proxy['ip'];
-								}
-							}
+						if (
+							!empty($serverConfiguration = $this->serverConfigurations[$server['data'][0]['server_configuration']]) &&
+							!empty($serverConfiguration = $serverConfiguration[$server['data'][0]['server_configuration_type']])
+						) {
+							$response['message']['status'] = 'Invalid proxy configuration settings, please check your configuration file and server options in database.';
 
 							if (
-								!empty($proxy['username']) &&
-								!empty($proxy['password']) &&
-								!empty($proxy['require_authentication'])
+								!empty($this->proxyConfigurations) &&
+								is_array($this->proxyConfigurations)
 							) {
-								if (
-									empty($formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']]) ||
-									!in_array($proxy['ip'], $formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']])
-								) {
-									$formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']][] = $proxy['ip'];
-								}
-							}
-
-							if (empty($proxy['require_authentication'])) {
-								$formattedProxies['public'][] = $proxy['ip'];
-							}
-
-							if (!empty($proxy['disable_http'])) {
-								$disabledProxies[$proxy['ip']]['disable_http'] = true;
-							}
-
-							if (!in_array(($proxyIp = $proxy['ip']), $proxyIps)) {
-								$proxyIpAcls[] = 'acl ip' . $key . ' localip ' . $proxyIp;
-								$proxyIpAcls[] = 'tcp_outgoing_address ' . $proxyIp . ' ip' . $key;
-								$proxyIps[] = $proxyIp;
-							}
-						}
-
-						if (!empty($formattedProxies['authentication'])) {
-							foreach ($formattedProxies['authentication'] as $credentials => $destinations) {
-								$splitAuthentication = explode($this->keys['start'], $credentials);
-								$formattedAcls[] = 'acl user' . $userIndex . ' proxy_auth ' . $splitAuthentication[0];
-								$formattedFiles[] = array(
-									'path' => '/etc/squid3/users/' . $userIndex . '/d.txt',
-									'contents' => implode("\n", $destinations)
+								$response = array(
+									'message' => array(
+										'status' => 'success',
+										'text' => 'Proxies retrieved for server ' . $serverIp . ' successfully.'
+									)
 								);
-								$formattedUsers[$splitAuthentication[0]] = $splitAuthentication[1];
-								$proxyAuthenticationAcls[] = 'acl d' . $userIndex . ' localip "/etc/squid3/users/' . $userIndex . '/d.txt"';
-								$proxyAuthenticationAcls[] = 'http_access allow d' . $userIndex . ' user' . $userIndex;
-								$userIndex++;
-							}
-						}
 
-						$formattedAcls = array_merge($formattedAcls, $proxyIpAcls);
+								foreach ($this->proxyConfigurations as $proxyProtocol => $proxyConfiguration) {
+									if (
+										!empty($proxyConfiguration = $proxyConfiguration[$server['data'][0]['server_configuration_type']][$proxyConfigurationType = $server['data'][0][$proxyProtocol . '_proxy_configuration']]) &&
+										method_exists($this, ($method = '_format' . ucwords($proxyConfigurationType) . 'AccessControls')) &&
+										!empty($formattedAcls = $this->$method($proxies['data']))
+									) {
+										$response['data'][$proxyProtocol] = $formattedAcls;
+									}
+								}
 
-						if (!empty($formattedProxies['whitelist'])) {
-							foreach ($formattedProxies['whitelist'] as $sources => $destinations) {
-								$sources = json_decode($sources, true);
-								$splitSources = array_chunk($sources, '500');
-
-								foreach ($splitSources as $sourceChunk) {
-									$formattedFiles[] = array(
-										'path' => '/etc/squid3/users/' . $userIndex . '/d.txt',
-										'contents' => implode("\n", $destinations)
+								if (!empty($response['data'])) {
+									$response['message'] = array(
+										'status' => 'success',
+										'text' => 'Proxies retrieved for server ' . $serverIp . ' successfully.'
 									);
-									$formattedFiles[] = array(
-										'path' => '/etc/squid3/users/' . $userIndex . '/s.txt',
-										'contents' => implode("\n", $sourceChunk)
-									);
-									$proxyWhitelistAcls[] = 'acl d' . $userIndex . ' localip "/etc/squid3/users/' . $userIndex . '/d.txt"';
-									$proxyWhitelistAcls[] = 'acl s' . $userIndex . ' src "/etc/squid3/users/' . $userIndex . '/s.txt"';
-									$proxyWhitelistAcls[] = 'http_access allow s' . $userIndex . ' d' . $userIndex;
-									$userIndex++;
 								}
 							}
 						}
-
-						$formattedAcls = array_merge($formattedAcls, $proxyWhitelistAcls, $proxyAuthenticationAcls);
-
-						if (!empty($formattedProxies['public'])) {
-							$formattedFiles[] = array(
-								'path' => '/etc/squid3/users/' . $userIndex . '/d.txt',
-								'contents' => implode("\n", $formattedProxies['public'])
-							);
-							$formattedAcls[] = 'acl d' . $userIndex . ' localip "/etc/squid3/users/' . $userIndex . '/d.txt"';
-							$formattedAcls[] = 'http_access allow d' . $userIndex . ' all';
-						}
-
-						$formattedAcls[] = 'http_access deny all';
-						$response['data'] = array(
-							'acls' => $formattedAcls,
-							'files' => $formattedFiles,
-							'users' => $formattedUsers
-						);
 					}
 				}
 			}

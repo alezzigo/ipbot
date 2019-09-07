@@ -397,7 +397,22 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionPaymentRefunded($parameters) {
-		// ..
+		if (!empty($parameters['invoice_id'])) {
+			$invoice = $this->invoice('invoices', array(
+				'conditions' => array(
+					'id' => $parameters['invoice_id']
+				)
+			));
+
+			if (!empty($invoice['data'])) {
+				$invoiceData = array(
+					'id' => $parameters['invoice_id'],
+					// ..
+				);
+				// ..
+			}
+		}
+
 		return;
 	}
 

@@ -212,6 +212,7 @@ class Config {
 			'http' => array(
 				'dynamic' => array(),
 				'static' => array(
+					'eightomic' => array(),
 					'squid' => array(
 						'auth_param basic program /usr/lib/squid3/basic_ncsa_auth /etc/squid3/passwords',
 						'auth_param basic children 88888',

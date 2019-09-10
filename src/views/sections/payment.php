@@ -41,8 +41,12 @@
 						<div class="field-group payment-methods">
 							<label for="paypal" type="radio"><input checked id="paypal" name="payment_method" type="radio" value="paypal"> PayPal</label>
 							<label for="credit-card" type="radio"><input id="credit-card" name="payment_method" type="radio" value="credit_card"> Credit Card</label>
+							<label class="hidden" for="balance" type="radio"><input id="balance" name="payment_method" type="radio" value="balance"> Account Balance</label>
 						</div>
 						<div class="clear"></div>
+						<div class="balance hidden payment-method">
+							<p class="message success"></p>
+						</div>
 						<div class="payment-method paypal">
 							<p class="message">You'll be redirected to log into PayPal after clicking "Complete Payment".</p>
 						</div>
@@ -80,7 +84,7 @@
 							<a class="billing-view-details" href="javascript:void(0);">View invoice details</a>
 						</div>
 						<div class="clear"></div>
-						<div class="checkbox-container">
+						<div class="checkbox-container recurring-checkbox-container">
 							<span checked="1" class="checkbox" id="billing-recurring" name="billing_recurring"></span>
 							<label class="custom-checkbox-label" for="billing-recurring" name="billing_recurring">Recurring subscription</label>
 						</div>

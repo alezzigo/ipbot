@@ -85,7 +85,6 @@ class InvoicesModel extends UsersModel {
 			}
 		}
 
-		$response['invoice']['amount_applied_to_balance'] = max(0, round(($invoiceData['invoice']['amount_paid'] - $invoiceData['invoice']['amount_applied']) * 100) / 100);
 		$response['invoice']['amount_due'] = max(0, round(($response['invoice']['total'] - $response['invoice']['amount_paid']) * 100) / 100);
 		$response['invoice']['payment_currency_name'] = $this->settings['billing']['currency_name'];
 		$response['invoice']['payment_currency_symbol'] = $this->settings['billing']['currency_symbol'];
@@ -296,9 +295,7 @@ class InvoicesModel extends UsersModel {
 		$invoiceData = $this->find($table, array(
 			'conditions' => $parameters['conditions'],
 			'fields' => array(
-				'amount_applied',
 				'amount_paid',
-				'amount_refunded',
 				'cart_items',
 				'created',
 				'id',

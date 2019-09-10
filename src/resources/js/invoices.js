@@ -37,6 +37,10 @@ var processInvoice = function() {
 				});
 			}
 
+			var hasBalance = (
+				response.user !== false &&
+				response.user.balance > 0
+			);
 			var invoiceShipping = parseFloat(response.data.invoice.shipping);
 			var invoiceTax = parseFloat(response.data.invoice.tax);
 			invoiceData += '<h2>Invoice Pricing Details</h2>';
@@ -53,19 +57,7 @@ var processInvoice = function() {
 			invoiceData += '<h2>Invoice Payment Details</h2>';
 
 			if (response.data.invoice.amount_paid) {
-				invoiceData += '<p><strong>Total Amount Paid</strong><br><span class="paid">' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_paid + ' ' + response.data.invoice.payment_currency_name + '</span></p>';
-			}
-
-			if (response.data.invoice.amount_refunded) {
-				invoiceData += '<p><strong>Total Amount Refunded</strong><br><span class="refund">' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_refunded + ' ' + response.data.invoice.payment_currency_name + '</span></p>';
-			}
-
-			if (response.data.invoice.amount_applied) {
-				invoiceData += '<p><strong>Amount Applied to Invoice</strong><br><span class="paid">' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_applied + ' ' + response.data.invoice.payment_currency_name + '</span></p>';
-			}
-
-			if (response.data.invoice.amount_applied_to_balance) {
-				invoiceData += '<p><strong>Amount Applied to Account Balance</strong><br><span class="paid">' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_applied_to_balance + ' ' + response.data.invoice.payment_currency_name + '</span></p>';
+				invoiceData += '<p><strong>Amount Paid to Invoice</strong><br><span class="paid">' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_paid + ' ' + response.data.invoice.payment_currency_name + '</span></p>';
 			}
 
 			invoiceData += '<p><strong>Remaining Amount Due</strong><br>' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_due + ' ' + response.data.invoice.payment_currency_name + '</p>';
@@ -87,11 +79,28 @@ var processInvoice = function() {
 			elements.removeClass('.item-configuration .item-controls', 'hidden');
 			selectAllElements('.payment-methods input').map(function(element) {
 				element[1].addEventListener('change', function(element) {
+					var paymentMethod = element.target.getAttribute('id');
 					elements.addClass('.payment-method', 'hidden');
-					elements.removeClass('.payment-method.' + element.target.getAttribute('id'), 'hidden');
+					elements.removeClass('.payment-method.' + paymentMethod, 'hidden');
+
+					if (
+						hasBalance &&
+						paymentMethod == 'balance'
+					) {
+						document.querySelector('.billing-amount').value = Math.min(response.data.invoice.amount_due, response.user.balance);
+						elements.addClass('.recurring-checkbox-container', 'hidden');
+					} else {
+						document.querySelector('.billing-amount').value = response.data.invoice.amount_due;
+						elements.removeClass('.recurring-checkbox-container', 'hidden');
+					}
 				});
 			});
 			processLoginVerification(response);
+
+			if (hasBalance) {
+				elements.removeClass('.payment-methods label[for="balance"]', 'hidden');
+				elements.html('.payment-method.balance .message ', 'You have an available account balance of ' + response.data.invoice.payment_currency_symbol + response.user.balance + ' ' + response.data.invoice.payment_currency_name);
+			}
 		}
 
 		invoiceContainer.innerHTML = invoiceData;

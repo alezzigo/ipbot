@@ -13,6 +13,19 @@ require_once($config->settings['base_path'] . '/models/invoices.php');
 class TransactionsModel extends InvoicesModel {
 
 /**
+ * Process balance payments
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _processBalance($parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
  * Process credit card payments
  *
  * @param array $parameters
@@ -250,7 +263,6 @@ class TransactionsModel extends InvoicesModel {
 			if (!empty($invoice['data'])) {
 				$invoiceData = array(
 					'id' => $parameters['invoice_id'],
-					'amount_applied' => $invoice['data']['invoice']['amount_applied'] + ($amountToApplyToInvoice = min($parameters['payment_amount'], round(($invoice['data']['invoice']['total'] - $invoice['data']['invoice']['amount_applied']) * 100) / 100)),
 					'amount_paid' => $invoice['data']['invoice']['amount_paid'] + $parameters['payment_amount']
 				);
 
@@ -335,7 +347,10 @@ class TransactionsModel extends InvoicesModel {
 					$invoiceData['status'] = 'paid';
 				}
 
-				if ($amountToApplyToBalance = max(0, round(($parameters['payment_amount'] - $amountToApplyToInvoice) * 100) / 100)) {
+				if (
+					!empty($invoice['data']['invoice']['user_id']) &&
+					$amountToApplyToBalance = max(0, min($parameters['payment_amount'], round(($invoiceData['amount_paid'] - $invoice['data']['invoice']['total']) * 100) / 100 ))
+				) {
 					$user = $this->find('users', array(
 						'conditions' => array(
 							'id' => $invoice['data']['invoice']['user_id']
@@ -1042,17 +1057,20 @@ class TransactionsModel extends InvoicesModel {
 		);
 
 		if (
-			!empty($parameters['user']) ||
+			!empty($parameters['data']['payment_method']) &&
 			(
+				!empty($parameters['user']) ||
 				(
-					($response = $this->register('users', $parameters)) &&
-					!empty($response['message']['status']) &&
-					$response['message']['status'] === 'success'
-				) ||
-				(
-					($response = $this->login('users', $parameters)) &&
-					!empty($response['message']['status']) &&
-					$response['message']['status'] === 'success'
+					(
+						($response = $this->register('users', $parameters)) &&
+						!empty($response['message']['status']) &&
+						$response['message']['status'] === 'success'
+					) ||
+					(
+						($response = $this->login('users', $parameters)) &&
+						!empty($response['message']['status']) &&
+						$response['message']['status'] === 'success'
+					)
 				)
 			)
 		) {
@@ -1061,8 +1079,11 @@ class TransactionsModel extends InvoicesModel {
 			unset($response['redirect']);
 
 			if (
-				!isset($parameters['data']['recurring']) ||
-				!is_bool($parameters['data']['recurring'])
+				$parameters['data']['payment_method'] === 'balance' ||
+				(
+					!isset($parameters['data']['recurring']) ||
+					!is_bool($parameters['data']['recurring'])
+				)
 			) {
 				$parameters['data']['recurring'] = false;
 			}
@@ -1075,11 +1096,15 @@ class TransactionsModel extends InvoicesModel {
 				number_format($amount, 2, '.', '') == $amount
 			) {
 				$response['message']['text'] = 'Invalid payment method, please try again.';
+				$method = '_process' . str_replace(' ', '', ucwords(str_replace('_', ' ', $parameters['data']['payment_method'])));
 
-				if (!empty($parameters['data']['payment_method'])) {
-					$method = '_process' . str_replace(' ', '', ucwords(str_replace('_', ' ', $parameters['data']['payment_method'])));
-
-					if (method_exists($this, $method)) {
+				if (method_exists($this, $method)) {
+					if (
+						$parameters['data']['payment_method'] === 'balance' &&
+						$parameters['data']['billing_amount'] > $parameters['user']['balance']
+					) {
+						$response['message']['text'] = 'Payment amount exceeds your account balance, please enter an amount less than or equal to ' . $this->settings['billing']['currency_symbol'] . $parameters['user']['balance'] . ' ' . $this->settings['billing']['currency_name'] . '.';
+					} else {
 						$response['message']['text'] = 'Invalid invoice ID, please try again.';
 						$invoice = $this->invoice('invoices', array(
 							'conditions' => array(

@@ -2,6 +2,26 @@
 
 var defaultTable = 'users';
 var previousAction = 'register';
+var processReset = function() {
+	var hash =  replaceCharacter(window.location.search, 0, '');
+	requestParameters.action = 'reset';
+	requestParameters.table = 'users';
+	requestParameters.data['token'] = hash;
+	sendRequest(function(response) {
+		var messageContainer = document.querySelector('.reset .message-container');
+
+		if (messageContainer) {
+			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		}
+
+		if (
+			typeof response.data !== 'undefined' &&
+			response.data.user.email
+		) {
+			document.querySelector('.reset .email').value = response.data.user.email;
+		}
+	});
+};
 var processUsers = function(windowName, windowSelector) {
 	requestParameters.action = windowName;
 	requestParameters.table = 'users';

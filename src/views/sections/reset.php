@@ -8,6 +8,9 @@
 						<h1>Reset Password</h1>
 					</div>
 					<div class="item-body">
+						<div class="message-container"></div>
+						<label for="reset-email">Email</label>
+						<input class="email" disabled id="reset-email" name="email" type="text">
 						<label for="reset-password">New Password</label>
 						<input class="password" id="reset-password" name="password" type="password">
 						<label for="confirm_password">Confirm New Password</label>

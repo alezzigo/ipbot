@@ -15,6 +15,8 @@ var processLogout = function() {
 	});
 };
 onLoad(function() {
+	var method;
+
 	if ((scrollableElements = selectAllElements('.scrollable')).length) {
 		scrollableElements.map(function(element) {
 			var event = function() {
@@ -97,16 +99,20 @@ onLoad(function() {
 		if (document.querySelector(windowSelector)) {
 			closeWindows(defaultTable);
 			openWindow(windowName, windowSelector);
+			method = 'process' + capitalizeString(windowName);
 		}
 	}
 
 	if (document.querySelector('main[process]')) {
-		var method = 'process' + capitalizeString(document.querySelector('main[process]').getAttribute('process'));
+		method = 'process' + capitalizeString(document.querySelector('main[process]').getAttribute('process'));
+	}
 
-		if (typeof window[method] === 'function') {
-			setTimeout(function() {
-				window[method]();
-			}, 100);
-		}
+	if (
+		method &&
+		typeof window[method] === 'function'
+	) {
+		setTimeout(function() {
+			window[method]();
+		}, 100);
 	}
 });

@@ -525,6 +525,10 @@ main {
 		.item-container textarea:visited {
 			border-color: #7773e3;
 		}
+		.item-container input[disabled]:hover,
+		.item-container textarea[disabled]:hover {
+			border-color: #dddbf4;
+		}
 		.item-container textarea {
 			height: 140px;
 			line-height: 18px;

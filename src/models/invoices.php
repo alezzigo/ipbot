@@ -263,11 +263,29 @@ class InvoicesModel extends UsersModel {
 				'order' => 'ASC'
 			)
 		));
+		$paymentMethods = $this->find('payment_methods', array(
+			'fields' => array(
+				'id',
+				'name'
+			)
+		));
 
-		if (!empty($invoiceTransactions['count'])) {
+		if (
+			!empty($invoiceTransactions['count']) &&
+			!empty($paymentMethods['count'])
+		) {
+			foreach ($paymentMethods['data'] as $key => $paymentMethod) {
+				$paymentMethods['data'][$paymentMethod['id']] = $paymentMethod['name'];
+				unset($paymentMethods['data'][$key]);
+			}
+
 			foreach ($invoiceTransactions['data'] as $key => $invoiceTransaction) {
 				$transactionTime = strtotime($invoiceTransaction['transaction_date']);
 				$invoiceTransactions['data'][$key]['transaction_date'] = date('M d Y', $transactionTime) . ' at ' . date('g:ia', $transactionTime) . ' ' . $this->settings['timezone'];
+
+				if (!empty($paymentMethod = $paymentMethods['data'][$invoiceTransaction['payment_method_id']])) {
+					$invoiceTransactions['data'][$key]['payment_method'] = $paymentMethod;
+				}
 			}
 
 			$response = $invoiceTransactions['data'];

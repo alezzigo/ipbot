@@ -66,7 +66,7 @@ var processInvoice = function() {
 
 			if (response.data.transactions.length) {
 				response.data.transactions.map(function(transaction) {
-					invoiceData += '<label class="label ' + transaction.transaction_method + '">' + capitalizeString(transaction.payment_status_message) + '</label><div class="transaction"><p><strong>' + transaction.transaction_date + '</strong><br>' + transaction.payment_amount + ' ' + transaction.payment_currency + '<br>Transaction ID ' + transaction.id + '</p><p><strong>' + transaction.billing_name + '</strong><br>' + transaction.billing_address_1 + (transaction.billing_address_2 ? ' ' + transaction.billing_address_2 : '') + '<br>' + transaction.billing_city + ' ' + transaction.billing_region + ' ' + transaction.billing_zip + ' ' + transaction.billing_country_code + '</p></div>';
+					invoiceData += (transaction.payment_status_message ? '<label class="label ' + (Math.sign(transaction.payment_amount) > 0 ? 'payment' : 'refund') + '">' + capitalizeString(transaction.payment_status_message) + '</label>' : '') + '<div class="transaction"><p><strong>' + transaction.transaction_date + '</strong><br>' + transaction.payment_amount + ' ' + transaction.payment_currency + '<br>' + (transaction.payment_method ? transaction.payment_method + ' ' : '') + 'Transaction ID ' + transaction.id + '</p>' + (transaction.billing_name ? '<p>' + (transaction.billing_name ? '<strong>' + transaction.billing_name + '</strong><br>' : '') + (transaction.billing_address_1 ? ' ' + transaction.billing_address_1 : '') + (transaction.billing_address_2 ? ' ' + transaction.billing_address_2 : '') + '<br>' + (transaction.billing_city ? ' ' + transaction.billing_city : '') + (transaction.billing_region ? ' ' + transaction.billing_region : '') + (transaction.billing_zip ? ' ' + transaction.billing_zip : '') + (transaction.billing_country_code ? ' ' + transaction.billing_country_code : '') + '</p>' : '') + '</div>';
 				});
 			}
 
@@ -167,6 +167,7 @@ var processPayment = function(windowName, windowSelector) {
 			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
 
+		processInvoice();
 		processLoginVerification(response);
 		window.scroll(0, 0);
 

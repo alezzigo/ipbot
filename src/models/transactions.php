@@ -20,8 +20,62 @@ class TransactionsModel extends InvoicesModel {
  * @return array $response
  */
 	protected function _processBalance($parameters) {
-		$response = array();
-		// ..
+		$response = array(
+			'message' => array(
+				'status' => 'error',
+				'text' => 'Error processing payment from account balance, please try again.'
+			)
+		);
+		$transaction = array(
+			'customer_email' => $parameters['user']['email'],
+			'id' => uniqid() . time(),
+			'invoice_id' => $parameters['data']['invoice']['id'],
+			'payment_amount' => $parameters['data']['billing_amount'],
+			'payment_currency' => $this->settings['billing']['currency_name'],
+			'payment_method_id' => 'balance',
+			'payment_status' => 'completed',
+			'payment_status_message' => 'Payment successful.',
+			'plan_id' => $parameters['data']['plan']['id'],
+			'transaction_charset' => $this->settings['database']['charset'],
+			'transaction_date' => date('Y-m-d h:i:s', time()),
+			'transaction_method' => 'PaymentCompleted',
+			'transaction_processed' => true,
+			'user_id' => $parameters['user']['id']
+		);
+
+		if ($this->save('transactions', array(
+			$transaction
+		))) {
+			$user = $this->find('users', array(
+				'conditions' => array(
+					'id' => $transaction['user_id']
+				),
+				'fields' => array(
+					'balance'
+				)
+			));
+
+			if (!empty($user['count'])) {
+				$userData = array(
+					'id' => $transaction['user_id'],
+					'balance' => (round(($user['data'][0] - $parameters['data']['billing_amount']) * 100) / 100)
+				);
+
+				if ($this->save('users', array(
+					$userData
+				))) {
+					$this->_processTransactionPaymentCompleted($transaction);
+					$response = array(
+						'data' => $transaction,
+						'message' => array(
+							'status' => 'success',
+							'text' => 'Payment from account balance successful for <a href="' . $this->settings['base_url'] . 'invoices/' . $transaction['invoice_id'] . '">invoice #' . $transaction['invoice_id'] . '</a>.'
+						)
+					);
+				}
+			}
+		}
+
 		return $response;
 	}
 
@@ -412,8 +466,13 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionPaymentRefunded($parameters) {
-		if (!empty($parameters['invoice_id'])) {
-			$invoice = $this->invoice('invoices', array(
+		$invoices = $transactionData = array();
+
+		if (
+			!empty($parameters['invoice_id']) &&
+			!empty($parameters['user_id'])
+		) {
+			$invoices[$parameters['invoice_id']] = $invoice = $this->invoice('invoices', array(
 				'conditions' => array(
 					'id' => $parameters['invoice_id']
 				)
@@ -421,10 +480,152 @@ class TransactionsModel extends InvoicesModel {
 
 			if (!empty($invoice['data'])) {
 				$invoiceData = array(
-					'id' => $parameters['invoice_id'],
-					// ..
+					array(
+						'amount_paid' => $amountPaid = max(0, round(($invoice['data']['invoice']['amount_paid'] + $parameters['payment_amount']) * 100) / 100),
+						'id' => $parameters['invoice_id'],
+						'status' => $amountPaid >= $invoice['data']['invoice']['total'] ? 'paid' : 'unpaid'
+					)
 				);
-				// ..
+				$amountToDeductFromBalance = round(($invoice['data']['invoice']['total'] + $parameters['payment_amount']) * 100) / 100;
+
+				if ($amountToDeductFromBalance < 0) {
+					$user = $this->find('users', array(
+						'conditions' => array(
+							'id' => $parameters['user_id']
+						),
+						'fields' => array(
+							'balance',
+							'email'
+						)
+					));
+
+					if (!empty($user['count'])) {
+						$userData = array(
+							'id' => $invoice['data']['invoice']['user_id'],
+							'balance' => max(0, $amountRefundedExceedingBalance = round(($user['data'][0]['balance'] + $amountToDeductFromBalance) * 100) / 100)
+						);
+
+						if ($amountRefundedExceedingBalance < 0) {
+							$balanceTransactions = $this->find('transactions', array(
+								'conditions' => array(
+									'payment_method_id' => 'balance',
+									'transaction_method' => 'PaymentCompleted',
+									'transaction_processed' => true,
+									'transaction_processing' => false,
+									'user_id' => $userData['id']
+								),
+								'fields' => array(
+									'invoice_id',
+									'payment_amount',
+									'plan_id'
+								),
+								'sort' => array(
+									'field' => 'modified',
+									'order' => 'DESC'
+								)
+							));
+
+							if (!empty($balanceTransactions['count'])) {
+								foreach ($balanceTransactions['data'] as $balanceTransaction) {
+									if (!empty($balanceTransaction['invoice_id'])) {
+										$invoices[$balanceTransaction['invoice_id']] = $invoice = $this->invoice('invoices', array(
+											'conditions' => array(
+												'id' => $balanceTransaction['invoice_id']
+											)
+										));
+										$invoiceData[] = array(
+											'amount_paid' => $amountPaid = max(0, round(($invoice['data']['invoice']['amount_paid'] + $amountRefunded = max($amountRefundedExceedingBalance, ($balanceTransaction['payment_amount'] * -1))) * 100) / 100),
+											'id' => $balanceTransaction['invoice_id'],
+											'status' => $amountPaid >= $invoice['data']['invoice']['total'] ? 'paid' : 'unpaid'
+										);
+										$transactionData[] = array(
+											'customer_email' => $user['data'][0]['email'],
+											'id' => uniqid() . time(),
+											'invoice_id' => $balanceTransaction['invoice_id'],
+											'payment_amount' => $amountRefunded,
+											'payment_currency' => $this->settings['billing']['currency_name'],
+											'payment_method_id' => 'balance',
+											'payment_status' => 'completed',
+											'payment_status_message' => 'Payment refunded.',
+											'plan_id' => $balanceTransaction['plan_id'],
+											'transaction_charset' => $this->settings['database']['charset'],
+											'transaction_date' => date('Y-m-d h:i:s', time()),
+											'transaction_method' => 'PaymentRefunded',
+											'transaction_processed' => true,
+											'user_id' => $userData['id']
+										);
+										$amountRefundedExceedingBalance = round(($amountRefundedExceedingBalance - $amountRefunded) * 100) / 100;
+
+										if ($amountRefundedExceedingBalance >= 0) {
+											break;
+										}
+									}
+								}
+							}
+						}
+
+						if (
+							$this->save('invoices', $invoiceData) &&
+							$this->save('transactions', $transactionData) &&
+							$this->save('users', array(
+								$userData
+							))
+						) {
+							$nodeData = $orderData = array();
+
+							foreach ($invoiceData as $invoice) {
+								if (
+									$invoice['status'] === 'unpaid' &&
+									!empty($orders = $invoices[$invoice['id']]['data']['orders'])
+								) {
+									$orderIds = array();
+
+									foreach ($orders as $order) {
+										$orderData[] = array(
+											'id' => $order['id'],
+											'status' => 'pending'
+										);
+										$orderIds[] = $order['id'];
+									}
+
+									$proxyParameters = array(
+										'conditions' => array(
+											'order_id' => $orderIds
+										),
+										'fields' => array(
+											'node_id'
+										)
+									);
+									$nodeIds = $this->find('proxies', $proxyParameters);
+									$proxyParameters['fields'] = array(
+										'id'
+									);
+									$proxyIds = $this->find('proxies', $proxyParameters);
+
+									if (
+										!empty($nodeIds['count']) &&
+										!empty($proxyIds['count']) &&
+										$this->delete('proxies', array(
+											'id' => $proxyIds['data']
+										))
+									) {
+										foreach ($nodeIds['data'] as $nodeId) {
+											$nodeData[$nodeId] = array(
+												'allocated' => false,
+												'id' => $nodeId,
+												'processing' => false
+											);
+										}
+									}
+								}
+							}
+
+							$this->save('nodes', array_values($nodeData));
+							$this->save('orders', $orderData);
+							// Send order refund email
+						}
+					}
+				}
 			}
 		}
 
@@ -674,7 +875,6 @@ class TransactionsModel extends InvoicesModel {
 				'subscription_id' => (!empty($parameters['subscr_id']) ? $parameters['subscr_id'] : null),
 				'transaction_charset' => $this->settings['database']['charset'],
 				'transaction_date' => date('Y-m-d h:i:s', strtotime((!empty($parameters['subscr_date']) ? $parameters['subscr_date'] : $parameters['payment_date']))),
-				'transaction_processed' => 0,
 				'transaction_raw' => json_encode($parameters),
 				'transaction_token' => $parameters['verify_sign'],
 				'user_id' => (!empty($itemNumberIds[2]) && is_numeric($itemNumberIds[2]) ? $itemNumberIds[2] : 0)
@@ -1103,7 +1303,7 @@ class TransactionsModel extends InvoicesModel {
 						$parameters['data']['payment_method'] === 'balance' &&
 						$parameters['data']['billing_amount'] > $parameters['user']['balance']
 					) {
-						$response['message']['text'] = 'Payment amount exceeds your account balance, please enter an amount less than or equal to ' . $this->settings['billing']['currency_symbol'] . $parameters['user']['balance'] . ' ' . $this->settings['billing']['currency_name'] . '.';
+						$response['message']['text'] = 'Payment amount from your account balance exceeds your account balance, please enter an amount less than or equal to ' . $this->settings['billing']['currency_symbol'] . $parameters['user']['balance'] . ' ' . $this->settings['billing']['currency_name'] . '.';
 					} else {
 						$response['message']['text'] = 'Invalid invoice ID, please try again.';
 						$invoice = $this->invoice('invoices', array(
@@ -1113,50 +1313,57 @@ class TransactionsModel extends InvoicesModel {
 						));
 
 						if (
-							!empty($invoice['data']) &&
-							$parameters['user']['id'] === $invoice['data']['invoice']['user_id']
+							$parameters['data']['payment_method'] === 'balance' &&
+							$parameters['data']['billing_amount'] > $invoice['data']['invoice']['amount_due']
 						) {
-							$response['message']['text'] = $defaultMessage;
-							$parameters['data'] = array_merge($parameters['data'], $invoice['data']);
-							$planData = array(
-								'cart_items' => $parameters['data']['invoice']['cart_items'],
-								'invoice_id' => $parameters['data']['invoice']['id'],
-								'price' => $parameters['data']['billing_amount']
-							);
-							$existingPlan = $this->find('plans', array(
-								'conditions' => $planData,
-								'fields' => array(
-									'id'
-								),
-								'limit' => 1
-							));
-
+							$response['message']['text'] = 'Payment amount from your account balance exceeds the amount due' . ($invoice['data']['invoice']['amount_due'] ? ', please enter an amount less than or equal to ' . $this->settings['billing']['currency_symbol'] . $invoice['data']['invoice']['amount_due'] . ' ' . $this->settings['billing']['currency_name'] : '') . '.';
+						} else {
 							if (
-								!empty($existingPlan['count']) ||
-								$this->save('plans', array(
-									$planData
-								))
+								!empty($invoice['data']) &&
+								$parameters['user']['id'] === $invoice['data']['invoice']['user_id']
 							) {
-								$plan = $this->find('plans', array(
+								$response['message']['text'] = $defaultMessage;
+								$parameters['data'] = array_merge($parameters['data'], $invoice['data']);
+								$planData = array(
+									'cart_items' => $parameters['data']['invoice']['cart_items'],
+									'invoice_id' => $parameters['data']['invoice']['id'],
+									'price' => $parameters['data']['billing_amount']
+								);
+								$existingPlan = $this->find('plans', array(
 									'conditions' => $planData,
 									'fields' => array(
-										'cart_items',
-										'created',
-										'id',
-										'invoice_id',
-										'modified',
-										'price'
+										'id'
 									),
-									'limit' => 1,
-									'sort' => array(
-										'field' => 'created',
-										'order' => 'DESC'
-									)
+									'limit' => 1
 								));
 
-								if (!empty($plan['count'])) {
-									$parameters['data']['plan'] = $plan['data'][0];
-									$response = $this->$method($parameters);
+								if (
+									!empty($existingPlan['count']) ||
+									$this->save('plans', array(
+										$planData
+									))
+								) {
+									$plan = $this->find('plans', array(
+										'conditions' => $planData,
+										'fields' => array(
+											'cart_items',
+											'created',
+											'id',
+											'invoice_id',
+											'modified',
+											'price'
+										),
+										'limit' => 1,
+										'sort' => array(
+											'field' => 'created',
+											'order' => 'DESC'
+										)
+									));
+
+									if (!empty($plan['count'])) {
+										$parameters['data']['plan'] = $plan['data'][0];
+										$response = $this->$method($parameters);
+									}
 								}
 							}
 						}

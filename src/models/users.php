@@ -89,9 +89,7 @@ class UsersModel extends AppModel {
 						'subject' => 'Password reset request',
 						'message' => '...',
 						'headers' => array(
-							'From' => $this->settings['default_email'],
-							'Reply-To' => $this->settings['default_email'],
-							'X-Mailer' => 'PHP/' . phpversion()
+							'From' => $this->settings['default_email']
 						)
 					);
 					$this->_sendMail($mailParameters);

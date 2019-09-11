@@ -631,13 +631,23 @@ class AppModel extends Config {
 				!is_string($message)
 			) ||
 			(
-				empty($headers = $parameters['message']) ||
-				!is_array($headers)
+				empty($headers = $parameters['headers']) ||
+				!is_array($headers) ||
+				empty($headers['From']) ||
+				$this->_validateEmailFormat($headers['From']) === false
 			)
 		) {
 			return false;
 		}
 
+		$headers = array_merge($headers, array(
+			'Content-Type' => 'text/plain',
+			'charset' => 'utf-8'
+		));
+		array_walk($headers, function(&$headerValue, $headerKey) {
+			$headerValue = $headerKey . ': ' . $headerValue;
+		});
+		$headers = implode("\r\n", $headers);
 		$response = mail($to, $subject, $message, $headers);
 		return $response;
 	}

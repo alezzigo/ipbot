@@ -14,5 +14,5 @@
 	$message .= $domain . "\n";
 	$message .= $this->settings['default_email'] . "\n";
 	$message .= "\n";
-	$message .= date('M d, Y g:ia', time()) . ' PDT';
+	$message .= date('M d, Y g:ia', time()) . ' ' . $this->settings['timezone'];
 ?>

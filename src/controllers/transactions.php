@@ -27,7 +27,7 @@ class TransactionsController extends TransactionsModel {
 			$response = $this->_request($_POST);
 		}
 
-		return $response; ;
+		return $response;
 	}
 
 }

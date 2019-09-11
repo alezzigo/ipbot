@@ -408,6 +408,18 @@ class UsersModel extends AppModel {
 										'text' => 'Password reset successfully' . (!$parameters['user'] ? ', you can now <a href="' . $this->settings['base_url'] . '#login">log in</a> with your new password' : '') . '.'
 									)
 								);
+								$mailParameters = array(
+									'from' => $this->settings['default_email'],
+									'subject' => 'Password reset successful',
+									'template' => array(
+										'name' => 'user_password_reset',
+										'parameters' => array(
+											'user' => $existingUser
+										)
+									),
+									'to' => $existingUser['email']
+								);
+								$this->_sendMail($mailParameters);
 							}
 						}
 					}

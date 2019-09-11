@@ -74,6 +74,7 @@ class UsersModel extends AppModel {
 				),
 				'fields' => array(
 					'id',
+					'email',
 					'password_modified'
 				),
 				'limit' => 1

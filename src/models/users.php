@@ -273,6 +273,18 @@ class UsersModel extends AppModel {
 							if ($this->save($table, array(
 								$user
 							))) {
+								$mailParameters = array(
+									'from' => $this->settings['default_email'],
+									'subject' => 'New account created at ' . $this->settings['site_name'],
+									'template' => array(
+										'name' => 'user_created',
+										'parameters' => array(
+											'user' => $user
+										)
+									),
+									'to' => $email
+								);
+								$this->_sendMail($mailParameters);
 								return $this->login($table, $parameters);
 							}
 						}

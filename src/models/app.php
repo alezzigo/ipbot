@@ -621,33 +621,39 @@ class AppModel extends Config {
  */
 	protected function _sendMail($parameters) {
 		if (
+			empty($from = $this->_validateEmailFormat($parameters['from'])) ||
 			empty($to = $this->_validateEmailFormat($parameters['to'])) ||
 			(
 				empty($subject = $parameters['subject']) ||
 				!is_string($subject)
 			) ||
 			(
-				empty($message = $parameters['message']) ||
-				!is_string($message)
+				empty($template = $parameters['template']) ||
+				!is_array($template) ||
+				!file_exists($templateFile = $this->settings['base_path'] . '/views/emails/' . $template['name'] . '.php') ||
+				(
+					!empty($templateParameters = $template['parameters']) &&
+					!is_array($templateParameters)
+				)
 			) ||
 			(
-				empty($headers = $parameters['headers']) ||
-				!is_array($headers) ||
-				empty($headers['From']) ||
-				$this->_validateEmailFormat($headers['From']) === false
+				!empty($headers = $parameters['headers']) &&
+				!is_array($headers)
 			)
 		) {
 			return false;
 		}
 
-		$headers = array_merge($headers, array(
+		$headers = array(
+			'charset' => 'utf-8',
 			'Content-Type' => 'text/plain',
-			'charset' => 'utf-8'
-		));
+			'From' => $from
+		);
 		array_walk($headers, function(&$headerValue, $headerKey) {
 			$headerValue = $headerKey . ': ' . $headerValue;
 		});
 		$headers = implode("\r\n", $headers);
+		require_once($templateFile);
 		$response = mail($to, $subject, $message, $headers);
 		return $response;
 	}

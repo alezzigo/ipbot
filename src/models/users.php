@@ -83,14 +83,22 @@ class UsersModel extends AppModel {
 				!empty($email) &&
 				!empty($existingUser['count'])
 			) {
-				if (!empty($token = $this->_getToken('users', array(), 'password_reset', $existingUser['data'][0]['id'] . '_' . $existingUser['data'][0]['password_modified'], false, 5))) {
+				$tokenParameters = array(
+					'conditions' => $existingUser['data'][0]
+				);
+
+				if (!empty($token = $this->_getToken('users', $tokenParameters, 'password_reset', $existingUser['data'][0]['id'] . '_' . $existingUser['data'][0]['password_modified'], false, 5))) {
 					$mailParameters = array(
-						'to' => $email,
+						'from' => $this->settings['default_email'],
 						'subject' => 'Password reset request',
-						'message' => '...',
-						'headers' => array(
-							'From' => $this->settings['default_email']
-						)
+						'template' => array(
+							'name' => 'user_forgot_password',
+							'parameters' => array(
+								'token' => $token['string'],
+								'user' => $existingUser['data'][0]
+							)
+						),
+						'to' => $email
 					);
 					$this->_sendMail($mailParameters);
 				}
@@ -301,7 +309,7 @@ class UsersModel extends AppModel {
 				$response['message']['text'] = 'Password confirmation doesn\'t match password, please try again.';
 
 				if ($parameters['data']['password'] == $parameters['data']['confirm_password']) {
-					$response['message']['text'] = 'Invalid or expired password reset token.';
+					$response['message']['text'] = 'Invalid or expired password reset token, please try again..';
 
 					if (!empty($token = $parameters['data']['password_token'])) {
 						$existingToken = $this->find('tokens', array(

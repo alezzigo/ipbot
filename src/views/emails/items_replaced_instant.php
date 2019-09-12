@@ -8,14 +8,14 @@
 	$message .= "\n";
 	$message .= 'If you didn\'t request these replacement ' . $templateParameters['table'] . ', please reply to this email immediately.' . "\n";
 	$message .= "\n";
-	$message .= 'List of old replaced ' . $templateParameters['table'] . ':' . "\n";
+	$message .= 'List of Old Replaced ' . ucwords(str_replace('_', ' ', $templateParameters['table'])) . ':' . "\n";
 
 	foreach ($templateParameters['old_items'] as $key => $item) {
 		$message .= $item['ip'] . "\n";
 	}
 
 	$message .= "\n";
-	$message .= 'List of new ' . $templateParameters['table'] . ':' . "\n";
+	$message .= 'List of New ' . ucwords(str_replace('_', ' ', $templateParameters['table'])) . ':' . "\n";
 
 	foreach ($templateParameters['new_items'] as $key => $item) {
 		$message .= $item['ip'] . "\n";

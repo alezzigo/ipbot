@@ -356,7 +356,7 @@ class InvoicesModel extends UsersModel {
 						'text' => ''
 					)
 				);
-				$response['data'] = array_replace_recursive($response['data'], $this->_calculateInvoicePaymentDetails($response['data']));
+				$response['data'] = $this->_calculateInvoicePaymentDetails($response['data']);
 			}
 		}
 

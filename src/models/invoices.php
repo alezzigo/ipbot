@@ -73,7 +73,6 @@ class InvoicesModel extends UsersModel {
 
 			$response['invoice']['total'] += $response['invoice']['subtotal'];
 			unset($response['invoice']['billing']);
-			unset($response['invoice']['created']);
 			unset($response['invoice']['initial_invoice_id']);
 			unset($response['invoice']['modified']);
 			unset($response['invoice']['user_id']);

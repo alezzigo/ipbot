@@ -466,6 +466,26 @@ class ProxiesModel extends AppModel {
 								$this->save($table, $oldItemData);
 							}
 
+							if (!empty($parameters['data']['transfer_authentication'])) {
+								$oldItemAuthentication = $this->find($table, array(
+									'conditions' => array(
+										'id' => $parameters['items'][$table]['data']
+									),
+									'fields' => array(
+										'password',
+										'username',
+										'whitelisted_ips'
+									)
+								));
+
+								if (
+									!empty($oldItemAuthentication['count']) &&
+									count($oldItemAuthentication['data']) === count($parameters['items'][$table]['data'])
+								) {
+									$processingNodes['data'] = array_replace_recursive($processingNodes['data'], $oldItemAuthentication['data']);
+								}
+							}
+
 							if (
 								$this->save('nodes', $allocatedNodes) &&
 								$this->save($table, $processingNodes['data'])

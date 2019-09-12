@@ -72,7 +72,10 @@ class InvoicesModel extends UsersModel {
 			}
 
 			$response['invoice']['total'] += $response['invoice']['subtotal'];
+			$billing = $response['invoice']['billing'];
+			$created = $response['invoice']['created'];
 			unset($response['invoice']['billing']);
+			unset($response['invoice']['created']);
 			unset($response['invoice']['initial_invoice_id']);
 			unset($response['invoice']['modified']);
 			unset($response['invoice']['user_id']);
@@ -85,6 +88,8 @@ class InvoicesModel extends UsersModel {
 		}
 
 		$response['invoice']['amount_due'] = max(0, round(($response['invoice']['total'] - $response['invoice']['amount_paid']) * 100) / 100);
+		$response['invoice']['billing'] = $billing;
+		$response['invoice']['created'] = $created;
 		$response['invoice']['payment_currency_name'] = $this->settings['billing']['currency_name'];
 		$response['invoice']['payment_currency_symbol'] = $this->settings['billing']['currency_symbol'];
 		return $response;

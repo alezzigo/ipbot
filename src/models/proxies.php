@@ -494,17 +494,43 @@ class ProxiesModel extends AppModel {
 								}
 
 								$oldItemData = array_replace_recursive(array_fill(0, $parameters['items'][$table]['count'], $oldItemData), $oldItemIds);
+								$oldItems = $this->find($table, array(
+									'conditions' => array(
+										'id' => $parameters['items'][$table]['data']
+									),
+									'fields' => array(
+										'id',
+										'ip'
+									)
+								));
 
 								if (
 									$this->save('nodes', $allocatedNodes) &&
 									$this->save($table, $oldItemData) &&
-									$this->save($table, $processingNodes['data'])
+									$this->save($table, $processingNodes['data']) &&
+									!empty($oldItems['count'])
 								) {
 									$response['items'][$table] = array();
 									$response['message'] = array(
 										'status' => 'success',
 										'text' => $parameters['items'][$table]['count'] . ' of your selected ' . $table . ' replaced successfully.'
 									);
+									$mailParameters = array(
+										'from' => $this->settings['default_email'],
+										'subject' => $processingNodes['data'] . ' ' . $table . ' replaced successfully',
+										'template' => array(
+											'name' => 'items_replaced_instant',
+											'parameters' => array(
+												'link' => 'https://' . $this->settings['base_domain'] . '/orders/' . $orderId,
+												'new_items' => $processingNodes['data'],
+												'old_items' => $oldItems['data'],
+												'table' => $table,
+												'user' => $parameters['user']
+											)
+										),
+										'to' => $parameters['user']['email']
+									);
+									$this->_sendMail($mailParameters);
 								}
 							}
 						}

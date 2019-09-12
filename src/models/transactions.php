@@ -319,30 +319,28 @@ class TransactionsModel extends InvoicesModel {
 					'id' => $parameters['invoice_id'],
 					'amount_paid' => $invoice['data']['invoice']['amount_paid'] + $parameters['payment_amount']
 				);
+				$user = $this->find('users', array(
+					'conditions' => array(
+						'id' => $invoice['data']['invoice']['user_id']
+					),
+					'fields' => array(
+						'balance',
+						'email'
+					)
+				));
 
 				if (
 					!empty($invoice['data']['invoice']['user_id']) &&
+					!empty($user['count']) &&
 					$amountToApplyToBalance = max(0, min($parameters['payment_amount'], round(($invoiceData['amount_paid'] - $invoice['data']['invoice']['total']) * 100) / 100 ))
 				) {
-					$user = $this->find('users', array(
-						'conditions' => array(
-							'id' => $invoice['data']['invoice']['user_id']
-						),
-						'fields' => array(
-							'balance',
-							'email'
-						)
+					$userData = array(
+						'id' => $invoice['data']['invoice']['user_id'],
+						'balance' => ($user['data'][0]['balance'] + $amountToApplyToBalance)
+					);
+					$this->save('users', array(
+						$userData
 					));
-
-					if (!empty($user['count'])) {
-						$userData = array(
-							'id' => $invoice['data']['invoice']['user_id'],
-							'balance' => ($user['data'][0]['balance'] + $amountToApplyToBalance)
-						);
-						$this->save('users', array(
-							$userData
-						));
-					}
 				}
 
 				if (
@@ -424,7 +422,6 @@ class TransactionsModel extends InvoicesModel {
 												'name' => 'order_activated',
 												'parameters' => array(
 													'invoice' => $invoice['data']['invoice'],
-													'link' => 'https://' . $this->settings['base_domain'] . '/orders/' . $orderId,
 													'order' => $order,
 													'user' => $user
 												)
@@ -441,9 +438,32 @@ class TransactionsModel extends InvoicesModel {
 					$invoiceData['status'] = 'paid';
 				}
 
-				$this->save('invoices', array(
+				if ($this->save('invoices', array(
 					$invoiceData
-				));
+				))) {
+					$invoice['data']['invoice'] = array_merge($invoice['data']['invoice'], $invoiceData);
+					$invoice['data']['transactions'][] = $transaction = array_merge($parameters, array(
+						'payment_method' => $this->_retrieveTransactionPaymentMethod($parameters['payment_method_id'])
+					));
+					$invoice = $this->_calculateInvoicePaymentDetails($invoice);
+					$mailParameters = array(
+						'from' => $this->settings['default_email'],
+						'subject' => 'Invoice #' . $invoice['data']['invoice']['id'] . ' payment confirmation',
+						'template' => array(
+							'name' => 'payment_successful',
+							'parameters' => array(
+								'invoice' => $invoice['data']['invoice'],
+								'transaction' => array_merge($transaction, array(
+									'amount_applied_to_balance' => $amountToApplyToBalance
+								)),
+								'transactions' => $invoice['data']['transactions'],
+								'user' => $user['data'][0]
+							)
+						),
+						'to' => $user['data'][0]['email']
+					);
+					$this->_sendMail($mailParameters);
+				}
 			}
 		}
 
@@ -803,6 +823,32 @@ class TransactionsModel extends InvoicesModel {
 		}
 
 		return;
+	}
+
+/**
+ * Retrieve transaction payment method
+ *
+ * @param string $paymentMethodId
+ *
+ * @return string $response
+ */
+	protected function _retrieveTransactionPaymentMethod($paymentMethodId) {
+		$response = '';
+		$paymentMethod = $this->find('payment_methods', array(
+			'conditions' => array(
+				'id' => $paymentMethodId
+			),
+			'fields' => array(
+				'id',
+				'name'
+			)
+		));
+
+		if (!empty($paymentMethod['count'])) {
+			$response = $paymentMethod['data'][0]['name'];
+		}
+
+		return $response;
 	}
 
 /**

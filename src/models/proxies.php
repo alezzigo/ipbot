@@ -373,7 +373,10 @@ class ProxiesModel extends AppModel {
 			is_array($parameters['items'][$table]['data'])
 		) {
 			$response['message']['text'] = 'There was an error applying the replacement settings to your ' . $table . ', please try again.';
-			$newItemData = $oldItemData = $oldItemIds = array();
+			$newItemData = $oldItemData = array(
+				'automatic_replacement_interval_value' => 0,
+				'transfer_authentication' => !empty($parameters['data']['transfer_authentication']) ? true : false
+			);
 
 			if (
 				(
@@ -389,112 +392,120 @@ class ProxiesModel extends AppModel {
 				$intervalData = array(
 					'automatic_replacement_interval_type' => $automaticReplacementIntervalType,
 					'automatic_replacement_interval_value' => $parameters['data']['automatic_replacement_interval_value'],
-					'last_replacement_date' => date('Y-m-d H:i:s', time())
 				);
-				$newItemData += $intervalData;
-				$oldItemData += $intervalData;
+				$newItemData = $oldItemData = array_merge($newItemData, $intervalData);
 			}
 
-			if (
-				!empty($parameters['data']['instant_replacement']) &&
-				($orderId = !empty($parameters['conditions']['order_id']) ? $parameters['conditions']['order_id'] : 0)
-			) {
-				$oldItemData += array(
-					'replacement_removal_date' => date('Y-m-d H:i:s', strtotime('+24 hours')),
-					'status' => 'replaced'
-				);
-				$newItemData += array(
-					'next_replacement_available' => date('Y-m-d H:i:s', strtotime('+1 week')),
-					'order_id' => $orderId,
-					'status' => 'online',
-					'user_id' => $parameters['user']['id']
-				);
-			}
+			if (($orderId = !empty($parameters['conditions']['order_id']) ? $parameters['conditions']['order_id'] : 0)) {
+				$oldItemIds = array();
 
-			if (!empty($newItemData)) {
-				$processingNodes = $this->find('nodes', array(
-					'conditions' => array(
-						'AND' => array(
-							'allocated' => false,
-							'OR' => array(
-								'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute')),
-								'processing' => false
-							)
-						)
-					),
-					'fields' => array(
-						'asn',
-						'city',
-						'country_code',
-						'country_name',
-						'id',
-						'ip',
-						'isp',
-						'region'
-					),
-					'limit' => $parameters['items'][$table]['count'],
-					'sort' => array(
-						'field' => 'id',
-						'order' => 'DESC'
-					)
-				));
+				if (empty($parameters['data']['instant_replacement'])) {
+					foreach ($parameters['items'][$table]['data'] as $key => $itemId) {
+						$oldItemIds[]['id'] = $itemId;
+					}
 
-				if (count($processingNodes['data']) !== $parameters['items'][$table]['count']) {
-					$response['message']['text'] = 'There aren\'t enough ' . $table . ' available to replace your ' . $parameters['items'][$table]['count'] . ' selected ' . $table . ', please try again in a few minutes.';
+					$oldItemData = array_replace_recursive(array_fill(0, $parameters['items'][$table]['count'], $oldItemData), $oldItemIds);
+
+					if ($this->save($table, $oldItemData)) {
+						$response['message'] = array(
+							'status' => 'success',
+							'text' => 'Replacement settings applied to ' . $parameters['items'][$table]['count'] . ' of your selected ' . $table . ' successfully.'
+						);
+					}
 				} else {
-					$allocatedNodes = array();
-					$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, count($processingNodes['data']), array(
-						'processing' => true
-					)));
+					$oldItemData += array(
+						'replacement_removal_date' => date('Y-m-d H:i:s', strtotime('+24 hours')),
+						'status' => 'replaced'
+					);
+					$newItemData += array(
+						'last_replacement_date' => date('Y-m-d H:i:s', time()),
+						'next_replacement_available' => date('Y-m-d H:i:s', strtotime('+1 week')),
+						'order_id' => $orderId,
+						'status' => 'online',
+						'user_id' => $parameters['user']['id']
+					);
+					$processingNodes = $this->find('nodes', array(
+						'conditions' => array(
+							'AND' => array(
+								'allocated' => false,
+								'OR' => array(
+									'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute')),
+									'processing' => false
+								)
+							)
+						),
+						'fields' => array(
+							'asn',
+							'city',
+							'country_code',
+							'country_name',
+							'id',
+							'ip',
+							'isp',
+							'region'
+						),
+						'limit' => $parameters['items'][$table]['count'],
+						'sort' => array(
+							'field' => 'id',
+							'order' => 'DESC'
+						)
+					));
 
-					if ($this->save('nodes', $processingNodes['data'])) {
-						foreach ($processingNodes['data'] as $key => $row) {
-							$allocatedNodes[] = array(
-								'allocated' => true,
-								'id' => ($processingNodes['data'][$key]['node_id'] = $processingNodes['data'][$key]['id']),
-								'processing' => false
-							);
-							$processingNodes['data'][$key] += $newItemData;
-							unset($processingNodes['data'][$key]['id']);
-							unset($processingNodes['data'][$key]['processing']);
-							$oldItemIds[]['id'] = $parameters['items'][$table]['data'][$key];
-						}
+					if (count($processingNodes['data']) !== $parameters['items'][$table]['count']) {
+						$response['message']['text'] = 'There aren\'t enough ' . $table . ' available to replace your ' . $parameters['items'][$table]['count'] . ' selected ' . $table . ', please try again in a few minutes.';
+					} else {
+						$allocatedNodes = array();
+						$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, count($processingNodes['data']), array(
+							'processing' => true
+						)));
 
-						if ($parameters['tokens'][$table] === $this->_getToken($table, $parameters, 'order_id', $orderId)) {
-							if (!empty($oldItemData)) {
-								$oldItemData = array_replace_recursive(array_fill(0, $parameters['items'][$table]['count'], $oldItemData), $oldItemIds);
-								$this->save($table, $oldItemData);
+						if ($this->save('nodes', $processingNodes['data'])) {
+							foreach ($processingNodes['data'] as $key => $row) {
+								$allocatedNodes[] = array(
+									'allocated' => true,
+									'id' => ($processingNodes['data'][$key]['node_id'] = $processingNodes['data'][$key]['id']),
+									'processing' => false
+								);
+								$processingNodes['data'][$key] += $newItemData;
+								unset($processingNodes['data'][$key]['id']);
+								unset($processingNodes['data'][$key]['processing']);
+								$oldItemIds[]['id'] = $parameters['items'][$table]['data'][$key];
 							}
 
-							if (!empty($parameters['data']['transfer_authentication'])) {
-								$oldItemAuthentication = $this->find($table, array(
-									'conditions' => array(
-										'id' => $parameters['items'][$table]['data']
-									),
-									'fields' => array(
-										'password',
-										'username',
-										'whitelisted_ips'
-									)
-								));
+							if ($parameters['tokens'][$table] === $this->_getToken($table, $parameters, 'order_id', $orderId)) {
+								if (!empty($parameters['data']['transfer_authentication'])) {
+									$oldItemAuthentication = $this->find($table, array(
+										'conditions' => array(
+											'id' => $parameters['items'][$table]['data']
+										),
+										'fields' => array(
+											'password',
+											'username',
+											'whitelisted_ips'
+										)
+									));
+
+									if (
+										!empty($oldItemAuthentication['count']) &&
+										count($oldItemAuthentication['data']) === count($parameters['items'][$table]['data'])
+									) {
+										$processingNodes['data'] = array_replace_recursive($processingNodes['data'], $oldItemAuthentication['data']);
+									}
+								}
+
+								$oldItemData = array_replace_recursive(array_fill(0, $parameters['items'][$table]['count'], $oldItemData), $oldItemIds);
 
 								if (
-									!empty($oldItemAuthentication['count']) &&
-									count($oldItemAuthentication['data']) === count($parameters['items'][$table]['data'])
+									$this->save('nodes', $allocatedNodes) &&
+									$this->save($table, $oldItemData) &&
+									$this->save($table, $processingNodes['data'])
 								) {
-									$processingNodes['data'] = array_replace_recursive($processingNodes['data'], $oldItemAuthentication['data']);
+									$response['items'][$table] = array();
+									$response['message'] = array(
+										'status' => 'success',
+										'text' => $parameters['items'][$table]['count'] . ' of your selected ' . $table . ' replaced successfully.'
+									);
 								}
-							}
-
-							if (
-								$this->save('nodes', $allocatedNodes) &&
-								$this->save($table, $processingNodes['data'])
-							) {
-								$response['items'][$table] = array();
-								$response['message'] = array(
-									'status' => 'success',
-									'text' => $parameters['items'][$table]['count'] . ' of your selected ' . $table . ' replaced successfully.'
-								);
 							}
 						}
 					}

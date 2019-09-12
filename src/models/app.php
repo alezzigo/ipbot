@@ -589,7 +589,10 @@ class AppModel extends Config {
 						'id' => !empty($ids['data']) ? array_intersect_key($ids['data'], $itemIndexes) : array()
 					);
 
-					if ($parameters['action'] == 'replace') {
+					if (
+						!empty($parameters['data']['instant_replacement']) &&
+						$parameters['action'] == 'replace'
+					) {
 						$conditions[]['NOT']['AND'] = array(
 							'status' => 'replaced'
 						);

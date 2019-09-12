@@ -321,6 +321,31 @@ class TransactionsModel extends InvoicesModel {
 				);
 
 				if (
+					!empty($invoice['data']['invoice']['user_id']) &&
+					$amountToApplyToBalance = max(0, min($parameters['payment_amount'], round(($invoiceData['amount_paid'] - $invoice['data']['invoice']['total']) * 100) / 100 ))
+				) {
+					$user = $this->find('users', array(
+						'conditions' => array(
+							'id' => $invoice['data']['invoice']['user_id']
+						),
+						'fields' => array(
+							'balance',
+							'email'
+						)
+					));
+
+					if (!empty($user['count'])) {
+						$userData = array(
+							'id' => $invoice['data']['invoice']['user_id'],
+							'balance' => ($user['data'][0]['balance'] + $amountToApplyToBalance)
+						);
+						$this->save('users', array(
+							$userData
+						));
+					}
+				}
+
+				if (
 					!empty($invoice['data']['invoice']['status']) &&
 					$invoice['data']['invoice']['status'] === 'unpaid' &&
 					$invoiceData['amount_paid'] >= $invoice['data']['invoice']['total']
@@ -389,9 +414,24 @@ class TransactionsModel extends InvoicesModel {
 										$this->save('orders', array(
 											$orderData
 										)) &&
-										$this->save('proxies', $processingNodes['data'])
+										$this->save('proxies', $processingNodes['data']) &&
+										!empty($user = $user['data'][0])
 									) {
-										// Send order activation email
+										$mailParameters = array(
+											'from' => $this->settings['default_email'],
+											'subject' => 'Order #' . $order['id'] . ' is activated',
+											'template' => array(
+												'name' => 'order_activated',
+												'parameters' => array(
+													'invoice' => $invoice['data']['invoice'],
+													'link' => 'https://' . $this->settings['base_domain'] . '/orders/' . $orderId,
+													'order' => $order,
+													'user' => $user
+												)
+											),
+											'to' => $user['email']
+										);
+										$this->_sendMail($mailParameters);
 									}
 								}
 							}
@@ -399,30 +439,6 @@ class TransactionsModel extends InvoicesModel {
 					}
 
 					$invoiceData['status'] = 'paid';
-				}
-
-				if (
-					!empty($invoice['data']['invoice']['user_id']) &&
-					$amountToApplyToBalance = max(0, min($parameters['payment_amount'], round(($invoiceData['amount_paid'] - $invoice['data']['invoice']['total']) * 100) / 100 ))
-				) {
-					$user = $this->find('users', array(
-						'conditions' => array(
-							'id' => $invoice['data']['invoice']['user_id']
-						),
-						'fields' => array(
-							'balance'
-						)
-					));
-
-					if (!empty($user['count'])) {
-						$userData = array(
-							'id' => $invoice['data']['invoice']['user_id'],
-							'balance' => ($user['data'][0] + $amountToApplyToBalance)
-						);
-						$this->save('users', array(
-							$userData
-						));
-					}
 				}
 
 				$this->save('invoices', array(

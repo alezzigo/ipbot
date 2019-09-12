@@ -47,8 +47,6 @@
 	$message .= '--' . "\n";
 	$message .= 'User Email: ' . $templateParameters['user']['email'] . "\n";
 	$message .= "\n";
-
-	$message .= "\n";
 	$message .= 'We may occasionally review payments manually based on your order, billing and user details to avoid fraudulent orders. If you didn\'t submit payment for this invoice, or if you have any questions, please reply to this email.' . "\n";
 	$message .= "\n";
 	$message .= '--' . "\n";

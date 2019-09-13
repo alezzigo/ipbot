@@ -891,29 +891,57 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionSubscriptionFailed($parameters) {
-		if (!empty($parameters['subscription_id'])) {
-			$existingSubscription = $this->find('subscriptions', array(
-				'conditions' => array(
-					'id' => $parameters['subscription_id']
-				),
-				'fields' => array(
-					'payment_attempts'
-				)
-			));
+		$subscription = array(
+			'created' => $parameters['transaction_date'],
+			'id' => $parameters['subscription_id'],
+			'invoice_id' => $parameters['invoice_id'],
+			'interval_type' => $parameters['interval_type'],
+			'interval_value' => $parameters['interval_value'],
+			'payment_attempts' => ($subscriptionPaymentAttempts['data'][0] + 1),
+			'plan_id' => $parameters['plan_id'],
+			'price' => $parameters['payment_amount']
+		);
+		$subscriptionPaymentAttempts = $this->find('subscriptions', array(
+			'conditions' => array(
+				'id' => $parameters['subscription_id']
+			),
+			'fields' => array(
+				'payment_attempts'
+			)
+		));
+		$user = $this->find('users', array(
+			'conditions' => array(
+				'id' => $parameters['user_id']
+			),
+			'fields' => array(
+				'balance',
+				'email'
+			)
+		));
 
-			if (!empty($existingSubscription['count'])) {
-				$subscription = array(
-					'id' => $parameters['subscription_id'],
-					'payment_attempts' => ($existingSubscription['data'][0] + 1)
+		if (!empty($subscriptionPaymentAttempts['count'])) {
+			$subscription['payment_attempts'] = ($subscriptionPaymentAttempts['data'][0] + 1);
+
+			if (
+				!empty($user['count']) &&
+				$this->save('subscriptions', array(
+					$subscription
+				))
+			) {
+				$mailParameters = array(
+					'from' => $this->settings['default_email'],
+					'subject' => 'Subscription #' . $subscription['id'] . ' payment failed',
+					'template' => array(
+						'name' => 'subscription_failed',
+						'parameters' => array(
+							'subscription' => $subscription,
+							'transaction' => $parameters,
+							'user' => $user['data'][0]
+						)
+					),
+					'to' => $user['data'][0]['email']
 				);
-
-				if (
-					$this->save('subscriptions', array(
-						$subscription
-					))
-				) {
-					// ..
-				}
+				$this->_sendMail($mailParameters);
 			}
 		}
 

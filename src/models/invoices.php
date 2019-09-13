@@ -21,6 +21,8 @@ class InvoicesModel extends UsersModel {
  */
 	protected function _calculateInvoicePaymentDetails($invoiceData) {
 		$response = $invoiceData;
+		$billing = $response['invoice']['billing'];
+		$created = $response['invoice']['created'];
 
 		if (
 			$response['invoice']['status'] === 'unpaid' ||
@@ -72,8 +74,6 @@ class InvoicesModel extends UsersModel {
 			}
 
 			$response['invoice']['total'] += $response['invoice']['subtotal'];
-			$billing = $response['invoice']['billing'];
-			$created = $response['invoice']['created'];
 			unset($response['invoice']['billing']);
 			unset($response['invoice']['created']);
 			unset($response['invoice']['initial_invoice_id']);
@@ -335,6 +335,7 @@ class InvoicesModel extends UsersModel {
 
 		if (!empty($invoiceData['count'])) {
 			$invoiceData = $invoiceData['data'][0];
+			$invoiceData['created'] = date('M d Y', strtotime($invoiceData['created'])) . ' at ' . date('g:ia', strtotime($invoiceData['created'])) . ' ' . $this->settings['timezone'];
 			$invoiceOrders = $this->_retrieveInvoiceOrders($invoiceData);
 			$invoiceSubscriptions = $this->_retrieveInvoiceSubscriptions($invoiceData);
 			$invoiceTransactions = $this->_retrieveInvoiceTransactions($invoiceData);
@@ -347,7 +348,6 @@ class InvoicesModel extends UsersModel {
 					$invoiceData['billing'] = $this->settings['billing'];
 				}
 
-				$invoiceData['created'] = date('M d Y', strtotime($invoiceData['created'])) . ' at ' . date('g:ia', strtotime($invoiceData['created'])) . ' ' . $this->settings['timezone'];
 				$response = array(
 					'data' => array(
 						'invoice' => $invoiceData,

@@ -845,7 +845,7 @@ main {
 	.transactions .transaction {
 		font-size: 12px;
 		margin-bottom: 10px;
-		padding: 7px 0 0 12px;
+		padding: 10px 0 0 12px;
 	}
 		.transactions .transaction.payment {
 			border-left-color: #bceaa6;

@@ -838,14 +838,46 @@ class TransactionsModel extends InvoicesModel {
 			'plan_id' => $parameters['plan_id'],
 			'price' => $parameters['payment_amount']
 		);
+		$subscriptionStatus = $this->find('subscriptions', array(
+			'conditions' => array(
+				'id' => $parameters['subscription_id']
+			),
+			'fields' => array(
+				'status'
+			)
+		));
+		$user = $this->find('users', array(
+			'conditions' => array(
+				'id' => $parameters['user_id']
+			),
+			'fields' => array(
+				'balance',
+				'email'
+			)
+		));
 
 		if (
-			count($subscription) === count(array_filter($subscription)) &&
+			!empty($subscriptionStatus['count']) &&
+			!empty($user['count']) &&
 			$this->save('subscriptions', array(
-				$subscription
+				array_filter($subscription)
 			))
 		) {
-			// ..
+			$subscription['status'] = $subscriptionStatus['data'][0];
+			$mailParameters = array(
+				'from' => $this->settings['default_email'],
+				'subject' => 'Subscription #' . $subscription['id'] . ' modified',
+				'template' => array(
+					'name' => 'subscription_modified',
+					'parameters' => array(
+						'subscription' => $subscription,
+						'transaction' => $parameters,
+						'user' => $user['data'][0]
+					)
+				),
+				'to' => $user['data'][0]['email']
+			);
+			$this->_sendMail($mailParameters);
 		}
 
 		return;

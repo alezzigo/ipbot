@@ -21,8 +21,6 @@ class InvoicesModel extends UsersModel {
  */
 	protected function _calculateInvoicePaymentDetails($invoiceData) {
 		$response = $invoiceData;
-		$billing = $response['invoice']['billing'];
-		$created = $response['invoice']['created'];
 
 		if (
 			$response['invoice']['status'] === 'unpaid' ||
@@ -74,22 +72,21 @@ class InvoicesModel extends UsersModel {
 			}
 
 			$response['invoice']['total'] += $response['invoice']['subtotal'];
-			unset($response['invoice']['billing']);
-			unset($response['invoice']['created']);
-			unset($response['invoice']['initial_invoice_id']);
-			unset($response['invoice']['modified']);
-			unset($response['invoice']['user_id']);
+			$invoiceCalculationData = $response['invoice'];
+			unset($invoiceCalculationData['billing']);
+			unset($invoiceCalculationData['created']);
+			unset($invoiceCalculationData['initial_invoice_id']);
+			unset($invoiceCalculationData['modified']);
+			unset($invoiceCalculationData['user_id']);
 
 			if (!$this->save('invoices', array(
-				$response['invoice']
+				$invoiceCalculationData
 			))) {
 				$response = $invoiceData;
 			}
 		}
 
 		$response['invoice']['amount_due'] = max(0, round(($response['invoice']['total'] - $response['invoice']['amount_paid']) * 100) / 100);
-		$response['invoice']['billing'] = $billing;
-		$response['invoice']['created'] = $created;
 		$response['invoice']['payment_currency_name'] = $this->settings['billing']['currency_name'];
 		$response['invoice']['payment_currency_symbol'] = $this->settings['billing']['currency_symbol'];
 		return $response;
@@ -360,7 +357,7 @@ class InvoicesModel extends UsersModel {
 						'text' => ''
 					)
 				);
-				$response['data'] = $this->_calculateInvoicePaymentDetails($response['data']);
+				$response['data'] = array_replace_recursive($response['data'], $this->_calculateInvoicePaymentDetails($response['data']));
 			}
 		}
 

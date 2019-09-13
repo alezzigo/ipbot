@@ -746,7 +746,6 @@ class TransactionsModel extends InvoicesModel {
 
 		if (
 			!empty($user['count']) &&
-			count($subscription) === count(array_filter($subscription)) &&
 			$this->save('subscriptions', array(
 				$subscription
 			))
@@ -778,7 +777,48 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionSubscriptionExpired($parameters) {
-		// ..
+		$subscription = array(
+			'created' => $parameters['transaction_date'],
+			'id' => $parameters['subscription_id'],
+			'invoice_id' => $parameters['invoice_id'],
+			'interval_type' => $parameters['interval_type'],
+			'interval_value' => $parameters['interval_value'],
+			'plan_id' => $parameters['plan_id'],
+			'price' => $parameters['payment_amount'],
+			'status' => 'expired'
+		);
+		$user = $this->find('users', array(
+			'conditions' => array(
+				'id' => $parameters['user_id']
+			),
+			'fields' => array(
+				'balance',
+				'email'
+			)
+		));
+
+		if (
+			!empty($user['count']) &&
+			$this->save('subscriptions', array(
+				$subscription
+			))
+		) {
+			$mailParameters = array(
+				'from' => $this->settings['default_email'],
+				'subject' => 'Subscription #' . $subscription['id'] . ' expired',
+				'template' => array(
+					'name' => 'subscription_expired',
+					'parameters' => array(
+						'subscription' => $subscription,
+						'transaction' => $parameters,
+						'user' => $user['data'][0]
+					)
+				),
+				'to' => $user['data'][0]['email']
+			);
+			$this->_sendMail($mailParameters);
+		}
+
 		return;
 	}
 

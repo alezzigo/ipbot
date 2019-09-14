@@ -342,7 +342,7 @@ class Config {
 					'net.ipv4.route.gc_timeout = 2',
 					'net.ipv4.tcp_adv_win_scale = 2',
 					'net.ipv4.tcp_congestion_control = htcp',
-					'net.ipv4.tcp_fastopen = 3',
+					'net.ipv4.tcp_fastopen = 2',
 					'net.ipv4.tcp_fin_timeout = 2',
 					'net.ipv4.tcp_keepalive_intvl = 2',
 					'net.ipv4.tcp_keepalive_probes = 2',

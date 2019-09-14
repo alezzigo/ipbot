@@ -290,7 +290,6 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionMiscellaneous($parameters) {
-		// ..
 		return;
 	}
 

@@ -484,7 +484,36 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionPaymentFailed($parameters) {
-		// ..
+		if (
+			!empty($parameters['invoice_id']) &&
+			!empty($parameters['user'])
+		) {
+			$invoice = $this->invoice('invoices', array(
+				'conditions' => array(
+					'id' => $parameters['invoice_id']
+				)
+			));
+
+			if (!empty($invoice['data'])) {
+				$mailParameters = array(
+					'from' => $this->settings['default_email'],
+					'subject' => 'Invoice #' . $invoice['data']['invoice']['id'] . ' payment failed',
+					'template' => array(
+						'name' => 'payment_failed',
+						'parameters' => array(
+							'invoice' => $invoice['data']['invoice'],
+							'transaction' => array_merge($parameters, array(
+								'payment_method' => $this->_retrieveTransactionPaymentMethod($parameters['payment_method_id'])
+							)),
+							'user' => $parameters['user']
+						)
+					),
+					'to' => $parameters['user']['email']
+				);
+				$this->_sendMail($mailParameters);
+			}
+		}
+
 		return;
 	}
 
@@ -511,7 +540,7 @@ class TransactionsModel extends InvoicesModel {
 					'from' => $this->settings['default_email'],
 					'subject' => 'Invoice #' . $invoice['data']['invoice']['id'] . ' payment pending',
 					'template' => array(
-						'name' => 'payment_pendig',
+						'name' => 'payment_pending',
 						'parameters' => array(
 							'invoice' => $invoice['data']['invoice'],
 							'transaction' => array_merge($parameters, array(

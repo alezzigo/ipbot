@@ -496,7 +496,36 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionPaymentPending($parameters) {
-		// ..
+		if (
+			!empty($parameters['invoice_id']) &&
+			!empty($parameters['user'])
+		) {
+			$invoice = $this->invoice('invoices', array(
+				'conditions' => array(
+					'id' => $parameters['invoice_id']
+				)
+			));
+
+			if (!empty($invoice['data'])) {
+				$mailParameters = array(
+					'from' => $this->settings['default_email'],
+					'subject' => 'Invoice #' . $invoice['data']['invoice']['id'] . ' payment pending',
+					'template' => array(
+						'name' => 'payment_pendig',
+						'parameters' => array(
+							'invoice' => $invoice['data']['invoice'],
+							'transaction' => array_merge($parameters, array(
+								'payment_method' => $this->_retrieveTransactionPaymentMethod($parameters['payment_method_id'])
+							)),
+							'user' => $parameters['user']
+						)
+					),
+					'to' => $parameters['user']['email']
+				);
+				$this->_sendMail($mailParameters);
+			}
+		}
+
 		return;
 	}
 

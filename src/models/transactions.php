@@ -212,6 +212,7 @@ class TransactionsModel extends InvoicesModel {
 				'interval_type',
 				'interval_value',
 				'invoice_id',
+				'parent_transaction_id',
 				'payment_amount',
 				'payment_currency',
 				'payment_external_fee',
@@ -462,10 +463,10 @@ class TransactionsModel extends InvoicesModel {
 									'amount_applied_to_balance' => $amountToApplyToBalance
 								)),
 								'transactions' => $invoice['data']['transactions'],
-								'user' => $user['data'][0]
+								'user' => $parameters['user']
 							)
 						),
-						'to' => $user['data'][0]['email']
+						'to' => $parameters['user']['email']
 					);
 					$this->_sendMail($mailParameters);
 				}
@@ -569,7 +570,7 @@ class TransactionsModel extends InvoicesModel {
 										'status' => $amountPaid >= $invoice['data']['invoice']['total'] ? 'paid' : 'unpaid'
 									);
 									$transactionData[] = array(
-										'customer_email' => $user['data'][0]['email'],
+										'customer_email' => $parameters['user']['email'],
 										'id' => uniqid() . time(),
 										'invoice_id' => $balanceTransaction['invoice_id'],
 										'payment_amount' => $amountRefunded,
@@ -669,7 +670,36 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionPaymentReversalCanceled($parameters) {
-		// ..
+		if (
+			!empty($parameters['invoice_id']) &&
+			!empty($parameters['user'])
+		) {
+			$invoice = $this->invoice('invoices', array(
+				'conditions' => array(
+					'id' => $parameters['invoice_id']
+				)
+			));
+
+			if (!empty($invoice['data'])) {
+				$mailParameters = array(
+					'from' => $this->settings['default_email'],
+					'subject' => 'Invoice #' . $invoice['data']['invoice']['id'] . ' payment reversal canceled',
+					'template' => array(
+						'name' => 'payment_reversal_canceled',
+						'parameters' => array(
+							'invoice' => $invoice['data']['invoice'],
+							'transaction' => array_merge($parameters, array(
+								'payment_method' => $this->_retrieveTransactionPaymentMethod($parameters['payment_method_id'])
+							)),
+							'user' => $parameters['user']
+						)
+					),
+					'to' => $parameters['user']['email']
+				);
+				$this->_sendMail($mailParameters);
+			}
+		}
+
 		return;
 	}
 
@@ -681,7 +711,36 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionPaymentReversed($parameters) {
-		// ..
+		if (
+			!empty($parameters['invoice_id']) &&
+			!empty($parameters['user'])
+		) {
+			$invoice = $this->invoice('invoices', array(
+				'conditions' => array(
+					'id' => $parameters['invoice_id']
+				)
+			));
+
+			if (!empty($invoice['data'])) {
+				$mailParameters = array(
+					'from' => $this->settings['default_email'],
+					'subject' => 'Invoice #' . $invoice['data']['invoice']['id'] . ' payment pending reversal',
+					'template' => array(
+						'name' => 'payment_reversal',
+						'parameters' => array(
+							'invoice' => $invoice['data']['invoice'],
+							'transaction' => array_merge($parameters, array(
+								'payment_method' => $this->_retrieveTransactionPaymentMethod($parameters['payment_method_id'])
+							)),
+							'user' => $parameters['user']
+						)
+					),
+					'to' => $parameters['user']['email']
+				);
+				$this->_sendMail($mailParameters);
+			}
+		}
+
 		return;
 	}
 
@@ -1022,6 +1081,7 @@ class TransactionsModel extends InvoicesModel {
 				'customer_status' => $parameters['payer_status'],
 				'id' => $parameters['txn_id'],
 				'invoice_id' => (!empty($itemNumberIds[0]) && is_numeric($itemNumberIds[0]) ? $itemNumberIds[0] : 0),
+				'parent_transaction_id' => (!empty($parameters['parent_txn_id']) ? $parameters['parent_txn_id'] : null),
 				'payment_amount' => (!empty($parameters['mc_gross']) ? $parameters['mc_gross'] : $parameters['amount3']),
 				'payment_currency' => $parameters['mc_currency'],
 				'payment_external_fee' => $parameters['mc_fee'],

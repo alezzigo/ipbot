@@ -236,6 +236,7 @@ class InvoicesModel extends UsersModel {
 				'interval_value',
 				'invoice_id',
 				'modified',
+				'parent_transaction_id',
 				'payment_amount',
 				'payment_currency',
 				'payment_external_fee',

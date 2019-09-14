@@ -708,9 +708,12 @@ class TransactionsModel extends InvoicesModel {
 							}
 						}
 
-						$this->save('nodes', array_values($nodeData));
-						$this->save('orders', $orderData);
-						// Send order refund email
+						if (
+							$this->save('nodes', array_values($nodeData)) &&
+							$this->save('orders', $orderData)
+						) {
+							// Send order refund email
+						}
 					}
 				}
 			}

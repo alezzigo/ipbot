@@ -694,16 +694,36 @@ class TransactionsModel extends InvoicesModel {
  */
 	protected function _processTransactionSubscriptionCanceled($parameters) {
 		$subscription = array(
+			'created' => $parameters['transaction_date'],
 			'id' => $parameters['subscription_id'],
+			'invoice_id' => $parameters['invoice_id'],
+			'interval_type' => $parameters['interval_type'],
+			'interval_value' => $parameters['interval_value'],
+			'plan_id' => $parameters['plan_id'],
+			'price' => $parameters['payment_amount'],
 			'status' => 'canceled'
 		);
 
 		if (
+			!empty($parameters['user']) &&
 			$this->save('subscriptions', array(
 				$subscription
 			))
 		) {
-			// ..
+			$mailParameters = array(
+				'from' => $this->settings['default_email'],
+				'subject' => 'New subscription #' . $subscription['id'] . ' canceled',
+				'template' => array(
+					'name' => 'subscription_canceled',
+					'parameters' => array(
+						'subscription' => $subscription,
+						'transaction' => $parameters,
+						'user' => $parameters['user']
+					)
+				),
+				'to' => $parameters['user']['email']
+			);
+			$this->_sendMail($mailParameters);
 		}
 
 		return;

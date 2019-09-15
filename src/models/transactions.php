@@ -1281,12 +1281,13 @@ class TransactionsModel extends InvoicesModel {
 			'payment_status_message' => 'Transaction processed.',
 			'transaction_method' => 'Miscellaneous'
 		);
+		$subscriptionId = (!empty($parameters['subscr_id']) ? ' #' . $parameters['subscr_id'] : '');
 
 		if (!empty($parameters['txn_type'])) {
 			switch ($parameters['txn_type']) {
 				case 'subscr_cancel':
 					$response = array(
-						'payment_status_message' => 'Subscription canceled.',
+						'payment_status_message' => 'Subscription' . $subscriptionId . ' canceled.',
 						'transaction_method' => 'SubscriptionCanceled'
 					);
 					break;
@@ -1295,7 +1296,7 @@ class TransactionsModel extends InvoicesModel {
 				case 'recurring_payment_suspended':
 				case 'recurring_payment_suspended_due_to_max_failed_payment':
 					$response = array(
-						'payment_status_message' => 'Subscription term expired.',
+						'payment_status_message' => 'Subscription' . $subscriptionId . ' term expired.',
 						'transaction_method' => 'SubscriptionExpired'
 					);
 					break;
@@ -1303,13 +1304,13 @@ class TransactionsModel extends InvoicesModel {
 				case 'recurring_payment_skipped':
 				case 'recurring_payment_failed':
 					$response = array(
-						'payment_status_message' => 'Subscription payment failed.',
+						'payment_status_message' => 'Subscription' . $subscriptionId . ' payment failed.',
 						'transaction_method' => 'SubscriptionFailed'
 					);
 					break;
 				case 'subscr_modify':
 					$response = array(
-						'payment_status_message' => 'Subscription modified.',
+						'payment_status_message' => 'Subscription' . $subscriptionId . ' modified.',
 						'transaction_method' => 'SubscriptionModified'
 					);
 					break;
@@ -1379,7 +1380,7 @@ class TransactionsModel extends InvoicesModel {
 					break;
 				case 'subscr_signup':
 					$response = array(
-						'payment_status_message' => 'Subscription created.',
+						'payment_status_message' => 'Subscription' . $subscriptionId . ' created.',
 						'transaction_method' => 'SubscriptionCreated'
 					);
 					break;

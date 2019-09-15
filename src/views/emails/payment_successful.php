@@ -9,7 +9,7 @@
 	$message .= 'Payment Amount: ' . $this->settings['billing']['currency_symbol'] . number_format($templateParameters['transaction']['payment_amount'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'];
 
 	if (!empty($templateParameters['transaction']['amount_applied_to_balance'])) {
-		$message .= ' (' . $this->settings['billing']['currency_symbol'] . number_format($templateParameters['transaction']['amount_applied_to_balance'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . ' applied to account balance)';
+		$message .= ' (' . $this->settings['billing']['currency_symbol'] . number_format($templateParameters['transaction']['amount_applied_to_balance'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . ' applied to your account balance)';
 	}
 
 	$message .= "\n";

@@ -1,10 +1,11 @@
 <?php
 	$message = 'Hello,' . "\n";
 	$message .= "\n";
-	$message .= 'This is a confirmation of payment receipt for invoice #' . $templateParameters['invoice']['id'] . ' at ' . $this->settings['site_name'] . '.' . "\n";
+	$message .= 'This is a confirmation of activation for order #' . $templateParameters['order']['id'] . ' at ' . $this->settings['site_name'] . '.' . "\n";
 	$message .= "\n";
 	$message .= 'Order Details' . "\n";
 	$message .= '--' . "\n";
+	$message .= 'Order ID: #' . $templateParameters['order']['id'] . "\n";
 	$message .= 'Order Name: ' . $templateParameters['order']['quantity'] . ' ' . $templateParameters['order']['name'] . "\n";
 	$message .= 'Order Price: ' . $this->settings['billing']['currency_symbol'] . number_format($templateParameters['order']['price'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . "\n";
 	$message .= 'Order Interval: ' . $templateParameters['order']['interval_value'] . ' ' . $templateParameters['order']['interval_type'] . "\n";

@@ -13,7 +13,11 @@
 	$message .= "\n";
 	$message .= 'Invoice Details' . "\n";
 	$message .= '--' . "\n";
+	$message .= 'Invoice Number: #' . $templateParameters['invoice']['id'] . "\n";
 	$message .= 'Invoice URL: ' . $domain . '/invoices/' . $templateParameters['invoice']['id'] . "\n";
+	$message .= 'Invoice Status: ' . ucwords($templateParameters['invoice']['status']) . "\n";
+	$message .= 'Remaining Amount Due: ' . $this->settings['billing']['currency_symbol'] . number_format($templateParameters['invoice']['amount_due'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . "\n";
+	$message .= 'Total Amount Paid to Invoice: ' . $this->settings['billing']['currency_symbol'] . number_format($templateParameters['invoice']['amount_paid'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . "\n";
 	$message .= "\n";
 	$message .= 'User Details' . "\n";
 	$message .= '--' . "\n";

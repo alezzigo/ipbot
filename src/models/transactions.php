@@ -571,21 +571,26 @@ class TransactionsModel extends InvoicesModel {
 			!empty($parameters['invoice_id']) &&
 			!empty($parameters['user'])
 		) {
-			$invoices[$parameters['invoice_id']] = $invoice = $this->invoice('invoices', array(
+			$invoice = $this->invoice('invoices', array(
 				'conditions' => array(
 					'id' => $parameters['invoice_id']
 				)
 			));
 
 			if (!empty($invoice['data'])) {
-				$invoiceData = array(
-					array(
-						'amount_paid' => $amountPaid = max(0, round(($invoice['data']['invoice']['amount_paid'] + $parameters['payment_amount']) * 100) / 100),
-						'id' => $parameters['invoice_id'],
-						'status' => $amountPaid >= $invoice['data']['invoice']['total'] ? 'paid' : 'unpaid'
-					)
+				$newInvoiceData = array(
+					'amount_paid' => $amountPaid = max(0, round(($invoice['data']['invoice']['amount_paid'] + $parameters['payment_amount']) * 100) / 100),
+					'id' => $parameters['invoice_id'],
+					'status' => $amountPaid >= $invoice['data']['invoice']['total'] ? 'paid' : 'unpaid'
 				);
-				$amountToDeductFromBalance = round(($invoice['data']['invoice']['total'] + $parameters['payment_amount']) * 100) / 100;
+				$invoiceData = array(
+					$newInvoiceData
+				);
+				$invoices[] = array_replace_recursive($invoice['data'], array(
+					'invoice' => $newInvoiceData
+				));
+				$amountToDeductFromBalance = min(0, round(($invoice['data']['invoice']['total'] + $parameters['payment_amount']) * 100) / 100);
+				$parameters['payment_amount'] = round(($parameters['payment_amount'] - $amountToDeductFromBalance) * 100) / 100;
 
 				if ($amountToDeductFromBalance < 0) {
 					$userData = array(
@@ -594,6 +599,7 @@ class TransactionsModel extends InvoicesModel {
 					);
 
 					if ($amountRefundedExceedingBalance < 0) {
+						$amountToDeductFromBalance = round(($amountToDeductFromBalance - $amountRefundedExceedingBalance) * 100) / 100;
 						$balanceTransactions = $this->find('transactions', array(
 							'conditions' => array(
 								'payment_method_id' => 'balance',
@@ -616,103 +622,140 @@ class TransactionsModel extends InvoicesModel {
 						if (!empty($balanceTransactions['count'])) {
 							foreach ($balanceTransactions['data'] as $balanceTransaction) {
 								if (!empty($balanceTransaction['invoice_id'])) {
-									$invoices[$balanceTransaction['invoice_id']] = $invoice = $this->invoice('invoices', array(
+									$invoice = $this->invoice('invoices', array(
 										'conditions' => array(
 											'id' => $balanceTransaction['invoice_id']
 										)
 									));
-									$invoiceData[] = array(
-										'amount_paid' => $amountPaid = max(0, round(($invoice['data']['invoice']['amount_paid'] + $amountRefunded = max($amountRefundedExceedingBalance, ($balanceTransaction['payment_amount'] * -1))) * 100) / 100),
-										'id' => $balanceTransaction['invoice_id'],
-										'status' => $amountPaid >= $invoice['data']['invoice']['total'] ? 'paid' : 'unpaid'
-									);
-									$transactionData[] = array(
-										'customer_email' => $parameters['user']['email'],
-										'id' => uniqid() . time(),
-										'invoice_id' => $balanceTransaction['invoice_id'],
-										'payment_amount' => $amountRefunded,
-										'payment_currency' => $this->settings['billing']['currency_name'],
-										'payment_method_id' => 'balance',
-										'payment_status' => 'completed',
-										'payment_status_message' => 'Payment refunded.',
-										'plan_id' => $balanceTransaction['plan_id'],
-										'transaction_charset' => $this->settings['database']['charset'],
-										'transaction_date' => date('Y-m-d h:i:s', time()),
-										'transaction_method' => 'PaymentRefunded',
-										'transaction_processed' => true,
-										'user_id' => $parameters['user']['id']
-									);
-									$amountRefundedExceedingBalance = round(($amountRefundedExceedingBalance - $amountRefunded) * 100) / 100;
 
-									if ($amountRefundedExceedingBalance >= 0) {
-										break;
+									if (!empty($invoice['data'])) {
+										$invoiceData[] = $newInvoiceData = array(
+											'amount_paid' => $amountPaid = max(0, round(($invoice['data']['invoice']['amount_paid'] + $amountRefunded = max($amountRefundedExceedingBalance, ($balanceTransaction['payment_amount'] * -1))) * 100) / 100),
+											'id' => $balanceTransaction['invoice_id'],
+											'status' => $amountPaid >= $invoice['data']['invoice']['total'] ? 'paid' : 'unpaid'
+										);
+										$invoices[] = array_replace_recursive($invoice['data'], array(
+											'invoice' => $newInvoiceData
+										));
+										$transactionData[] = array(
+											'customer_email' => $parameters['user']['email'],
+											'id' => uniqid() . time(),
+											'invoice_id' => $balanceTransaction['invoice_id'],
+											'payment_amount' => $amountRefunded,
+											'payment_currency' => $this->settings['billing']['currency_name'],
+											'payment_method_id' => $parameters['payment_method_id'],
+											'payment_status' => 'completed',
+											'payment_status_message' => 'Payment refunded.',
+											'plan_id' => $balanceTransaction['plan_id'],
+											'transaction_charset' => $this->settings['database']['charset'],
+											'transaction_date' => date('Y-m-d h:i:s', time()),
+											'transaction_method' => 'PaymentRefunded',
+											'transaction_processed' => true,
+											'user_id' => $parameters['user']['id']
+										);
+										$amountRefundedExceedingBalance = round(($amountRefundedExceedingBalance - $amountRefunded) * 100) / 100;
+
+										if ($amountRefundedExceedingBalance >= 0) {
+											break;
+										}
 									}
 								}
 							}
 						}
 					}
 
-					if (
-						$this->save('invoices', $invoiceData) &&
-						$this->save('transactions', $transactionData) &&
-						$this->save('users', array(
-							$userData
-						))
-					) {
-						$nodeData = $orderData = array();
+					$this->save('users', array(
+						$userData
+					));
+				}
 
-						foreach ($invoiceData as $invoice) {
-							if (
-								$invoice['status'] === 'unpaid' &&
-								!empty($orders = $invoices[$invoice['id']]['data']['orders'])
-							) {
-								$orderIds = array();
+				if (
+					$this->save('invoices', $invoiceData) &&
+					$this->save('transactions', $transactionData)
+				) {
+					$parameters['payment_amount'] = round(($parameters['payment_amount'] + $amountToDeductFromBalance) * 100) / 100;
+					$parameters['amount_deducted_from_balance'] = $amountToDeductFromBalance;
+					array_unshift($transactionData, $parameters);
 
-								foreach ($orders as $order) {
-									$orderData[] = array(
-										'id' => $order['id'],
-										'status' => 'pending'
-									);
-									$orderIds[] = $order['id'];
-								}
-
-								$proxyParameters = array(
-									'conditions' => array(
-										'order_id' => $orderIds
-									),
-									'fields' => array(
-										'node_id'
-									)
-								);
-								$nodeIds = $this->find('proxies', $proxyParameters);
-								$proxyParameters['fields'] = array(
-									'id'
-								);
-								$proxyIds = $this->find('proxies', $proxyParameters);
-
-								if (
-									!empty($nodeIds['count']) &&
-									!empty($proxyIds['count']) &&
-									$this->delete('proxies', array(
-										'id' => $proxyIds['data']
-									))
-								) {
-									foreach ($nodeIds['data'] as $nodeId) {
-										$nodeData[$nodeId] = array(
-											'allocated' => false,
-											'id' => $nodeId,
-											'processing' => false
-										);
-									}
-								}
-							}
-						}
+					foreach ($invoiceData as $key => $invoice) {
+						$invoices[$key] = $this->_calculateInvoicePaymentDetails($invoices[$key]);
+						$mailParameters = array(
+							'from' => $this->settings['default_email'],
+							'subject' => 'Invoice #' . $invoice['id'] . ' refund confirmation',
+							'template' => array(
+								'name' => 'payment_refunded',
+								'parameters' => array(
+									'invoice' => $invoices[$key]['invoice'],
+									'transaction' => array_merge($transactionData[$key], array(
+										'payment_method' => $this->_retrieveTransactionPaymentMethod($transactionData[$key]['payment_method_id'])
+									)),
+									'user' => $parameters['user']
+								)
+							),
+							'to' => $parameters['user']['email']
+						);
+						$this->_sendMail($mailParameters);
 
 						if (
-							$this->save('nodes', array_values($nodeData)) &&
-							$this->save('orders', $orderData)
+							$invoice['status'] === 'unpaid' &&
+							!empty($orders = $invoices[$key]['orders'])
 						) {
-							// Send order refund email
+							foreach ($orders as $order) {
+								$nodeData = $orderData = array();
+								$orderData[] = array(
+									'id' => $order['id'],
+									'status' => 'pending'
+								);
+
+								if ($this->save('orders', $orderData)) {
+									$proxyParameters = array(
+										'conditions' => array(
+											'order_id' => $order['id']
+										),
+										'fields' => array(
+											'node_id'
+										)
+									);
+									$nodeIds = $this->find('proxies', $proxyParameters);
+									$proxyParameters['fields'] = array(
+										'id'
+									);
+									$proxyIds = $this->find('proxies', $proxyParameters);
+
+									if (
+										!empty($nodeIds['count']) &&
+										!empty($proxyIds['count'])
+									) {
+										foreach ($nodeIds['data'] as $nodeId) {
+											$nodeData[$nodeId] = array(
+												'allocated' => false,
+												'id' => $nodeId,
+												'processing' => false
+											);
+										}
+
+										$this->save('nodes', array_values($nodeData));
+										$this->delete('proxies', array(
+											'id' => $proxyIds['data']
+										));
+									}
+
+									$mailParameters = array(
+										'from' => $this->settings['default_email'],
+										'subject' => 'Order #' . $order['id'] . ' is deactivated',
+										'template' => array(
+											'name' => 'order_deactivated',
+											'parameters' => array(
+												'invoice' => $invoices[$key]['invoice'],
+												'order' => array_merge($order, $orderData),
+												'user' => $parameters['user']
+											)
+										),
+										'to' => $parameters['user']['email']
+									);
+									$this->_sendMail($mailParameters);
+								}
+							}
 						}
 					}
 				}

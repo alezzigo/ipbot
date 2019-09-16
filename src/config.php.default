@@ -15,6 +15,16 @@ class Config {
 			'stop' => '._.'
 		);
 
+		$rootPath = $_SERVER['DOCUMENT_ROOT'];
+
+		if (
+			empty($root) &&
+			!empty($_SERVER['PWD']) &&
+			!empty($_SERVER['SCRIPT_FILENAME'])
+		) {
+			$rootPath = str_replace('/src/' . (array_shift(array_reverse(explode('/', $_SERVER['SCRIPT_FILENAME'])))), '', $_SERVER['PWD'] . '/' . $_SERVER['SCRIPT_FILENAME']);
+		}
+
 		$this->defaultFields = $defaultFields = array(
 			'carts' => array(
 				'id',
@@ -402,7 +412,7 @@ class Config {
 
 		$this->settings = array(
 			'base_domain' => 'proxies.eightomic.com',
-			'base_path' => $_SERVER['DOCUMENT_ROOT'] . '/src',
+			'base_path' => $rootPath . '/src',
 			'base_url' => '/',
 			'billing' => array(
 				'address_1' => '',

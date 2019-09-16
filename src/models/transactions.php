@@ -1232,6 +1232,19 @@ class TransactionsModel extends InvoicesModel {
 	}
 
 /**
+ * Retrieve transaction invoice ID
+ *
+ * @param array $parameters
+ *
+ * @return string $response
+ */
+	protected function _retrieveTransactionInvoiceId($parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
  * Retrieve transaction payment method
  *
  * @param string $paymentMethodId

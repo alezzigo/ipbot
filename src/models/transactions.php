@@ -1378,7 +1378,7 @@ class TransactionsModel extends InvoicesModel {
 				'customer_id' => $parameters['payer_id'],
 				'customer_last_name' => $parameters['last_name'],
 				'customer_status' => $parameters['payer_status'],
-				'id' => $parameters['txn_id'],
+				'id' => (!empty($parameters['txn_id']) ? $parameters['txn_id'] : uniqid() . time()),
 				'invoice_id' => (!empty($itemNumberIds[0]) && is_numeric($itemNumberIds[0]) ? $itemNumberIds[0] : 0),
 				'parent_transaction_id' => (!empty($parameters['parent_txn_id']) ? $parameters['parent_txn_id'] : null),
 				'payment_amount' => (!empty($parameters['mc_gross']) ? $parameters['mc_gross'] : $parameters['amount3']),

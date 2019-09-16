@@ -1222,6 +1222,7 @@ class TransactionsModel extends InvoicesModel {
 							);
 							break;
 					}
+
 					break;
 			}
 		}
@@ -1233,12 +1234,54 @@ class TransactionsModel extends InvoicesModel {
  * Retrieve transaction invoice ID
  *
  * @param array $parameters
+ * @param array $transactionData
  *
  * @return string $response
  */
-	protected function _retrieveTransactionInvoiceId($parameters) {
-		$response = array();
-		// ..
+	protected function _retrieveTransactionInvoiceId($parameters, $transactionData) {
+		$response = $transactionData['invoice_id'];
+		$latestInvoiceId = $this->find('invoices', array(
+			'conditions' => array(
+				'OR' => array(
+					'id' => $transactionData['invoice_id'],
+					'initial_invoice_id' => $transactionData['invoice_id']
+				)
+			),
+			'fields' => array(
+				'id'
+			),
+			'limit' => 1,
+			'sort' => array(
+				'field' => 'created',
+				'order' => 'DESC'
+			)
+		));
+
+		if (!empty($latestInvoiceId['count'])) {
+			$response = $latestInvoiceId['data'][0];
+		}
+
+		if (!empty($parentTransactionId = $transactionData['parent_transaction_id'])) {
+			$transactionParameters = array(
+				'conditions' => array(
+					'id' => $parentTransactionId
+				),
+				'fields' => array(
+					'invoice_id'
+				),
+				'limit' => 1,
+				'sort' => array(
+					'field' => 'created',
+					'order' => 'DESC'
+				)
+			);
+			$transaction = $this->find('transactions', $transactionParameters);
+
+			if (!empty($transaction['count'])) {
+				$response = $transaction['data'][0];
+			}
+		}
+
 		return $response;
 	}
 
@@ -1400,6 +1443,7 @@ class TransactionsModel extends InvoicesModel {
 			}
 
 			$transaction = array_merge($transaction, $this->_retrievePayPalTransactionMethod($parameters, $transaction));
+			$transaction['invoice_id'] = $this->_retrieveTransactionInvoiceId($parameters, $transaction);
 			$existingTransaction = $this->find('transactions', array(
 				'conditions' => array(
 					'id' => $parameters['txn_id']

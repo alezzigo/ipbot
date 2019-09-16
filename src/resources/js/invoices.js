@@ -44,10 +44,11 @@ var processInvoice = function() {
 			var invoiceShipping = parseFloat(response.data.invoice.shipping);
 			var invoiceTax = parseFloat(response.data.invoice.tax);
 			invoiceData += '<h2>Invoice Pricing Details</h2>';
+			invoiceSubtotal = (Math.round(invoiceSubtotal * 100) / 100);
+			invoiceTotal = (Math.round((invoiceSubtotal + invoiceShipping + invoiceTax) * 100) / 100);
 			invoiceData += '<p><strong>Subtotal</strong><br>' + response.data.invoice.payment_currency_symbol + invoiceSubtotal + ' ' + response.data.invoice.payment_currency_name + '</p>';
 			invoiceData += '<p><strong>Shipping</strong><br>' + response.data.invoice.payment_currency_symbol + invoiceShipping + ' ' + response.data.invoice.payment_currency_name + '</p>';
 			invoiceData += '<p><strong>Tax</strong><br>' + response.data.invoice.payment_currency_symbol + invoiceTax + ' ' + response.data.invoice.payment_currency_name + '</p>';
-			invoiceTotal = invoiceSubtotal + invoiceShipping + invoiceTax;
 			invoiceData += '<p><strong>Total</strong><br>' + response.data.invoice.payment_currency_symbol + invoiceTotal + ' ' + response.data.invoice.payment_currency_name + '</p>';
 
 			if (response.data.invoice.status === 'unpaid') {

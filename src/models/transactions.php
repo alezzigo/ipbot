@@ -1089,11 +1089,10 @@ class TransactionsModel extends InvoicesModel {
  * Retrieve transaction method and custom status message
  *
  * @param array $parameters
- * @param array $transactionData
  *
  * @return array $response
  */
-	protected function _retrievePayPalTransactionMethod($parameters, $transactionData) {
+	protected function _retrievePayPalTransactionMethod($parameters) {
 		$response = array(
 			'payment_status_message' => 'Transaction processed.',
 			'transaction_method' => 'Miscellaneous'
@@ -1234,17 +1233,16 @@ class TransactionsModel extends InvoicesModel {
  * Retrieve transaction invoice ID
  *
  * @param array $parameters
- * @param array $transactionData
  *
  * @return string $response
  */
-	protected function _retrieveTransactionInvoiceId($parameters, $transactionData) {
-		$response = $transactionData['invoice_id'];
+	protected function _retrieveTransactionInvoiceId($parameters) {
+		$response = $parameters['invoice_id'];
 		$latestInvoiceId = $this->find('invoices', array(
 			'conditions' => array(
 				'OR' => array(
-					'id' => $transactionData['invoice_id'],
-					'initial_invoice_id' => $transactionData['invoice_id']
+					'id' => $parameters['invoice_id'],
+					'initial_invoice_id' => $parameters['invoice_id']
 				)
 			),
 			'fields' => array(
@@ -1261,7 +1259,7 @@ class TransactionsModel extends InvoicesModel {
 			$response = $latestInvoiceId['data'][0];
 		}
 
-		if (!empty($parentTransactionId = $transactionData['parent_transaction_id'])) {
+		if (!empty($parentTransactionId = $parameters['parent_transaction_id'])) {
 			$transactionParameters = array(
 				'conditions' => array(
 					'id' => $parentTransactionId
@@ -1442,8 +1440,8 @@ class TransactionsModel extends InvoicesModel {
 				$transaction['payment_status_code'] = $parameters['reason_code'];
 			}
 
-			$transaction = array_merge($transaction, $this->_retrievePayPalTransactionMethod($parameters, $transaction));
-			$transaction['invoice_id'] = $this->_retrieveTransactionInvoiceId($parameters, $transaction);
+			$transaction = array_merge($transaction, $this->_retrievePayPalTransactionMethod($parameters));
+			$transaction['invoice_id'] = $this->_retrieveTransactionInvoiceId($transaction);
 			$existingTransaction = $this->find('transactions', array(
 				'conditions' => array(
 					'id' => $parameters['txn_id']

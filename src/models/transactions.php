@@ -285,11 +285,9 @@ class TransactionsModel extends InvoicesModel {
 /**
  * Process miscellaneous transaction
  *
- * @param array $parameters
- *
  * @return void
  */
-	protected function _processTransactionMiscellaneous($parameters) {
+	protected function _processTransactionMiscellaneous() {
 		return;
 	}
 

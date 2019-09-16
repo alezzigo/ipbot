@@ -1088,6 +1088,150 @@ class TransactionsModel extends InvoicesModel {
 	}
 
 /**
+ * Retrieve transaction method and custom status message
+ *
+ * @param array $parameters
+ * @param array $transactionData
+ *
+ * @return array $response
+ */
+	protected function _retrievePayPalTransactionMethod($parameters, $transactionData) {
+		$response = array(
+			'payment_status_message' => 'Transaction processed.',
+			'transaction_method' => 'Miscellaneous'
+		);
+		$subscriptionId = (!empty($parameters['subscr_id']) ? ' #' . $parameters['subscr_id'] : '');
+
+		if (!empty($parameters['txn_type'])) {
+			switch ($parameters['txn_type']) {
+				case 'subscr_cancel':
+					$response = array(
+						'payment_status_message' => 'Subscription' . $subscriptionId . ' canceled.',
+						'transaction_method' => 'SubscriptionCanceled'
+					);
+					break;
+				case 'subscr_eot':
+				case 'recurring_payment_expired':
+				case 'recurring_payment_suspended':
+				case 'recurring_payment_suspended_due_to_max_failed_payment':
+					$response = array(
+						'payment_status_message' => 'Subscription' . $subscriptionId . ' term expired.',
+						'transaction_method' => 'SubscriptionExpired'
+					);
+					break;
+				case 'subscr_failed':
+				case 'recurring_payment_skipped':
+				case 'recurring_payment_failed':
+					$response = array(
+						'payment_status_message' => 'Subscription' . $subscriptionId . ' payment failed.',
+						'transaction_method' => 'SubscriptionFailed'
+					);
+					break;
+				case 'subscr_modify':
+					$response = array(
+						'payment_status_message' => 'Subscription' . $subscriptionId . ' modified.',
+						'transaction_method' => 'SubscriptionModified'
+					);
+					break;
+				case 'subscr_payment':
+				case 'web_accept':
+					switch ($parameters['payment_status']) {
+						case 'Completed':
+						case 'Created':
+						case 'Processed':
+							$response = array(
+								'payment_status_message' => 'Payment successful.',
+								'transaction_method' => 'PaymentCompleted'
+							);
+							break;
+						case 'Pending':
+							$response = array(
+								'payment_status_message' => 'Payment pending.',
+								'transaction_method' => 'PaymentPending'
+							);
+
+							if (!empty($parameters['pending_reason'])) {
+								switch ($parameters['pending_reason']) {
+									case 'address':
+										$response['payment_status_message'] = 'Unconfirmed shipping address requires manual confirmation.';
+										break;
+									case 'delayed_disbursement':
+										$response['payment_status_message'] = 'Payment is authorized but awaiting bank funding.';
+										break;
+									case 'echeck':
+										$response['payment_status_message'] = 'eCheck payment has not yet cleared.';
+										break;
+									case 'intl':
+										$response['payment_status_message'] = 'International payment requires manual approval.';
+										break;
+									case 'multi_currency':
+										$response['payment_status_message'] = 'Currency conversion requires manual approval.';
+										break;
+									case 'paymentreview':
+									case 'regulatory_review':
+										$response['payment_status_message'] = 'Payment is awaiting review by payment processor.';
+										break;
+									case 'unilateral':
+										$response['payment_status_message'] = 'Unconfirmed account payment is awaiting review by payment processor.';
+										break;
+									case 'authorization':
+									case 'order':
+									case 'upgrade':
+									case 'verify':
+										$response['payment_status_message'] = 'Payment is authorized but not cleared.';
+										break;
+								}
+							}
+
+							break;
+						case 'Blocked':
+						case 'Denied':
+						case 'Expired':
+						case 'Failed':
+						case 'Voided':
+							$response = array(
+								'payment_status_message' => 'Payment ' . strtolower($parameters['payment_status']) . '.',
+								'transaction_method' => 'PaymentFailed'
+							);
+							break;
+					}
+
+					break;
+				case 'subscr_signup':
+					$response = array(
+						'payment_status_message' => 'Subscription' . $subscriptionId . ' created.',
+						'transaction_method' => 'SubscriptionCreated'
+					);
+					break;
+				default:
+					switch ($parameters['payment_status']) {
+						case 'Reversed':
+							$response = array(
+								'payment_status_message' => 'Payment reversal pending' . (!empty($parameters['reason_code']) && $parameters['reason_code'] !== 'other' ? ' from ' . str_replace('_', ' ', $parameters['reason_code']) : '') . '.',
+								'transaction_method' => 'PaymentReversed'
+							);
+							break;
+						case 'Canceled_Reversal':
+							$response = array(
+								'payment_status_message' => 'Payment reversal canceled.',
+								'transaction_method' => 'PaymentReversalCanceled'
+							);
+							break;
+						case 'Refunded':
+							$response = array(
+								'payment_status_message' => 'Payment refunded.',
+								'transaction_method' => 'PaymentRefunded'
+							);
+							break;
+					}
+					break;
+			}
+		}
+
+		return $response;
+	}
+
+/**
  * Retrieve transaction payment method
  *
  * @param string $paymentMethodId
@@ -1244,7 +1388,7 @@ class TransactionsModel extends InvoicesModel {
 				$transaction['payment_status_code'] = $parameters['reason_code'];
 			}
 
-			$transaction = array_merge($transaction, $this->_savePayPalTransactionMethod($parameters, $transaction));
+			$transaction = array_merge($transaction, $this->_retrievePayPalTransactionMethod($parameters, $transaction));
 			$existingTransaction = $this->find('transactions', array(
 				'conditions' => array(
 					'id' => $parameters['txn_id']
@@ -1262,150 +1406,6 @@ class TransactionsModel extends InvoicesModel {
 				))
 			) {
 				$response = $transaction;
-			}
-		}
-
-		return $response;
-	}
-
-/**
- * Save transaction method and custom status message
- *
- * @param array $parameters
- * @param array $transactionData
- *
- * @return array $response
- */
-	protected function _savePayPalTransactionMethod($parameters, $transactionData) {
-		$response = array(
-			'payment_status_message' => 'Transaction processed.',
-			'transaction_method' => 'Miscellaneous'
-		);
-		$subscriptionId = (!empty($parameters['subscr_id']) ? ' #' . $parameters['subscr_id'] : '');
-
-		if (!empty($parameters['txn_type'])) {
-			switch ($parameters['txn_type']) {
-				case 'subscr_cancel':
-					$response = array(
-						'payment_status_message' => 'Subscription' . $subscriptionId . ' canceled.',
-						'transaction_method' => 'SubscriptionCanceled'
-					);
-					break;
-				case 'subscr_eot':
-				case 'recurring_payment_expired':
-				case 'recurring_payment_suspended':
-				case 'recurring_payment_suspended_due_to_max_failed_payment':
-					$response = array(
-						'payment_status_message' => 'Subscription' . $subscriptionId . ' term expired.',
-						'transaction_method' => 'SubscriptionExpired'
-					);
-					break;
-				case 'subscr_failed':
-				case 'recurring_payment_skipped':
-				case 'recurring_payment_failed':
-					$response = array(
-						'payment_status_message' => 'Subscription' . $subscriptionId . ' payment failed.',
-						'transaction_method' => 'SubscriptionFailed'
-					);
-					break;
-				case 'subscr_modify':
-					$response = array(
-						'payment_status_message' => 'Subscription' . $subscriptionId . ' modified.',
-						'transaction_method' => 'SubscriptionModified'
-					);
-					break;
-				case 'subscr_payment':
-				case 'web_accept':
-					switch ($parameters['payment_status']) {
-						case 'Completed':
-						case 'Created':
-						case 'Processed':
-							$response = array(
-								'payment_status_message' => 'Payment successful.',
-								'transaction_method' => 'PaymentCompleted'
-							);
-							break;
-						case 'Pending':
-							$response = array(
-								'payment_status_message' => 'Payment pending.',
-								'transaction_method' => 'PaymentPending'
-							);
-
-							if (!empty($parameters['pending_reason'])) {
-								switch ($parameters['pending_reason']) {
-									case 'address':
-										$response['payment_status_message'] = 'Unconfirmed shipping address requires manual confirmation.';
-										break;
-									case 'delayed_disbursement':
-										$response['payment_status_message'] = 'Payment is authorized but awaiting bank funding.';
-										break;
-									case 'echeck':
-										$response['payment_status_message'] = 'eCheck payment has not yet cleared.';
-										break;
-									case 'intl':
-										$response['payment_status_message'] = 'International payment requires manual approval.';
-										break;
-									case 'multi_currency':
-										$response['payment_status_message'] = 'Currency conversion requires manual approval.';
-										break;
-									case 'paymentreview':
-									case 'regulatory_review':
-										$response['payment_status_message'] = 'Payment is awaiting review by payment processor.';
-										break;
-									case 'unilateral':
-										$response['payment_status_message'] = 'Unconfirmed account payment is awaiting review by payment processor.';
-										break;
-									case 'authorization':
-									case 'order':
-									case 'upgrade':
-									case 'verify':
-										$response['payment_status_message'] = 'Payment is authorized but not cleared.';
-										break;
-								}
-							}
-
-							break;
-						case 'Blocked':
-						case 'Denied':
-						case 'Expired':
-						case 'Failed':
-						case 'Voided':
-							$response = array(
-								'payment_status_message' => 'Payment ' . strtolower($parameters['payment_status']) . '.',
-								'transaction_method' => 'PaymentFailed'
-							);
-							break;
-					}
-
-					break;
-				case 'subscr_signup':
-					$response = array(
-						'payment_status_message' => 'Subscription' . $subscriptionId . ' created.',
-						'transaction_method' => 'SubscriptionCreated'
-					);
-					break;
-				default:
-					switch ($parameters['payment_status']) {
-						case 'Reversed':
-							$response = array(
-								'payment_status_message' => 'Payment reversal pending' . (!empty($parameters['reason_code']) && $parameters['reason_code'] !== 'other' ? ' from ' . str_replace('_', ' ', $parameters['reason_code']) : '') . '.',
-								'transaction_method' => 'PaymentReversed'
-							);
-							break;
-						case 'Canceled_Reversal':
-							$response = array(
-								'payment_status_message' => 'Payment reversal canceled.',
-								'transaction_method' => 'PaymentReversalCanceled'
-							);
-							break;
-						case 'Refunded':
-							$response = array(
-								'payment_status_message' => 'Payment refunded.',
-								'transaction_method' => 'PaymentRefunded'
-							);
-							break;
-					}
-					break;
 			}
 		}
 

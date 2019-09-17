@@ -175,11 +175,9 @@ class InvoicesModel extends UsersModel {
 /**
  * Process unpaid invoices
  *
- * @param array $invoiceData
- *
  * @return array $response
  */
-	protected function _processUnpaidInvoices($invoiceData) {
+	protected function _processUnpaidInvoices() {
 		$response = array();
 		// ..
 		return $response;

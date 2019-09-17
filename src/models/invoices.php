@@ -173,6 +173,19 @@ class InvoicesModel extends UsersModel {
 	}
 
 /**
+ * Process unpaid invoices
+ *
+ * @param array $invoiceData
+ *
+ * @return array $response
+ */
+	protected function _processUnpaidInvoices($invoiceData) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
  * Retrieve invoice subscription data
  *
  * @param array $invoiceData
@@ -373,6 +386,16 @@ class InvoicesModel extends UsersModel {
  */
 	public function list() {
 		return array();
+	}
+
+/**
+ * Shell method for processing unpaid invoices
+ *
+ * @return array $response
+ */
+	public function shellProcessUnpaidInvoices() {
+		$response = $this->_processUnpaidInvoices();
+		return $response;
 	}
 
 /**

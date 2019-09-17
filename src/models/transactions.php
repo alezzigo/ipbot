@@ -174,11 +174,9 @@ class TransactionsModel extends InvoicesModel {
 /**
  * Process transactions
  *
- * @param array $parameters
- *
  * @return array $response
  */
-	protected function _processTransactions($parameters) {
+	protected function _processTransactions() {
 		$response = array(
 			'message' => array(
 				'status' => 'error',
@@ -1751,6 +1749,16 @@ class TransactionsModel extends InvoicesModel {
 			}
 		}
 
+		return $response;
+	}
+
+/**
+ * Shell method for processing transactions
+ *
+ * @return array $response
+ */
+	public function shellProcessTransactions() {
+		$response = $this->_processTransactions();
 		return $response;
 	}
 

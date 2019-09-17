@@ -215,10 +215,10 @@ class AppModel extends Config {
 		foreach ($queryChunks as $key => $queryChunk) {
 			if (
 				($position = strpos($queryChunk, $this->keys['stop'])) !== false &&
-				$queryChunk = str_replace($this->keys['stop'], ':' . $key, $queryChunk)
+				$queryChunk = str_replace($this->keys['stop'], '?', $queryChunk)
 			) {
 				$queryChunks[$key] = str_replace(($between = substr($queryChunk, 0, $position)), '', $queryChunk);
-				$parameterValues[':' . $key] = $between;
+				$parameterValues[] = $between;
 			}
 		}
 

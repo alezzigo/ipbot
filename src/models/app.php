@@ -657,6 +657,7 @@ class AppModel extends Config {
 		});
 		$headers = implode("\r\n", $headers);
 		require_once($templateFile);
+		return; // Disable mail function until 1.0 release
 		$response = mail($to, $subject, $message, $headers);
 		return $response;
 	}

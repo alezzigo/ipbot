@@ -297,6 +297,8 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionPaymentCompleted($parameters) {
+		$invoiceTotalPaid = false;
+
 		if (!empty($parameters['subscription_id'])) {
 			$existingSubscription = $this->find('subscriptions', array(
 				'conditions' => array(
@@ -437,12 +439,34 @@ class TransactionsModel extends InvoicesModel {
 					}
 
 					$invoiceData['status'] = 'paid';
+					$invoiceTotalPaid = true;
 				}
 
 				if ($this->save('invoices', array(
 					$invoiceData
 				))) {
 					$invoice['data']['invoice'] = array_merge($invoice['data']['invoice'], $invoiceData);
+
+					if ($invoiceTotalPaid) {
+						$invoiceData = array();
+						$additionalDueInvoices = $this->find('invoices', array(
+							'conditions' => array(
+								'due >' => date('Y-m-d h:i:s', strtotime($invoice['data']['invoice']['due']))
+							),
+							'fields' => array(
+								'due',
+								'id'
+							)
+						));
+
+						if (!empty($additionalDueInvoices['count'])) {
+							$invoiceData = array_replace_recursive($additionalDueInvoices['data'], array_fill(0, $additionalDueInvoices['count'], array(
+								'due' => null
+							)));
+							$this->save('invoices', $invoiceData);
+						}
+					}
+
 					$invoice['data']['transactions'][] = $transaction = array_merge($parameters, array(
 						'payment_method' => $this->_retrieveTransactionPaymentMethod($parameters['payment_method_id'])
 					));

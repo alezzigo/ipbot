@@ -14,8 +14,12 @@
 			!empty($shellMethod = $_SERVER['argv'][2]) &&
 			method_exists($shellObject, ($shellMethod = 'shell' . ucwords($shellMethod)))
 		) {
-			$shellObject->$shellMethod();
+			$response = $shellObject->$shellMethod();
 			$output = 'Completed processing ' . $shellMethod . ' for ' . $table . '.';
+
+			if (!empty($response['message']['text'])) {
+				$output = $response['message']['text'];
+			}
 		}
 	}
 

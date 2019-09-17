@@ -463,6 +463,33 @@ class TransactionsModel extends InvoicesModel {
 							$invoiceData = array_replace_recursive($additionalDueInvoices['data'], array_fill(0, $additionalDueInvoices['count'], array(
 								'due' => null
 							)));
+						}
+
+						if (
+							!empty($intervalType = $invoice['data']['orders'][0]['interval_type']) &&
+							in_array($intervalType, array(
+								'day',
+								'month',
+								'week',
+								'year'
+							)) &&
+							!empty($intervalValue = $invoice['data']['orders'][0]['interval_value'])
+						) {
+							$invoiceData[] = array(
+								'cart_items' => $invoice['data']['invoice']['cart_items'],
+								'due' => date('Y-m-d h:i:s', strtotime($invoice['data']['invoice']['due'] . ' +' . $intervalValue . ' ' . $intervalType)),
+								'initial_invoice_id' => $invoice['data']['invoice']['id'],
+								'session_id' => $invoice['data']['invoice']['session_id'],
+								'shipping' => $invoice['data']['invoice']['shipping'],
+								'status' => 'unpaid',
+								'subtotal' => $invoice['data']['invoice']['subtotal'],
+								'tax' => $invoice['data']['invoice']['tax'],
+								'total' => $invoice['data']['invoice']['total'],
+								'user_id' => $invoice['data']['invoice']['user_id']
+							);
+						}
+
+						if (!empty($invoiceData)) {
 							$this->save('invoices', $invoiceData);
 						}
 					}

@@ -318,6 +318,7 @@ class InvoicesModel extends UsersModel {
 				'amount_paid',
 				'cart_items',
 				'created',
+				'due',
 				'id',
 				'initial_invoice_id',
 				'modified',

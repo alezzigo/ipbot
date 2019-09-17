@@ -429,6 +429,7 @@ class CartsModel extends AppModel {
 							'conditions' => $invoiceConditions,
 							'fields' => array(
 								'created',
+								'due',
 								'id',
 								'initial_invoice_id',
 								'modified',

@@ -215,10 +215,10 @@ class AppModel extends Config {
 		foreach ($queryChunks as $key => $queryChunk) {
 			if (
 				($position = strpos($queryChunk, $this->keys['stop'])) !== false &&
-				$queryChunk = str_replace($this->keys['stop'], '?', $queryChunk)
+				$queryChunk = str_replace($this->keys['stop'], ':' . $key, $queryChunk)
 			) {
 				$queryChunks[$key] = str_replace(($between = substr($queryChunk, 0, $position)), '', $queryChunk);
-				$parameterValues[] = $between;
+				$parameterValues[':' . $key] = $between;
 			}
 		}
 
@@ -363,6 +363,17 @@ class AppModel extends Config {
 				}
 
 				$parameterized['parameterizedValues'][key($parameterized['parameterizedValues'])] = $limit;
+			}
+
+			if (
+				!empty($parameterized['parameterizedValues']) &&
+				is_array($parameterized['parameterizedValues'])
+			) {
+				foreach ($parameterized['parameterizedValues'] as $parameterizedValueIndex => $parameterizedValue) {
+					if ($parameterizedValue === $this->keys['salt'] . 'is_null' . $this->keys['salt']) {
+						$parameterized['parameterizedValues'][$parameterizedValueIndex] = null;
+					}
+				}
 			}
 
 			$execute = $connection->execute($parameterized['parameterizedValues']);
@@ -978,7 +989,15 @@ class AppModel extends Config {
 			foreach ($rows as $row) {
 				$fields = array_keys($row);
 				$values = array_map(function($value) {
-					return (is_bool($value) ? (integer) $value : $value);
+					if (is_bool($value)) {
+						$value = (integer) $value;
+					}
+
+					if (is_null($value)) {
+						$value = $this->keys['salt'] . 'is_null' . $this->keys['salt'];
+					}
+
+					return $value;
 				}, array_values($row));
 
 				if (!in_array('modified', $fields)) {

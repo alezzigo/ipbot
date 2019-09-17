@@ -183,7 +183,7 @@ class InvoicesModel extends UsersModel {
 		$response = array();
 		$invoiceSubscriptions = $this->find('subscriptions', array(
 			'conditions' => array(
-				'invoice_id' => $invoiceData['id']
+				'invoice_id' => (!empty($invoiceData['initial_invoice_id']) ? $invoiceData['initial_invoice_id'] : $invoiceData['id'])
 			),
 			'fields' => array(
 				'created',

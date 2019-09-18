@@ -622,6 +622,17 @@ class ProxiesModel extends AppModel {
 	}
 
 /**
+ * Shell method for processing replaced proxy removal
+ *
+ * @return array $response
+ */
+	public function shellProcessRemoveReplacedProxies() {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
  * Shell method for processing scheduled proxy replacements
  *
  * @return array $response

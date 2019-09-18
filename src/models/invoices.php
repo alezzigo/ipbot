@@ -173,13 +173,54 @@ class InvoicesModel extends UsersModel {
 	}
 
 /**
- * Process unpaid invoices
+ * Process invoice
+ *
+ * @param array $parameters
+ *
+ * @return boolean $response
+ */
+	protected function _processInvoice($parameters) {
+		$response = false;
+		return $response;
+	}
+
+/**
+ * Process invoices
  *
  * @return array $response
  */
-	protected function _processUnpaidInvoices() {
-		$response = array();
-		// ..
+	protected function _processInvoices() {
+		$response = $notifications = array();
+		$unpaidInvoices = $this->find('invoices', array(
+			'conditions' => array(
+				'due !=' => null,
+				'status' => 'unpaid'
+			),
+			'fields' => array(
+				'amount_paid',
+				'cart_items',
+				'created',
+				'due',
+				'id',
+				'initial_invoice_id',
+				'modified',
+				'session_id',
+				'shipping',
+				'status',
+				'subtotal',
+				'tax',
+				'total',
+				'user_id',
+				'warning_level'
+			)
+		));
+
+		if (!empty($unpaidInvoices['count'])) {
+			foreach ($unpaidInvoices['data'] as $unpaidInvoice) {
+				$processed = $this->_processInvoice($unpaidInvoice);
+			}
+		}
+
 		return $response;
 	}
 
@@ -387,12 +428,12 @@ class InvoicesModel extends UsersModel {
 	}
 
 /**
- * Shell method for processing unpaid invoices
+ * Shell method for processing invoices
  *
  * @return array $response
  */
-	public function shellProcessUnpaidInvoices() {
-		$response = $this->_processUnpaidInvoices();
+	public function shellProcessInvoices() {
+		$response = $this->_processInvoices();
 		return $response;
 	}
 

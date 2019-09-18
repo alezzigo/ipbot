@@ -181,6 +181,40 @@ class InvoicesModel extends UsersModel {
  */
 	protected function _processInvoice($parameters) {
 		$response = false;
+
+		switch ($parameters['warning_level']) {
+			case 0:
+				if (strtotime('+5 days') > strtotime($parameters['due'])) {
+					// First upcoming due invoice warning
+				}
+
+				break;
+			case 1:
+				if (strtotime('+1 day') > strtotime($parameters['due'])) {
+					// Second upcoming due invoice warning
+				}
+
+				break;
+			case 2:
+				if (strtotime('-1 day') > strtotime($parameters['due'])) {
+					// First invoice past due warning
+				}
+
+				break;
+			case 3:
+				if (strtotime('-5 days') > strtotime($parameters['due'])) {
+					// Second invoice past due warning
+				}
+
+				break;
+			case 4:
+				if (strtotime('-6 days') > strtotime($parameters['due'])) {
+					// Order deactivation and notification
+				}
+
+				break;
+		}
+
 		return $response;
 	}
 

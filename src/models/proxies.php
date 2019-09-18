@@ -621,4 +621,15 @@ class ProxiesModel extends AppModel {
 		return $response;
 	}
 
+/**
+ * Shell method for processing scheduled proxy replacements
+ *
+ * @return array $response
+ */
+	public function shellProcessScheduledProxyReplacements() {
+		$response = array();
+		// ..
+		return $response;
+	}
+
 }

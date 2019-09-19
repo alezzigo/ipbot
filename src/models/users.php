@@ -51,6 +51,41 @@ class UsersModel extends AppModel {
 	}
 
 /**
+ * Retrieve user data
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _retrieveUser($parameters) {
+		$response = array();
+
+		if (
+			!empty($id = $parameters['user_id']) ||
+			!empty($id = $parameters['id'])
+		) {
+			$user = $this->find('users', array(
+				'conditions' => array(
+					'id' => $id
+				),
+				'fields' => array(
+					'balance',
+					'created',
+					'email',
+					'id',
+					'modified'
+				)
+			));
+
+			if (!empty($user['count'])) {
+				$response = $user['data'];
+			}
+		}
+
+		return $response;
+	}
+
+/**
  * Request user password reset
  *
  * @param string $table

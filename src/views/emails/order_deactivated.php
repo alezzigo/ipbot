@@ -1,7 +1,7 @@
 <?php
 	$message = 'Hello,' . "\n";
 	$message .= "\n";
-	$message .= 'This is a confirmation of deactivation for order #' . $templateParameters['order']['id'] . ' at ' . $this->settings['site_name'] . ' from an unpaid invoice.' . "\n";
+	$message .= 'This is a confirmation of deactivation for order #' . $templateParameters['order']['id'] . ' at ' . $this->settings['site_name'] . ' from an overdue invoice.' . "\n";
 	$message .= "\n";
 	$message .= 'Order Details' . "\n";
 	$message .= '--' . "\n";

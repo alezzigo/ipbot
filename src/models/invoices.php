@@ -247,16 +247,18 @@ class InvoicesModel extends UsersModel {
 		));
 
 		if (!empty($invoices['count'])) {
+			$subscriptions = $this->_retrieveInvoiceSubscriptions($invoice);
+
 			foreach ($invoices['data'] as $invoice) {
 				$mailParameters = array(
 					'from' => $this->settings['default_email'],
-					'subject' => 'Upcoming payment' . ($subscriptions['count'] > 1 ? 's' : '') . ' ' . (!empty($subscriptions['count']) ? 'scheduled' : 'due') . ' for invoice #' . $invoice['id'],
+					'subject' => 'Upcoming payment' . (count($subscriptions) > 1 ? 's' : '') . ' ' . (!empty($subscriptions) ? 'scheduled' : 'due') . ' for invoice #' . $invoice['id'],
 					'template' => array(
 						'name' => 'invoice_upcoming_payment',
 						'parameters' => array(
 							'invoice' => $invoice,
 							'orders' => $this->_retrieveInvoiceOrders($invoice),
-							'subscriptions' => $this->_retrieveInvoiceSubscriptions($invoice),
+							'subscriptions' => $subscriptions,
 							'user' => $this->_retrieveUser($invoice)
 						)
 					),

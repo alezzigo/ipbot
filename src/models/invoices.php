@@ -311,7 +311,64 @@ class InvoicesModel extends UsersModel {
  */
 	protected function _processInvoicesSecondUpcomingPaymentDueWarning() {
 		$response = 0;
-		// ..
+		$invoices = $this->find('invoices', array(
+			'conditions' => array(
+				'due <' => date('Y-m-d H:i:s', strtotime('+1 day')),
+				'status' => 'unpaid',
+				'warning_level' => 1
+			),
+			'fields' => array(
+				'amount_paid',
+				'cart_items',
+				'created',
+				'due',
+				'id',
+				'initial_invoice_id',
+				'modified',
+				'session_id',
+				'shipping',
+				'status',
+				'subtotal',
+				'tax',
+				'total',
+				'user_id',
+				'warning_level'
+			)
+		));
+
+		if (!empty($invoices['count'])) {
+			$subscriptions = $this->_retrieveInvoiceSubscriptions($invoice);
+
+			foreach ($invoices['data'] as $invoice) {
+				$mailParameters = array(
+					'from' => $this->settings['default_email'],
+					'subject' => 'Upcoming payment' . (count($subscriptions) > 1 ? 's' : '') . ' ' . (!empty($subscriptions) ? 'scheduled' : 'due') . ' for invoice #' . $invoice['id'],
+					'template' => array(
+						'name' => 'invoice_upcoming_payment',
+						'parameters' => array(
+							'invoice' => $invoice,
+							'orders' => $this->_retrieveInvoiceOrders($invoice),
+							'subscriptions' => $subscriptions,
+							'user' => $this->_retrieveUser($invoice)
+						)
+					),
+					'to' => $parameters['user']['email']
+				);
+
+				if (
+					$this->_sendMail($mailParameters) &&
+					$this->save('invoices', array(
+						array(
+							'id' => $invoice['id'],
+							'warning_level' => 2
+						)
+					))
+				) {
+					$response += 1;
+				}
+			}
+		}
+
 		return $response;
 	}
 

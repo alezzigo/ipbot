@@ -322,7 +322,6 @@ class Config {
 					'kernel.sysrq = 0',
 					'net.core.default_qdisc = fq',
 					'net.core.dev_weight = 100000',
-					'net.core.netdev_max_backlog = 20000',
 					'net.core.netdev_max_backlog = 2621000',
 					'net.core.optmem_max = 251658240',
 					'net.core.rmem_default = 31457280',

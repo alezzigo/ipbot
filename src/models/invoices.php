@@ -354,7 +354,61 @@ class InvoicesModel extends UsersModel {
  */
 	protected function _processInvoicesSecondPastDueWarning() {
 		$response = 0;
-		// ..
+		$invoices = $this->find('invoices', array(
+			'conditions' => array(
+				'due <' => date('Y-m-d H:i:s', strtotime('-1 day')),
+				'status' => 'unpaid',
+				'warning_level' => 3
+			),
+			'fields' => array(
+				'amount_paid',
+				'cart_items',
+				'created',
+				'due',
+				'id',
+				'initial_invoice_id',
+				'modified',
+				'session_id',
+				'shipping',
+				'status',
+				'subtotal',
+				'tax',
+				'total',
+				'user_id',
+				'warning_level'
+			)
+		));
+
+		if (!empty($invoices['count'])) {
+			foreach ($invoices['data'] as $invoice) {
+				$mailParameters = array(
+					'from' => $this->settings['default_email'],
+					'subject' => 'Payment past-due for invoice #' . $invoice['id'],
+					'template' => array(
+						'name' => 'invoice_past_due_2',
+						'parameters' => array(
+							'invoice' => $invoice,
+							'orders' => $this->_retrieveInvoiceOrders($invoice),
+							'user' => $this->_retrieveUser($invoice)
+						)
+					),
+					'to' => $parameters['user']['email']
+				);
+
+				if (
+					$this->_sendMail($mailParameters) &&
+					$this->save('invoices', array(
+						array(
+							'id' => $invoice['id'],
+							'warning_level' => 4
+						)
+					))
+				) {
+					$response += 1;
+				}
+			}
+		}
+
 		return $response;
 	}
 

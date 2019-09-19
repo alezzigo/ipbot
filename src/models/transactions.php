@@ -180,7 +180,7 @@ class TransactionsModel extends InvoicesModel {
 		$response = array(
 			'message' => array(
 				'status' => 'error',
-				'text' => 'There aren\'t any new transactions to process, please try again.'
+				'text' => 'There aren\'t any new transactions to process, please try again later.'
 			)
 		);
 		$transactionsToProcess = $this->find('transactions', array(
@@ -270,7 +270,7 @@ class TransactionsModel extends InvoicesModel {
 						'data' => $transactionsToProcess,
 						'message' => array(
 							'status' => 'success',
-							'text' => 'Transactions processed successfully.'
+							'text' => $transactionsToProcess['count'] . ' transactions processed successfully.'
 						)
 					);
 				}

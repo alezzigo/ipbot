@@ -263,17 +263,18 @@ class InvoicesModel extends UsersModel {
 					'to' => $parameters['user']['email']
 				);
 
-				if ($this->_sendMail($mailParameters)) {
+				if (
+					$this->_sendMail($mailParameters) &&
 					$this->save('invoices', array(
 						array(
 							'id' => $invoice['id'],
 							'warning_level' => 1
 						)
-					));
+					))
+				) {
+					$response += 1;
 				}
 			}
-
-			$response = $invoices['count'];
 		}
 
 		return $response;

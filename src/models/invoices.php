@@ -173,62 +173,59 @@ class InvoicesModel extends UsersModel {
 	}
 
 /**
- * Process invoice
+ * Process invoices
  *
- * @param array $parameters
- *
- * @return boolean $response
+ * @return array $response
  */
-	protected function _processInvoice($parameters) {
-		$response = false;
+	protected function _processInvoices() {
+		$response = array(
+			'message' => array(
+				'status' => 'error',
+				'text' => 'There aren\'t any new invoices to process, please try again later.'
+			)
+		);
+		$processedInvoices = 0;
+		$processedInvoices += $this->_processInvoicesFirstPastDueWarning();
+		$processedInvoices += $this->_processInvoicesFirstUpcomingPaymentDueWarning();
+		$processedInvoices += $this->_processInvoicesOrderDeactivation();
+		$processedInvoices += $this->_processInvoicesSecondUpcomingPaymentDueWarning();
+		$processedInvoices += $this->_processInvoicesSecondPastDueWarning();
 
-		switch ($parameters['warning_level']) {
-			case 0:
-				if (strtotime('+5 days') > strtotime($parameters['due'])) {
-					// First upcoming due invoice warning
-				}
-
-				break;
-			case 1:
-				if (strtotime('+1 day') > strtotime($parameters['due'])) {
-					// Second upcoming due invoice warning
-				}
-
-				break;
-			case 2:
-				if (strtotime('-1 day') > strtotime($parameters['due'])) {
-					// First invoice past due warning
-				}
-
-				break;
-			case 3:
-				if (strtotime('-5 days') > strtotime($parameters['due'])) {
-					// Second invoice past due warning
-				}
-
-				break;
-			case 4:
-				if (strtotime('-6 days') > strtotime($parameters['due'])) {
-					// Order deactivation and notification
-				}
-
-				break;
+		if (!empty($processedInvoices)) {
+			$response = array(
+				'message' => array(
+					'status' => 'success',
+					'text' => $processedInvoices . ' invoices processed successfully.'
+				)
+			);
 		}
 
 		return $response;
 	}
 
 /**
- * Process invoices
+ * Process invoices with first past due warning
  *
- * @return array $response
+ * @return boolean $response Count invoices processed
  */
-	protected function _processInvoices() {
-		$response = $notifications = array();
-		$unpaidInvoices = $this->find('invoices', array(
+	protected function _processInvoicesFirstPastDueWarning() {
+		$response = 0;
+		// ..
+		return $response;
+	}
+
+/**
+ * Process invoices with first upcoming payment due warning
+ *
+ * @return boolean $response Count invoices processed
+ */
+	protected function _processInvoicesFirstUpcomingPaymentDueWarning() {
+		$response = 0;
+		$invoices = $this->find('invoices', array(
 			'conditions' => array(
-				'due !=' => null,
-				'status' => 'unpaid'
+				'due <' => date('Y-m-d H:i:s', strtotime('+5 days')),
+				'status' => 'unpaid',
+				'warning_level' => 0
 			),
 			'fields' => array(
 				'amount_paid',
@@ -249,12 +246,69 @@ class InvoicesModel extends UsersModel {
 			)
 		));
 
-		if (!empty($unpaidInvoices['count'])) {
-			foreach ($unpaidInvoices['data'] as $unpaidInvoice) {
-				$processed = $this->_processInvoice($unpaidInvoice);
+		if (!empty($invoices['count'])) {
+			foreach ($invoices['data'] as $invoice) {
+				$mailParameters = array(
+					'from' => $this->settings['default_email'],
+					'subject' => 'Upcoming payment' . ($subscriptions['count'] > 1 ? 's' : '') . ' ' . (!empty($subscriptions['count']) ? 'scheduled' : 'due') . ' for invoice #' . $invoice['id'],
+					'template' => array(
+						'name' => 'invoice_upcoming_payment',
+						'parameters' => array(
+							'invoice' => $invoice,
+							'orders' => $this->_retrieveInvoiceOrders($invoice),
+							'subscriptions' => $this->_retrieveInvoiceSubscriptions($invoice),
+							'user' => $this->_retrieveUser($invoice)
+						)
+					),
+					'to' => $parameters['user']['email']
+				);
+
+				if ($this->_sendMail($mailParameters)) {
+					$this->save('invoices', array(
+						array(
+							'id' => $invoice['id'],
+							'warning_level' => 1
+						)
+					));
+				}
 			}
+
+			$response = $invoices['count'];
 		}
 
+		return $response;
+	}
+
+/**
+ * Process invoices with overdue payment
+ *
+ * @return boolean $response Count invoices processed
+ */
+	protected function _processInvoicesOverduePayment() {
+		$response = 0;
+		// ..
+		return $response;
+	}
+
+/**
+ * Process invoices with second past due warning
+ *
+ * @return boolean $response Count invoices processed
+ */
+	protected function _processInvoicesSecondPastDueWarning() {
+		$response = 0;
+		// ..
+		return $response;
+	}
+
+/**
+ * Process invoices with second upcoming payment due warning
+ *
+ * @return boolean $response Count invoices processed
+ */
+	protected function _processInvoicesSecondUpcomingPaymentDueWarning() {
+		$response = 0;
+		// ..
 		return $response;
 	}
 

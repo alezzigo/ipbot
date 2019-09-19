@@ -439,6 +439,7 @@ class TransactionsModel extends InvoicesModel {
 					}
 
 					$invoiceData['status'] = 'paid';
+					$invoiceData['warning_level'] = 0;
 					$invoiceTotalPaid = true;
 				}
 

@@ -21,8 +21,6 @@
 	$message .= '--' . "\n";
 	$message .= 'User Email: ' . $templateParameters['user']['email'] . "\n";
 	$message .= "\n";
-	$message .= 'If you\'d like to cancel this pending payment before it clears or if you have any questions, please reply to this email.' . "\n";
-	$message .= "\n";
 	$message .= '--' . "\n";
 	$message .= $this->settings['site_name'] . "\n";
 	$message .= $domain . "\n";

@@ -1,7 +1,7 @@
 <?php
 	$message = 'Hello,' . "\n";
 	$message .= "\n";
-	$message .= 'This is a notice for your upcoming payment due for the amount of ' . $this->settings['billing']['currency_symbol'] . number_format($templateParameters['invoice']['amount_due'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . ' for invoice #' . $templateParameters['invoice']['id'] . ' (due on ' . date('M d, Y', strtotime($templateParameters['invoice']['due'])) . ")\n";
+	$message .= 'This is a notice for your upcoming payment due for the amount of ' . $this->settings['billing']['currency_symbol'] . number_format($templateParameters['invoice']['amount_due'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . ' for invoice #' . $templateParameters['invoice']['id'] . ' (due on ' . date('M d, Y', strtotime($templateParameters['invoice']['due'])) . ").\n";
 
 	if (!empty($templateParameters['subscriptions'])) {
 		$message .= "\n";

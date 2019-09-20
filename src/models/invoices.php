@@ -217,50 +217,40 @@ class InvoicesModel extends UsersModel {
 				'warning_level' => 2
 			),
 			'fields' => array(
-				'amount_paid',
-				'cart_items',
-				'created',
-				'due',
-				'id',
-				'initial_invoice_id',
-				'modified',
-				'session_id',
-				'shipping',
-				'status',
-				'subtotal',
-				'tax',
-				'total',
-				'user_id',
-				'warning_level'
+				'id'
 			)
 		));
 
 		if (!empty($invoices['count'])) {
-			foreach ($invoices['data'] as $invoice) {
-				$mailParameters = array(
-					'from' => $this->settings['default_email'],
-					'subject' => 'Payment past-due for invoice #' . $invoice['id'],
-					'template' => array(
-						'name' => 'invoice_past_due_1',
-						'parameters' => array(
-							'invoice' => $invoice,
-							'orders' => $this->_retrieveInvoiceOrders($invoice),
-							'user' => $this->_retrieveUser($invoice)
-						)
-					),
-					'to' => $parameters['user']['email']
-				);
+			foreach ($invoices['data'] as $invoiceId) {
+				$invoice = $this->invoice('invoices', array(
+					'conditions' => array(
+						'id' => $invoiceId
+					)
+				));
 
-				if (
-					$this->_sendMail($mailParameters) &&
-					$this->save('invoices', array(
-						array(
-							'id' => $invoice['id'],
-							'warning_level' => 3
-						)
-					))
-				) {
-					$response += 1;
+				if (!empty($invoice['data'])) {
+					$mailParameters = array(
+						'from' => $this->settings['default_email'],
+						'subject' => 'Payment past-due for invoice #' . $invoiceId,
+						'template' => array(
+							'name' => 'invoice_past_due_1',
+							'parameters' => $invoice['data']
+						),
+						'to' => $invoice['data']['user']['email']
+					);
+
+					if (
+						$this->_sendMail($mailParameters) &&
+						$this->save('invoices', array(
+							array(
+								'id' => $invoiceId,
+								'warning_level' => 3
+							)
+						))
+					) {
+						$response += 1;
+					}
 				}
 			}
 		}

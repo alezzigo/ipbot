@@ -627,8 +627,53 @@ class ProxiesModel extends AppModel {
  * @return array $response
  */
 	public function shellProcessRemoveReplacedProxies() {
-		$response = array();
-		// ..
+		$response = array(
+			'message' => array(
+				'status' => 'error',
+				'text' => 'There aren\'t any new replaced proxies to remove, please try again later.'
+			)
+		);
+		$proxies = $this->find('proxies', array(
+			'conditions' => array(
+				'replacement_removal_date <' => date('Y-m-d H:i:s', time()),
+				'status' => 'replaced'
+			),
+			'fields' => array(
+				'id',
+				'node_id',
+				'replacement_removal_date',
+				'status'
+			),
+			'limit' => 100000
+		));
+
+		if (!empty($proxies['count'])) {
+			$nodeData = $proxyIds = array();
+
+			foreach ($proxies['data'] as $proxy) {
+				$nodeData[] = array(
+					'allocated' => false,
+					'id' => $proxy['node_id'],
+					'processing' => false
+				);
+				$proxyIds[] = $proxy['id'];
+			}
+
+			if (
+				$this->delete('proxies', array(
+					'id' => $proxyIds
+				)) &&
+				$this->save('nodes', $nodeData)
+			) {
+				$response = array(
+					'message' => array(
+						'status' => 'success',
+						'text' => $proxies['count'] . ' replaced proxies removed successfully.'
+					)
+				);
+			}
+		}
+
 		return $response;
 	}
 

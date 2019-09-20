@@ -467,9 +467,9 @@ class ProxiesModel extends AppModel {
 									'processing' => false
 								);
 								$processingNodes['data'][$key] += $newItemData;
+								$processingNodes['data'][$key]['previous_node_id'] = $oldItemIds[]['id'] = $parameters['items'][$table]['data'][$key];
 								unset($processingNodes['data'][$key]['id']);
 								unset($processingNodes['data'][$key]['processing']);
-								$oldItemIds[]['id'] = $parameters['items'][$table]['data'][$key];
 							}
 
 							if ($parameters['tokens'][$table] === $this->_getToken($table, $parameters, 'order_id', $orderId)) {

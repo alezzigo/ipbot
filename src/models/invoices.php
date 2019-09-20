@@ -748,6 +748,7 @@ class InvoicesModel extends UsersModel {
 			$invoiceOrders = $this->_retrieveInvoiceOrders($invoiceData);
 			$invoiceSubscriptions = $this->_retrieveInvoiceSubscriptions($invoiceData);
 			$invoiceTransactions = $this->_retrieveInvoiceTransactions($invoiceData);
+			$invoiceUser = $this->_retrieveUser($invoiceData);
 
 			if (
 				!empty($invoiceData) &&
@@ -762,7 +763,8 @@ class InvoicesModel extends UsersModel {
 						'invoice' => $invoiceData,
 						'orders' => $invoiceOrders,
 						'subscriptions' => $invoiceSubscriptions,
-						'transactions' => $invoiceTransactions
+						'transactions' => $invoiceTransactions,
+						'user' => $invoiceUser
 					),
 					'message' => array(
 						'status' => 'success',

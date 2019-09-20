@@ -287,8 +287,6 @@ class InvoicesModel extends UsersModel {
 		));
 
 		if (!empty($invoices['count'])) {
-			$subscriptions = $this->_retrieveInvoiceSubscriptions($invoice);
-
 			foreach ($invoices['data'] as $invoiceId) {
 				$invoice = $this->invoice('invoices', array(
 					'conditions' => array(

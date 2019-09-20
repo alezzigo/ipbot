@@ -78,7 +78,7 @@ class UsersModel extends AppModel {
 			));
 
 			if (!empty($user['count'])) {
-				$response = $user['data'];
+				$response = $user['data'][0];
 			}
 		}
 

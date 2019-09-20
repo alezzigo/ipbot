@@ -520,7 +520,7 @@ class ProxiesModel extends AppModel {
 									);
 									$mailParameters = array(
 										'from' => $this->settings['default_email'],
-										'subject' => $processingNodes['data'] . ' ' . $table . ' replaced successfully',
+										'subject' => count($processingNodes['data']) . ' ' . $table . ' replaced successfully',
 										'template' => array(
 											'name' => 'items_replaced_instant',
 											'parameters' => array(

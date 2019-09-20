@@ -480,7 +480,9 @@ class ProxiesModel extends AppModel {
 											'id' => $parameters['items'][$table]['data']
 										),
 										'fields' => array(
+											'disable_http',
 											'password',
+											'require_authentication',
 											'username',
 											'whitelisted_ips'
 										)

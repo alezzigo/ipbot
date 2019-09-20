@@ -327,96 +327,87 @@ class InvoicesModel extends UsersModel {
 				'warning_level' => 4
 			),
 			'fields' => array(
-				'amount_paid',
-				'cart_items',
-				'created',
-				'due',
-				'id',
-				'initial_invoice_id',
-				'modified',
-				'session_id',
-				'shipping',
-				'status',
-				'subtotal',
-				'tax',
-				'total',
-				'user_id',
-				'warning_level'
+				'id'
 			)
 		));
 
 		if (!empty($invoices['count'])) {
-			foreach ($invoices['data'] as $invoice) {
-				if ($this->save('invoices', array(
-					array(
-						'id' => $invoice['id'],
-						'warning_level' => 5
+			foreach ($invoices['data'] as $invoiceId) {
+				$invoice = $this->invoice('invoices', array(
+					'conditions' => array(
+						'id' => $invoiceId
 					)
-				))) {
-					$response += 1;
-				}
+				));
 
-				$orders = $this->_retrieveInvoiceOrders($invoice);
-				$user = $this->_retrieveUser($invoice);
+				if (!empty($invoice['data'])) {
+					if ($this->save('invoices', array(
+						array(
+							'id' => $invoiceId,
+							'warning_level' => 5
+						)
+					))) {
+						$response += 1;
+					}
 
-				if (
-					!empty($orders) &&
-					!empty($user)
-				) {
-					foreach ($orders as $order) {
-						$nodeData = $orderData = array();
-						$orderData[] = array(
-							'id' => $order['id'],
-							'status' => 'pending'
-						);
-
-						if ($this->save('orders', $orderData)) {
-							$proxyParameters = array(
-								'conditions' => array(
-									'order_id' => $order['id']
-								),
-								'fields' => array(
-									'node_id'
-								)
+					if (
+						!empty($invoice['data']['orders']) &&
+						!empty($invoice['data']['user'])
+					) {
+						foreach ($invoice['data']['orders'] as $order) {
+							$nodeData = $orderData = array();
+							$orderData[] = array(
+								'id' => $order['id'],
+								'status' => 'pending'
 							);
-							$nodeIds = $this->find('proxies', $proxyParameters);
-							$proxyParameters['fields'] = array(
-								'id'
-							);
-							$proxyIds = $this->find('proxies', $proxyParameters);
 
-							if (
-								!empty($nodeIds['count']) &&
-								!empty($proxyIds['count'])
-							) {
-								foreach ($nodeIds['data'] as $nodeId) {
-									$nodeData[$nodeId] = array(
-										'allocated' => false,
-										'id' => $nodeId,
-										'processing' => false
-									);
+							if ($this->save('orders', $orderData)) {
+								$proxyParameters = array(
+									'conditions' => array(
+										'order_id' => $order['id']
+									),
+									'fields' => array(
+										'node_id'
+									)
+								);
+								$nodeIds = $this->find('proxies', $proxyParameters);
+								$proxyParameters['fields'] = array(
+									'id'
+								);
+								$proxyIds = $this->find('proxies', $proxyParameters);
+
+								if (
+									!empty($nodeIds['count']) &&
+									!empty($proxyIds['count'])
+								) {
+									foreach ($nodeIds['data'] as $nodeId) {
+										$nodeData[$nodeId] = array(
+											'allocated' => false,
+											'id' => $nodeId,
+											'processing' => false
+										);
+									}
+
+									$this->save('nodes', array_values($nodeData));
+									$this->delete('proxies', array(
+										'id' => $proxyIds['data']
+									));
 								}
 
-								$this->save('nodes', array_values($nodeData));
-								$this->delete('proxies', array(
-									'id' => $proxyIds['data']
-								));
+								$mailParameters = array(
+									'from' => $this->settings['default_email'],
+									'subject' => 'Order #' . $order['id'] . ' is deactivated',
+									'template' => array(
+										'name' => 'order_deactivated',
+										'parameters' => array(
+											'invoice' => $invoice['data']['invoice'],
+											'order' => array_merge($order, $orderData),
+											'user' => $invoice['data']['user']
+										)
+									),
+									'to' => $invoice['data']['user']['email']
+								);
+								$this->_sendMail($mailParameters);
 							}
-
-							$mailParameters = array(
-								'from' => $this->settings['default_email'],
-								'subject' => 'Order #' . $order['id'] . ' is deactivated',
-								'template' => array(
-									'name' => 'order_deactivated',
-									'parameters' => array(
-										'invoice' => $invoice,
-										'order' => array_merge($order, $orderData),
-										'user' => $user
-									)
-								),
-								'to' => $parameters['user']['email']
-							);
-							$this->_sendMail($mailParameters);
 						}
 					}
 				}

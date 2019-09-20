@@ -187,7 +187,7 @@ class InvoicesModel extends UsersModel {
 		$processedInvoices = 0;
 		$processedInvoices += $this->_processInvoicesFirstPastDueWarning();
 		$processedInvoices += $this->_processInvoicesFirstUpcomingPaymentDueWarning();
-		$processedInvoices += $this->_processInvoicesOrderDeactivation();
+		$processedInvoices += $this->_processInvoicesOverduePayment();
 		$processedInvoices += $this->_processInvoicesSecondUpcomingPaymentDueWarning();
 		$processedInvoices += $this->_processInvoicesSecondPastDueWarning();
 

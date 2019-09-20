@@ -270,7 +270,7 @@ class TransactionsModel extends InvoicesModel {
 						'data' => $transactionsToProcess,
 						'message' => array(
 							'status' => 'success',
-							'text' => $transactionsToProcess['count'] . ' transactions processed successfully.'
+							'text' => $transactionsToProcess['count'] . ' transaction' . ($transactionsToProcess['count'] !== 1 ? 's' : '') . ' processed successfully.'
 						)
 					);
 				}

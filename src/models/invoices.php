@@ -195,7 +195,7 @@ class InvoicesModel extends UsersModel {
 			$response = array(
 				'message' => array(
 					'status' => 'success',
-					'text' => $processedInvoices . ' invoices processed successfully.'
+					'text' => $processedInvoices . ' invoice' . ($processedInvoices !== 1 ? 's' : '') . ' processed successfully.'
 				)
 			);
 		}

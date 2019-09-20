@@ -392,6 +392,7 @@ class ProxiesModel extends AppModel {
 				$intervalData = array(
 					'automatic_replacement_interval_type' => $automaticReplacementIntervalType,
 					'automatic_replacement_interval_value' => $parameters['data']['automatic_replacement_interval_value'],
+					'last_replacement_date' => date('Y-m-d H:i:s', time())
 				);
 				$newItemData = $oldItemData = array_merge($newItemData, $intervalData);
 			}

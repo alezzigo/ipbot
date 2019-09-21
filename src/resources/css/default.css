@@ -60,7 +60,7 @@ h1 {
 }
 	h1 .label {
 		display: inline-block;
-		float: left;
+		float: left !important;
 		line-height: 36px;
 		margin: 0 10px 0 0;
 	}

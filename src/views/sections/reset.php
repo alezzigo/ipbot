@@ -15,6 +15,7 @@
 						<input class="password" id="reset-password" name="password" type="password">
 						<label for="confirm_password">Confirm New Password</label>
 						<input class="confirm-password" id="reset-confirm-password" name="confirm_password" type="password">
+						<div class="clear"></div>
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>

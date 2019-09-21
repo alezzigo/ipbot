@@ -81,6 +81,7 @@ strong {
 }
 label {
 	display: block;
+	float: left;
 	font-weight: 600;
 	padding: 2px 0;
 	width: 100%;
@@ -299,7 +300,7 @@ main {
 .table {
 	border: none;
 	border-spacing: 0;
-	margin-bottom: 1px;
+	margin-bottom: 8px;
 	text-align: left;
 	width: 100%;
 }
@@ -420,8 +421,9 @@ main {
 	border-left: 2px solid #dddbf4;
 	color: #8986ae;
 	display: inline-block;
+	float: none !important;
 	font-size: 12px;
-	margin: 5px 10px 2px 0;
+	margin: 8px 10px 2px 0;
 	padding: 0 10px;
 	width: auto;
 }
@@ -507,6 +509,7 @@ main {
 		box-sizing: border-box;
 		color: #616671;
 		display: block;
+		float: left;
 		font-size: 14px;
 		margin-bottom: 10px;
 		outline: none;
@@ -740,6 +743,7 @@ main {
 				padding: 47px 0 88px;
 			}
 			.window-container .window .checkbox-container {
+				float: left;
 				margin-bottom: 10px;
 				margin-top: 5px;
 			}
@@ -750,6 +754,7 @@ main {
 				.window-container .window .checkbox-container .custom-checkbox-label {
 					box-sizing: border-box;
 					cursor: pointer;
+					float: none;
 					font-size: 14px;
 					font-weight: 600;
 					line-height: 23px;

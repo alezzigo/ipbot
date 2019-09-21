@@ -19,6 +19,7 @@
 						</div>
 						<label for="whitelisted_ips">Whitelisted IPv4 Addresses</label>
 						<textarea class="whitelisted-ips" id="whitelisted-ips" name="whitelisted_ips" placeholder="<?php echo "127.0.0.1\n127.0.0.2\netc..." ?>" type="text"></textarea>
+						<div class="clear"></div>
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>

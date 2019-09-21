@@ -38,7 +38,7 @@
 							<input class="confirm-password" id="register-confirm-password" name="confirm_password" placeholder="Confirm account password" type="password">
 						</div>
 						<h2>Payment Method</h2>
-						<div class="field-group payment-methods">
+						<div class="field-group no-margin payment-methods">
 							<label for="paypal" type="radio"><input checked id="paypal" name="payment_method" type="radio" value="paypal"> PayPal</label>
 							<label for="credit-card" type="radio"><input id="credit-card" name="payment_method" type="radio" value="credit_card"> Credit Card</label>
 							<label class="hidden" for="balance" type="radio"><input id="balance" name="payment_method" type="radio" value="balance"> Account Balance</label>
@@ -63,10 +63,7 @@
 							<label for="billing-name">Billing Name</label>
 							<input class="billing-name" id="billing-name" name="billing_name" placeholder="Enter your full name" type="text">
 							<label for="billing-name">Billing Address</label>
-							<input class="billing-address-1 no-margin-bottom" id="billing-address-1" name="billing_address_1" placeholder="Enter billing address line 1" type="text">
-							<div class="field-group">
-								<input class="billing-address-2" id="billing-address-2" name="billing_address_2" placeholder="Enter billing address line 2" type="text">
-							</div>
+							<input class="billing-address-1" id="billing-address-1" name="billing_address_1" placeholder="Enter billing address" type="text">
 							<label for="billing-city">Billing City</label>
 							<input class="billing-city" id="billing-city" name="billing_city" placeholder="Enter your billing city" type="text">
 							<label for="billing-state">Billing State</label>
@@ -88,6 +85,7 @@
 							<span checked="1" class="checkbox" id="billing-recurring" name="billing_recurring"></span>
 							<label class="custom-checkbox-label" for="billing-recurring" name="billing_recurring">Recurring subscription</label>
 						</div>
+						<div class="clear"></div>
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>

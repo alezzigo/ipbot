@@ -89,6 +89,7 @@
 								<textarea class="copy" id="copy" name="copy"></textarea>
 							</div>
 						</div>
+						<div class="clear"></div>
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>

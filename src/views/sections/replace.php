@@ -12,11 +12,11 @@
 							<span class="checkbox" id="instant-replacement" name="instant_replacement"></span>
 							<label class="custom-checkbox-label" for="instant-replacement" name="instant_replacement">Replace selected proxies instantly</label>
 						</div>
-						<div class="checkbox-container">
+						<div class="checkbox-container no-margin-top">
 							<span class="checkbox" id="transfer-authentication" name="transfer_authentication"></span>
 							<label class="custom-checkbox-label" for="transfer-authentication" name="transfer_authentication">Transfer authentication settings to replacement proxies</label>
 						</div>
-						<div class="checkbox-container no-margin-bottom">
+						<div class="checkbox-container no-margin">
 							<span class="checkbox" id="enable-automatic-replacements" name="enable_automatic_replacements"></span>
 							<label class="custom-checkbox-label" for="enable-automatic-replacements" name="enable_automatic_replacements">Enable automatic replacements</label>
 						</div>

@@ -16,10 +16,11 @@
 							<span checked="0" class="checkbox" id="exclude-search" name="exclude_search"></span>
 							<label class="custom-checkbox-label" for="exclude-search" name="exclude_search">Exclude proxies matching terms and filter</label>
 						</div>
-						<div class="checkbox-container">
+						<div class="checkbox-container no-margin-top">
 							<span checked="0" class="checkbox" id="match-all-search" name="match_all_search"></span>
 							<label class="custom-checkbox-label" for="match-all-search" name="match_all_search">Require all search terms to match proxy results</label>
 						</div>
+						<div class="clear"></div>
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>

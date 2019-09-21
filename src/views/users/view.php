@@ -9,20 +9,10 @@
 	<div class="section">
 		<div class="container small">
 			<h1>Manage Account</h1>
-			<div class="item-container item-configuration-container">
-				<div class="item">
-					<div class="item-configuration">
-						<div class="controls-container item-controls-container scrollable">
-							<div class="item-header">
-								<div class="message-container"><p class="message">Loading...</p></div>
-							</div>
-						</div>
-						<div class="item-body">
-							<div class="user-container"></div>
-						</div>
-					</div>
-				</div>
+			<div class="message-container">
+				<p class="message">Loading...</p>
 			</div>
+			<div class="invoices-container"></div>
 		</div>
 	</div>
 </main>

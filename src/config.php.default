@@ -215,6 +215,10 @@ class Config {
 				),
 				'reset' => array(
 					'fields' => $defaultFields['users']
+				),
+				'view' => array(
+					'fields' => $defaultFields['users'],
+					'group' => 'user'
 				)
 			)
 		);

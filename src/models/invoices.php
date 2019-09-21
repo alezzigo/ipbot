@@ -496,53 +496,40 @@ class InvoicesModel extends UsersModel {
 				'warning_level' => 1
 			),
 			'fields' => array(
-				'amount_paid',
-				'cart_items',
-				'created',
-				'due',
-				'id',
-				'initial_invoice_id',
-				'modified',
-				'session_id',
-				'shipping',
-				'status',
-				'subtotal',
-				'tax',
-				'total',
-				'user_id',
-				'warning_level'
+				'id'
 			)
 		));
 
 		if (!empty($invoices['count'])) {
-			$subscriptions = $this->_retrieveInvoiceSubscriptions($invoice);
+			foreach ($invoices['data'] as $invoiceId) {
+				$invoice = $this->invoice('invoices', array(
+					'conditions' => array(
+						'id' => $invoiceId
+					)
+				));
 
-			foreach ($invoices['data'] as $invoice) {
-				$mailParameters = array(
-					'from' => $this->settings['default_email'],
-					'subject' => 'Upcoming payment' . (count($subscriptions) > 1 ? 's' : '') . ' ' . (!empty($subscriptions) ? 'scheduled' : 'due') . ' for invoice #' . $invoice['id'],
-					'template' => array(
-						'name' => 'invoice_upcoming_payment',
-						'parameters' => array(
-							'invoice' => $invoice,
-							'orders' => $this->_retrieveInvoiceOrders($invoice),
-							'subscriptions' => $subscriptions,
-							'user' => $this->_retrieveUser($invoice)
-						)
-					),
-					'to' => $parameters['user']['email']
-				);
+				if (!empty($invoice['data'])) {
+					$mailParameters = array(
+						'from' => $this->settings['default_email'],
+						'subject' => 'Upcoming payment' . (count($invoice['data']['subscriptions']) > 1 ? 's' : '') . ' ' . (!empty($invoice['data']['subscriptions']) ? 'scheduled' : 'due') . ' for invoice #' . $invoiceId,
+						'template' => array(
+							'name' => 'invoice_upcoming_payment',
+							'parameters' => $invoice['data']
+						),
+						'to' => $invoice['data']['user']['email']
+					);
 
-				if (
-					$this->_sendMail($mailParameters) &&
-					$this->save('invoices', array(
-						array(
-							'id' => $invoice['id'],
-							'warning_level' => 2
-						)
-					))
-				) {
-					$response += 1;
+					if (
+						$this->_sendMail($mailParameters) &&
+						$this->save('invoices', array(
+							array(
+								'id' => $invoiceId,
+								'warning_level' => 2
+							)
+						))
+					) {
+						$response += 1;
+					}
 				}
 			}
 		}

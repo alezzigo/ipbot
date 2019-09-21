@@ -36,7 +36,7 @@ var processUser = function() {
 				elements.removeClass('nav .guest', 'hidden');
 				response.message = {
 					status: 'error',
-					text: 'You\'re currently not logged in, please <a href="' + requestParameters.base_url + '?#login">log in</a> or <a href="' + requestParameters.base_url + '?#register">register an account</a>.'
+					text: 'You\'re currently not logged in, please <a href="' + requestParameters.settings.base_url + '?#login">log in</a> or <a href="' + requestParameters.settings.base_url + '?#register">register an account</a>.'
 				};
 			}
 
@@ -44,8 +44,14 @@ var processUser = function() {
 		}
 
 		if (response.user !== false) {
-			// ..
+			userData += '<h2>Account Details</h2>';
+			userData += '<p><strong>User ID</strong><br>' + response.user.id + '</p>';
+			userData += '<p><strong>Email Address</strong><br>' + response.user.email + '</p>';
+			userData += '<h2>Account Balance</h2>';
+			userData += '<p><strong>Current Balance</strong><br>' + requestParameters.settings.billing_currency_symbol + response.user.balance + ' ' + requestParameters.settings.billing_currency_name + '</p>';
 		}
+
+		userContainer.innerHTML = userData;
 	});
 };
 var processUsers = function(windowName, windowSelector) {

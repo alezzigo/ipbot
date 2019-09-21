@@ -5,7 +5,7 @@
 				<div class="search-configuration">
 					<div class="item-header">
 						<span class="button close icon icon-close"></span>
-						<h1>Advanced Proxy Search</h1>
+						<h1>Proxy Search</h1>
 					</div>
 					<div class="item-body">
 						<label for="broad-search">Search Terms</label>

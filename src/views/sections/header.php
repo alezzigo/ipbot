@@ -71,6 +71,10 @@
 			array(
 				'href' => $config->settings['base_url'] . 'invoices',
 				'text' => 'Invoices'
+			),
+			array(
+				'href' => $config->settings['base_url'] . 'account',
+				'text' => 'Account'
 			)
 		);
 	}

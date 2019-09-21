@@ -62,7 +62,7 @@
 						</div>
 						<div class="clear"></div>
 						<div class="align-left">
-							<label>Proxy List Type</label>
+							<label class="clear">Proxy List Type</label>
 							<div class="field-group no-margin-top proxy-list-type">
 								<select class="proxy-list-type" name="proxy_list_type">
 									<option selected value="80">Port 80 HTTP</option>
@@ -70,7 +70,7 @@
 							</div>
 						</div>
 						<div class="align-left">
-							<label>Separated By</label>
+							<label class="clear">Separated By</label>
 							<div class="field-group no-margin-top separated-by">
 								<select class="separated-by" name="separated_by">
 									<option selected value="new_line">New Line</option>

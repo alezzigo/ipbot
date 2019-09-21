@@ -1,6 +1,6 @@
 .align-left { float: left !important; }
 .align-right { float: right !important; }
-.clear { clear: both !important; }
+.clear { clear: both !important; float: none !important; }
 .hidden { display: none !important; }
 .no-margin { margin: 0 !important; }
 .no-margin-left { margin-left: 0 !important; }

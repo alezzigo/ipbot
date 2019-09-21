@@ -480,12 +480,16 @@ class AppModel extends Config {
 							);
 							unset($parameters['conditions']['session_id']);
 							unset($parameters['conditions']['user_id']);
+							$userIdExists = (
+								$table === 'users' ||
+								in_array('user_id', $this->permissions[$table][$action]['fields'])
+							);
 
 							if (
 								empty($this->permissions[$table][$action]['group']) ||
 								(
 									!empty($parameters['user']) &&
-									in_array('user_id', $this->permissions[$table][$action]['fields']) &&
+									$userIdExists &&
 									($parameters['conditions']['user_id'] = $parameters['user']['id'])
 								) ||
 								(
@@ -498,10 +502,7 @@ class AppModel extends Config {
 									unset($parameters['conditions']['user_id']);
 
 									if (
-										(
-											$table == 'users' ||
-											in_array('user_id', $this->permissions[$table][$action]['fields'])
-										) &&
+										$userIdExists &&
 										(
 											!empty($id = $parameters['conditions'][$foreignId]) ||
 											!empty($id = $parameters['conditions']['id'])
@@ -668,7 +669,7 @@ class AppModel extends Config {
 		});
 		$headers = implode("\r\n", $headers);
 		require_once($templateFile);
-		return; // Disable mail function until 1.0 release
+		return true; // Disable mail function until 1.0 release
 		$response = mail($to, $subject, $message, $headers);
 		return $response;
 	}

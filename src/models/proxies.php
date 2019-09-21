@@ -522,12 +522,12 @@ class ProxiesModel extends AppModel {
 										'from' => $this->settings['default_email'],
 										'subject' => count($processingNodes['data']) . ' ' . $table . ' replaced successfully',
 										'template' => array(
-											'name' => 'items_replaced_instant',
+											'name' => 'items_replaced',
 											'parameters' => array(
 												'link' => 'https://' . $this->settings['base_domain'] . '/orders/' . $orderId,
 												'new_items' => $processingNodes['data'],
 												'old_items' => $oldItems['data'],
-												'table' => $table,
+												'table' => str_replace('_', ' ', $table),
 												'user' => $parameters['user']
 											)
 										),
@@ -826,7 +826,7 @@ class ProxiesModel extends AppModel {
 									'from' => $this->settings['default_email'],
 									'subject' => count($processingNodes['data']) . ' proxies replaced successfully',
 									'template' => array(
-										'name' => 'items_replaced_scheduled',
+										'name' => 'items_replaced',
 										'parameters' => array(
 											'link' => 'https://' . $this->settings['base_domain'] . '/orders/' . $orderId,
 											'new_items' => $processingNodes['data'],

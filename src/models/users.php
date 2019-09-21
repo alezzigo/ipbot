@@ -475,4 +475,13 @@ class UsersModel extends AppModel {
 		return $response;
 	}
 
+/**
+ * View user
+ *
+ * @return array
+ */
+	public function view($parameters) {
+		return array();
+	}
+
 }

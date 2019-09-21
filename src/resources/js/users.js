@@ -22,6 +22,9 @@ var processReset = function() {
 		}
 	});
 };
+var processUser = function() {
+	// ..
+};
 var processUsers = function(windowName, windowSelector) {
 	requestParameters.action = windowName;
 	requestParameters.table = 'users';

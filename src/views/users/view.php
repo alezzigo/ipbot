@@ -14,7 +14,7 @@
 					<div class="item-configuration">
 						<div class="controls-container item-controls-container scrollable">
 							<div class="item-header">
-								<div class="hidden message-container"><p class="message">Loading...</p></div>
+								<div class="message-container"><p class="message">Loading...</p></div>
 							</div>
 						</div>
 						<div class="item-body">

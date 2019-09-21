@@ -23,7 +23,30 @@ var processReset = function() {
 	});
 };
 var processUser = function() {
-	// ..
+	requestParameters.action = 'view';
+	requestParameters.table = 'users';
+	var userContainer = document.querySelector('.user-container');
+	var userData = '';
+	sendRequest(function(response) {
+		var messageContainer = document.querySelector('main .message-container');
+
+		if (messageContainer) {
+			if (response.user === false) {
+				elements.addClass('nav .user', 'hidden');
+				elements.removeClass('nav .guest', 'hidden');
+				response.message = {
+					status: 'error',
+					text: 'You\'re currently not logged in, please <a href="' + requestParameters.base_url + '?#login">log in</a> or <a href="' + requestParameters.base_url + '?#register">register an account</a>.'
+				};
+			}
+
+			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		}
+
+		if (response.user !== false) {
+			// ..
+		}
+	});
 };
 var processUsers = function(windowName, windowSelector) {
 	requestParameters.action = windowName;

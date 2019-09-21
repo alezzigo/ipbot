@@ -476,7 +476,8 @@ class AppModel extends Config {
 									'status' => 'error',
 									'text' => 'Authentication required, please log in and try again.'
 								),
-								'redirect' => $this->settings['base_url'] . '#login'
+								'redirect' => $this->settings['base_url'] . '#login',
+								'user' => false
 							);
 							unset($parameters['conditions']['session_id']);
 							unset($parameters['conditions']['user_id']);

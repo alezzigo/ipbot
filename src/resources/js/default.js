@@ -208,12 +208,12 @@ if (!Object.entries) {
 }
 
 onLoad(function() {
-	if (document.querySelector('.hidden.base-url')) {
-		requestParameters.base_url = document.querySelector('.base-url').innerHTML;
+	if (document.querySelector('.hidden.keys')) {
+		requestParameters.keys = JSON.parse(document.querySelector('.hidden.keys').innerHTML);
+		requestParameters.keys.users += JSON.stringify(browserDetails());
 	}
 
-	if (document.querySelector('.hidden.keys')) {
-		requestParameters.keys = JSON.parse(document.querySelector('.keys').innerHTML);
-		requestParameters.keys.users += JSON.stringify(browserDetails());
+	if (document.querySelector('.hidden.settings')) {
+		requestParameters.settings = JSON.parse(document.querySelector('.hidden.settings').innerHTML);
 	}
 });

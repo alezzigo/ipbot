@@ -14,7 +14,7 @@ var processOrders = function() {
 				elements.removeClass('nav .guest', 'hidden');
 				response.message = {
 					status: 'error',
-					text: 'You\'re currently not logged in, please <a href="' + requestParameters.base_url + '?#login">log in</a> or <a href="' + requestParameters.base_url + '?#register">register an account</a>.'
+					text: 'You\'re currently not logged in, please <a href="' + requestParameters.settings.base_url + '?#login">log in</a> or <a href="' + requestParameters.settings.base_url + '?#register">register an account</a>.'
 				};
 			}
 

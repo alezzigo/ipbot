@@ -12,7 +12,7 @@
 			<div class="message-container">
 				<p class="message">Loading...</p>
 			</div>
-			<div class="invoices-container"></div>
+			<div class="user-container"></div>
 		</div>
 	</div>
 </main>

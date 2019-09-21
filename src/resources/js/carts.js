@@ -138,7 +138,7 @@ var processCartItems = function(response) {
 			quantityValues.map(function(quantityValue, index) {
 				quantitySelectValues += '<option ' + (quantityValue == cartItem[1].quantity ? 'selected ' : '') + 'value="' + quantityValue + '">' + quantityValue + '</option>';
 			});
-			cartItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem[1].id + '"><span checked="' + +(typeof cartItemGrid['cartItem' + cartItem[1].id] !== 'undefined') + '" class="checkbox" index="' + index + '" cart_item_id="' + cartItem[1].id + '"></span><p><a href="' + requestParameters.base_url + cartItem[1].uri + '">' + cartItem[1].name + '</a></p><div class="field-group"><span>Quantity:</span><select class="quantity" name="quantity">' + quantitySelectValues + '</select></div><div class="field-group no-margin"><span>USD Price:</span><span class="display">$' + cartItem[1].price + '</span><span>for</span><select class="interval-value" name="interval_value">' + intervalSelectValues + '</select><select class="interval-type" name="interval_type">' + intervalSelectTypes + '</select></div><div class="clear"></div></div>';
+			cartItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem[1].id + '"><span checked="' + +(typeof cartItemGrid['cartItem' + cartItem[1].id] !== 'undefined') + '" class="checkbox" index="' + index + '" cart_item_id="' + cartItem[1].id + '"></span><p><a href="' + requestParameters.settings.base_url + cartItem[1].uri + '">' + cartItem[1].name + '</a></p><div class="field-group"><span>Quantity:</span><select class="quantity" name="quantity">' + quantitySelectValues + '</select></div><div class="field-group no-margin"><span>USD Price:</span><span class="display">$' + cartItem[1].price + '</span><span>for</span><select class="interval-value" name="interval_value">' + intervalSelectValues + '</select><select class="interval-type" name="interval_type">' + intervalSelectTypes + '</select></div><div class="clear"></div></div>';
 			cartSubtotal += parseFloat(cartItem[1].price);
 		});
 		cartItemContainer.innerHTML = cartItems;
@@ -191,7 +191,7 @@ var processCartItems = function(response) {
 
 	if (checkoutItemContainer) {
 		if (!cartItemData.length) {
-			window.location.href = requestParameters.base_url + 'cart';
+			window.location.href = requestParameters.settings.base_url + 'cart';
 			return false;
 		}
 
@@ -201,7 +201,7 @@ var processCartItems = function(response) {
 			cartSubtotal += parseFloat(cartItem[1].price);
 		});
 		cartTotal = cartSubtotal;
-		checkoutItems += '<h2>Pricing Details</h2><p class="no-margin-bottom"><label>Subtotal</label></p><p>$' + (Math.round(cartSubtotal * 100) / 100) + ' USD</p><p class="no-margin-bottom"><label for="discount-code">Discount Code</label></p><div class="field-group no-margin-top"><input class="discount-code-field" id="discount-code" name="discount_code" placeholder="Enter discount code" type="text"><button class="button discount-code-button">Apply Discount</button></div><p class="no-margin-bottom"><label>Cart Total</label></p><p>$' + (Math.round(cartTotal * 100) / 100) + ' USD</p><p class="message">Additional fees for shipping and/or tax may apply before submitting final payment.</p><a class="button confirm main-button" disabled href="' + requestParameters.base_url + 'confirm">Proceed to Payment</a>';
+		checkoutItems += '<h2>Pricing Details</h2><p class="no-margin-bottom"><label>Subtotal</label></p><p>$' + (Math.round(cartSubtotal * 100) / 100) + ' USD</p><p class="no-margin-bottom"><label for="discount-code">Discount Code</label></p><div class="field-group no-margin-top"><input class="discount-code-field" id="discount-code" name="discount_code" placeholder="Enter discount code" type="text"><button class="button discount-code-button">Apply Discount</button></div><p class="no-margin-bottom"><label>Cart Total</label></p><p>$' + (Math.round(cartTotal * 100) / 100) + ' USD</p><p class="message">Additional fees for shipping and/or tax may apply before submitting final payment.</p><a class="button confirm main-button" disabled href="' + requestParameters.settings.base_url + 'confirm">Proceed to Payment</a>';
 		checkoutItemContainer.innerHTML = checkoutItems;
 		elements.html('.item-configuration .cart-total .total', '$' + (Math.round(cartTotal * 100) / 100) + ' USD');
 		elements.removeAttribute('.button.confirm', 'disabled');

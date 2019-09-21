@@ -1,7 +1,10 @@
 <?php
-	if (!empty($config->settings['base_url'])) {
-		echo '<div class="hidden base-url">' . $config->settings['base_url'] . '</div>';
-	}
+	$settings = array(
+		'base_url' => (!empty($config->settings['base_url']) ? $config->settings['base_url'] : ''),
+		'billing_currency_name' => (!empty($config->settings['billing']['currency_name']) ? $config->settings['billing']['currency_name'] : ''),
+		'billing_currency_symbol' => (!empty($config->settings['billing']['currency_symbol']) ? $config->settings['billing']['currency_symbol'] : '')
+	);
+	echo '<div class="hidden settings">' . json_encode($settings) . '</div>';
 
 	if (!empty($config->keys['users'])) {
 		echo '<div class="hidden keys">' . json_encode(array('users' => $config->keys['users'])) . '</div>';

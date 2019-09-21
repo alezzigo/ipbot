@@ -15,7 +15,7 @@
 	$message .= "\n";
 	$message .= 'Invoice Details' . "\n";
 	$message .= '--' . "\n";
-	$message .= 'Invoice Number: #' . $templateParameters['invoice']['id'] . "\n";
+	$message .= 'Invoice ID: #' . $templateParameters['invoice']['id'] . "\n";
 	$message .= 'Invoice URL: ' . ($domain = 'https://' . $this->settings['base_domain']) . '/invoices/' . $templateParameters['invoice']['id'] . "\n";
 	$message .= 'Invoice Status: ' . ucwords($templateParameters['invoice']['status']) . "\n";
 	$message .= 'Remaining Amount Due: ' . $this->settings['billing']['currency_symbol'] . number_format($templateParameters['invoice']['amount_due'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . "\n";

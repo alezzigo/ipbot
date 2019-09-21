@@ -35,8 +35,9 @@
 							<label for="register-password">Password</label>
 							<input class="password" id="register-password" name="password" placeholder="Enter account password" type="password">
 							<label for="confirm_password">Confirm Password</label>
-							<input class="confirm-password" id="register-confirm-password" name="confirm_password" placeholder="Confirm account password" type="password">
+							<input class="confirm-password no-margin-bottom" id="register-confirm-password" name="confirm_password" placeholder="Confirm account password" type="password">
 						</div>
+						<div class="clear"></div>
 						<h2>Payment Method</h2>
 						<div class="field-group no-margin payment-methods">
 							<label for="paypal" type="radio"><input checked id="paypal" name="payment_method" type="radio" value="paypal"> PayPal</label>
@@ -81,7 +82,7 @@
 							<a class="billing-view-details" href="javascript:void(0);">View invoice details</a>
 						</div>
 						<div class="clear"></div>
-						<div class="checkbox-container recurring-checkbox-container">
+						<div class="checkbox-container no-margin-top recurring-checkbox-container">
 							<span checked="1" class="checkbox" id="billing-recurring" name="billing_recurring"></span>
 							<label class="custom-checkbox-label" for="billing-recurring" name="billing_recurring">Recurring subscription</label>
 						</div>

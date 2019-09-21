@@ -239,9 +239,6 @@ main {
 		.field-group label[type="radio"]:hover {
 			border-color: #7773e3;
 		}
-		.field-group label[type="radio"]:last-child {
-			margin-bottom: 0;
-		}
 	.field-group .button {
 		background: #7773e3;
 		border: none;

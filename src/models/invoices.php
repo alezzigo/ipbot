@@ -234,7 +234,7 @@ class InvoicesModel extends UsersModel {
 						'from' => $this->settings['default_email'],
 						'subject' => 'Payment past-due for invoice #' . $invoiceId,
 						'template' => array(
-							'name' => 'invoice_past_due_1',
+							'name' => 'invoice_past_due',
 							'parameters' => $invoice['data']
 						),
 						'to' => $invoice['data']['user']['email']
@@ -448,7 +448,7 @@ class InvoicesModel extends UsersModel {
 						'from' => $this->settings['default_email'],
 						'subject' => 'Payment past-due for invoice #' . $invoiceId,
 						'template' => array(
-							'name' => 'invoice_past_due_2',
+							'name' => 'invoice_past_due',
 							'parameters' => $invoice['data']
 						),
 						'to' => $invoice['data']['user']['email']

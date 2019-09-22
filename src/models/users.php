@@ -192,7 +192,7 @@ class UsersModel extends AppModel {
 						$response = array(
 							'message' => array(
 								'status' => 'success',
-								'text' => 'Please check your inbox at <strong>' . $newEmail . '</strong> for email address change confirmation instructions (if this email address doesn\'t exist in another user account).'
+								'text' => 'Please check your inbox at <strong>' . $newEmail . '</strong> for instructions (if this email address doesn\'t exist in another user account).'
 							)
 						);
 						$existingUser = $this->find($table, array(

@@ -214,7 +214,7 @@ class UsersModel extends AppModel {
 
 						if (
 							empty($existingUser['count']) &&
-							!empty($token = $this->_getToken('users', $tokenParameters, 'change_email', $parameters['user']['id'] . '_' . $newEmail, false, $tokenSalt, 5))
+							!empty($token = $this->_getToken('users', $tokenParameters, 'change_email', $parameters['user']['id'] . '_' . $newEmail, false, $tokenSalt, 10))
 						) {
 							$mailParameters = array(
 								'from' => $this->settings['from_email'],
@@ -278,7 +278,7 @@ class UsersModel extends AppModel {
 				);
 				$tokenSalt = sha1($email . $this->keys['start'] . time());
 
-				if (!empty($token = $this->_getToken('users', $tokenParameters, 'password_reset', $existingUser['data'][0]['id'] . '_' . $existingUser['data'][0]['password_modified'], false, $tokenSalt, 5))) {
+				if (!empty($token = $this->_getToken('users', $tokenParameters, 'password_reset', $existingUser['data'][0]['id'] . '_' . $existingUser['data'][0]['password_modified'], false, $tokenSalt, 10))) {
 					$mailParameters = array(
 						'from' => $this->settings['from_email'],
 						'subject' => 'Password reset request',

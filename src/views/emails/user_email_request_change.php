@@ -12,7 +12,7 @@
 	$message .= 'To confirm this email address change, visit:' . "\n";
 	$message .= ($domain = 'https://' . $this->settings['base_domain']) . '/?' . $templateParameters['token'] . '#email' . "\n";
 	$message .= "\n";
-	$message .= 'The email address change link above is scheduled to expire in 5 minutes. If you didn\'t request this change, please reply to this email immediately.' . "\n";
+	$message .= 'The email address change link above is scheduled to expire in 10 minutes. If you didn\'t request this change, please reply to this email immediately.' . "\n";
 	$message .= "\n";
 	$message .= '--' . "\n";
 	$message .= $this->settings['site_name'] . "\n";

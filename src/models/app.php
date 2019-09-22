@@ -663,14 +663,13 @@ class AppModel extends Config {
 		$headers = array(
 			'charset' => 'utf-8',
 			'Content-Type' => 'text/plain',
-			'From' => $from
+			'From' => '"' . $this->settings['site_name'] . '" <' . $from . '>'
 		);
 		array_walk($headers, function(&$headerValue, $headerKey) {
 			$headerValue = $headerKey . ': ' . $headerValue;
 		});
 		$headers = implode("\r\n", $headers);
 		require_once($templateFile);
-		return true; // Disable mail function until 1.0 release
 		$response = mail($to, $subject, $message, $headers);
 		return $response;
 	}

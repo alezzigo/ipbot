@@ -18,7 +18,7 @@
 	$message .= '--' . "\n";
 	$message .= $this->settings['site_name'] . "\n";
 	$message .= 'https://' . $this->settings['base_domain'] . "\n";
-	$message .= $this->settings['default_email'] . "\n";
+	$message .= $this->settings['from_email'] . "\n";
 	$message .= "\n";
 	$message .= date('M d, Y g:ia', time()) . ' ' . $this->settings['timezone'];
 ?>

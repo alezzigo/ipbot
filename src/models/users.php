@@ -125,7 +125,7 @@ class UsersModel extends AppModel {
 
 				if (!empty($token = $this->_getToken('users', $tokenParameters, 'password_reset', $existingUser['data'][0]['id'] . '_' . $existingUser['data'][0]['password_modified'], false, 5))) {
 					$mailParameters = array(
-						'from' => $this->settings['default_email'],
+						'from' => $this->settings['from_email'],
 						'subject' => 'Password reset request',
 						'template' => array(
 							'name' => 'user_forgot_password',
@@ -309,7 +309,7 @@ class UsersModel extends AppModel {
 								$user
 							))) {
 								$mailParameters = array(
-									'from' => $this->settings['default_email'],
+									'from' => $this->settings['from_email'],
 									'subject' => 'New account created at ' . $this->settings['site_name'],
 									'template' => array(
 										'name' => 'user_created',
@@ -444,7 +444,7 @@ class UsersModel extends AppModel {
 									)
 								);
 								$mailParameters = array(
-									'from' => $this->settings['default_email'],
+									'from' => $this->settings['from_email'],
 									'subject' => 'Password reset successful',
 									'template' => array(
 										'name' => 'user_password_reset',

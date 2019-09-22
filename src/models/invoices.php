@@ -231,7 +231,7 @@ class InvoicesModel extends UsersModel {
 
 				if (!empty($invoice['data'])) {
 					$mailParameters = array(
-						'from' => $this->settings['default_email'],
+						'from' => $this->settings['from_email'],
 						'subject' => 'Payment past-due for invoice #' . $invoiceId,
 						'template' => array(
 							'name' => 'invoice_past_due',
@@ -286,7 +286,7 @@ class InvoicesModel extends UsersModel {
 
 				if (!empty($invoice['data'])) {
 					$mailParameters = array(
-						'from' => $this->settings['default_email'],
+						'from' => $this->settings['from_email'],
 						'subject' => 'Upcoming payment' . (count($invoice['data']['subscriptions']) > 1 ? 's' : '') . ' ' . (!empty($invoice['data']['subscriptions']) ? 'scheduled' : 'due') . ' for invoice #' . $invoiceId,
 						'template' => array(
 							'name' => 'invoice_upcoming_payment',
@@ -394,7 +394,7 @@ class InvoicesModel extends UsersModel {
 								}
 
 								$mailParameters = array(
-									'from' => $this->settings['default_email'],
+									'from' => $this->settings['from_email'],
 									'subject' => 'Order #' . $order['id'] . ' is deactivated',
 									'template' => array(
 										'name' => 'order_deactivated',
@@ -445,7 +445,7 @@ class InvoicesModel extends UsersModel {
 
 				if (!empty($invoice['data'])) {
 					$mailParameters = array(
-						'from' => $this->settings['default_email'],
+						'from' => $this->settings['from_email'],
 						'subject' => 'Payment past-due for invoice #' . $invoiceId,
 						'template' => array(
 							'name' => 'invoice_past_due',
@@ -500,7 +500,7 @@ class InvoicesModel extends UsersModel {
 
 				if (!empty($invoice['data'])) {
 					$mailParameters = array(
-						'from' => $this->settings['default_email'],
+						'from' => $this->settings['from_email'],
 						'subject' => 'Upcoming payment' . (count($invoice['data']['subscriptions']) > 1 ? 's' : '') . ' ' . (!empty($invoice['data']['subscriptions']) ? 'scheduled' : 'due') . ' for invoice #' . $invoiceId,
 						'template' => array(
 							'name' => 'invoice_upcoming_payment',

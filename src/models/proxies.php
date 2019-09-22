@@ -519,7 +519,7 @@ class ProxiesModel extends AppModel {
 										'text' => $parameters['items'][$table]['count'] . ' of your selected ' . $table . ' replaced successfully.'
 									);
 									$mailParameters = array(
-										'from' => $this->settings['default_email'],
+										'from' => $this->settings['from_email'],
 										'subject' => count($processingNodes['data']) . ' ' . $table . ' replaced successfully',
 										'template' => array(
 											'name' => 'items_replaced',
@@ -823,7 +823,7 @@ class ProxiesModel extends AppModel {
 								$this->save('proxies', $processingNodes['data'])
 							) {
 								$mailParameters = array(
-									'from' => $this->settings['default_email'],
+									'from' => $this->settings['from_email'],
 									'subject' => count($processingNodes['data']) . ' proxies replaced successfully',
 									'template' => array(
 										'name' => 'items_replaced',

@@ -419,7 +419,7 @@ class TransactionsModel extends InvoicesModel {
 										$this->save('proxies', $processingNodes['data'])
 									) {
 										$mailParameters = array(
-											'from' => $this->settings['default_email'],
+											'from' => $this->settings['from_email'],
 											'subject' => 'Order #' . $order['id'] . ' is activated',
 											'template' => array(
 												'name' => 'order_activated',
@@ -500,7 +500,7 @@ class TransactionsModel extends InvoicesModel {
 					));
 					$invoice = $this->_calculateInvoicePaymentDetails($invoice);
 					$mailParameters = array(
-						'from' => $this->settings['default_email'],
+						'from' => $this->settings['from_email'],
 						'subject' => 'Invoice #' . $invoice['data']['invoice']['id'] . ' payment confirmation',
 						'template' => array(
 							'name' => 'payment_successful',
@@ -543,7 +543,7 @@ class TransactionsModel extends InvoicesModel {
 
 			if (!empty($invoice['data'])) {
 				$mailParameters = array(
-					'from' => $this->settings['default_email'],
+					'from' => $this->settings['from_email'],
 					'subject' => 'Invoice #' . $invoice['data']['invoice']['id'] . ' payment failed',
 					'template' => array(
 						'name' => 'payment_failed',
@@ -584,7 +584,7 @@ class TransactionsModel extends InvoicesModel {
 
 			if (!empty($invoice['data'])) {
 				$mailParameters = array(
-					'from' => $this->settings['default_email'],
+					'from' => $this->settings['from_email'],
 					'subject' => 'Invoice #' . $invoice['data']['invoice']['id'] . ' payment pending',
 					'template' => array(
 						'name' => 'payment_pending',
@@ -728,7 +728,7 @@ class TransactionsModel extends InvoicesModel {
 					foreach ($invoiceData as $key => $invoice) {
 						$invoices[$key] = $this->_calculateInvoicePaymentDetails($invoices[$key]);
 						$mailParameters = array(
-							'from' => $this->settings['default_email'],
+							'from' => $this->settings['from_email'],
 							'subject' => 'Invoice #' . $invoice['id'] . ' refund confirmation',
 							'template' => array(
 								'name' => 'payment_refunded',
@@ -789,7 +789,7 @@ class TransactionsModel extends InvoicesModel {
 									}
 
 									$mailParameters = array(
-										'from' => $this->settings['default_email'],
+										'from' => $this->settings['from_email'],
 										'subject' => 'Order #' . $order['id'] . ' is deactivated',
 										'template' => array(
 											'name' => 'order_deactivated',
@@ -833,7 +833,7 @@ class TransactionsModel extends InvoicesModel {
 
 			if (!empty($invoice['data'])) {
 				$mailParameters = array(
-					'from' => $this->settings['default_email'],
+					'from' => $this->settings['from_email'],
 					'subject' => 'Invoice #' . $invoice['data']['invoice']['id'] . ' payment reversal canceled',
 					'template' => array(
 						'name' => 'payment_reversal_canceled',
@@ -874,7 +874,7 @@ class TransactionsModel extends InvoicesModel {
 
 			if (!empty($invoice['data'])) {
 				$mailParameters = array(
-					'from' => $this->settings['default_email'],
+					'from' => $this->settings['from_email'],
 					'subject' => 'Invoice #' . $invoice['data']['invoice']['id'] . ' payment pending reversal',
 					'template' => array(
 						'name' => 'payment_reversal',
@@ -921,7 +921,7 @@ class TransactionsModel extends InvoicesModel {
 			))
 		) {
 			$mailParameters = array(
-				'from' => $this->settings['default_email'],
+				'from' => $this->settings['from_email'],
 				'subject' => 'New subscription #' . $subscription['id'] . ' canceled',
 				'template' => array(
 					'name' => 'subscription_canceled',
@@ -965,7 +965,7 @@ class TransactionsModel extends InvoicesModel {
 			))
 		) {
 			$mailParameters = array(
-				'from' => $this->settings['default_email'],
+				'from' => $this->settings['from_email'],
 				'subject' => 'New subscription #' . $subscription['id'] . ' created',
 				'template' => array(
 					'name' => 'subscription_created',
@@ -1009,7 +1009,7 @@ class TransactionsModel extends InvoicesModel {
 			))
 		) {
 			$mailParameters = array(
-				'from' => $this->settings['default_email'],
+				'from' => $this->settings['from_email'],
 				'subject' => 'Subscription #' . $subscription['id'] . ' expired',
 				'template' => array(
 					'name' => 'subscription_expired',
@@ -1061,7 +1061,7 @@ class TransactionsModel extends InvoicesModel {
 		) {
 			$subscription['status'] = $subscriptionStatus['data'][0];
 			$mailParameters = array(
-				'from' => $this->settings['default_email'],
+				'from' => $this->settings['from_email'],
 				'subject' => 'Subscription #' . $subscription['id'] . ' modified',
 				'template' => array(
 					'name' => 'subscription_modified',
@@ -1116,7 +1116,7 @@ class TransactionsModel extends InvoicesModel {
 				$subscription
 			))) {
 				$mailParameters = array(
-					'from' => $this->settings['default_email'],
+					'from' => $this->settings['from_email'],
 					'subject' => 'Subscription #' . $subscription['id'] . ' payment failed',
 					'template' => array(
 						'name' => 'subscription_failed',

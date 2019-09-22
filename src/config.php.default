@@ -446,7 +446,7 @@ class Config {
 				'type' => 'mysql',
 				'username' => 'root'
 			),
-			'default_email' => 'email@localhost',
+			'from_email' => 'email@localhost',
 			'session_cookies' => array(
 				'enabled' => true,
 				'lifetime' => 88888888

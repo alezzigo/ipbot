@@ -446,9 +446,13 @@ main {
 	color: #77a960;
 }
 	.active a,
+	.active strong,
 	.paid a,
+	.paid strong,
 	.payment a,
-	.success a {
+	.payment strong,
+	.success a,
+	.success strong {
 		color: #5a8c44;
 	}
 .chargeback,
@@ -459,10 +463,15 @@ main {
 	color: #c57777;
 }
 	.chargeback a,
+	.chargeback strong,
 	.inactive a,
+	.inactive strong,
 	.unpaid a,
+	.unpaid strong,
 	.refund a,
-	.error a {
+	.refund strong,
+	.error a,
+	.error strong {
 		color: #b33f3f;
 	}
 .section {

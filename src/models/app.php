@@ -706,14 +706,14 @@ class AppModel extends Config {
 		$domainStringSplitCharacters = explode('.', $domainString);
 
 		if (
+			count($domainStringSplitCharacters) < 2 ||
+			strlen(end($domainStringSplitCharacters)) < 2 ||
 			strstr(' .-', $lastLocalStringCharacter = end($localStringCharacters)) !== false ||
 			strstr(' .-', $firstLocalStringCharacter = reset($localStringCharacters)) !== false ||
 			strstr(' .-', $lastDomainStringCharacter = end($domainStringCharacters)) !== false ||
 			strstr(' .-', $firstDomainStringCharacter = reset($domainStringCharacters)) !== false ||
 			strpos($domainString, '-.') !== false ||
 			strpos($domainString, '.-') !== false ||
-			count($domainStringSplitCharacters) < 2 ||
-			strlen(end($domainStringSplitCharacters)) < 2 ||
 			$lastDomainStringCharacter == '-'
 		) {
 			return false;

@@ -68,11 +68,12 @@ class AppModel extends Config {
  *
  * @param string $table
  * @param array $parameters
+ * @param string $sessionId
  * @param string $salt
  *
  * @return array $response
  */
-	protected function _createTokenString($table, $parameters, $salt = false) {
+	protected function _createTokenString($table, $parameters, $sessionId = false, $salt = false) {
 		$response = array(
 			$this->keys['start']
 		);
@@ -91,8 +92,12 @@ class AppModel extends Config {
 			));
 		}
 
+		if ($sessionId !== false) {
+			$response[] = (!empty($_SESSION['key']) ? $_SESSION['key'] : $sessionId);
+		}
+
 		if ($salt !== false) {
-			$response[] = (!empty($_SESSION['key']) ? $_SESSION['key'] : $salt);
+			$response[] = $salt;
 		}
 
 		$response = sha1(json_encode(implode(')-(', $response)));
@@ -140,18 +145,19 @@ class AppModel extends Config {
  * @param array $parameters
  * @param string $foreignKey
  * @param string $foreignValue
+ * @param string $sessionId
  * @param string $salt
  * @param integer $expirationMinutes
  *
  * @return array $response
  */
-	protected function _getToken($table, $parameters, $foreignKey, $foreignValue, $salt = false, $expirationMinutes = false) {
+	protected function _getToken($table, $parameters, $foreignKey, $foreignValue, $sessionId = false, $salt = false, $expirationMinutes = false) {
 		$tokenParameters = array(
 			'conditions' => array(
 				'foreign_key' => $foreignKey,
 				'foreign_table' => $table,
 				'foreign_value' => $foreignValue,
-				'string' => $this->_createTokenString($table, $parameters, $salt)
+				'string' => $this->_createTokenString($table, $parameters, $sessionId, $salt)
 			),
 			'fields' => array(
 				'id'

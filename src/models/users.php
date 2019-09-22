@@ -86,6 +86,155 @@ class UsersModel extends AppModel {
 	}
 
 /**
+ * Request email address change
+ *
+ * @param string $table
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	public function email($table, $parameters) {
+		$response = array(
+			'message' => array(
+				'status' => 'error',
+				'text' => ($defaultMessage = 'Error requesting email address change, please try again.')
+			)
+		);
+
+		if (
+			empty($parameters['data']['email']) &&
+			!empty($parameters['data']['token']) &&
+			is_string($parameters['data']['token'])
+		) {
+			$token = $this->find('tokens', array(
+				'conditions' => array(
+					'foreign_key' => 'change_email',
+					'foreign_table' => $table,
+					'string' => $parameters['data']['token']
+				),
+				'fields' => array(
+					'expiration',
+					'foreign_value',
+					'string'
+				),
+				'limit' => 1,
+				'sort' => array(
+					'fields' => 'modified',
+					'order' => 'DESC'
+				)
+			));
+
+			if (!empty($token['count'])) {
+				$response['message']['text'] = 'Email address change request expired, please try again.';
+
+				if ($token['data'][0]['expiration'] > date('Y-m-d h:i:s', time())) {
+					$response['message']['text'] = $defaultMessage;
+					$tokenParameters = explode('_', $token['data'][0]['foreign_value']);
+
+					if (
+						$token['data'][0]['expiration'] > date('Y-m-d h:i:s', time()) &&
+						!empty($userId = $tokenParameters[0]) &&
+						is_numeric($userId) &&
+						!empty($newEmail = $tokenParameters[1])
+					) {
+						$userData = array(
+							array(
+								'id' => $userId,
+								'email' => $newEmail
+							)
+						);
+
+						if (
+							($user = $this->_retrieveUser($userData[0])) &&
+							$this->save($table, $userData)
+						) {
+							$response['message'] = array(
+								'status' => 'success',
+								'text' => 'Email address changed from <strong>' . $user['email'] . '</strong> to <strong>' . $newEmail . '</strong> successfully.'
+							);
+							$response['data'] = $emails = array(
+								'new_email' => $newEmail,
+								'old_email' => $user['email']
+							);
+
+							foreach ($emails as $email) {
+								$mailParameters = array(
+									'from' => $this->settings['from_email'],
+									'subject' => 'Email address changed successfully',
+									'template' => array(
+										'name' => 'user_email_changed',
+										'parameters' => $emails
+									),
+									'to' => $email
+								);
+								$this->_sendMail($mailParameters);
+							}
+						}
+					}
+				}
+			}
+		} else {
+			if (
+				!empty($oldEmail = $parameters['user']['email']) &&
+				!empty($newEmail = $parameters['data']['email'])
+			) {
+				$response['message']['text'] = 'Invalid email address, please try again.';
+
+				if ($this->_validateEmailFormat($newEmail)) {
+					$response['message']['text'] = 'You\'ve entered your current account email address, please enter a different email address.';
+
+					if ($oldEmail !== $newEmail) {
+						$response = array(
+							'message' => array(
+								'status' => 'success',
+								'text' => 'Please check your inbox at <strong>' . $newEmail . '</strong> for email address change confirmation instructions (if this email address doesn\'t exist in another user account).'
+							)
+						);
+						$existingUser = $this->find($table, array(
+							'conditions' => array(
+								'email' => $newEmail
+							),
+							'fields' => array(
+								'id',
+								'email'
+							),
+							'limit' => 1
+						));
+						$tokenParameters = array(
+							'conditions' => array(
+								'id' => $parameters['user']['id']
+							)
+						);
+						$tokenSalt = sha1($newEmail . $this->keys['start'] . time());
+
+						if (
+							empty($existingUser['count']) &&
+							!empty($token = $this->_getToken('users', $tokenParameters, 'change_email', $parameters['user']['id'] . '_' . $newEmail, false, $tokenSalt, 5))
+						) {
+							$mailParameters = array(
+								'from' => $this->settings['from_email'],
+								'subject' => 'Email address change request',
+								'template' => array(
+									'name' => 'user_email_request_change',
+									'parameters' => array(
+										'new_email' => $newEmail,
+										'old_email' => $oldEmail,
+										'token' => $token['string']
+									)
+								),
+								'to' => $newEmail
+							);
+							$this->_sendMail($mailParameters);
+						}
+					}
+				}
+			}
+		}
+
+		return $response;
+	}
+
+/**
  * Request user password reset
  *
  * @param string $table

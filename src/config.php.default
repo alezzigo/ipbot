@@ -201,6 +201,9 @@ class Config {
 				)
 			),
 			'users' => array(
+				'email' => array(
+					'fields' => $defaultFields['users']
+				),
 				'forgot' => array(
 					'fields' => $defaultFields['users']
 				),

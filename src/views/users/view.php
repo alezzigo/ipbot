@@ -4,6 +4,15 @@
 	);
 	require_once($config->settings['base_path'] . '/controllers/users.php');
 	require_once($config->settings['base_path'] . '/views/sections/header.php');
+	$windows = array(
+		'email'
+	);
+
+	foreach ($windows as $window) {
+		if (file_exists($file = $config->settings['base_path'] . '/views/sections/' . $window . '.php')) {
+			require_once($file);
+		}
+	}
 ?>
 <main process="user">
 	<div class="section">

@@ -92,6 +92,10 @@ onLoad(function() {
 		processWindowEvents('scroll');
 	};
 
+	if (document.querySelector('main[process]')) {
+		method = 'process' + capitalizeString(document.querySelector('main[process]').getAttribute('process'));
+	}
+
 	if (window.location.hash) {
 		var windowName = replaceCharacter(window.location.hash, 0, '').toLowerCase();
 		var windowSelector = '.window-container[window="' + windowName + '"]';
@@ -101,10 +105,6 @@ onLoad(function() {
 			openWindow(windowName, windowSelector);
 			method = 'process' + capitalizeString(windowName);
 		}
-	}
-
-	if (document.querySelector('main[process]')) {
-		method = 'process' + capitalizeString(document.querySelector('main[process]').getAttribute('process'));
 	}
 
 	if (

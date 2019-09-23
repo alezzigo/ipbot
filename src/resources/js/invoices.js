@@ -54,7 +54,10 @@ var processInvoice = function() {
 
 			invoiceData += '<h2>Invoice Payment Details</h2>';
 
-			if (response.data.invoice.due) {
+			if (
+				response.data.invoice.due &&
+				response.data.orders.length
+			) {
 				invoiceData += '<p><strong>Due Date</strong><br>' + response.data.invoice.due + '</p>';
 			}
 

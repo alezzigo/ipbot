@@ -99,7 +99,7 @@ var processUser = function() {
 			userData += '<div class="balance-message-container"></div>';
 			userData += '<p class="no-margin-bottom"><strong>Add to Account Balance</strong></p>';
 			userData += '<div class="clear"></div>';
-			userData += '<div class="align-left item-container"><div class="field-group no-margin-top"><span class="balance-currency-symbol">' + requestParameters.settings.billing_currency_symbol + '</span><input class="balance-amount billing-amount" id="balance-amount" max="10000" min="20" name="balance_amount" type="number" value="100.00"><span class="balance-currency-name">' + requestParameters.settings.billing_currency_name + '</span><a class="add add-to-balance button" disabled href="javascript:void(0);">Add</a></div></div>';
+			userData += '<div class="align-left item-container"><div class="field-group no-margin-top"><span class="balance-currency-symbol">' + requestParameters.settings.billing_currency_symbol + '</span><input class="balance-amount billing-amount" id="balance-amount" max="10000" min="20" name="balance_amount" step="0.01" type="number" value="100.00"><span class="balance-currency-name">' + requestParameters.settings.billing_currency_name + '</span><a class="add add-to-balance button" disabled href="javascript:void(0);">Add</a></div></div>';
 		}
 
 		userContainer.innerHTML = userData;

@@ -29,10 +29,13 @@ var processInvoice = function() {
 			});
 
 			if (response.data.orders.length) {
-				invoiceData += '<h2>Invoice Orders</h2>';
+				invoiceData += '<h2>Invoice Order' + (response.data.orders.length !== 1 ? 's' : '') + '</h2>';
 				response.data.orders.map(function(order) {
-					invoiceData += '<div class="item-container item-button"><p class="no-margin-bottom"><label>' + order.quantity + ' ' + order.name + '</label></p><p>$' + order.price + ' USD for ' + order.interval_value + ' ' + order.interval_type + (order.interval_value !== 1 ? 's' : '') + '</p><div class="item-link-container"><a class="item-link" href="/orders/' + order.id + '"></a></div></div>';
+					invoiceData += '<div class="item-container item-button"><p class="no-margin-bottom"><label>' + order.quantity + ' ' + order.name + '</label></p><p>' + response.data.invoice.payment_currency_symbol + order.price + ' ' + response.data.invoice.payment_currency_name + ' for ' + order.interval_value + ' ' + order.interval_type + (order.interval_value !== 1 ? 's' : '') + '</p><div class="item-link-container"><a class="item-link" href="/orders/' + order.id + '"></a></div></div>';
 				});
+			} else {
+				invoiceData += '<h2>Invoice Order</h2>';
+				invoiceData += '<div class="item-container item-button"><p class="no-margin-bottom"><label>Add to Account Balance</label></p><p>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.subtotal) + ' ' + response.data.invoice.payment_currency_name + '</p></div>';
 			}
 
 			var hasBalance = (
@@ -50,6 +53,10 @@ var processInvoice = function() {
 			}
 
 			invoiceData += '<h2>Invoice Payment Details</h2>';
+
+			if (response.data.invoice.due) {
+				invoiceData += '<p><strong>Due Date</strong><br>' + response.data.invoice.due + '</p>';
+			}
 
 			if (response.data.invoice.amount_paid) {
 				invoiceData += '<p><strong>Amount Paid to Invoice</strong><br><span class="paid">' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_paid + ' ' + response.data.invoice.payment_currency_name + '</span></p>';

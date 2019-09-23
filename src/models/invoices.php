@@ -697,10 +697,7 @@ class InvoicesModel extends UsersModel {
 			$invoiceTransactions = $this->_retrieveInvoiceTransactions($invoiceData);
 			$invoiceUser = $this->_retrieveUser($invoiceData);
 
-			if (
-				!empty($invoiceData) &&
-				!empty($invoiceUser)
-			) {
+			if (!empty($invoiceData)) {
 				if (!empty($this->settings['billing'])) {
 					$invoiceData['billing'] = $this->settings['billing'];
 				}

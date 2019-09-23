@@ -338,6 +338,10 @@ class TransactionsModel extends InvoicesModel {
 					!empty($parameters['user']) &&
 					$amountToApplyToBalance = max(0, min($parameters['payment_amount'], round(($invoiceData['amount_paid'] - $invoice['data']['invoice']['total']) * 100) / 100 ))
 				) {
+					if (empty($invoice['data']['orders'])) {
+						$amountToApplyToBalance = $parameters['payment_amount'];
+					}
+
 					$userData = array(
 						'id' => $parameters['user']['id'],
 						'balance' => ($parameters['user']['balance'] + $amountToApplyToBalance)
@@ -440,7 +444,10 @@ class TransactionsModel extends InvoicesModel {
 
 					$invoiceData['status'] = 'paid';
 					$invoiceData['warning_level'] = 0;
-					$invoiceTotalPaid = true;
+
+					if (!empty($invoice['data']['orders'])) {
+						$invoiceTotalPaid = true;
+					}
 				}
 
 				if ($this->save('invoices', array(

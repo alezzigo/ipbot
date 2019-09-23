@@ -75,7 +75,7 @@
 							<select class="billing-country" id="billing-country" name="billing_country"><?php echo $countrySelectValues; ?></select>
 						</div>
 						<label for="billing-amount">Payment Amount</label>
-						<div class="field-group">
+						<div class="field-group no-margin-top">
 							<span class="billing-currency-symbol"></span>
 							<input class="billing-amount" id="billing_amount" name="billing_amount" type="number">
 							<span class="billing-currency-name"></span>

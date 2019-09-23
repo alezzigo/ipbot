@@ -26,9 +26,8 @@ class InvoicesModel extends UsersModel {
 			$response['invoice']['status'] === 'unpaid' ||
 			$response['invoice']['amount_paid'] < $response['invoice']['total']
 		) {
-			$response['invoice']['total'] = $response['invoice']['subtotal'] = 0;
-
 			if (!empty($response['orders'])) {
+				$response['invoice']['total'] = $response['invoice']['subtotal'] = 0;
 				$invoiceOrderProducts = array();
 
 				foreach ($response['orders'] as $key => $invoiceOrder) {
@@ -69,9 +68,10 @@ class InvoicesModel extends UsersModel {
 					$response['invoice']['tax'] += $this->_calculateInvoiceOrderTaxPrice($response['invoice'], $invoiceOrder, $invoiceOrderProduct);
 					$response['invoice']['total'] += $invoiceOrder['shipping'] + $invoiceOrder['tax'];
 				}
+
+				$response['invoice']['total'] += $response['invoice']['subtotal'];
 			}
 
-			$response['invoice']['total'] += $response['invoice']['subtotal'];
 			$invoiceCalculationData = $response['invoice'];
 			unset($invoiceCalculationData['billing']);
 			unset($invoiceCalculationData['created']);
@@ -697,7 +697,7 @@ class InvoicesModel extends UsersModel {
 
 			if (
 				!empty($invoiceData) &&
-				!empty($invoiceOrders)
+				!empty($invoiceUser)
 			) {
 				if (!empty($this->settings['billing'])) {
 					$invoiceData['billing'] = $this->settings['billing'];

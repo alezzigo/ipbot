@@ -86,6 +86,90 @@ class UsersModel extends AppModel {
 	}
 
 /**
+ * Add balance to user account
+ *
+ * @param string $table
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	public function balance($table, $parameters = array()) {
+		$response = array(
+			'message' => array(
+				'status' => 'error',
+				'text' => ($defaultMessage = 'Error adding balance amount to your account, please try again.')
+			)
+		);
+
+		if (
+			!empty($userId = $parameters['user']['id']) &&
+			!empty($balance = $parameters['data']['balance'])
+		) {
+			$response['message']['text'] = 'Invalid account balance amount, please try again.';
+			$balanceData = $this->find('products', array(
+				'conditions' => array(
+					'type' => 'balance'
+				),
+				'fields' => array(
+					'id',
+					'minimum_quantity',
+					'maximum_quantity',
+					'type'
+				),
+				'limit' => 1,
+				'sort' => array(
+					'field' => 'modified',
+					'order' => 'DESC'
+				)
+			));
+
+			if (
+				!empty($balanceData['count']) &&
+				is_numeric($parameters['data']['balance'])
+			) {
+				$response['message']['text'] = 'Balance amount must be <strong>less than ' . $this->settings['billing']['currency_symbol'] . number_format($balanceData['data'][0]['maximum_quantity'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . '</strong> and <strong>greater than ' . $this->settings['billing']['currency_symbol'] . number_format($balanceData['data'][0]['minimum_quantity'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . '</strong>, please try again.';
+
+				if (
+					$parameters['data']['balance'] > $balanceData['data'][0]['minimum_quantity'] &&
+					$parameters['data']['balance'] < $balanceData['data'][0]['maximum_quantity']
+				) {
+					$response['message']['text'] = $defaultMessage;
+					$invoiceConditions = array(
+						'cart_items' => sha1($balance . uniqid() . time()),
+						'status' => 'unpaid',
+						'subtotal' => $balance,
+						'total' => $balance,
+						'user_id' => $userId
+					);
+
+					if ($this->save('invoices', array(
+						$invoiceConditions
+					))) {
+						$invoice = $this->find('invoices', array(
+							'conditions' => $invoiceConditions,
+							'fields' => array(
+								'id'
+							)
+						));
+
+						if (!empty($invoice['count'])) {
+							$response = array(
+								'message' => array(
+									'status' => 'success',
+									'text' => 'Invoice for balance payment created successfully.'
+								),
+								'redirect' => $this->settings['base_url'] . 'invoices/' . $invoice['data'][0] . '#payment'
+							);
+						}
+					}
+				}
+			}
+		}
+
+		return $response;
+	}
+
+/**
  * Request email address change
  *
  * @param string $table

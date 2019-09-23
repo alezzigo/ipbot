@@ -96,9 +96,39 @@ var processUser = function() {
 			userData += '<p><strong>Email Address</strong><br>' + response.user.email + '<br><a class="email" href="' + requestParameters.settings.base_url + 'account/?#email">Change email address</a></p>';
 			userData += '<h2>Account Balance</h2>';
 			userData += '<p><strong>Current Balance</strong><br>' + requestParameters.settings.billing_currency_symbol + response.user.balance + ' ' + requestParameters.settings.billing_currency_name + '</p>';
+			userData += '<div class="balance-message-container"></div>';
+			userData += '<p class="no-margin-bottom"><strong>Add to Account Balance</strong></p>';
+			userData += '<div class="clear"></div>';
+			userData += '<div class="align-left item-container"><div class="field-group no-margin-top"><span class="balance-currency-symbol">' + requestParameters.settings.billing_currency_symbol + '</span><input class="balance-amount billing-amount" id="balance-amount" max="10000" min="20" name="balance_amount" type="number" value="100.00"><span class="balance-currency-name">' + requestParameters.settings.billing_currency_name + '</span><a class="add add-to-balance button" disabled href="javascript:void(0);">Add</a></div></div>';
 		}
 
 		userContainer.innerHTML = userData;
+		userAddBalanceButton = userContainer.querySelector('.button.add-to-balance');
+
+		if (userAddBalanceButton) {
+			userAddBalanceButton.removeEventListener('click', userAddBalanceButton.clickListener);
+			userAddBalanceButton.clickListener = function() {
+				requestParameters.data['balance'] = userContainer.querySelector('.balance-amount').value;
+				requestParameters.action = 'balance';
+				sendRequest(function(response) {
+					var messageContainer = document.querySelector('.balance-message-container');
+
+					if (messageContainer) {
+						messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+					}
+
+					if (
+						typeof response.redirect === 'string' &&
+						response.redirect
+					) {
+						window.location.href = response.redirect;
+						return false;
+					}
+				});
+			};
+			userAddBalanceButton.addEventListener('click', userAddBalanceButton.clickListener);
+			elements.removeAttribute('.button.add-to-balance', 'disabled');
+		}
 	});
 };
 var processUsers = function(windowName, windowSelector) {

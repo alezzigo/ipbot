@@ -208,8 +208,11 @@ main {
 	.field-group textarea {
 		z-index: 2;
 	}
+		.field-group input:focus,
 		.field-group input:hover,
+		.field-group select:focus,
 		.field-group select:hover,
+		.field-group textarea:focus,
 		.field-group textarea:hover {
 			z-index: 3;
 		}
@@ -876,8 +879,19 @@ main {
 }
 .billing-view-details {
 	margin-left: 13px;
-	margin-top: 4px;
+	margin-top: 5px;
 	display: inline-block;
+}
+.field-group .add {
+	float: left;
+	height: 36px;
+	line-height: 36px;
+	margin-left: -1px !important;
+	padding: 0 18px;
+	position: relative;
+	right: auto;
+	top: auto;
+	z-index: 4;
 }
 .field-group .billing-amount {
 	width: 88px;

@@ -8,7 +8,6 @@
 						<h1>Log In</h1>
 					</div>
 					<div class="item-body">
-						<p class="message">Demo username is demo@eightomic.com, password is demo12345678</p>
 						<div class="message-container"></div>
 						<label for="login-email">Email</label>
 						<input class="email" id="login-email" name="email" type="text">

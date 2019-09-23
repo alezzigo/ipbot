@@ -679,7 +679,7 @@ class UsersModel extends AppModel {
 								$response = array(
 									'message' => array(
 										'status' => 'success',
-										'text' => 'Password reset successfully' . (!$parameters['user'] ? ', you can now <a href="' . $this->settings['base_url'] . '#login">log in</a> with your new password' : '') . '.'
+										'text' => 'Password reset successfully' . (!$parameters['user'] ? ', you can now <a href="' . $this->settings['base_url'] . '?#login">log in</a> with your new password' : '') . '.'
 									)
 								);
 								$mailParameters = array(
@@ -700,9 +700,7 @@ class UsersModel extends AppModel {
 				}
 			} else {
 				$response = array(
-					'data' => array(
-						'user' => $existingUser
-					),
+					'user' => $existingUser,
 					'message' => array(
 						'status' => 'success',
 						'text' => 'Enter a new password for ' . $existingUser['email'] . '.'

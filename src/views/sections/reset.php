@@ -19,7 +19,7 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button main-button submit" process="users" window="reset">Reset Password</button>
+						<button class="button main-button submit" process="reset" window="reset">Reset Password</button>
 					</div>
 				</div>
 			</div>

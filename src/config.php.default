@@ -231,9 +231,7 @@ class Config {
 
 		$this->proxyConfigurations = array(
 			'http' => array(
-				'dynamic' => array(
-					// .. Settings for masquerade / rotation
-				),
+				'dynamic' => array(),
 				'static' => array(
 					'eightomic' => array(),
 					'squid' => array(

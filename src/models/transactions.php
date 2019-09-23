@@ -336,7 +336,7 @@ class TransactionsModel extends InvoicesModel {
 				if (
 					!empty($invoice['data']['invoice']['user_id']) &&
 					!empty($parameters['user']) &&
-					$amountToApplyToBalance = max(0, min($parameters['payment_amount'], round(($invoiceData['amount_paid'] - $invoice['data']['invoice']['total']) * 100) / 100 ))
+					$amountToApplyToBalance = max(0, min($parameters['payment_amount'], round(($invoiceData['amount_paid'] - $invoice['data']['invoice']['total']) * 100) / 100))
 				) {
 					if (empty($invoice['data']['orders'])) {
 						$amountToApplyToBalance = $parameters['payment_amount'];

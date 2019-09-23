@@ -3,7 +3,7 @@
 	$message .= "\n";
 	$message .= 'A new account was recently created at ' . $this->settings['site_name'] . '.' . "\n";
 	$message .= "\n";
-	$message .= 'Your email address is:' . "\n";
+	$message .= 'Your user email address is:' . "\n";
 	$message .= $templateParameters['user']['email'] . "\n";
 	$message .= "\n";
 	$message .= 'You can view your dashboard at:' . "\n";

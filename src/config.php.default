@@ -204,6 +204,12 @@ class Config {
 				)
 			),
 			'users' => array(
+				'balance' => array(
+					'fields' => $defaultFields['users']
+				),
+				'delete' => array(
+					'fields' => $defaultFields['users']
+				),
 				'email' => array(
 					'fields' => $defaultFields['users']
 				),

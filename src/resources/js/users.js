@@ -2,6 +2,23 @@
 
 var defaultTable = 'users';
 var previousAction = 'register';
+var processDelete = function() {
+	requestParameters.action = 'delete';
+	requestParameters.table = 'users';
+	sendRequest(function(response) {
+		var messageContainer = document.querySelector('.request-deletion .message-container');
+
+		if (messageContainer) {
+			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		}
+
+		processUser();
+
+		if (response.message.status === 'success') {
+			elements.addClass('.request-deletion .form-item', 'hidden');
+		}
+	});
+};
 var processEmail = function() {
 	processUser();
 	var hash = replaceCharacter(window.location.search, 0, '');
@@ -25,7 +42,7 @@ var processEmail = function() {
 					response.user === false
 				) {
 					elements.addClass('nav .user', 'hidden');
-					elements.addClass('.change-email-form-item', 'hidden');
+					elements.addClass('.change-email form-item', 'hidden');
 					elements.removeClass('nav .guest', 'hidden');
 					elements.setAttribute('.change-email input.email', 'disabled', 'disabled');
 					response.message = {
@@ -38,10 +55,10 @@ var processEmail = function() {
 					response.message.status === 'success' &&
 					typeof response.data !== 'undefined'
 				) {
-					elements.addClass('.change-email-form-item', 'hidden');
 					document.querySelector('.change-email input.email').value = response.data.new_email;
 					elements.setAttribute('.change-email input.email', 'disabled', 'disabled');
 					processUser();
+					elements.addClass('.change-email form-item', 'hidden');
 				}
 
 				messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
@@ -79,6 +96,7 @@ var processReset = function() {
 	});
 };
 var processUser = function() {
+	elements.removeClass('.form-item', 'hidden');
 	requestParameters.action = 'view';
 	requestParameters.table = 'users';
 	var userContainer = document.querySelector('.user-container');
@@ -110,7 +128,15 @@ var processUser = function() {
 				userData += '<div class="balance-message-container"></div>';
 				userData += '<p class="no-margin-bottom"><strong>Add to Account Balance</strong></p>';
 				userData += '<div class="clear"></div>';
-				userData += '<div class="align-left item-container"><div class="field-group no-margin-top"><span class="balance-currency-symbol">' + requestParameters.settings.billing_currency_symbol + '</span><input class="balance-amount billing-amount" id="balance-amount" max="10000" min="20" name="balance_amount" step="0.01" type="number" value="100.00"><span class="balance-currency-name">' + requestParameters.settings.billing_currency_name + '</span><a class="add add-to-balance button" disabled href="javascript:void(0);">Add</a></div></div>';
+				userData += '<div class="align-left item-container no-margin-bottom"><div class="field-group no-margin"><span class="balance-currency-symbol">' + requestParameters.settings.billing_currency_symbol + '</span><input class="balance-amount billing-amount" id="balance-amount" max="10000" min="20" name="balance_amount" step="0.01" type="number" value="100.00"><span class="balance-currency-name">' + requestParameters.settings.billing_currency_name + '</span><a class="add add-to-balance button" disabled href="javascript:void(0);">Add</a></div></div>';
+				userData += '<div class="clear"></div>';
+				userData += '<h2>Delete Account</h2>';
+
+				if (response.user.deleted) {
+					userData += '<p class="error message">Your account will be deleted shortly as requested.</p>';
+				} else {
+					userData += '<a class="request-deletion" href="' + requestParameters.settings.base_url + 'account/?#request-deletion">Request account deletion</a>';
+				}
 			}
 
 			userContainer.innerHTML = userData;

@@ -97,13 +97,18 @@ onLoad(function() {
 	}
 
 	if (window.location.hash) {
+		var windowMethod;
 		var windowName = replaceCharacter(window.location.hash, 0, '').toLowerCase();
 		var windowSelector = '.window-container[window="' + windowName + '"]';
 
 		if (document.querySelector(windowSelector)) {
 			closeWindows(defaultTable);
 			openWindow(windowName, windowSelector);
-			method = 'process' + capitalizeString(windowName);
+			windowMethod = 'process' + capitalizeString(windowName);
+
+			if (typeof window[windowMethod] === 'function') {
+				method = windowMethod;
+			}
 		}
 	}
 

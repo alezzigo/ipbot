@@ -28,7 +28,7 @@
 			'text' => 'Home'
 		),
 		array(
-			'href' => $config->settings['base_url'] . 'private-proxies',
+			'href' => $config->settings['base_url'] . 'static-proxies',
 			'text' => 'Buy Proxies'
 		),
 		array(

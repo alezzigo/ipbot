@@ -21,14 +21,9 @@
 	<div class="section">
 		<div class="container small">
 			<div class="item">
-				<h2>Private Proxies</h2>
-				<p>Buy elite (high-anonymous) HTTP proxies with private access, unlimited threads, fast speeds, stable uptime and unmetered data transfer.</p>
-				<a href="<?php echo $config->settings['base_url']; ?>private-proxies">Buy Private Proxies</a>
-			</div>
-			<div class="item no-margin-bottom">
-				<h2>SOCKS 5 Proxies</h2>
-				<p>Buy SOCKS 5 proxies with all outbound ports open. Private HTTP proxy access is included with all SOCKS 5 plans.</p>
-				<a href="<?php echo $config->settings['base_url']; ?>socks-proxies">Buy SOCKS Proxies</a>
+				<h2>Static Proxies</h2>
+				<p>Buy elite (high-anonymous) proxies with clean dedicated IPs, private authenticated access, HTTP and SOCKS support, fast speeds and unmetered data transfer.</p>
+				<a href="<?php echo $config->settings['base_url']; ?>static-proxies">Buy Static Proxies</a>
 			</div>
 		</div>
 	</div>

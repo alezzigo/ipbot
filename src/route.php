@@ -111,9 +111,9 @@
 			'url' => '/'
 		),
 		array(
-			'file' => $config->settings['base_path'] . '/views/pages/private-proxies.php',
-			'title' => 'Private Proxies',
-			'url' => '/private-proxies'
+			'file' => $config->settings['base_path'] . '/views/pages/static-proxies.php',
+			'title' => 'Static Proxies',
+			'url' => '/static-proxies'
 		),
 		array(
 			'file' => $config->settings['base_path'] . '/views/users/view.php',

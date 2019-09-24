@@ -6,31 +6,31 @@
 	$items = array(
 		array(
 			'quantity' => 10,
-			'price' => 5.98
+			'price' => 28.88
 		),
 		array(
 			'quantity' => 30,
-			'price' => 17.78
+			'price' => 85.96
 		),
 		array(
 			'quantity' => 50,
-			'price' => 29.40
+			'price' => 142.10
 		),
 		array(
 			'quantity' => 100,
-			'price' => 57.60
+			'price' => 278.40
 		),
 		array(
 			'quantity' => 300,
-			'price' => 158.40
+			'price' => 765.60
 		),
 		array(
 			'quantity' => 500,
-			'price' => 240.00
+			'price' => 1160.00
 		),
 		array(
 			'quantity' => 1000,
-			'price' => 360.00
+			'price' => 1740.00
 		)
 	);
 	$product = array(
@@ -43,7 +43,7 @@
 <main process="cart">
 	<div class="section">
 		<div class="container small">
-			<h1>Private HTTP Proxies</h1>
+			<h1>Premium Static Proxies</h1>
 			<div class="message-container"></div>
 			<div class="table">
 				<table>

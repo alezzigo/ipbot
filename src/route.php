@@ -116,11 +116,6 @@
 			'url' => '/private-proxies'
 		),
 		array(
-			'file' => $config->settings['base_path'] . '/views/pages/socks-proxies.php',
-			'title' => 'SOCKS 5 Proxies',
-			'url' => '/socks-proxies'
-		),
-		array(
 			'file' => $config->settings['base_path'] . '/views/users/view.php',
 			'title' => 'Manage Account',
 			'url' => '/account'

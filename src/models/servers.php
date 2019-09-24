@@ -200,6 +200,7 @@ class ServersModel extends AppModel {
 							'country_name',
 							'country_code',
 							'disable_http',
+							'disable_socks',
 							'http_port',
 							'id',
 							'ip',
@@ -208,6 +209,7 @@ class ServersModel extends AppModel {
 							'password',
 							'region',
 							'require_authentication',
+							'socks_port',
 							'status',
 							'username',
 							'whitelisted_ips'

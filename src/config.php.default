@@ -68,6 +68,7 @@ class Config {
 				'order_id',
 				'password',
 				'region',
+				'socks_port',
 				'status',
 				'user_id',
 				'username',
@@ -165,11 +166,12 @@ class Config {
 				),
 				'copy' => array(
 					'fields' => array(
-						'ip',
 						'http_port',
-						'username',
+						'ip',
+						'password',
+						'socks_port',
 						'user_id',
-						'password'
+						'username'
 					),
 					'group' => 'user'
 				),

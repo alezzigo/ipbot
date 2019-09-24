@@ -13,7 +13,7 @@
 							<select class="ipv4-column-1" name="ipv4_column_1">
 								<option value=""></option>
 								<option selected value="ip">ip</option>
-								<option value="http_port">port</option>
+								<option value="port">port</option>
 								<option value="username">user</option>
 								<option value="password">pass</option>
 							</select>
@@ -27,7 +27,7 @@
 							<select class="ipv4-column-2" name="ipv4_column_2">
 								<option value=""></option>
 								<option value="ip">ip</option>
-								<option selected value="http_port">port</option>
+								<option selected value="port">port</option>
 								<option value="username">user</option>
 								<option value="password">pass</option>
 							</select>
@@ -41,7 +41,7 @@
 							<select class="ipv4-column-3" name="ipv4_column_3">
 								<option value=""></option>
 								<option value="ip">ip</option>
-								<option value="http_port">port</option>
+								<option value="port">port</option>
 								<option selected value="username">user</option>
 								<option value="password">pass</option>
 							</select>
@@ -55,7 +55,7 @@
 							<select class="ipv4-column-4" name="ipv4_column_4">
 								<option value=""></option>
 								<option value="ip">ip</option>
-								<option value="http_port">port</option>
+								<option value="port">port</option>
 								<option value="username">user</option>
 								<option selected value="password">pass</option>
 							</select>
@@ -65,7 +65,8 @@
 							<label class="clear">Proxy List Type</label>
 							<div class="field-group no-margin-top proxy-list-type">
 								<select class="proxy-list-type" name="proxy_list_type">
-									<option selected value="80">Port 80 HTTP</option>
+									<option selected value="http">HTTP / HTTPS</option>
+									<option value="socks">SOCKS 5</option>
 								</select>
 							</div>
 						</div>

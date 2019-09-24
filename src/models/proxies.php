@@ -168,6 +168,18 @@ class ProxiesModel extends AppModel {
 			'fields' => $this->permissions[$table]['copy']['fields']
 		));
 
+		if (
+			!empty($parameters['data']) &&
+			is_array($parameters['data']) &&
+			!empty($parameters['data']['proxy_list_type'])
+		) {
+			foreach ($parameters['data'] as $columnField => $columnValue) {
+				if ($columnValue == 'port') {
+					$parameters['data'][$columnField] = $parameters['data']['proxy_list_type'] . '_port';
+				}
+			}
+		}
+
 		if (!empty($response['data'])) {
 			$delimiters = array(
 				!empty($parameters['data']['ipv4_delimiter_1']) ? $parameters['data']['ipv4_delimiter_1'] : '',
@@ -481,6 +493,7 @@ class ProxiesModel extends AppModel {
 										),
 										'fields' => array(
 											'disable_http',
+											'disable_socks',
 											'password',
 											'require_authentication',
 											'username',
@@ -706,6 +719,7 @@ class ProxiesModel extends AppModel {
 				'automatic_replacement_interval_type',
 				'automatic_replacement_interval_value',
 				'disable_http',
+				'disable_socks',
 				'id',
 				'ip',
 				'node_id',
@@ -806,6 +820,7 @@ class ProxiesModel extends AppModel {
 								if (!empty($userProxies[$key]['transfer_authentication'])) {
 									$processingNodes['data'][$key] += array(
 										'disable_http' => $userProxies[$key]['disable_http'],
+										'disable_socks' => $userProxies[$key]['disable_socks'],
 										'password' => $userProxies[$key]['password'],
 										'transfer_authentication' => true,
 										'username' => $userProxies[$key]['username'],

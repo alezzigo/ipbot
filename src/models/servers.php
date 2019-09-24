@@ -20,7 +20,7 @@ class ServersModel extends AppModel {
  * @return array $response
  */
 	protected function _formatSquidAccessControls($proxies) {
-		$formattedAcls = $formattedFiles = $formattedProxies = $formattedUsers = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = $proxyIps = array();
+		$disabledProxies = $formattedAcls = $formattedFiles = $formattedProxies = $formattedUsers = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = $proxyIps = array();
 		$userIndex = 0;
 
 		foreach ($proxies as $key => $proxy) {
@@ -56,7 +56,7 @@ class ServersModel extends AppModel {
 			}
 
 			if (!empty($proxy['disable_http'])) {
-				$disabledProxies[$proxy['ip']]['disable_http'] = true;
+				$disabledProxies[$proxy['ip']] = $proxy['ip'];
 			}
 
 			if (!in_array(($proxyIp = $proxy['ip']), $proxyIps)) {
@@ -118,10 +118,29 @@ class ServersModel extends AppModel {
 
 		$formattedAcls[] = 'http_access deny all';
 		$response = array(
-			'acls' => $formattedAcls,
+			'acls' => implode("\n", $this->proxyConfigurations['http']['static']['squid']['acls']),
 			'files' => $formattedFiles,
 			'users' => $formattedUsers
 		);
+
+		if (strpos($response['acls'], '[acls]') !== false) {
+			$response['acls'] = str_replace('[acls]', implode("\n", $formattedAcls), $response['acls']);
+		}
+
+		if (
+			!empty($disabledPorts = $this->proxyConfigurations['http']['static']['squid']['ports']) &&
+			!empty($disabledProxies)
+		) {
+			$splitDisabledPorts = array_chunk($disabledPorts, '10');
+			$splitDisabledProxies = array_chunk($disabledProxies, '10');
+
+			foreach ($splitDisabledProxies as $proxies) {
+				foreach ($splitDisabledPorts as $ports) {
+					$response['firewall_filter'][] = '-A INPUT -p tcp ! -i lo -d ' . implode(',', $proxies) . ' -m multiport --dports ' . implode(',', $ports) . ' -j REJECT --reject-with tcp-reset';
+				}
+			}
+		}
+
 		return $response;
 	}
 

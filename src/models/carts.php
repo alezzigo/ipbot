@@ -21,7 +21,7 @@ class CartsModel extends AppModel {
  */
 	protected function _calculateCartItemPrice($cartItem) {
 		$interval = $cartItem['interval_value'] * ($cartItem['interval_type'] == 'year' ? 12 : 1);
-		$response = number_format(($cartItem['price_per'] * $cartItem['quantity'] * $interval) - (($cartItem['price_per'] * $cartItem['quantity']) * (($cartItem['quantity'] / $cartItem['volume_discount_divisor']) * $cartItem['volume_discount_multiple'] * $cartItem['interval_value'])), 2, '.', '');
+		$response = number_format(($cartItem['price_per'] * $cartItem['quantity'] * $interval) - (($cartItem['price_per'] * $cartItem['quantity']) * ((min(1000 + ($cartItem['quantity'] / 10), $cartItem['quantity']) / $cartItem['volume_discount_divisor']) * $cartItem['volume_discount_multiple'] * $cartItem['interval_value'])), 2, '.', '');
 		return $response;
 	}
 

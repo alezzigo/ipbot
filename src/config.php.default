@@ -40,14 +40,21 @@ class Config {
 				'user_id'
 			),
 			'orders' => array(
+				'cart_item_id',
 				'id',
 				'interval_type',
 				'interval_value',
 				'name',
 				'price',
+				'price_pending',
+				'product_id',
 				'quantity',
 				'session_id',
+				'shipping',
+				'shipping_pending',
 				'status',
+				'tax',
+				'tax_pending',
 				'user_id'
 			),
 			'proxy_groups' => array(
@@ -130,6 +137,10 @@ class Config {
 				)
 			),
 			'orders' => array(
+				'downgrade' => array(
+					'fields' => $defaultFields['orders'],
+					'group' => 'user'
+				),
 				'find' => array(
 					'fields' => array_merge($defaultFields['orders'], array(
 						'created',
@@ -139,6 +150,10 @@ class Config {
 				),
 				'list' => array(
 					'fields' => array(),
+					'group' => 'user'
+				),
+				'upgrade' => array(
+					'fields' => $defaultFields['orders'],
 					'group' => 'user'
 				),
 				'view' => array(

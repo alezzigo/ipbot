@@ -13,12 +13,40 @@ require_once($config->settings['base_path'] . '/models/app.php');
 class OrdersModel extends AppModel {
 
 /**
+ * Process order downgrade requests
+ *
+ * @param string $table
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	public function downgrade($table, $parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
  * List orders
  *
  * @return array
  */
 	public function list() {
 		return array();
+	}
+
+/**
+ * Process order upgrade requests
+ *
+ * @param string $table
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	public function upgrade($table, $parameters) {
+		$response = array();
+		// ..
+		return $response;
 	}
 
 /**

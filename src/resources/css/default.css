@@ -550,6 +550,27 @@ main {
 		border: 1px solid #dddbf4;
 		padding: 15px;
 	}
+		.item-container.item-button .item .checkbox-container {
+			height: 50px;
+			left: 0;
+			position: absolute;
+			top: 0;
+			width: 50px;
+			z-index: 2;
+		}
+			.item-container.item-button .item .checkbox-container .checkbox {
+				left: 15px;
+				position: absolute;
+				top: 15px;
+			}
+		.item-container.item-button .item .item-checkbox {
+			padding-left: 35px;
+			padding-top: 0;
+		}
+		.item-container.item-button .item .label {
+			margin-bottom: 0;
+			margin-top: 2px;
+		}
 		.item-container.item-button .field-group {
 			margin: 0 0 8px 0;
 		}
@@ -557,8 +578,8 @@ main {
 			border-color: #7773e3;
 		}
 		.item-container.item-button p {
-			line-height: 20px;
-			margin: 0;
+			line-height: 13px;
+			margin-bottom: 8px;
 		}
 	.item-container.item-button-selectable {
 		position: relative;
@@ -691,6 +712,9 @@ main {
 		.icon[window="copy"] {
 			background: url('../images/icons/icon-copy.png') center no-repeat;
 		}
+		.icon[window="downgrade"] {
+			background: url('../images/icons/icon-downgrade.png') center no-repeat;
+		}
 		.icon[window="group"] {
 			background: url('../images/icons/icon-group.png') center no-repeat;
 		}
@@ -700,6 +724,9 @@ main {
 		.icon[window="search"] {
 			background: url('../images/icons/icon-search.png') center no-repeat;
 		}
+		.icon[window="upgrade"] {
+			background: url('../images/icons/icon-upgrade.png') center no-repeat;
+		}
 		.icon.close,
 		.icon.delete,
 		.icon.edit,
@@ -707,10 +734,17 @@ main {
 		.icon.previous,
 		.icon[window="authenticate"],
 		.icon[window="copy"],
+		.icon[window="downgrade"],
 		.icon[window="group"],
 		.icon[window="replace"],
-		.icon[window="search"] {
+		.icon[window="search"],
+		.icon[window="upgrade"] {
 			background-size: 100% !important;
+		}
+		.icon[window="downgrade"],
+		.icon[window="upgrade"] {
+			background-size: auto 100% !important;
+			width: 14px;
 		}
 .checkbox {
 	background: #fff;

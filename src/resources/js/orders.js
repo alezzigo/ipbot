@@ -92,6 +92,7 @@ var processOrders = function() {
 				};
 				orderToggleButton.addEventListener('click', orderToggleButton.clickListener);
 			});
+			elements.html('.item-configuration .total-results', response.data.length);
 		}
 	});
 };

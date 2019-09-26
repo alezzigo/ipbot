@@ -459,7 +459,8 @@ class TransactionsModel extends InvoicesModel {
 						$invoiceData = array();
 						$additionalDueInvoices = $this->find('invoices', array(
 							'conditions' => array(
-								'due >' => date('Y-m-d h:i:s', strtotime($invoice['data']['invoice']['due']))
+								'due >' => date('Y-m-d h:i:s', strtotime($invoice['data']['invoice']['due'])),
+								'id !=' => $invoice['data']['invoice']['id']
 							),
 							'fields' => array(
 								'due',

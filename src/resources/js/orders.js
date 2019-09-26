@@ -94,6 +94,8 @@ var processOrders = function() {
 			});
 			elements.html('.item-configuration .total-results', response.data.length);
 		}
+
+		processWindowEvents('resize');
 	});
 };
 var processUpgrade = function() {

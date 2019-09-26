@@ -27,7 +27,7 @@
 							</div>
 						</div>
 						<div class="item-body">
-							<div class="checkout-items-container items-container"></div>
+							<div class="checkout-items-container items-container no-padding-top"></div>
 						</div>
 					</div>
 				</div>

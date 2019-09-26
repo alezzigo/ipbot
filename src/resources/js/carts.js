@@ -195,7 +195,7 @@ var processCartItems = function(response) {
 			return false;
 		}
 
-		checkoutItems += '<h2 class="no-margin-top">Order Items</h2>';
+		checkoutItems += '<h2>Order Items</h2>';
 		cartItemData.map(function(cartItem, index) {
 			checkoutItems += '<div class="item-container item-button"><p><strong>' + cartItem[1].quantity + ' ' + cartItem[1].name + '</strong></p><p class="no-margin-bottom">$' + cartItem[1].price + ' USD for ' + cartItem[1].interval_value + ' ' + cartItem[1].interval_type + (cartItem[1].interval_value !== 1 ? 's' : '') + '</p><div class="item-link-container"><a class="item-link" href="/orders/' + cartItem[1].id + '"></a></div></div>';
 			cartSubtotal += parseFloat(cartItem[1].price);

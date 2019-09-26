@@ -101,6 +101,7 @@ var processOrders = function() {
 var processUpgrade = function() {
 	var upgradeContainer = document.querySelector('.upgrade-container');
 	requestParameters.action = 'upgrade';
+	requestParameters.data.orders = ordersGrid;
 	sendRequest(function(response) {
 		// ..
 	});

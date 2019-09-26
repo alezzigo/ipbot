@@ -326,6 +326,7 @@ class TransactionsModel extends InvoicesModel {
 					'id' => $parameters['invoice_id']
 				)
 			));
+			$invoiceWarningLevel = $invoice['data']['invoice']['warning_level'];
 
 			if (!empty($invoice['data'])) {
 				$invoiceData = array(
@@ -461,7 +462,12 @@ class TransactionsModel extends InvoicesModel {
 							'conditions' => array(
 								'due >' => date('Y-m-d h:i:s', strtotime($invoice['data']['invoice']['due'])),
 								'id !=' => $invoice['data']['invoice']['id'],
-								'status' => 'unpaid'
+								'status' => 'unpaid',
+								'user_id' => $invoice['data']['invoice']['user_id'],
+								'OR' => array(
+									'initial_invoice_id' => $invoice['data']['invoice']['id'],
+									'initial_invoice_id' => $invoice['data']['invoice']['initial_invoice_id']
+								)
 							),
 							'fields' => array(
 								'due',
@@ -486,10 +492,14 @@ class TransactionsModel extends InvoicesModel {
 							)) &&
 							!empty($intervalValue = $invoice['data']['orders'][0]['interval_value'])
 						) {
+							if ($invoiceWarningLevel === 5) {
+								$invoice['data']['invoice']['due'] = null;
+							}
+
 							$invoiceData[] = array(
 								'cart_items' => $invoice['data']['invoice']['cart_items'],
 								'due' => date('Y-m-d h:i:s', ($dueDate = strtotime($invoice['data']['invoice']['due'] . ' +' . $intervalValue . ' ' . $intervalType))),
-								'initial_invoice_id' => $invoice['data']['invoice']['id'],
+								'initial_invoice_id' => !empty($invoice['data']['invoice']['initial_invoice_id']) ? $invoice['data']['invoice']['initial_invoice_id'] : $invoice['data']['invoice']['id'],
 								'session_id' => $invoice['data']['invoice']['session_id'],
 								'shipping' => $invoice['data']['invoice']['shipping'],
 								'status' => 'unpaid',

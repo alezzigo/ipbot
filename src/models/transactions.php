@@ -471,8 +471,7 @@ class TransactionsModel extends InvoicesModel {
 
 						if (!empty($additionalDueInvoices['count'])) {
 							$invoiceData = array_replace_recursive($additionalDueInvoices['data'], array_fill(0, $additionalDueInvoices['count'], array(
-								'due' => null,
-								'warning_level' => 5
+								'due' => null
 							)));
 						}
 
@@ -496,7 +495,8 @@ class TransactionsModel extends InvoicesModel {
 								'subtotal' => $invoice['data']['invoice']['subtotal'],
 								'tax' => $invoice['data']['invoice']['tax'],
 								'total' => $invoice['data']['invoice']['total'],
-								'user_id' => $invoice['data']['invoice']['user_id']
+								'user_id' => $invoice['data']['invoice']['user_id'],
+								'warning_level' => 5
 							);
 						}
 

@@ -224,9 +224,6 @@ class Config {
 				'balance' => array(
 					'fields' => $defaultFields['users']
 				),
-				'delete' => array(
-					'fields' => $defaultFields['users']
-				),
 				'email' => array(
 					'fields' => $defaultFields['users']
 				),
@@ -240,6 +237,9 @@ class Config {
 					'fields' => array()
 				),
 				'register' => array(
+					'fields' => $defaultFields['users']
+				),
+				'remove' => array(
 					'fields' => $defaultFields['users']
 				),
 				'reset' => array(

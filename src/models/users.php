@@ -170,37 +170,37 @@ class UsersModel extends AppModel {
 	}
 
 /**
- * Request user account deletion
+ * Request user account removal
  *
  * @param string $table
  * @param array $parameters
  *
  * @return array $response
  */
-	public function delete($table, $parameters = array()) {
+	public function remove($table, $parameters = array()) {
 		$response = array(
 			'message' => array(
 				'status' => 'error',
-				'text' => ($defaultMessage = 'Error processing your user account delete request, please try again.')
+				'text' => ($defaultMessage = 'Error processing your user account removal request, please try again.')
 			)
 		);
 
 		if (!empty($parameters['user'])) {
-			$response['message']['text'] = 'Your account is already pending deletion.';
+			$response['message']['text'] = 'Your account is already pending removal.';
 
-			if (empty($parameters['user']['deleted'])) {
+			if (empty($parameters['user']['removed'])) {
 				$response['message']['text'] = $defaultMessage;
 
 				if ($this->save('users', array(
 					array(
-						'deleted' => true,
+						'removed' => true,
 						'id' => $parameters['user']['id']
 					)
 				))) {
 					$response = array(
 						'message' => array(
 							'status' => 'success',
-							'text' => 'Your account deletion request was sent successfully and your account will be deleted shortly.'
+							'text' => 'Your account removal request was sent successfully and your account will be removed shortly.'
 						)
 					);
 					$emails = array_filter(array(
@@ -211,9 +211,9 @@ class UsersModel extends AppModel {
 					foreach ($emails as $email) {
 						$mailParameters = array(
 							'from' => $this->settings['from_email'],
-							'subject' => 'User account deletion requested successfully',
+							'subject' => 'User account removal requested successfully',
 							'template' => array(
-								'name' => 'user_request_deletion',
+								'name' => 'user_request_removal',
 								'parameters' => array(
 									'user' => $parameters['user']
 								)

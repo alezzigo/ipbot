@@ -5,8 +5,8 @@
 	require_once($config->settings['base_path'] . '/controllers/users.php');
 	require_once($config->settings['base_path'] . '/views/sections/header.php');
 	$windows = array(
-		'delete',
-		'email'
+		'email',
+		'remove'
 	);
 
 	foreach ($windows as $window) {

@@ -2,11 +2,11 @@
 
 var defaultTable = 'users';
 var previousAction = 'register';
-var processDelete = function() {
-	requestParameters.action = 'delete';
+var processRemove = function() {
+	requestParameters.action = 'remove';
 	requestParameters.table = 'users';
 	sendRequest(function(response) {
-		var messageContainer = document.querySelector('.request-deletion .message-container');
+		var messageContainer = document.querySelector('.request-removal .message-container');
 
 		if (messageContainer) {
 			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
@@ -15,7 +15,7 @@ var processDelete = function() {
 		processUser();
 
 		if (response.message.status === 'success') {
-			elements.addClass('.request-deletion .form-item', 'hidden');
+			elements.addClass('.request-removal .form-item', 'hidden');
 		}
 	});
 };
@@ -130,12 +130,12 @@ var processUser = function() {
 				userData += '<div class="clear"></div>';
 				userData += '<div class="align-left item-container no-margin-bottom"><div class="field-group no-margin"><span class="balance-currency-symbol">' + requestParameters.settings.billing_currency_symbol + '</span><input class="balance-amount billing-amount" id="balance-amount" max="10000" min="20" name="balance_amount" step="0.01" type="number" value="100.00"><span class="balance-currency-name">' + requestParameters.settings.billing_currency_name + '</span><a class="add add-to-balance button" disabled href="javascript:void(0);">Add</a></div></div>';
 				userData += '<div class="clear"></div>';
-				userData += '<h2>Delete Account</h2>';
+				userData += '<h2>Remove Account</h2>';
 
-				if (response.user.deleted) {
-					userData += '<p class="error message">Your account will be deleted shortly as requested.</p>';
+				if (response.user.removed) {
+					userData += '<p class="error message">Your account will be removed shortly as requested.</p>';
 				} else {
-					userData += '<a class="request-deletion" href="' + requestParameters.settings.base_url + 'account/?#request-deletion">Request account deletion</a>';
+					userData += '<a class="remove" href="' + requestParameters.settings.base_url + 'account/?#remove">Request account deletion</a>';
 				}
 			}
 

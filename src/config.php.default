@@ -254,7 +254,6 @@ class Config {
 
 		$this->proxyConfigurations = array(
 			'http' => array(
-				'dynamic' => array(),
 				'static' => array(
 					'eightomic' => array(),
 					'squid' => array(
@@ -341,9 +340,6 @@ class Config {
 
 		$this->serverConfigurations = array(
 			'linux' => array(
-				'dynamic' => array(
-					// .. Settings for masquerade / rotation
-				),
 				'static' => array(
 					'fs.file-max = 2097152',
 					'fs.suid_dumpable = 0',

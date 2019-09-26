@@ -488,7 +488,7 @@ class TransactionsModel extends InvoicesModel {
 						) {
 							$invoiceData[] = array(
 								'cart_items' => $invoice['data']['invoice']['cart_items'],
-								'due' => date('Y-m-d h:i:s', strtotime($invoice['data']['invoice']['due'] . ' +' . $intervalValue . ' ' . $intervalType)),
+								'due' => date('Y-m-d h:i:s', ($dueDate = strtotime($invoice['data']['invoice']['due'] . ' +' . $intervalValue . ' ' . $intervalType))),
 								'initial_invoice_id' => $invoice['data']['invoice']['id'],
 								'session_id' => $invoice['data']['invoice']['session_id'],
 								'shipping' => $invoice['data']['invoice']['shipping'],
@@ -497,7 +497,7 @@ class TransactionsModel extends InvoicesModel {
 								'tax' => $invoice['data']['invoice']['tax'],
 								'total' => $invoice['data']['invoice']['total'],
 								'user_id' => $invoice['data']['invoice']['user_id'],
-								'warning_level' => 5
+								'warning_level' => ($dueDate < time() ? 5 : 0)
 							);
 						}
 

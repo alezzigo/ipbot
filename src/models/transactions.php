@@ -471,7 +471,8 @@ class TransactionsModel extends InvoicesModel {
 
 						if (!empty($additionalDueInvoices['count'])) {
 							$invoiceData = array_replace_recursive($additionalDueInvoices['data'], array_fill(0, $additionalDueInvoices['count'], array(
-								'due' => null
+								'due' => null,
+								'warning_level' => 5
 							)));
 						}
 

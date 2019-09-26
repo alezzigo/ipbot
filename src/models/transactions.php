@@ -638,7 +638,8 @@ class TransactionsModel extends InvoicesModel {
 				$newInvoiceData = array(
 					'amount_paid' => $amountPaid = max(0, round(($invoice['data']['invoice']['amount_paid'] + $parameters['payment_amount']) * 100) / 100),
 					'id' => $parameters['invoice_id'],
-					'status' => $amountPaid >= $invoice['data']['invoice']['total'] ? 'paid' : 'unpaid'
+					'status' => ($status = ($amountPaid >= $invoice['data']['invoice']['total']) ? 'paid' : 'unpaid'),
+					'warning_level' => ($status === 'paid' ? 0 : 5)
 				);
 				$invoiceData = array(
 					$newInvoiceData
@@ -689,7 +690,8 @@ class TransactionsModel extends InvoicesModel {
 										$invoiceData[] = $newInvoiceData = array(
 											'amount_paid' => $amountPaid = max(0, round(($invoice['data']['invoice']['amount_paid'] + $amountRefunded = max($amountRefundedExceedingBalance, ($balanceTransaction['payment_amount'] * -1))) * 100) / 100),
 											'id' => $balanceTransaction['invoice_id'],
-											'status' => $amountPaid >= $invoice['data']['invoice']['total'] ? 'paid' : 'unpaid'
+											'status' => ($status = ($amountPaid >= $invoice['data']['invoice']['total']) ? 'paid' : 'unpaid'),
+											'warning_level' => ($status === 'paid' ? 0 : 5)
 										);
 										$invoices[] = array_replace_recursive($invoice['data'], array(
 											'invoice' => $newInvoiceData

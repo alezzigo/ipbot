@@ -135,7 +135,7 @@ var processUser = function() {
 				if (response.user.removed) {
 					userData += '<p class="error message">Your account will be removed shortly as requested.</p>';
 				} else {
-					userData += '<a class="remove" href="' + requestParameters.settings.base_url + 'account/?#remove">Request account deletion</a>';
+					userData += '<a class="remove" href="' + requestParameters.settings.base_url + 'account/?#request-removal">Request account removal</a>';
 				}
 			}
 

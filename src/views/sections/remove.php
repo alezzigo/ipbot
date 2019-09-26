@@ -1,4 +1,4 @@
-<div class="hidden window-container" window="remove">
+<div class="hidden window-container" window="request-removal">
 	<div class="section window">
 		<div class="item-container">
 			<div class="item">

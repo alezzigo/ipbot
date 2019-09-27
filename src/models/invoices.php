@@ -158,12 +158,15 @@ class InvoicesModel extends UsersModel {
 					'modified',
 					'name',
 					'price',
+					'price_pending',
 					'product_id',
 					'quantity',
 					'session_id',
 					'shipping',
+					'shipping_pending',
 					'status',
 					'tax',
+					'tax_pending',
 					'type',
 					'user_id'
 				)
@@ -684,10 +687,14 @@ class InvoicesModel extends UsersModel {
 				'modified',
 				'session_id',
 				'shipping',
+				'shipping_pending',
 				'status',
 				'subtotal',
+				'subtotal_pending',
 				'tax',
+				'tax_pending',
 				'total',
+				'total_pending',
 				'user_id'
 			)
 		));

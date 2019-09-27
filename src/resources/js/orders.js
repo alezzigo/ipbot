@@ -50,12 +50,8 @@ var processOrders = function() {
 
 		if (messageContainer) {
 			if (response.user === false) {
-				elements.addClass('nav .user', 'hidden');
-				elements.removeClass('nav .guest', 'hidden');
-				response.message = {
-					status: 'error',
-					text: 'You\'re currently not logged in, please <a href="' + requestParameters.settings.base_url + '?#login">log in</a> or <a href="' + requestParameters.settings.base_url + '?#register">register an account</a>.'
-				};
+				window.location.href = requestParameters.settings.base_url + '?#login';
+				return false;
 			}
 
 			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');

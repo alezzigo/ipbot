@@ -471,7 +471,12 @@ class TransactionsModel extends InvoicesModel {
 							),
 							'fields' => array(
 								'due',
-								'id'
+								'id',
+								'warning_level'
+							),
+							'sort' => array(
+								'field' => 'due',
+								'order' => 'DESC'
 							)
 						));
 
@@ -492,23 +497,36 @@ class TransactionsModel extends InvoicesModel {
 							)) &&
 							!empty($intervalValue = $invoice['data']['orders'][0]['interval_value'])
 						) {
-							if ($invoiceWarningLevel === 5) {
-								$invoice['data']['invoice']['due'] = null;
-							}
+							if (
+								empty($additionalDueInvoices['count']) ||
+								(
+									!empty($additionalDueInvoices['data'][0]['warning_level']) &&
+									$additionalDueInvoices['data'][0]['warning_level'] === 5
+								)
+							) {
+								if (
+									$invoiceWarningLevel === 5 ||
+									empty($invoice['data']['invoice']['initial_invoice_id'])
+								) {
+									$invoice['data']['invoice']['due'] = null;
+								}
 
-							$invoiceData[] = array(
-								'cart_items' => $invoice['data']['invoice']['cart_items'],
-								'due' => date('Y-m-d h:i:s', ($dueDate = strtotime($invoice['data']['invoice']['due'] . ' +' . $intervalValue . ' ' . $intervalType))),
-								'initial_invoice_id' => !empty($invoice['data']['invoice']['initial_invoice_id']) ? $invoice['data']['invoice']['initial_invoice_id'] : $invoice['data']['invoice']['id'],
-								'session_id' => $invoice['data']['invoice']['session_id'],
-								'shipping' => $invoice['data']['invoice']['shipping'],
-								'status' => 'unpaid',
-								'subtotal' => $invoice['data']['invoice']['subtotal'],
-								'tax' => $invoice['data']['invoice']['tax'],
-								'total' => $invoice['data']['invoice']['total'],
-								'user_id' => $invoice['data']['invoice']['user_id'],
-								'warning_level' => ($dueDate < time() ? 5 : 0)
-							);
+								$invoiceData[] = array(
+									'cart_items' => $invoice['data']['invoice']['cart_items'],
+									'due' => date('Y-m-d h:i:s', strtotime($invoice['data']['invoice']['due'] . ' +' . $intervalValue . ' ' . $intervalType)),
+									'initial_invoice_id' => !empty($invoice['data']['invoice']['initial_invoice_id']) ? $invoice['data']['invoice']['initial_invoice_id'] : $invoice['data']['invoice']['id'],
+									'session_id' => $invoice['data']['invoice']['session_id'],
+									'shipping' => $invoice['data']['invoice']['shipping'],
+									'status' => 'unpaid',
+									'subtotal' => $invoice['data']['invoice']['subtotal'],
+									'tax' => $invoice['data']['invoice']['tax'],
+									'total' => $invoice['data']['invoice']['total'],
+									'user_id' => $invoice['data']['invoice']['user_id'],
+									'warning_level' => 0
+								);
+							} else {
+								unset($invoiceData[0]);
+							}
 						}
 
 						if (!empty($invoiceData)) {

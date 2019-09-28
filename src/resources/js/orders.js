@@ -1,6 +1,6 @@
 'use_strict';
 
-var ordersGrid = {};
+var orderGrid = {};
 var defaultTable = 'orders';
 var previousAction = 'find';
 var processDowngrade = function() {
@@ -34,21 +34,21 @@ var processOrders = function() {
 			var orderId = order.getAttribute('order_id');
 			var productId = order.getAttribute('product_id');
 			order.setAttribute('checked', +orderState);
-			ordersGrid['order' + orderId] = orderId;
+			orderGrid['order' + orderId] = orderId;
 			productIdGrid['product' + productId] = productId;
 
 			if (!+orderState) {
-				delete ordersGrid['order' + orderId];
+				delete orderGrid['order' + orderId];
 			}
 		});
-		elements.html('.item-configuration .total-checked', +(allVisibleChecked = Object.entries(ordersGrid).length));
+		elements.html('.item-configuration .total-checked', +(allVisibleChecked = Object.entries(orderGrid).length));
 
 		if (Object.entries(productIdGrid).length === 1) {
 			allVisibleChecked ? elements.removeClass('.item-configuration span.icon[item-function]', 'hidden') : elements.addClass('.item-configuration span.icon[item-function]', 'hidden');
 		}
 
 		ordersAllVisible.setAttribute('checked', +(allVisibleChecked === selectAllElements('.orders-container .item-button').length));
-		requestParameters.items[requestParameters.table] = ordersGrid;
+		requestParameters.items[requestParameters.table] = orderGrid;
 	};
 	requestParameters.action = previousAction;
 	var ordersData = '';
@@ -105,7 +105,7 @@ var processUpgrade = function() {
 	var upgradeContainer = document.querySelector('.upgrade-container');
 	var upgradeData = '';
 	requestParameters.action = 'upgrade';
-	requestParameters.data.orders = ordersGrid;
+	requestParameters.data.orders = orderGrid;
 	sendRequest(function(response) {
 		upgradeData += '<div class="align-left item-container no-margin-bottom no-margin-top no-padding-top">';
 		upgradeData += '<label for="upgrade-quantity">Select Order Upgrade Quantity</label>';

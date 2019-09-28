@@ -28,18 +28,25 @@ var processOrders = function() {
 		}
 	};
 	var processOrderGrid = function(orderIndexes, orderState) {
+		var productIdGrid = {};
 		orderIndexes.map(function(orderIndex) {
 			var order = ordersContainer.querySelector('.checkbox[index="' + orderIndex + '"]');
 			var orderId = order.getAttribute('order_id');
+			var productId = order.getAttribute('product_id');
 			order.setAttribute('checked', +orderState);
 			ordersGrid['order' + orderId] = orderId;
+			productIdGrid['product' + productId] = productId;
 
 			if (!+orderState) {
 				delete ordersGrid['order' + orderId];
 			}
 		});
 		elements.html('.item-configuration .total-checked', +(allVisibleChecked = Object.entries(ordersGrid).length));
-		allVisibleChecked ? elements.removeClass('.item-configuration span.icon[item-function]', 'hidden') : elements.addClass('.item-configuration span.icon[item-function]', 'hidden');
+
+		if (Object.entries(productIdGrid).length === 1) {
+			allVisibleChecked ? elements.removeClass('.item-configuration span.icon[item-function]', 'hidden') : elements.addClass('.item-configuration span.icon[item-function]', 'hidden');
+		}
+
 		ordersAllVisible.setAttribute('checked', +(allVisibleChecked === selectAllElements('.orders-container .item-button').length));
 		requestParameters.items[requestParameters.table] = ordersGrid;
 	};
@@ -71,7 +78,7 @@ var processOrders = function() {
 		) {
 			elements.removeClass('.item-configuration .item-controls', 'hidden');
 			response.data.map(function(item, index) {
-				ordersData += '<div class="item-container item-button"><div class="item"><span class="checkbox-container"><span checked="0" class="checkbox" index="' + index + '" order_id="' + item.id + '"></span></span><div class="item-body item-checkbox"><p><strong>' + item.quantity + ' ' + item.name + '</strong></p><p>$' + item.price + ' per ' + (item.interval_value > 1 ? item.interval_value + ' ' : '') + item.interval_type + (item.interval_value > 1 ? 's' : '') + '</p><label class="label ' + item.status + '">' + capitalizeString(item.status) + '</label></div></div><div class="item-link-container"><a class="item-link" href="/orders/' + item.id + '"></a></div></div>';
+				ordersData += '<div class="item-container item-button"><div class="item"><span class="checkbox-container"><span checked="0" class="checkbox" index="' + index + '" order_id="' + item.id + '" product_id="' + item.product_id + '"></span></span><div class="item-body item-checkbox"><p><strong>' + item.quantity + ' ' + item.name + '</strong></p><p>$' + item.price + ' per ' + (item.interval_value > 1 ? item.interval_value + ' ' : '') + item.interval_type + (item.interval_value > 1 ? 's' : '') + '</p><label class="label ' + item.status + '">' + capitalizeString(item.status) + '</label></div></div><div class="item-link-container"><a class="item-link" href="/orders/' + item.id + '"></a></div></div>';
 			});
 			ordersContainer.innerHTML = ordersData;
 			ordersAllVisible.removeEventListener('click', ordersAllVisible.clickListener);

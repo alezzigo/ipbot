@@ -103,10 +103,19 @@ var processOrders = function() {
 };
 var processUpgrade = function() {
 	var upgradeContainer = document.querySelector('.upgrade-container');
+	var upgradeData = '';
 	requestParameters.action = 'upgrade';
 	requestParameters.data.orders = ordersGrid;
 	sendRequest(function(response) {
-		// ..
+		upgradeData += '<div class="align-left item-container no-margin-bottom no-margin-top no-padding-top">';
+		upgradeData += '<label for="upgrade-quantity">Select Order Upgrade Quantity</label>';
+		upgradeData += '<div class="field-group no-margin">';
+		upgradeData += '<a class="button change-quantity-button decrease decrease-quantity" href="javascript:void(0);">-</a>';
+		upgradeData += '<input class="change-quantity-field upgrade-quantity width-auto" id="upgrade-quantity" max="10000" min="20" name="upgrade_quantity" step="1" type="number" value="1">';
+		upgradeData += '<a class="button change-quantity-button increase increase-quantity" href="javascript:void(0);">+</a>';
+		upgradeData += '</div>';
+		upgradeData += '</div>';
+		upgradeContainer.innerHTML = upgradeData;
 	});
 };
 requestParameters.table = defaultTable;

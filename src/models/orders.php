@@ -131,6 +131,7 @@ class OrdersModel extends AppModel {
 					'price_pending',
 					'product_id',
 					'quantity',
+					'quantity_pending',
 					'session_id',
 					'shipping',
 					'shipping_pending',

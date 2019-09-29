@@ -108,7 +108,7 @@ var processUpgrade = function(windowName, windowSelector, upgradeQuantity = 1) {
 	requestParameters.action = 'upgrade';
 	requestParameters.data.orders = orderGrid;
 	requestParameters.data.products = productIdGrid;
-	requestParameters.data.quantity = upgradeQuantity;
+	requestParameters.data.upgrade_quantity = upgradeQuantity;
 	sendRequest(function(response) {
 		var messageContainer = document.querySelector('.upgrade-configuration .message-container');
 
@@ -121,7 +121,7 @@ var processUpgrade = function(windowName, windowSelector, upgradeQuantity = 1) {
 			upgradeData += '<label for="upgrade-quantity">Select Order Upgrade Quantity</label>';
 			upgradeData += '<div class="field-group no-margin-top">';
 			upgradeData += '<a class="button change-quantity-button decrease decrease-quantity" href="javascript:void(0);" event_step="-1">-</a>';
-			upgradeData += '<input class="change-quantity-field upgrade-quantity width-auto" event_step="0" id="upgrade-quantity" max="' + response.data.product.maximum_quantity + '" min="' + response.data.product.minimum_quantity + '" name="upgrade_quantity" step="1" type="number" value="' + upgradeQuantity + '">';
+			upgradeData += '<input class="change-quantity-field upgrade-quantity width-auto" event_step="0" id="upgrade-quantity" max="' + response.data.product.maximum_quantity + '" min="' + response.data.product.minimum_quantity + '" name="upgrade_quantity" step="1" type="number" value="' + response.data.upgrade_quantity + '">';
 			upgradeData += '<a class="button change-quantity-button increase increase-quantity" href="javascript:void(0);" event_step="1">+</a>';
 			upgradeData += '</div>';
 			upgradeData += '</div>';
@@ -142,7 +142,7 @@ var processUpgrade = function(windowName, windowSelector, upgradeQuantity = 1) {
 				var timeoutId = setTimeout(function() {
 					processUpgrade(false, false, upgradeValue);
 				}, 400);
-				upgradeField.value = upgradeValue;
+				upgradeField.value = Math.min(response.data.product.maximum_quantity, Math.max(1, upgradeValue));
 			};
 			decreaseButton.addEventListener('click', decreaseButton.clickListener);
 			increaseButton.addEventListener('click', increaseButton.clickListener);

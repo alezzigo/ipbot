@@ -153,6 +153,7 @@ class OrdersModel extends AppModel {
 						'invoice' => $this->_retrieveLatestOrderInvoice($order),
 						'order' => $order
 					);
+					$response['data']['quantity'] += $order['quantity'];
 					unset($orders['data'][$key]);
 				}
 
@@ -176,6 +177,8 @@ class OrdersModel extends AppModel {
 
 					if (!empty($product['count'])) {
 						$response['data']['product'] = $product['data'][0];
+						$response['data']['upgrade_quantity'] = min($product['data'][0]['maximum_quantity'], max(1, $parameters['data']['upgrade_quantity']));
+						// ..
 						$response['message'] = array(
 							'status' => 'success',
 							'text' => ''

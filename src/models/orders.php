@@ -145,13 +145,13 @@ class OrdersModel extends AppModel {
 
 			if (!empty($orders['count'])) {
 				foreach ($orders['data'] as $key => $order) {
-					$orders['data'][$key] = array(
+					$intervalKey = $order['interval_value'] . '_' . $order['interval_type'];
+					$response['data']['current_orders'][$intervalKey][] = array(
 						'invoice' => $this->_retrieveLatestOrderInvoice($order),
 						'order' => $order
 					);
+					unset($orders['data'][$key]);
 				}
-
-				// ..
 			}
 		}
 

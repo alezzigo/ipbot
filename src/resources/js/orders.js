@@ -117,13 +117,19 @@ var processUpgrade = function(windowName, windowSelector, upgradeQuantity = 1) {
 		}
 
 		if (response.message.status === 'success') {
-			upgradeData += '<div class="align-left item-container no-margin no-padding">';
+			var orderGridCount = Object.entries(orderGrid).length;
+			upgradeData += '<div class="align-left item-container no-margin-top no-padding">';
 			upgradeData += '<label for="upgrade-quantity">Select Order Upgrade Quantity</label>';
-			upgradeData += '<div class="field-group no-margin-top">';
+			upgradeData += '<div class="field-group no-margin">';
 			upgradeData += '<a class="button change-quantity-button decrease decrease-quantity" href="javascript:void(0);" event_step="-1">-</a>';
 			upgradeData += '<input class="change-quantity-field upgrade-quantity width-auto" event_step="0" id="upgrade-quantity" max="' + response.data.product.maximum_quantity + '" min="' + response.data.product.minimum_quantity + '" name="upgrade_quantity" step="1" type="number" value="' + response.data.upgrade_quantity + '">';
 			upgradeData += '<a class="button change-quantity-button increase increase-quantity" href="javascript:void(0);" event_step="1">+</a>';
 			upgradeData += '</div>';
+			upgradeData += '</div>';
+			upgradeData += '<div class="clear"></div>';
+			upgradeData += '<div class="merged-order-details">';
+			upgradeData += '<p class="message success">The ' + orderGridCount + ' order' + (orderGridCount !== 1 ? 's' : '') + ' selected will merge into 1 order with the following details:</p>';
+			// ..
 			upgradeData += '</div>';
 			upgradeContainer.innerHTML = upgradeData;
 			var decreaseButton = upgradeContainer.querySelector('.decrease-quantity');
@@ -132,7 +138,8 @@ var processUpgrade = function(windowName, windowSelector, upgradeQuantity = 1) {
 			decreaseButton.removeEventListener('click', decreaseButton.clickListener);
 			increaseButton.removeEventListener('click', increaseButton.clickListener);
 			decreaseButton.clickListener = increaseButton.clickListener = upgradeField.keyupListener = function(button) {
-				var timeoutId = window.setTimeout(function() {}, 1);
+				upgradeContainer.querySelector('.merged-order-details').innerHTML = '<p class="message">Loading ...</p>';
+				var timeoutId = setTimeout(function() {}, 1);
 
 				while (timeoutId--) {
 					clearTimeout(timeoutId);

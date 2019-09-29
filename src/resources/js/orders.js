@@ -1,6 +1,7 @@
 'use_strict';
 
 var orderGrid = {};
+var productIdGrid = {};
 var defaultTable = 'orders';
 var previousAction = 'find';
 var processDowngrade = function() {
@@ -28,7 +29,7 @@ var processOrders = function() {
 		}
 	};
 	var processOrderGrid = function(orderIndexes, orderState) {
-		var productIdGrid = {};
+		productIdGrid = {};
 		orderIndexes.map(function(orderIndex) {
 			var order = ordersContainer.querySelector('.checkbox[index="' + orderIndex + '"]');
 			var orderId = order.getAttribute('order_id');
@@ -106,6 +107,7 @@ var processUpgrade = function() {
 	var upgradeData = '';
 	requestParameters.action = 'upgrade';
 	requestParameters.data.orders = orderGrid;
+	requestParameters.data.products = productIdGrid;
 	sendRequest(function(response) {
 		upgradeData += '<div class="align-left item-container no-margin-bottom no-margin-top no-padding-top">';
 		upgradeData += '<label for="upgrade-quantity">Select Order Upgrade Quantity</label>';
@@ -113,6 +115,7 @@ var processUpgrade = function() {
 		upgradeData += '<a class="button change-quantity-button decrease decrease-quantity" href="javascript:void(0);">-</a>';
 		upgradeData += '<input class="change-quantity-field upgrade-quantity width-auto" id="upgrade-quantity" max="10000" min="20" name="upgrade_quantity" step="1" type="number" value="1">';
 		upgradeData += '<a class="button change-quantity-button increase increase-quantity" href="javascript:void(0);">+</a>';
+		// ..
 		upgradeData += '</div>';
 		upgradeData += '</div>';
 		upgradeContainer.innerHTML = upgradeData;

@@ -144,13 +144,40 @@ class OrdersModel extends AppModel {
 			));
 
 			if (!empty($orders['count'])) {
+				$productIds = array();
+
 				foreach ($orders['data'] as $key => $order) {
 					$intervalKey = $order['interval_value'] . '_' . $order['interval_type'];
+					$productIds[$order['product_id']] = $order['product_id'];
 					$response['data']['current_orders'][$intervalKey][] = array(
 						'invoice' => $this->_retrieveLatestOrderInvoice($order),
 						'order' => $order
 					);
 					unset($orders['data'][$key]);
+				}
+
+				if (
+					!empty($productIds) &&
+					count($productIds) === 1 &&
+					($productId = key($productIds))
+				) {
+					$product = $this->find('products', array(
+						'conditions' => array(
+							'id' => $productId
+						),
+						'fields' => array(
+							'id',
+							'maximum_quantity',
+							'minimum_quantity',
+							'name',
+							'type'
+						)
+					));
+
+					if (!empty($product['count'])) {
+						$response['data']['product'] = $product['data'][0];
+						$response['message']['status'] = 'success';
+					}
 				}
 			}
 		}

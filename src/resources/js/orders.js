@@ -102,23 +102,52 @@ var processOrders = function() {
 		processWindowEvents('resize');
 	});
 };
-var processUpgrade = function() {
+var processUpgrade = function(windowName, windowSelector, upgradeQuantity = 1) {
 	var upgradeContainer = document.querySelector('.upgrade-container');
 	var upgradeData = '';
 	requestParameters.action = 'upgrade';
 	requestParameters.data.orders = orderGrid;
 	requestParameters.data.products = productIdGrid;
+	requestParameters.data.quantity = upgradeQuantity;
 	sendRequest(function(response) {
-		upgradeData += '<div class="align-left item-container no-margin-bottom no-margin-top no-padding-top">';
-		upgradeData += '<label for="upgrade-quantity">Select Order Upgrade Quantity</label>';
-		upgradeData += '<div class="field-group no-margin">';
-		upgradeData += '<a class="button change-quantity-button decrease decrease-quantity" href="javascript:void(0);">-</a>';
-		upgradeData += '<input class="change-quantity-field upgrade-quantity width-auto" id="upgrade-quantity" max="10000" min="20" name="upgrade_quantity" step="1" type="number" value="1">';
-		upgradeData += '<a class="button change-quantity-button increase increase-quantity" href="javascript:void(0);">+</a>';
-		// ..
-		upgradeData += '</div>';
-		upgradeData += '</div>';
-		upgradeContainer.innerHTML = upgradeData;
+		var messageContainer = document.querySelector('.upgrade-configuration .message-container');
+
+		if (messageContainer) {
+			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		}
+
+		if (response.message.status === 'success') {
+			upgradeData += '<div class="align-left item-container no-margin-bottom no-margin-top no-padding-top">';
+			upgradeData += '<label for="upgrade-quantity">Select Order Upgrade Quantity</label>';
+			upgradeData += '<div class="field-group no-margin">';
+			upgradeData += '<a class="button change-quantity-button decrease decrease-quantity" href="javascript:void(0);" event_step="-1">-</a>';
+			upgradeData += '<input class="change-quantity-field upgrade-quantity width-auto" event_step="0" id="upgrade-quantity" max="' + response.data.product.maximum_quantity + '" min="' + response.data.product.minimum_quantity + '" name="upgrade_quantity" step="1" type="number" value="' + upgradeQuantity + '">';
+			upgradeData += '<a class="button change-quantity-button increase increase-quantity" href="javascript:void(0);" event_step="1">+</a>';
+			upgradeData += '</div>';
+			upgradeData += '</div>';
+			upgradeContainer.innerHTML = upgradeData;
+			var decreaseButton = upgradeContainer.querySelector('.decrease-quantity');
+			var increaseButton = upgradeContainer.querySelector('.increase-quantity');
+			var upgradeField = upgradeContainer.querySelector('.upgrade-quantity');
+			decreaseButton.removeEventListener('click', decreaseButton.clickListener);
+			increaseButton.removeEventListener('click', increaseButton.clickListener);
+			decreaseButton.clickListener = increaseButton.clickListener = upgradeField.keyupListener = function(button) {
+				var timeoutId = window.setTimeout(function() {}, 1);
+
+				while (timeoutId--) {
+					clearTimeout(timeoutId);
+				}
+
+				var upgradeValue = parseInt(upgradeField.value) ? parseInt(upgradeField.value) + parseInt(button.target.getAttribute('event_step')) : response.data.product.minimum_quantity;
+				var timeoutId = setTimeout(function() {
+					processUpgrade(false, false, upgradeValue);
+				}, 400);
+				upgradeField.value = upgradeValue;
+			};
+			decreaseButton.addEventListener('click', decreaseButton.clickListener);
+			increaseButton.addEventListener('click', increaseButton.clickListener);
+			upgradeField.addEventListener('keyup', upgradeField.keyupListener);
+		}
 	});
 };
 requestParameters.table = defaultTable;

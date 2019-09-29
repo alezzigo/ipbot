@@ -176,7 +176,10 @@ class OrdersModel extends AppModel {
 
 					if (!empty($product['count'])) {
 						$response['data']['product'] = $product['data'][0];
-						$response['message']['status'] = 'success';
+						$response['message'] = array(
+							'status' => 'success',
+							'text' => ''
+						);
 					}
 				}
 			}

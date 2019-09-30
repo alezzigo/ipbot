@@ -144,17 +144,31 @@ class OrdersModel extends AppModel {
 			));
 
 			if (!empty($orders['count'])) {
-				$productIds = array();
+				$productIds = $selectedOrders = array();
+				$sortIntervals = array(
+					'day',
+					'week',
+					'month',
+					'year'
+				);
 
 				foreach ($orders['data'] as $key => $order) {
 					$intervalKey = $order['interval_value'] . '_' . $order['interval_type'];
 					$productIds[$order['product_id']] = $order['product_id'];
-					$response['data']['current_orders'][$intervalKey][] = array(
+					$sortInterval = array_search($order['interval_type'], $sortIntervals) . '__';
+					$selectedOrders[$sortInterval . $intervalKey][] = array(
 						'invoice' => $this->_retrieveLatestOrderInvoice($order),
 						'order' => $order
 					);
 					$response['data']['quantity'] += $order['quantity'];
 					unset($orders['data'][$key]);
+				}
+
+				$sortIntervalKeys = array_keys($selectedOrders);
+				natsort($sortIntervalKeys);
+
+				foreach ($sortIntervalKeys as $sortIntervalKey) {
+					$response['data']['current_orders'][$sortIntervalKey] = $selectedOrders[$sortIntervalKey];
 				}
 
 				if (

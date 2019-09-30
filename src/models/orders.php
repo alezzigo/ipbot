@@ -171,6 +171,9 @@ class OrdersModel extends AppModel {
 					$response['data']['current_orders'][$sortIntervalKey] = $selectedOrders[$sortIntervalKey];
 				}
 
+				$largestInterval = end($sortIntervalKeys);
+				// ..
+
 				if (
 					!empty($productIds) &&
 					count($productIds) === 1 &&

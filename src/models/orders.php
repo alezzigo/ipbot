@@ -124,7 +124,9 @@ class OrdersModel extends AppModel {
 					'created',
 					'id',
 					'interval_type',
+					'interval_type_pending',
 					'interval_value',
+					'interval_value_pending',
 					'modified',
 					'name',
 					'price',
@@ -144,7 +146,7 @@ class OrdersModel extends AppModel {
 			));
 
 			if (!empty($orders['count'])) {
-				$productIds = $selectedOrders = array();
+				$groupedOrders = $pendingInvoices = $pendingOrders = $productIds = $selectedOrders = array();
 				$sortIntervals = array(
 					'day',
 					'week',
@@ -156,7 +158,7 @@ class OrdersModel extends AppModel {
 					$intervalKey = $order['interval_value'] . '_' . $order['interval_type'];
 					$productIds[$order['product_id']] = $order['product_id'];
 					$sortInterval = array_search($order['interval_type'], $sortIntervals) . '__';
-					$selectedOrders[$sortInterval . $intervalKey][] = array(
+					$groupedOrders[$sortInterval . $intervalKey][] = $selectedOrders[] = array(
 						'invoice' => $this->_retrieveLatestOrderInvoice($order),
 						'order' => $order
 					);
@@ -164,15 +166,20 @@ class OrdersModel extends AppModel {
 					unset($orders['data'][$key]);
 				}
 
-				$sortIntervalKeys = array_keys($selectedOrders);
+				$sortIntervalKeys = array_keys($groupedOrders);
 				natsort($sortIntervalKeys);
+				$largestInterval = explode('_', end(explode('__', ($largestIntervalKey = end($sortIntervalKeys)))));
+				$merged = $groupedOrders[$largestIntervalKey][0];
 
-				foreach ($sortIntervalKeys as $sortIntervalKey) {
-					$response['data']['current_orders'][$sortIntervalKey] = $selectedOrders[$sortIntervalKey];
+				foreach ($selectedOrders as $key => $selectedOrder) {
+					$selectedOrders[$key] = array_merge($selectedOrder, array(
+						'order_pending' => $pendingOrders[] = array(
+							'id' => $selectedOrder['order']['id'],
+							'interval_type_pending' => $largestInterval[1],
+							'interval_value_pending' => $largestInterval[0]
+						)
+					));
 				}
-
-				$largestInterval = end($sortIntervalKeys);
-				// ..
 
 				if (
 					!empty($productIds) &&
@@ -195,11 +202,13 @@ class OrdersModel extends AppModel {
 					if (!empty($product['count'])) {
 						$response['data']['product'] = $product['data'][0];
 						$response['data']['upgrade_quantity'] = min($product['data'][0]['maximum_quantity'], max(1, $parameters['data']['upgrade_quantity']));
-						// ..
-						$response['message'] = array(
-							'status' => 'success',
-							'text' => ''
-						);
+
+						if ($this->save('orders', $pendingOrders)) {
+							$response['message'] = array(
+								'status' => 'success',
+								'text' => ''
+							);
+						}
 					}
 				}
 			}

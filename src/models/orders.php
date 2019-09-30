@@ -8,9 +8,9 @@
  * @link      https://parsonsbots.com
  * @link      https://eightomic.com
  */
-require_once($config->settings['base_path'] . '/models/app.php');
+require_once($config->settings['base_path'] . '/models/invoices.php');
 
-class OrdersModel extends AppModel {
+class OrdersModel extends InvoicesModel {
 
 /**
  * Retrieve latest order invoice data

@@ -128,8 +128,7 @@ var processUpgrade = function(windowName, windowSelector, upgradeQuantity = 1) {
 			upgradeData += '</div>';
 			upgradeData += '<div class="clear"></div>';
 			upgradeData += '<div class="merged-order-details">';
-			upgradeData += '<p class="message success">The ' + orderGridCount + ' order' + (orderGridCount !== 1 ? 's' : '') + ' selected will merge into 1 order with the following details:</p>';
-			// ..
+			upgradeData += '<p class="message success">The ' + orderGridCount + ' order' + (orderGridCount !== 1 ? 's' : '') + ' selected will merge into the following upgraded order:</p>';
 			upgradeData += '</div>';
 			upgradeContainer.innerHTML = upgradeData;
 			var decreaseButton = upgradeContainer.querySelector('.decrease-quantity');

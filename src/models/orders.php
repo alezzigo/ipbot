@@ -202,12 +202,23 @@ class OrdersModel extends InvoicesModel {
 					if (!empty($product['count'])) {
 						$response['data']['product'] = $product['data'][0];
 						$response['data']['upgrade_quantity'] = min($product['data'][0]['maximum_quantity'], max(1, $parameters['data']['upgrade_quantity']));
+						$response['message'] = array(
+							'status' => 'success',
+							'text' => ''
+						);
 
-						if ($this->save('orders', $pendingOrders)) {
+						if (!empty($parameters['data']['confirm_upgrade'])) {
 							$response['message'] = array(
-								'status' => 'success',
-								'text' => ''
+								'status' => 'error',
+								'text' => $defaultMessage
 							);
+
+							if ($this->save('orders', $pendingOrders)) {
+								$response['message'] = array(
+									'status' => 'success',
+									'text' => ''
+								);
+							}
 						}
 					}
 				}

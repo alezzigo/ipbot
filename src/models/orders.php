@@ -146,7 +146,7 @@ class OrdersModel extends InvoicesModel {
 			));
 
 			if (!empty($orders['count'])) {
-				$groupedOrders = $pendingInvoices = $pendingOrders = $productIds = $selectedOrders = array();
+				$groupedOrders = $pendingInvoices = $pendingOrders = $pendingOrderIds = $productIds = $selectedOrders = array();
 				$sortIntervals = array(
 					'day',
 					'week',
@@ -169,12 +169,16 @@ class OrdersModel extends InvoicesModel {
 				$sortIntervalKeys = array_keys($groupedOrders);
 				natsort($sortIntervalKeys);
 				$largestInterval = explode('_', end(explode('__', ($largestIntervalKey = end($sortIntervalKeys)))));
-				$merged = $groupedOrders[$largestIntervalKey][0];
+				$mergedData = $groupedOrders[$largestIntervalKey][0];
 
 				foreach ($selectedOrders as $key => $selectedOrder) {
 					$selectedOrders[$key] = array_merge($selectedOrder, array(
+						'invoice_pending' => $pendingInvoices[] = array(
+							'id' => $selectedOrder['invoice']['id'],
+							'merged_invoice_id' => ($selectedOrder['invoice']['id'] !== $mergedData['invoice']['id'] ? $mergedData['invoice']['id'] : null)
+						),
 						'order_pending' => $pendingOrders[] = array(
-							'id' => $selectedOrder['order']['id'],
+							'id' => $pendingOrderIds[] = $selectedOrder['order']['id'],
 							'interval_type_pending' => $largestInterval[1],
 							'interval_value_pending' => $largestInterval[0]
 						)
@@ -202,7 +206,7 @@ class OrdersModel extends InvoicesModel {
 					if (!empty($product['count'])) {
 						$response['data']['product'] = $product['data'][0];
 						$response['data']['upgrade_quantity'] = min($product['data'][0]['maximum_quantity'], max(1, $parameters['data']['upgrade_quantity']));
-						$response['message'] = array(
+						$response['message'] = $successMessage = array(
 							'status' => 'success',
 							'text' => ''
 						);
@@ -213,11 +217,36 @@ class OrdersModel extends InvoicesModel {
 								'text' => $defaultMessage
 							);
 
-							if ($this->save('orders', $pendingOrders)) {
-								$response['message'] = array(
-									'status' => 'success',
-									'text' => ''
-								);
+							if (
+								$this->save('invoices', $pendingInvoices) &&
+								$this->save('orders', $pendingOrders)
+							) {
+								$proxies = $this->find('proxies', array(
+									'conditions' => array(
+										'order_id' => $pendingOrderIds
+									),
+									'fields' => array(
+										'id',
+										'order_id'
+									)
+								));
+
+								if (!empty($proxies['count'])) {
+									$response['message'] = array(
+										'status' => 'error',
+										'text' => $defaultMessage
+									);
+
+									foreach ($proxies['data'] as $key => $proxy) {
+										$proxies['data'][$key]['order_id'] = $mergedData['order']['id'];
+									}
+
+									if ($this->save('proxies', $proxies['data'])) {
+										$response['message'] = $successMessage;
+									}
+								}
+
+								$response['message'] = $successMessage;
 							}
 						}
 					}

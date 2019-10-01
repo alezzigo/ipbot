@@ -38,6 +38,12 @@ class InvoicesModel extends UsersModel {
 
 			$response['invoice']['total'] += $response['invoice']['subtotal'];
 			$response['invoice']['total_pending'] += $response['invoice']['subtotal_pending'];
+
+			foreach ($response['invoice'] as $invoiceKey => $invoiceValue) {
+				if (is_numeric($invoiceValue)) {
+					$response['invoice'][$invoiceKey] = ($invoiceValue * 100) / 100;
+				}
+			}
 		}
 
 		$invoiceCalculationData = $response['invoice'];

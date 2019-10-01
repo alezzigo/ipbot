@@ -256,6 +256,10 @@ class OrdersModel extends InvoicesModel {
 								'status' => 'error',
 								'text' => $defaultMessage
 							);
+							unset($mergedData['invoice']['amount_due']);
+							unset($mergedData['invoice']['due']);
+							unset($mergedData['invoice']['payment_currency_name']);
+							unset($mergedData['invoice']['payment_currency_symbol']);
 							$pendingInvoices[$mergedData['invoice']['id']] = $mergedData['invoice'];
 							$pendingOrders[$mergedData['orders'][0]['id']] = $mergedData['orders'][0];
 

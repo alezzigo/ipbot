@@ -634,6 +634,7 @@ class InvoicesModel extends UsersModel {
 				'due',
 				'id',
 				'initial_invoice_id',
+				'merged_invoice_id',
 				'modified',
 				'session_id',
 				'shipping',

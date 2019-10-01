@@ -170,6 +170,7 @@ class OrdersModel extends InvoicesModel {
 				natsort($sortIntervalKeys);
 				$largestInterval = explode('_', end(explode('__', ($largestIntervalKey = end($sortIntervalKeys)))));
 				$mergedData = $groupedOrders[$largestIntervalKey][0];
+				$invoices = array();
 
 				foreach ($selectedOrders as $key => $selectedOrder) {
 					$selectedOrders[$key] = array_merge($selectedOrder, array(
@@ -185,9 +186,11 @@ class OrdersModel extends InvoicesModel {
 					));
 
 					if (
+						!in_array($selectedOrder['invoice']['id'], $invoices) &&
 						!empty($selectedOrder['invoice']['amount_paid']) &&
 						$selectedOrder['invoice']['id'] !== $mergedData['invoice']['id']
 					) {
+						$invoices[$selectedOrder['invoice']['id']] = $selectedOrder['invoice']['id'];
 						$mergedData['invoice']['amount_paid'] += $selectedOrder['invoice']['amount_paid'];
 					}
 				}

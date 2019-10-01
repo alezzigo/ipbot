@@ -13,20 +13,6 @@ require_once($config->settings['base_path'] . '/models/app.php');
 class CartsModel extends AppModel {
 
 /**
- * Calculate price for cart item
- *
- * @param array $cartItem
- *
- * @return integer $response
- */
-	protected function _calculateCartItemPrice($cartItem) {
-		$interval = $cartItem['interval_value'] * ($cartItem['interval_type'] == 'year' ? 12 : 1);
-		$response = number_format(($cartItem['price_per'] * $cartItem['quantity'] * $interval) - (($cartItem['price_per'] * $cartItem['quantity']) * ((min(1000 + ($cartItem['quantity'] / 10), $cartItem['quantity']) / $cartItem['volume_discount_divisor']) * $cartItem['volume_discount_multiple'] * $cartItem['interval_value'])), 2, '.', '');
-		// ..
-		return $response;
-	}
-
-/**
  * Retrieve cart from session
  *
  * @param array $parameters
@@ -99,7 +85,7 @@ class CartsModel extends AppModel {
 			foreach ($cartItems['data'] as $key => $cartItem) {
 				if (!empty($cartProductDetails = $cartProducts[$cartItem['product_id']])) {
 					$cartItem = array_merge($cartProductDetails, $cartItem);
-					$cartItem['price'] = $this->_calculateCartItemPrice($cartItem);
+					$cartItem['price'] = $this->_calculateItemPrice($cartItem);
 					$cartItems[$cartItem['id']] = $cartItem;
 				}
 			}
@@ -327,7 +313,7 @@ class CartsModel extends AppModel {
 								))
 							) {
 								$cartItems[$cartItemData['id']] = $cartItem = array_merge($cartItem, $cartItemData);
-								$cartItems[$cartItemData['id']]['price'] = $this->_calculateCartItemPrice($cartItem);
+								$cartItems[$cartItemData['id']]['price'] = $this->_calculateItemPrice($cartItem);
 								$response['message']['text'] = '';
 							}
 						}

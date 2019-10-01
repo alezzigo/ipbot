@@ -65,6 +65,20 @@ class AppModel extends Config {
 	}
 
 /**
+ * Calculate item price
+ *
+ * @param array $item
+ *
+ * @return integer $response
+ */
+	protected function _calculateItemPrice($item) {
+		$interval = $item['interval_value'] * ($item['interval_type'] == 'year' ? 12 : 1);
+		$response = number_format(($item['price_per'] * $item['quantity'] * $interval) - (($item['price_per'] * $item['quantity']) * ((min(1000 + ($item['quantity'] / 10), $item['quantity']) / $item['volume_discount_divisor']) * $item['volume_discount_multiple'] * $item['interval_value'])), 2, '.', '');
+		// ..
+		return $response;
+	}
+
+/**
  * Create token string from parameters and results
  *
  * @param string $table

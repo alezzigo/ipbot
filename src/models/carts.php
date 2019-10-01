@@ -381,8 +381,12 @@ class CartsModel extends AppModel {
 			}
 
 			foreach ($cartItems as $cartItem) {
+				if (empty($cartProduct = $cartProducts[$order['product_id']])) {
+					continue;
+				}
+
 				$invoices[$cartItem['interval_value'] . '_' . $cartItem['interval_type']][] = $cartItem['id'];
-				$orders[] = array_merge($orderConditions, array(
+				$order = array_merge($orderConditions, array(
 					'cart_item_id' => $cartItem['id'],
 					'interval_type' => $cartItem['interval_type'],
 					'interval_value' => $cartItem['interval_value'],
@@ -392,6 +396,10 @@ class CartsModel extends AppModel {
 					'quantity' => $cartItem['quantity'],
 					'type' => $cartItem['type']
 				));
+				$item = array_merge($order, $cartProduct);
+				$order['shipping'] = $this->_calculateItemShippingPrice($item);
+				$order['tax'] = $this->_calculateItemTaxPrice($item);
+				$orders[] = $order;
 				$orderConditions['cart_item_id'][] = $cartItem['id'];
 				$total += $cartItem['price'];
 			}

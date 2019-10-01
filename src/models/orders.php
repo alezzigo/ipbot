@@ -223,14 +223,31 @@ class OrdersModel extends InvoicesModel {
 						$response['data']['product'] = $product['data'][0];
 						$response['data']['upgrade_quantity'] = min($product['data'][0]['maximum_quantity'], max(1, $parameters['data']['upgrade_quantity']));
 						$mergedData['order']['quantity_pending'] = $mergedData['order']['quantity'] + $response['data']['upgrade_quantity'];
-						$mergedData['order']['price'] = $this->_calculateItemPrice(array(
+						$mergedData['order']['price'] = $this->_calculateItemPrice($order = array(
 							'interval_type' => $mergedData['order']['interval_type'],
 							'interval_value' => $mergedData['order']['interval_value'],
 							'price_per' => $response['data']['product']['price_per'],
-							'quantity' => $mergedData['order']['quantity_pending'],
+							'quantity' => $mergedData['order']['quantity'],
 							'volume_discount_divisor' => $response['data']['product']['volume_discount_divisor'],
 							'volume_discount_multiple' => $response['data']['product']['volume_discount_multiple']
 						));
+						$mergedData['order']['price_pending'] = $this->_calculateItemPrice(array_merge($order, array(
+							'interval_type' => $mergedData['order']['interval_type_pending'],
+							'interval_value' => $mergedData['order']['interval_value_pending'],
+							'quantity' => $mergedData['order']['quantity_pending']
+						)));
+						$pendingItem = array_merge(array(
+							'price' => $mergedData['order']['price_pending'],
+							'quantity' => $mergedData['order']['quantity_pending']
+						), $response['data']['product']);
+						$mergedData['order']['shipping_pending'] = $this->_calculateItemShippingPrice($pendingItem);
+						$mergedData['order']['tax_pending'] = $this->_calculateItemTaxPrice($pendingItem);
+						$mergedData['orders'][] = $mergedData['order'];
+						$mergedData = array_replace_recursive($mergedData, $this->_calculateInvoicePaymentDetails($mergedData));
+						unset($mergedData['order']);
+
+						// ..
+
 						$response['message'] = $successMessage = array(
 							'status' => 'success',
 							'text' => ''

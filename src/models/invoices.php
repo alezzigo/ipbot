@@ -22,68 +22,39 @@ class InvoicesModel extends UsersModel {
 	protected function _calculateInvoicePaymentDetails($invoiceData) {
 		$response = $invoiceData;
 
+		if (!empty($response['orders'])) {
+			$response['invoice']['total'] = $response['invoice']['total_pending'] = $response['invoice']['subtotal'] = $response['invoice']['subtotal_pending'] = 0;
+
+			foreach ($response['orders'] as $key => $invoiceOrder) {
+				$response['invoice']['shipping'] += $invoiceOrder['shipping'];
+				$response['invoice']['shipping_pending'] += $invoiceOrder['shipping_pending'];
+				$response['invoice']['subtotal'] += $invoiceOrder['price'];
+				$response['invoice']['subtotal_pending'] += $invoiceOrder['price_pending'];
+				$response['invoice']['tax'] += $invoiceOrder['tax'];
+				$response['invoice']['tax_pending'] += $invoiceOrder['tax_pending'];
+				$response['invoice']['total'] += $invoiceOrder['shipping'] + $invoiceOrder['tax'];
+				$response['invoice']['total_pending'] += $invoiceOrder['shipping_pending'] + $invoiceOrder['tax_pending'];
+			}
+
+			$response['invoice']['total'] += $response['invoice']['subtotal'];
+			$response['invoice']['total_pending'] += $response['invoice']['subtotal_pending'];
+		}
+
+		$invoiceCalculationData = $response['invoice'];
+		unset($invoiceCalculationData['amount_paid']);
+		unset($invoiceCalculationData['billing']);
+		unset($invoiceCalculationData['created']);
+		unset($invoiceCalculationData['initial_invoice_id']);
+		unset($invoiceCalculationData['modified']);
+		unset($invoiceCalculationData['user_id']);
+
 		if (
-			$response['invoice']['status'] === 'unpaid' ||
-			$response['invoice']['amount_paid'] < $response['invoice']['total']
-		) {
-			if (!empty($response['orders'])) {
-				$response['invoice']['total'] = $response['invoice']['subtotal'] = 0;
-				$invoiceOrderProducts = array();
-
-				foreach ($response['orders'] as $key => $invoiceOrder) {
-					if (empty($invoiceOrderProducts[$invoiceOrder['product_id']])) {
-						$invoiceOrderProduct = $this->find('products', array(
-							'conditions' => array(
-								'id' => $invoiceOrder['product_id']
-							),
-							'fields' => array(
-								'created',
-								'has_shipping',
-								'has_tax',
-								'name',
-								'maximum_quantity',
-								'minimum_quantity',
-								'modified',
-								'price_per',
-								'type',
-								'uri',
-								'volume_discount_divisor',
-								'volume_discount_multiple'
-							)
-						));
-
-						if (empty($invoiceOrderProduct['count'])) {
-							$this->delete('orders', array(
-								'id' => $invoiceOrder['id']
-							));
-							continue;
-						}
-
-						$invoiceOrderProducts[$invoiceOrder['product_id']] = $invoiceOrderProduct['data'][0];
-					}
-
-					$invoiceOrderProduct = $invoiceOrderProducts[$invoiceOrder['product_id']];
-					$response['invoice']['shipping'] += $this->_calculateInvoiceOrderShippingPrice($response['invoice'], $invoiceOrder, $invoiceOrderProduct);
-					$response['invoice']['subtotal'] += $invoiceOrder['price'];
-					$response['invoice']['tax'] += $this->_calculateInvoiceOrderTaxPrice($response['invoice'], $invoiceOrder, $invoiceOrderProduct);
-					$response['invoice']['total'] += $invoiceOrder['shipping'] + $invoiceOrder['tax'];
-				}
-
-				$response['invoice']['total'] += $response['invoice']['subtotal'];
-			}
-
-			$invoiceCalculationData = $response['invoice'];
-			unset($invoiceCalculationData['billing']);
-			unset($invoiceCalculationData['created']);
-			unset($invoiceCalculationData['initial_invoice_id']);
-			unset($invoiceCalculationData['modified']);
-			unset($invoiceCalculationData['user_id']);
-
-			if (!$this->save('invoices', array(
+			empty($invoiceCalculationData) ||
+			!$this->save('invoices', array(
 				$invoiceCalculationData
-			))) {
-				$response = $invoiceData;
-			}
+			))
+		) {
+			$response = $invoiceData;
 		}
 
 		if (!empty($response['invoice']['due'])) {
@@ -94,36 +65,6 @@ class InvoicesModel extends UsersModel {
 		$response['invoice']['amount_due'] = max(0, round(($response['invoice']['total'] - $response['invoice']['amount_paid']) * 100) / 100);
 		$response['invoice']['payment_currency_name'] = $this->settings['billing']['currency_name'];
 		$response['invoice']['payment_currency_symbol'] = $this->settings['billing']['currency_symbol'];
-		return $response;
-	}
-
-/**
- * Calculate invoice order shipping price
- *
- * @param array $invoiceData
- * @param array $orderData
- * @param array $productData
- *
- * @return float $response
- */
-	protected function _calculateInvoiceOrderShippingPrice($invoiceData, $orderData, $productData) {
-		$response = 0.00;
-		// ..
-		return $response;
-	}
-
-/**
- * Calculate invoice order tax price
- *
- * @param array $invoiceData
- * @param array $orderData
- * @param array $productData
- *
- * @return float $response
- */
-	protected function _calculateInvoiceOrderTaxPrice($invoiceData, $orderData, $productData) {
-		$response = 0.00;
-		// ..
 		return $response;
 	}
 
@@ -154,7 +95,9 @@ class InvoicesModel extends UsersModel {
 					'created',
 					'id',
 					'interval_type',
+					'interval_type_pending',
 					'interval_value',
+					'interval_value_pending',
 					'modified',
 					'name',
 					'price',

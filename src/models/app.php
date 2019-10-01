@@ -69,11 +69,37 @@ class AppModel extends Config {
  *
  * @param array $item
  *
- * @return integer $response
+ * @return float $response
  */
 	protected function _calculateItemPrice($item) {
 		$interval = $item['interval_value'] * ($item['interval_type'] == 'year' ? 12 : 1);
 		$response = number_format(($item['price_per'] * $item['quantity'] * $interval) - (($item['price_per'] * $item['quantity']) * ((min(1000 + ($item['quantity'] / 10), $item['quantity']) / $item['volume_discount_divisor']) * $item['volume_discount_multiple'] * $item['interval_value'])), 2, '.', '');
+		// ..
+		return $response;
+	}
+
+/**
+ * Calculate item shipping price
+ *
+ * @param array $item
+ *
+ * @return float $response
+ */
+	protected function _calculateItemShippingPrice($item) {
+		$response = 0.00;
+		// ..
+		return $response;
+	}
+
+/**
+ * Calculate item tax price
+ *
+ * @param array $item
+ *
+ * @return float $response
+ */
+	protected function _calculateItemTaxPrice($item) {
+		$response = 0.00;
 		// ..
 		return $response;
 	}

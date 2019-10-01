@@ -174,11 +174,11 @@ class OrdersModel extends InvoicesModel {
 
 				foreach ($selectedOrders as $key => $selectedOrder) {
 					$selectedOrders[$key] = array_merge($selectedOrder, array(
-						'invoice_pending' => $pendingInvoices[] = array(
+						'invoice_pending' => $pendingInvoices[$selectedOrder['invoice']['id']] = array(
 							'id' => $selectedOrder['invoice']['id'],
 							'merged_invoice_id' => ($selectedOrder['invoice']['id'] !== $mergedData['invoice']['id'] ? $mergedData['invoice']['id'] : null)
 						),
-						'order_pending' => $pendingOrders[] = array(
+						'order_pending' => $pendingOrders[$selectedOrder['order']['id']] = array(
 							'id' => $pendingOrderIds[] = $selectedOrder['order']['id'],
 							'interval_type_pending' => $largestInterval[1],
 							'interval_value_pending' => $largestInterval[0]
@@ -245,9 +245,7 @@ class OrdersModel extends InvoicesModel {
 						$mergedData['orders'][] = $mergedData['order'];
 						$mergedData = array_replace_recursive($mergedData, $this->_calculateInvoicePaymentDetails($mergedData));
 						unset($mergedData['order']);
-
-						// ..
-
+						$response['data']['merged'] = $mergedData;
 						$response['message'] = $successMessage = array(
 							'status' => 'success',
 							'text' => ''
@@ -258,11 +256,12 @@ class OrdersModel extends InvoicesModel {
 								'status' => 'error',
 								'text' => $defaultMessage
 							);
+							$pendingInvoices[$mergedData['invoice']['id']] = $mergedData['invoice'];
+							$pendingOrders[$mergedData['orders'][0]['id']] = $mergedData['orders'][0];
 
 							if (
-								$this->save('invoices', $pendingInvoices) &&
-								$this->save('orders', $pendingOrders)
-								// ..
+								$this->save('invoices', array_values($pendingInvoices)) &&
+								$this->save('orders', array_values($pendingOrders))
 							) {
 								$proxies = $this->find('proxies', array(
 									'conditions' => array(

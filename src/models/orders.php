@@ -198,6 +198,7 @@ class OrdersModel extends InvoicesModel {
 					}
 				}
 
+				$mergedData['order']['quantity_pending'] = $mergedData['order']['quantity'] + $parameters['data']['upgrade_quantity'];
 				// ..
 
 				if (
@@ -235,6 +236,7 @@ class OrdersModel extends InvoicesModel {
 							if (
 								$this->save('invoices', $pendingInvoices) &&
 								$this->save('orders', $pendingOrders)
+								// ..
 							) {
 								$proxies = $this->find('proxies', array(
 									'conditions' => array(

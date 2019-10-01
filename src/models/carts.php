@@ -381,7 +381,7 @@ class CartsModel extends AppModel {
 			}
 
 			foreach ($cartItems as $cartItem) {
-				if (empty($cartProduct = $cartProducts[$order['product_id']])) {
+				if (empty($cartProduct = $cartProducts[$cartItem['product_id']])) {
 					continue;
 				}
 

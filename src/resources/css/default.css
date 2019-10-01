@@ -69,7 +69,7 @@ h2 {
 	font-size: 17px;
 	font-weight: 400;
 	margin-bottom: 16px;
-	margin-top: 51px;
+	margin-top: 35px;
 	padding-bottom: 7px;
 }
 p {
@@ -185,7 +185,8 @@ main {
 		margin: 10px 0;
 		width: 100%;
 	}
-	main p {
+	main p,
+	.merged-order-details p {
 		margin-bottom: 15px;
 	}
 .field-group {
@@ -548,7 +549,7 @@ main {
 		}
 	.item-container.item-button {
 		border: 1px solid #dddbf4;
-		padding: 15px;
+		padding: 15px !important;
 	}
 		.item-container.item-button .item .checkbox-container {
 			height: 50px;
@@ -884,7 +885,7 @@ main {
 	margin-right: 6px;
 }
 .cart-items-container .item-button-selectable {
-	padding-left: 51px;
+	padding-left: 51px !important;
 }
 .transactions .label {
 	display: block;

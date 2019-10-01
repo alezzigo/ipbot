@@ -244,7 +244,6 @@ class OrdersModel extends InvoicesModel {
 						$mergedData['order']['tax_pending'] = $this->_calculateItemTaxPrice($pendingItem);
 						$mergedData['orders'][] = $mergedData['order'];
 						$mergedData = array_replace_recursive($mergedData, $this->_calculateInvoicePaymentDetails($mergedData));
-						unset($mergedData['order']);
 						$response['data']['merged'] = $mergedData;
 						$response['message'] = $successMessage = array(
 							'status' => 'success',
@@ -256,12 +255,13 @@ class OrdersModel extends InvoicesModel {
 								'status' => 'error',
 								'text' => $defaultMessage
 							);
-							unset($mergedData['invoice']['amount_due']);
-							unset($mergedData['invoice']['due']);
-							unset($mergedData['invoice']['payment_currency_name']);
-							unset($mergedData['invoice']['payment_currency_symbol']);
-							$pendingInvoices[$mergedData['invoice']['id']] = $mergedData['invoice'];
-							$pendingOrders[$mergedData['orders'][0]['id']] = $mergedData['orders'][0];
+							$pendingInvoices[$mergedData['invoice']['id']] = array_diff_key($mergedData['invoice'], array(
+								'amount_due' => true,
+								'due' => true,
+								'payment_currency_name' => true,
+								'payment_currency_symbol' => true
+							));
+							$pendingOrders[$mergedData['order']['id']] = $mergedData['order'];
 
 							if (
 								$this->save('invoices', array_values($pendingInvoices)) &&

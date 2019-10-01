@@ -183,7 +183,16 @@ class OrdersModel extends InvoicesModel {
 							'interval_value_pending' => $largestInterval[0]
 						)
 					));
+
+					if (
+						!empty($selectedOrder['invoice']['amount_paid']) &&
+						$selectedOrder['invoice']['id'] !== $mergedData['invoice']['id']
+					) {
+						$mergedData['invoice']['amount_paid'] += $selectedOrder['invoice']['amount_paid'];
+					}
 				}
+
+				// ..
 
 				if (
 					!empty($productIds) &&

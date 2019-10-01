@@ -198,9 +198,6 @@ class OrdersModel extends InvoicesModel {
 					}
 				}
 
-				$mergedData['order']['quantity_pending'] = $mergedData['order']['quantity'] + $parameters['data']['upgrade_quantity'];
-				// ..
-
 				if (
 					!empty($productIds) &&
 					count($productIds) === 1 &&
@@ -215,13 +212,25 @@ class OrdersModel extends InvoicesModel {
 							'maximum_quantity',
 							'minimum_quantity',
 							'name',
-							'type'
+							'price_per',
+							'type',
+							'volume_discount_divisor',
+							'volume_discount_multiple'
 						)
 					));
 
 					if (!empty($product['count'])) {
 						$response['data']['product'] = $product['data'][0];
 						$response['data']['upgrade_quantity'] = min($product['data'][0]['maximum_quantity'], max(1, $parameters['data']['upgrade_quantity']));
+						$mergedData['order']['quantity_pending'] = $mergedData['order']['quantity'] + $response['data']['upgrade_quantity'];
+						$mergedData['order']['price'] = $this->_calculateItemPrice(array(
+							'interval_type' => $mergedData['order']['interval_type'],
+							'interval_value' => $mergedData['order']['interval_value'],
+							'price_per' => $response['data']['product']['price_per'],
+							'quantity' => $mergedData['order']['quantity_pending'],
+							'volume_discount_divisor' => $response['data']['product']['volume_discount_divisor'],
+							'volume_discount_multiple' => $response['data']['product']['volume_discount_multiple']
+						));
 						$response['message'] = $successMessage = array(
 							'status' => 'success',
 							'text' => ''

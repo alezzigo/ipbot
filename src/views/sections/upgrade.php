@@ -14,7 +14,7 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button main-button submit" process="upgrade" window="upgrade">Confirm Upgrade</button>
+						<button class="button main-button submit" process="upgrade" window="upgrade">Merge and Upgrade Order</button>
 					</div>
 				</div>
 			</div>

@@ -462,12 +462,12 @@ class TransactionsModel extends InvoicesModel {
 							'conditions' => array(
 								'due >' => date('Y-m-d h:i:s', strtotime($invoice['data']['invoice']['due'])),
 								'id !=' => $invoice['data']['invoice']['id'],
+								'initial_invoice_id' => array_filter(array(
+									$invoice['data']['invoice']['id'],
+									$invoice['data']['invoice']['initial_invoice_id']
+								)),
 								'status' => 'unpaid',
-								'user_id' => $invoice['data']['invoice']['user_id'],
-								'OR' => array(
-									'initial_invoice_id' => $invoice['data']['invoice']['id'],
-									'initial_invoice_id' => $invoice['data']['invoice']['initial_invoice_id']
-								)
+								'user_id' => $invoice['data']['invoice']['user_id']
 							),
 							'fields' => array(
 								'due',

@@ -121,7 +121,7 @@ var processInvoice = function() {
 var processInvoices = function() {
 	requestParameters.action = 'find';
 	requestParameters.sort = {
-		field: 'created',
+		field: 'modified',
 		order: 'DESC'
 	};
 	requestParameters.table = 'invoices';

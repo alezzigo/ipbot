@@ -52,6 +52,10 @@ var processOrders = function() {
 		requestParameters.items[requestParameters.table] = orderGrid;
 	};
 	requestParameters.action = previousAction;
+	requestParameters.sort = {
+		field: 'modified',
+		order: 'DESC'
+	};
 	var ordersData = '';
 	sendRequest(function(response) {
 		var messageContainer = document.querySelector('main .message-container');

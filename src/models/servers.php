@@ -136,7 +136,7 @@ class ServersModel extends AppModel {
 
 			foreach ($splitDisabledProxies as $proxies) {
 				foreach ($splitDisabledPorts as $ports) {
-					$response['firewall_filter'][] = '-A INPUT -p tcp ! -i lo -d ' . implode(',', $proxies) . ' -m multiport --dports ' . implode(',', $ports) . ' -j REJECT --reject-with tcp-reset';
+					$response['firewall_filter'][] = '-A INPUT -p tcp ! -i lo -d ' . implode(',', $proxies) . ' -m multiport --dports ' . implode(',', $ports) . ' -j DROP';
 				}
 			}
 		}

@@ -177,6 +177,7 @@ class OrdersModel extends InvoicesModel {
 					'interval_value_pending' => (integer) $largestInterval[0]
 				);
 				$mergedData['order'] = array_merge($mergedData['order'], $mergedInterval);
+				// ..
 
 				foreach ($selectedOrders as $key => $selectedOrder) {
 					$selectedOrders[$key] = array_merge($selectedOrder, array(
@@ -296,7 +297,7 @@ class OrdersModel extends InvoicesModel {
 
 						$mergedData['invoice']['prorate_pending'] = max(0, round($mergedData['invoice']['prorate_pending']) * 100 / 100);
 						$response['data']['merged'] = $mergedData;
-						$response['message'] = $successMessage = array(
+						$response['message'] = array(
 							'status' => 'success',
 							'text' => ''
 						);
@@ -366,7 +367,10 @@ class OrdersModel extends InvoicesModel {
 								$this->save('proxy_groups', $pendingProxyGroups) &&
 								$this->save('transactions', $pendingTransactions)
 							) {
-								$response['message'] = $successMessage;
+								$response['message'] = array(
+									'status' => 'success',
+									'text' => 'Redirecting to merged invoice for payment, please wait.'
+								);
 								$response['redirect'] = $this->settings['base_url'] . 'invoices/' . $mergedData['invoice']['id'];
 							}
 						}

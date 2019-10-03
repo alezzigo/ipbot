@@ -70,14 +70,6 @@ var processOrders = function() {
 		}
 
 		if (
-			typeof response.redirect === 'string' &&
-			response.redirect
-		) {
-			window.location.href = response.redirect;
-			return false;
-		}
-
-		if (
 			ordersContainer &&
 			response.data.length
 		) {
@@ -118,6 +110,14 @@ var processUpgrade = function(windowName, windowSelector, upgradeQuantity = 1) {
 
 		if (messageContainer) {
 			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		}
+
+		if (
+			typeof response.redirect === 'string' &&
+			response.redirect
+		) {
+			window.location.href = response.redirect;
+			return false;
 		}
 
 		if (response.message.status === 'success') {

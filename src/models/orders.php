@@ -128,7 +128,6 @@ class OrdersModel extends InvoicesModel {
 					'interval_type_pending',
 					'interval_value',
 					'interval_value_pending',
-					'modified',
 					'name',
 					'price',
 					'price_pending',
@@ -311,6 +310,7 @@ class OrdersModel extends InvoicesModel {
 								'amount_due' => true,
 								'amount_due_pending' => true,
 								'due' => true,
+								'modified' => true,
 								'payment_currency_name' => true,
 								'payment_currency_symbol' => true
 							));

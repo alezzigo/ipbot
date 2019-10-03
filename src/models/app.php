@@ -678,7 +678,7 @@ class AppModel extends Config {
 /**
  * Send mail
  *
- * @param string $parameters
+ * @param array $parameters
  *
  * @return boolean $response
  */

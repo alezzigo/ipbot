@@ -377,7 +377,7 @@ class ProxiesModel extends AppModel {
 		$response = array(
 			'message' => array(
 				'status' => 'error',
-				'text' => 'No selected items were eligible for replacements, please try again.'
+				'text' => 'Error processing your replacement request, please try again.'
 			)
 		);
 

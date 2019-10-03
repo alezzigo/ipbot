@@ -246,6 +246,52 @@ class OrdersModel extends InvoicesModel {
 						$mergedData['order']['tax_pending'] = $this->_calculateItemTaxPrice($pendingItem);
 						$mergedData['orders'][] = $mergedData['order'];
 						$mergedData = array_replace_recursive($mergedData, $this->_calculateInvoicePaymentDetails($mergedData));
+						$mergedData['invoice']['prorate_pending'] = $mergedData['invoice']['total_pending'];
+
+						foreach ($selectedOrders as $key => $selectedOrder) {
+							$mergedData['invoice']['prorate_pending'] -= min($selectedOrder['invoice']['total'], $selectedOrder['invoice']['amount_paid']);
+
+							if (!empty($selectedOrder['invoice']['initial_invoice_id'])) {
+								$previousInvoice = $this->find('invoices', array(
+									'conditions' => array(
+										'due >' => date('Y-m-d H:i:s', strtotime($selectedOrder['invoice']['due'] . ' -' . $selectedOrder['order']['interval_value'] . ' ' . $selectedOrder['order']['interval_type'] . ' -1 day')),
+										'id' => $selectedOrder['invoice']['initial_invoice_id'],
+										'id !=' => $selectedOrder['invoice']['id']
+									),
+									'fields' => array(
+										'amount_paid',
+										'due',
+										'id',
+										'status',
+										'total'
+									),
+									'limit' => 1,
+									'sort' => array(
+										'field' => 'due',
+										'order' => 'DESC'
+									)
+								));
+
+								if (
+									!empty($previousInvoice['count']) &&
+									$previousInvoice['data'][0]['amount_paid'] > 0 &&
+									($previousInvoiceData = $previousInvoice['data'][0])
+								) {
+									if (
+										$previousInvoiceData['amount_paid'] < $previousInvoiceData['total'] &&
+										$previousInvoiceData['status'] === 'unpaid'
+									) {
+										$mergedData['invoice']['prorate_pending'] -= $previousInvoiceData['amount_paid'];
+									} else {
+										$amountPaid = min($previousInvoiceData['total'], $previousInvoiceData['amount_paid']);
+										$paidTime = max(1, time() - strtotime($previousInvoiceData['due']));
+										$intervalTime = max(1, strtotime($selectedOrder['invoice']['due']) - strtotime($previousInvoiceData['due']));
+										$mergedData['invoice']['prorate_pending'] -= round(((1 - (max(0, $paidTime / $intervalTime))) * $amountPaid) * 100) / 100;
+									}
+								}
+							}
+						}
+
 						$response['data']['merged'] = $mergedData;
 						$response['message'] = $successMessage = array(
 							'status' => 'success',

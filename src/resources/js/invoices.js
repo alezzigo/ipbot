@@ -166,9 +166,8 @@ var processLoginVerification = function(response) {
 	}
 };
 var processPayment = function(windowName, windowSelector) {
-	var invoiceId = document.querySelector('input[name="invoice_id"]').value;
 	requestParameters.action = 'payment';
-	requestParameters.data.invoice_id = invoiceId;
+	requestParameters.data.invoice_id = document.querySelector('input[name="invoice_id"]').value;
 	requestParameters.table = 'transactions';
 	requestParameters.url = '/api/transactions';
 	delete requestParameters.conditions;

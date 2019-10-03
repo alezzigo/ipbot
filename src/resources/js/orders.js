@@ -92,9 +92,9 @@ var processOrders = function() {
 			};
 			ordersAllVisible.addEventListener('click', ordersAllVisible.clickListener);
 			elements.loop('.orders-container .item-button', function(index, row) {
+				var orderId = orderToggleButton.getAttribute('order_id');
 				var orderToggleButton = row.querySelector('.checkbox');
 				orderToggleButton.removeEventListener('click', orderToggleButton.clickListener);
-				var orderId = orderToggleButton.getAttribute('order_id');
 				orderToggleButton.clickListener = function() {
 					orderToggle(orderToggleButton);
 				};
@@ -107,12 +107,12 @@ var processOrders = function() {
 	});
 };
 var processUpgrade = function(windowName, windowSelector, upgradeQuantity = 1) {
-	var upgradeContainer = document.querySelector('.upgrade-container');
-	var upgradeData = '';
 	requestParameters.action = 'upgrade';
 	requestParameters.data.orders = orderGrid;
 	requestParameters.data.products = productIdGrid;
 	requestParameters.data.upgrade_quantity = upgradeQuantity;
+	var upgradeContainer = document.querySelector('.upgrade-container');
+	var upgradeData = '';
 	sendRequest(function(response) {
 		var messageContainer = document.querySelector('.upgrade-configuration .message-container');
 

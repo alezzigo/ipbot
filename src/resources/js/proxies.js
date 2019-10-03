@@ -79,9 +79,9 @@ var processGroup = function(windowName, windowSelector) {
 		var originalRow = row.querySelector('.table-text').innerHTML;
 		row.querySelector('.table-text').innerHTML = '<div class="field-group no-margin"><input class="group-name-edit-field no-margin" id="group-name-edit" name="group_name" type="text" value="' + row.querySelector('.view').innerText + '"><button class="button group-name-save-edit-button">Save</button><button class="button group-name-cancel-edit-button">Cancel</button></div>';
 		row = document.querySelector(windowSelector + ' tbody tr[group_id="' + row.getAttribute('group_id') + '"]');
-		var groupNameCancelEditButton = row.querySelector('.group-name-cancel-edit-button'),
-			groupNameEditField = row.querySelector('.group-name-edit-field'),
-			groupNameSaveEditButton = row.querySelector('.group-name-save-edit-button');
+		var groupNameCancelEditButton = row.querySelector('.group-name-cancel-edit-button');
+		var groupNameEditField = row.querySelector('.group-name-edit-field');
+		var groupNameSaveEditButton = row.querySelector('.group-name-save-edit-button');
 		groupNameCancelEditButton.removeEventListener('click', groupNameCancelEditButton.clickListener);
 		groupNameEditField.removeEventListener('keydown', groupNameEditField.keydownListener);
 		groupNameSaveEditButton.removeEventListener('click', groupNameSaveEditButton.clickListener);

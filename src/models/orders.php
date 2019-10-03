@@ -47,6 +47,7 @@ class OrdersModel extends InvoicesModel {
 					'id',
 					'initial_invoice_id',
 					'modified',
+					'prorate_pending',
 					'session_id',
 					'shipping',
 					'shipping_pending',
@@ -146,7 +147,7 @@ class OrdersModel extends InvoicesModel {
 			));
 
 			if (!empty($orders['count'])) {
-				$groupedOrders = $pendingInvoices = $pendingInvoiceIds = $pendingOrders = $pendingOrderIds = $pendingTransactions = $productIds = $selectedOrders = array();
+				$groupedOrders = $pendingInvoices = $pendingInvoiceIds = $pendingOrders = $pendingOrderIds = $pendingProxies = $pendingProxyGroups = $pendingTransactions = $productIds = $selectedOrders = array();
 				$sortIntervals = array(
 					'day',
 					'week',
@@ -307,11 +308,41 @@ class OrdersModel extends InvoicesModel {
 							);
 							$pendingInvoices[$mergedData['invoice']['id']] = array_diff_key($mergedData['invoice'], array(
 								'amount_due' => true,
+								'amount_due_pending' => true,
 								'due' => true,
 								'payment_currency_name' => true,
 								'payment_currency_symbol' => true
 							));
 							$pendingOrders[$mergedData['order']['id']] = $mergedData['order'];
+							$proxyParameters = array(
+								'conditions' => array(
+									'order_id' => $pendingOrderIds
+								),
+								'fields' => array(
+									'id',
+									'order_id'
+								)
+							);
+							$proxies = $this->find('proxies', $proxyParameters);
+
+							if (!empty($proxies['count'])) {
+								foreach ($proxies['data'] as $key => $proxy) {
+									$proxies['data'][$key]['order_id'] = $mergedData['order']['id'];
+								}
+
+								$pendingProxies = array_values($proxies['data']);
+							}
+
+							$proxyGroups = $this->find('proxy_groups', $proxyParameters);
+
+							if (!empty($proxyGroups['count'])) {
+								foreach ($proxyGroups['data'] as $key => $proxyGroup) {
+									$proxyGroups['data'][$key]['order_id'] = $mergedData['order']['id'];
+								}
+
+								$pendingProxyGroups = array_values($proxyGroups['data']);
+							}
+
 							$transactions = $this->find('transactions', array(
 								'conditions' => array(
 									'invoice_id' => array_values($pendingInvoiceIds)
@@ -323,42 +354,20 @@ class OrdersModel extends InvoicesModel {
 							));
 
 							if (!empty($transactions['count'])) {
-								$pendingTransactions = array_replace_recursive($transactions['data'], array_fill(0, $transactions['count'], array(
+								$pendingTransactions = array_values(array_replace_recursive($transactions['data'], array_fill(0, $transactions['count'], array(
 									'invoice_id' => $mergedData['invoice']['id']
-								)));
+								))));
 							}
 
 							if (
 								$this->save('invoices', array_values($pendingInvoices)) &&
 								$this->save('orders', array_values($pendingOrders)) &&
-								$this->save('transactions', array_values($pendingTransactions))
+								$this->save('proxies', $pendingProxies) &&
+								$this->save('proxy_groups', $pendingProxyGroups) &&
+								$this->save('transactions', $pendingTransactions)
 							) {
-								$proxies = $this->find('proxies', array(
-									'conditions' => array(
-										'order_id' => $pendingOrderIds
-									),
-									'fields' => array(
-										'id',
-										'order_id'
-									)
-								));
-
-								if (!empty($proxies['count'])) {
-									$response['message'] = array(
-										'status' => 'error',
-										'text' => $defaultMessage
-									);
-
-									foreach ($proxies['data'] as $key => $proxy) {
-										$proxies['data'][$key]['order_id'] = $mergedData['order']['id'];
-									}
-
-									if ($this->save('proxies', $proxies['data'])) {
-										$response['message'] = $successMessage;
-									}
-								}
-
 								$response['message'] = $successMessage;
+								$response['redirect'] = $this->settings['base_url'] . 'invoices/' . $mergedData['invoice']['id'];
 							}
 						}
 					}

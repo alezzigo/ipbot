@@ -637,6 +637,7 @@ class InvoicesModel extends UsersModel {
 				'initial_invoice_id',
 				'merged_invoice_id',
 				'modified',
+				'prorate_pending',
 				'session_id',
 				'shipping',
 				'shipping_pending',

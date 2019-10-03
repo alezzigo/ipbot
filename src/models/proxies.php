@@ -267,6 +267,7 @@ class ProxiesModel extends AppModel {
 				!empty($groupData['order_id'])
 			) {
 				$response['message']['text'] = 'Group "' . $groupName . '" already exists for this order.';
+				unset($groupParameters['conditions']['id']);
 				$existingGroup = $this->find('proxy_groups', $groupParameters);
 
 				if (empty($existingGroup['count'])) {

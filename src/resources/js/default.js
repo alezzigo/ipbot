@@ -182,7 +182,6 @@ if (
 		event = 'on' + event;
 		return this.attachEvent(event, callback);
 	};
-
 	Element.prototype.removeEventListener = function (event, callback) {
 		event = 'on' + event;
 		return this.detachEvent(event, callback);

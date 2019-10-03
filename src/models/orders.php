@@ -146,7 +146,7 @@ class OrdersModel extends InvoicesModel {
 			));
 
 			if (!empty($orders['count'])) {
-				$groupedOrders = $pendingInvoices = $pendingOrders = $pendingOrderIds = $productIds = $selectedOrders = array();
+				$groupedOrders = $pendingInvoices = $pendingInvoiceIds = $pendingOrders = $pendingOrderIds = $pendingTransactions = $productIds = $selectedOrders = array();
 				$sortIntervals = array(
 					'day',
 					'week',
@@ -180,7 +180,7 @@ class OrdersModel extends InvoicesModel {
 				foreach ($selectedOrders as $key => $selectedOrder) {
 					$selectedOrders[$key] = array_merge($selectedOrder, array(
 						'invoice_pending' => $pendingInvoices[$selectedOrder['invoice']['id']] = array(
-							'id' => $selectedOrder['invoice']['id'],
+							'id' => $pendingInvoiceIds[$selectedOrder['invoice']['id']] = $selectedOrder['invoice']['id'],
 							'merged_invoice_id' => ($selectedOrder['invoice']['id'] !== $mergedData['invoice']['id'] ? $mergedData['invoice']['id'] : null)
 						),
 						'order_pending' => $pendingOrders[$selectedOrder['order']['id']] = array_merge($mergedInterval, array(
@@ -312,10 +312,26 @@ class OrdersModel extends InvoicesModel {
 								'payment_currency_symbol' => true
 							));
 							$pendingOrders[$mergedData['order']['id']] = $mergedData['order'];
+							$transactions = $this->find('transactions', array(
+								'conditions' => array(
+									'invoice_id' => array_values($pendingInvoiceIds)
+								),
+								'fields' => array(
+									'id',
+									'invoice_id'
+								)
+							));
+
+							if (!empty($transactions['count'])) {
+								$pendingTransactions = array_replace_recursive($transactions['data'], array_fill(0, $transactions['count'], array(
+									'invoice_id' => $mergedData['invoice']['id']
+								)));
+							}
 
 							if (
 								$this->save('invoices', array_values($pendingInvoices)) &&
-								$this->save('orders', array_values($pendingOrders))
+								$this->save('orders', array_values($pendingOrders)) &&
+								$this->save('transactions', array_values($pendingTransactions))
 							) {
 								$proxies = $this->find('proxies', array(
 									'conditions' => array(

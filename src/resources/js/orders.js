@@ -52,6 +52,9 @@ var processOrders = function() {
 		requestParameters.items[requestParameters.table] = orderGrid;
 	};
 	requestParameters.action = previousAction;
+	requestParameters.conditions = {
+		'status !=': 'merged'
+	};
 	requestParameters.sort = {
 		field: 'modified',
 		order: 'DESC'

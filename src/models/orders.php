@@ -185,7 +185,8 @@ class OrdersModel extends InvoicesModel {
 							'merged_invoice_id' => ($selectedOrder['invoice']['id'] !== $mergedData['invoice']['id'] ? $mergedData['invoice']['id'] : null)
 						),
 						'order_pending' => $pendingOrders[$selectedOrder['order']['id']] = array_merge($mergedInterval, array(
-							'id' => $pendingOrderIds[] = $selectedOrder['order']['id']
+							'id' => $pendingOrderIds[] = $selectedOrder['order']['id'],
+							'status' => 'merged'
 						))
 					));
 

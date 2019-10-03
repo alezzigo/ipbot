@@ -166,11 +166,15 @@ class OrdersModel extends InvoicesModel {
 					unset($orders['data'][$key]);
 				}
 
+				$invoices = array();
 				$sortIntervalKeys = array_keys($groupedOrders);
 				natsort($sortIntervalKeys);
 				$largestInterval = explode('_', end(explode('__', ($largestIntervalKey = end($sortIntervalKeys)))));
 				$mergedData = $groupedOrders[$largestIntervalKey][0];
-				$invoices = array();
+				$mergedInterval = array(
+					'interval_type_pending' => $largestInterval[1],
+					'interval_value_pending' => $largestInterval[0]
+				);
 
 				foreach ($selectedOrders as $key => $selectedOrder) {
 					$selectedOrders[$key] = array_merge($selectedOrder, array(
@@ -178,11 +182,9 @@ class OrdersModel extends InvoicesModel {
 							'id' => $selectedOrder['invoice']['id'],
 							'merged_invoice_id' => ($selectedOrder['invoice']['id'] !== $mergedData['invoice']['id'] ? $mergedData['invoice']['id'] : null)
 						),
-						'order_pending' => $pendingOrders[$selectedOrder['order']['id']] = array(
-							'id' => $pendingOrderIds[] = $selectedOrder['order']['id'],
-							'interval_type_pending' => $largestInterval[1],
-							'interval_value_pending' => $largestInterval[0]
-						)
+						'order_pending' => $pendingOrders[$selectedOrder['order']['id']] = array_merge($mergedInterval, array(
+							'id' => $pendingOrderIds[] = $selectedOrder['order']['id']
+						))
 					));
 
 					if ($selectedOrder['invoice']['id'] !== $mergedData['invoice']['id']) {
@@ -232,8 +234,8 @@ class OrdersModel extends InvoicesModel {
 							'volume_discount_multiple' => $response['data']['product']['volume_discount_multiple']
 						));
 						$mergedData['order']['price_pending'] = $this->_calculateItemPrice(array_merge($order, array(
-							'interval_type' => $mergedData['order']['interval_type_pending'],
-							'interval_value' => $mergedData['order']['interval_value_pending'],
+							'interval_type' => $mergedInterval['interval_type_pending'],
+							'interval_value' => $mergedInterval['interval_value_pending'],
 							'quantity' => $mergedData['order']['quantity_pending']
 						)));
 						$pendingItem = array_merge(array(

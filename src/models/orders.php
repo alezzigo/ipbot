@@ -173,8 +173,9 @@ class OrdersModel extends InvoicesModel {
 				$mergedData = $groupedOrders[$largestIntervalKey][0];
 				$mergedInterval = array(
 					'interval_type_pending' => $largestInterval[1],
-					'interval_value_pending' => $largestInterval[0]
+					'interval_value_pending' => (integer) $largestInterval[0]
 				);
+				$mergedData['order'] = array_merge($mergedData['order'], $mergedInterval);
 
 				foreach ($selectedOrders as $key => $selectedOrder) {
 					$selectedOrders[$key] = array_merge($selectedOrder, array(

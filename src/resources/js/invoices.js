@@ -28,8 +28,9 @@ var processInvoice = function() {
 		}
 
 		if (response.data.invoice) {
+			var amountDue = (response.data.invoice.amount_due_pending ? response.data.invoice.amount_due_pending : response.data.invoice.amount_due);
 			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label> Invoice #' + response.data.invoice.id;
-			document.querySelector('.billing-amount').value = response.data.invoice.amount_due;
+			document.querySelector('.billing-amount').value = amountDue;
 			document.querySelector('.billing-currency-name').innerHTML = response.data.invoice.payment_currency_name;
 			document.querySelector('.billing-currency-symbol').innerHTML = response.data.invoice.payment_currency_symbol;
 			document.querySelector('.billing-view-details').addEventListener('click', function(element) {
@@ -100,10 +101,10 @@ var processInvoice = function() {
 						hasBalance &&
 						paymentMethod == 'balance'
 					) {
-						document.querySelector('.billing-amount').value = Math.min(response.data.invoice.amount_due, response.user.balance);
+						document.querySelector('.billing-amount').value = Math.min(amountDue, response.user.balance);
 						elements.addClass('.recurring-checkbox-container', 'hidden');
 					} else {
-						document.querySelector('.billing-amount').value = response.data.invoice.amount_due;
+						document.querySelector('.billing-amount').value = amountDue;
 						elements.removeClass('.recurring-checkbox-container', 'hidden');
 					}
 				});

@@ -289,13 +289,19 @@ class OrdersModel extends InvoicesModel {
 										$amountPaid = min($previousInvoiceData['total'], $previousInvoiceData['amount_paid']);
 										$paidTime = max(1, time() - strtotime($previousInvoiceData['due']));
 										$intervalTime = max(1, strtotime($selectedOrder['invoice']['due']) - strtotime($previousInvoiceData['due']));
-										$mergedData['invoice']['prorate_pending'] -= ((1 - (max(0, $paidTime / $intervalTime))) * $amountPaid);
+										$proratePercentage = 1;
+
+										if ($paidTime < $intervalTime) {
+											$proratePercentage = 1 - (max(0, $paidTime / $intervalTime));
+										}
+
+										$mergedData['invoice']['prorate_pending'] -= ($proratePercentage * $amountPaid);
 									}
 								}
 							}
 						}
 
-						$mergedData['invoice']['prorate_pending'] = max(0, round($mergedData['invoice']['prorate_pending']) * 100 / 100);
+						$mergedData['invoice']['prorate_pending'] = max(0, (round($mergedData['invoice']['prorate_pending']) * 100) / 100);
 						$response['data']['merged'] = $mergedData;
 						$response['message'] = array(
 							'status' => 'success',

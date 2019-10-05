@@ -301,7 +301,7 @@ class OrdersModel extends InvoicesModel {
 							}
 						}
 
-						$mergedData['invoice']['prorate_pending'] = max(0, (round($mergedData['invoice']['prorate_pending']) * 100) / 100);
+						$mergedData['invoice']['prorate_pending'] = max(0, round($mergedData['invoice']['prorate_pending'] * 100) / 100);
 						$response['data']['merged'] = $mergedData;
 						$response['message'] = array(
 							'status' => 'success',

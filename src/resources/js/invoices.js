@@ -154,6 +154,9 @@ var processInvoice = function() {
 };
 var processInvoices = function() {
 	requestParameters.action = 'find';
+	requestParameters.conditions = {
+		merged_invoice_id: null
+	};
 	requestParameters.sort = {
 		field: 'modified',
 		order: 'DESC'

@@ -124,7 +124,8 @@ var processInvoice = function() {
 				});
 			});
 			var paymentMessage = function(element) {
-				document.querySelector('.recurring-message').innerHTML = '<p class="message">This <span class="recurring-message-item">first </span>payment will be ' + response.data.invoice.payment_currency_symbol + (element.value ? element.value : element.target.value) + ' ' + response.data.invoice.payment_currency_name + '<span class="recurring-message-item"> and the recurring payments will be ' + response.data.invoice.payment_currency_symbol + (response.data.invoice.total_pending ? response.data.invoice.total_pending : response.data.invoice.total) + ' ' + response.data.invoice.payment_currency_name + ' every ' + interval + '</span>.</p>';
+				var intitialPaymentAmount = (element.value ? element.value : element.target.value);
+				document.querySelector('.recurring-message').innerHTML = '<p class="message">This <span class="recurring-message-item">first </span>payment will be ' + response.data.invoice.payment_currency_symbol + intitialPaymentAmount + ' ' + response.data.invoice.payment_currency_name + '<span class="recurring-message-item"> and the recurring payments will be ' + response.data.invoice.payment_currency_symbol + (intitialPaymentAmount >= amountDue ? (response.data.invoice.total_pending ? response.data.invoice.total_pending : response.data.invoice.total) : intitialPaymentAmount) + ' ' + response.data.invoice.payment_currency_name + ' every ' + interval + '</span>.</p>';
 			};
 			billingAmountField.addEventListener('change', paymentMessage);
 			billingAmountField.addEventListener('keyup', paymentMessage);

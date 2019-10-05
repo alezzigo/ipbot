@@ -111,13 +111,37 @@ class TransactionsModel extends InvoicesModel {
 			'src' => '1'
 		);
 
-		if (!empty($parameters['data']['billing_recurring'])) {
+		if (
+			!empty($parameters['data']['billing_recurring']) &&
+			($order = $parameters['data']['orders'][0])
+		) {
 			$parameters['request'] = array_merge($parameters['request'], array(
 				'a3' => $parameters['data']['billing_amount'],
 				'cmd' => $parameters['request']['cmd'] . '-subscriptions',
 				'p3' => $parameters['data']['orders'][0]['interval_value'],
-				't3' => ucwords(substr($parameters['data']['orders'][0]['interval_type'], 0, 1))
+				't3' => ucwords(substr($order['interval_type'], 0, 1))
 			));
+
+			if (
+				(
+					!empty($parameters['data']['invoice']['amount_due_pending']) &&
+					$parameters['data']['billing_amount'] == $parameters['data']['invoice']['amount_due_pending'] &&
+					$parameters['data']['billing_amount'] != ($total = $parameters['data']['invoice']['total_pending'])
+				) ||
+				(
+					!empty($parameters['data']['invoice']['amount_due']) &&
+					empty($parameters['data']['invoice']['amount_due_pending']) &&
+					$parameters['data']['billing_amount'] == $parameters['data']['invoice']['amount_due'] &&
+					$parameters['data']['billing_amount'] != ($total = $parameters['data']['invoice']['total'])
+				)
+			) {
+				$parameters['request'] = array_merge($parameters['request'], array(
+					'a2' => $parameters['request']['a3'],
+					'a3' => $total,
+					'p2' => $parameters['request']['p3'],
+					't2' => $parameters['request']['t3']
+				));
+			}
 			// ..
 		} else {
 			$parameters['request'] = array_merge($parameters['request'], array(
@@ -1800,6 +1824,7 @@ class TransactionsModel extends InvoicesModel {
 									'invoice_id' => $parameters['data']['invoice']['id'],
 									'price' => $parameters['data']['billing_amount']
 								);
+								// ..
 								$existingPlan = $this->find('plans', array(
 									'conditions' => $planData,
 									'fields' => array(

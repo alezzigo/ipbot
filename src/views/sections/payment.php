@@ -83,8 +83,8 @@
 						</div>
 						<div class="clear"></div>
 						<div class="checkbox-container no-margin-top recurring-checkbox-container">
-							<span checked="1" class="checkbox" id="billing-recurring" name="billing_recurring"></span>
-							<label class="custom-checkbox-label" for="billing-recurring" name="billing_recurring">Recurring subscription</label>
+							<span checked="1" class="billing-recurring checkbox" id="billing-recurring" name="billing_recurring" toggle-display="recurring-message-item"></span>
+							<label class="billing-recurring custom-checkbox-label" for="billing-recurring" name="billing_recurring">Recurring subscription</label>
 						</div>
 						<div class="clear"></div>
 						<div class="recurring-message"></div>

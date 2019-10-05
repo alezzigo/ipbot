@@ -53,7 +53,7 @@
 							</div>
 						</div>
 						<div class="item-body">
-							<input name='order_id' type='hidden' value="<?php echo $data['order_id']; ?>">
+							<input name="order_id" type="hidden" value="<?php echo $data['order_id']; ?>">
 							<div class="item-table" previous_checked="0"></div>
 						</div>
 					</div>

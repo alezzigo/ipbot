@@ -142,6 +142,10 @@ var processInvoice = function() {
 			if (!response.data.orders.length) {
 				elements.addClass('.recurring-checkbox-container', 'hidden');
 			}
+
+			if (!amountDue) {
+				elements.addClass('.button[window="payment"]', 'hidden');
+			}
 		}
 
 		invoiceContainer.innerHTML = invoiceData;

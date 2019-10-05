@@ -32,7 +32,7 @@
 							</div>
 						</div>
 						<div class="item-body">
-							<input name='invoice_id' type='hidden' value="<?php echo $data['invoice_id']; ?>">
+							<input name="invoice_id" type="hidden" value="<?php echo $data['invoice_id']; ?>">
 							<div class="invoice-container"></div>
 						</div>
 					</div>

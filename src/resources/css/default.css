@@ -941,18 +941,23 @@ main {
 }
 .field-group .change-quantity-button {
 	display: block;
-	float: left;
 	font-size: 18px;
 	height: 36px;
 	line-height: 34px;
-	position: relative;
-	right: auto;
+	position: absolute;
 	text-align: center;
-	top: auto;
+	top: 0;
 	width: 10px;
 }
+	.field-group .change-quantity-button.decrease {
+		left: 0;
+	}
+	.field-group .change-quantity-button.increase {
+		right: 0;
+	}
 .field-group .change-quantity-field {
-	max-width: 100px !important;
+	left: 40px;
+	max-width: 372px !important;
 }
 .field-group.proxy-list-type {
 	margin-right: 18px;

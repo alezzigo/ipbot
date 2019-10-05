@@ -136,10 +136,10 @@ class TransactionsModel extends InvoicesModel {
 				)
 			) {
 				$parameters['request'] = array_merge($parameters['request'], array(
-					'a2' => $parameters['request']['a3'],
+					'a1' => $parameters['request']['a3'],
 					'a3' => $total,
-					'p2' => $parameters['request']['p3'],
-					't2' => $parameters['request']['t3']
+					'p1' => $parameters['request']['p3'],
+					't1' => $parameters['request']['t3']
 				));
 			}
 			// ..

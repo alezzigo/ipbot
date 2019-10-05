@@ -102,12 +102,12 @@ class TransactionsModel extends InvoicesModel {
 	protected function _processPaypal($parameters) {
 		$parameters['request'] = array(
 			'business' => $this->settings['billing']['merchant_ids']['paypal'],
-			'cancel_return' => $_SERVER['HTTP_REFERER'] . '#payment',
+			'cancel_return' => $_SERVER['HTTP_ORIGIN'] . '#payment',
 			'cmd' => '_xclick',
 			'item_name' => $this->settings['site_name'] . ' Plan #' . $parameters['data']['plan']['id'],
 			'item_number' => $parameters['data']['invoice']['id'] . '_' . $parameters['data']['plan']['id'] . '_' . $parameters['data']['invoice']['user_id'],
-			'notify_url' => $_SERVER['HTTP_REFERER'] . $_SERVER['REDIRECT_URL'],
-			'return' => $_SERVER['HTTP_REFERER'],
+			'notify_url' => $_SERVER['HTTP_ORIGIN'] . $_SERVER['REDIRECT_URL'],
+			'return' => $_SERVER['HTTP_ORIGIN'],
 			'src' => '1'
 		);
 
@@ -118,6 +118,7 @@ class TransactionsModel extends InvoicesModel {
 				'p3' => $parameters['data']['orders'][0]['interval_value'],
 				't3' => ucwords(substr($parameters['data']['orders'][0]['interval_type'], 0, 1))
 			));
+			// ..
 		} else {
 			$parameters['request'] = array_merge($parameters['request'], array(
 				'amount' => $parameters['data']['billing_amount']

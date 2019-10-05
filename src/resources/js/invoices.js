@@ -42,6 +42,14 @@ var processInvoice = function() {
 				response.data.orders.map(function(order) {
 					invoiceData += '<div class="item-container item-button"><p><strong>' + order.quantity + ' ' + order.name + '</strong></p><p class="no-margin-bottom">' + response.data.invoice.payment_currency_symbol + order.price + ' ' + response.data.invoice.payment_currency_name + ' for ' + order.interval_value + ' ' + order.interval_type + (order.interval_value !== 1 ? 's' : '') + '</p><div class="item-link-container">' + (order.status === 'active' ? '<a class="item-link" href="/orders/' + order.id + '"></a>' : '') + '</div></div>';
 				});
+
+				if (
+					response.data.orders.length === 1 &&
+					response.data.orders[0].quantity_pending
+				) {
+					invoiceData += '<p class="message success" style="margin-bottom: 15px;">This invoice has a pending upgrade to the following order:</p>';
+					invoiceData += '<div class="item-container item-button"><p><strong>' + response.data.orders[0].quantity_pending + ' ' + response.data.orders[0].name + '</strong></p><p class="no-margin-bottom">' + response.data.invoice.payment_currency_symbol + response.data.orders[0].price_pending + ' ' + response.data.invoice.payment_currency_name + ' for ' + response.data.orders[0].interval_value_pending + ' ' + response.data.orders[0].interval_type_pending + (response.data.orders[0].interval_value_pending !== 1 ? 's' : '') + '</p><div class="item-link-container"></div></div>';
+				}
 			} else {
 				invoiceData += '<h2>Invoice Order</h2>';
 				invoiceData += '<div class="item-container item-button"><p><strong>Add to Account Balance</strong></p><p class="no-margin-bottom">' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.subtotal) + ' ' + response.data.invoice.payment_currency_name + '</p><div class="item-link-container"></div></div>';

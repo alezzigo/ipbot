@@ -659,31 +659,36 @@ class InvoicesModel extends UsersModel {
 
 		if (!empty($invoiceData['count'])) {
 			$invoiceData = $invoiceData['data'][0];
-			$invoiceData['created'] = date('M d Y', strtotime($invoiceData['created'])) . ' at ' . date('g:ia', strtotime($invoiceData['created'])) . ' ' . $this->settings['timezone'];
-			$invoiceOrders = $this->_retrieveInvoiceOrders($invoiceData);
-			$invoiceSubscriptions = $this->_retrieveInvoiceSubscriptions($invoiceData);
-			$invoiceTransactions = $this->_retrieveInvoiceTransactions($invoiceData);
-			$invoiceUser = $this->_retrieveUser($invoiceData);
 
-			if (!empty($invoiceData)) {
-				if (!empty($this->settings['billing'])) {
-					$invoiceData['billing'] = $this->settings['billing'];
+			if (!empty($invoiceData['merged_invoice_id'])) {
+				$response['redirect'] = $this->settings['base_url'] . 'invoices/' . $invoiceData['merged_invoice_id'];
+			} else {
+				$invoiceData['created'] = date('M d Y', strtotime($invoiceData['created'])) . ' at ' . date('g:ia', strtotime($invoiceData['created'])) . ' ' . $this->settings['timezone'];
+				$invoiceOrders = $this->_retrieveInvoiceOrders($invoiceData);
+				$invoiceSubscriptions = $this->_retrieveInvoiceSubscriptions($invoiceData);
+				$invoiceTransactions = $this->_retrieveInvoiceTransactions($invoiceData);
+				$invoiceUser = $this->_retrieveUser($invoiceData);
+
+				if (!empty($invoiceData)) {
+					if (!empty($this->settings['billing'])) {
+						$invoiceData['billing'] = $this->settings['billing'];
+					}
+
+					$response = array(
+						'data' => array(
+							'invoice' => $invoiceData,
+							'orders' => $invoiceOrders,
+							'subscriptions' => $invoiceSubscriptions,
+							'transactions' => $invoiceTransactions,
+							'user' => $invoiceUser
+						),
+						'message' => array(
+							'status' => 'success',
+							'text' => ''
+						)
+					);
+					$response['data'] = array_replace_recursive($response['data'], $this->_calculateInvoicePaymentDetails($response['data']));
 				}
-
-				$response = array(
-					'data' => array(
-						'invoice' => $invoiceData,
-						'orders' => $invoiceOrders,
-						'subscriptions' => $invoiceSubscriptions,
-						'transactions' => $invoiceTransactions,
-						'user' => $invoiceUser
-					),
-					'message' => array(
-						'status' => 'success',
-						'text' => ''
-					)
-				);
-				$response['data'] = array_replace_recursive($response['data'], $this->_calculateInvoicePaymentDetails($response['data']));
 			}
 		}
 

@@ -25,9 +25,9 @@
 						<span class="button close icon icon-close"></span>
 						<h1>Payment</h1>
 					</div>
-					<div class="item-body">
+					<div class="item-body no-padding-top">
 						<div class="message-container"></div>
-						<h2 class="no-margin-top">Account Details</h2>
+						<h2>Account Details</h2>
 						<div class="account-details">
 							<p class="message">Create a new <?php echo $config->settings['site_name']; ?> account or log in with an existing email and password below.</p>
 							<label for="register-email">Email</label>
@@ -87,6 +87,7 @@
 							<label class="custom-checkbox-label" for="billing-recurring" name="billing_recurring">Recurring subscription</label>
 						</div>
 						<div class="clear"></div>
+						<div class="recurring-message"></div>
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>

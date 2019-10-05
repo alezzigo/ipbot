@@ -29,12 +29,13 @@ var processInvoice = function() {
 
 		if (response.data.invoice) {
 			var amountDue = (response.data.invoice.amount_due_pending ? response.data.invoice.amount_due_pending : response.data.invoice.amount_due);
+			var billingAmountField = document.querySelector('.billing-amount');
 			var pendingUpgrade = (
 				response.data.orders.length === 1 &&
 				response.data.orders[0].quantity_pending
 			);
 			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label>' + (pendingUpgrade ? '<label class="label">Pending Upgrade</label>' : '') + ' Invoice #' + response.data.invoice.id;
-			document.querySelector('.billing-amount').value = amountDue;
+			billingAmountField.value = amountDue;
 			document.querySelector('.billing-currency-name').innerHTML = response.data.invoice.payment_currency_name;
 			document.querySelector('.billing-currency-symbol').innerHTML = response.data.invoice.payment_currency_symbol;
 			document.querySelector('.billing-view-details').addEventListener('click', function(element) {
@@ -83,8 +84,7 @@ var processInvoice = function() {
 				invoiceData += '<p><strong>Amount Paid to Invoice</strong><br><span class="paid">' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_paid + ' ' + response.data.invoice.payment_currency_name + '</span></p>';
 			}
 
-			invoiceData += '<p><strong>Remaining Amount Due</strong><br>' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_due + ' ' + response.data.invoice.payment_currency_name + '</p>';
-			// ..
+			invoiceData += '<p><strong>Remaining Amount Due</strong><br>' + response.data.invoice.payment_currency_symbol + amountDue + ' ' + response.data.invoice.payment_currency_name + '</p>';
 			invoiceData += '<h2>Invoice Transactions</h2>';
 			invoiceData += '<div class="invoice-section-container transactions"><label class="label">Invoice Created</label><div class="transaction"><p><strong>' + response.data.invoice.created + '</strong></p></div>';
 
@@ -111,15 +111,26 @@ var processInvoice = function() {
 						hasBalance &&
 						paymentMethod == 'balance'
 					) {
-						document.querySelector('.billing-amount').value = Math.min(amountDue, response.user.balance);
+						billingAmountField.value = Math.min(amountDue, response.user.balance);
 						elements.addClass('.recurring-checkbox-container', 'hidden');
+						elements.addClass('.recurring-message', 'hidden');
 					} else {
-						document.querySelector('.billing-amount').value = amountDue;
+						billingAmountField.value = amountDue;
 						elements.removeClass('.recurring-checkbox-container', 'hidden');
+						elements.removeClass('.recurring-message', 'hidden');
 					}
 				});
 			});
+			var recurringUpgradeMessage = function(element) {
+				if (pendingUpgrade) {
+					document.querySelector('.recurring-message').innerHTML = '<p class="message">This first payment will be ' + response.data.invoice.payment_currency_symbol + (element.value ? element.value : element.target.value) + ' ' + response.data.invoice.payment_currency_name + ' and the recurring payment will be ' + response.data.invoice.payment_currency_symbol + (response.data.invoice.total_pending ? response.data.invoice.total_pending : response.data.invoice.total) + ' ' + response.data.invoice.payment_currency_name + '</p>';
+				}
+			};
+
+			billingAmountField.addEventListener('change', recurringUpgradeMessage);
+			billingAmountField.addEventListener('keyup', recurringUpgradeMessage);
 			processLoginVerification(response);
+			recurringUpgradeMessage(billingAmountField);
 
 			if (
 				hasBalance &&

@@ -64,10 +64,10 @@ var processInvoice = function() {
 				response.user.balance > 0
 			);
 			invoiceData += '<h2>Invoice Pricing Details</h2>';
-			invoiceData += '<p><strong>Subtotal</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.subtotal) + ' ' + response.data.invoice.payment_currency_name + '</p>';
-			invoiceData += '<p><strong>Shipping</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.shipping) + ' ' + response.data.invoice.payment_currency_name + '</p>';
-			invoiceData += '<p><strong>Tax</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.tax) + ' ' + response.data.invoice.payment_currency_name + '</p>';
-			invoiceData += '<p><strong>Total</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.total) + ' ' + response.data.invoice.payment_currency_name + '</p>';
+			invoiceData += '<p><strong>Subtotal</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.subtotal_pending ? response.data.invoice.subtotal_pending : response.data.invoice.subtotal) + ' ' + response.data.invoice.payment_currency_name + '</p>';
+			invoiceData += '<p><strong>Shipping</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.shipping_pending ? response.data.invoice.shipping_pending : response.data.invoice.shipping) + ' ' + response.data.invoice.payment_currency_name + '</p>';
+			invoiceData += '<p><strong>Tax</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.tax_pending ? response.data.invoice.tax_pending : response.data.invoice.tax) + ' ' + response.data.invoice.payment_currency_name + '</p>';
+			invoiceData += '<p><strong>Total</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.total_pending ? response.data.invoice.total_pending : response.data.invoice.total) + ' ' + response.data.invoice.payment_currency_name + '</p>';
 
 			if (response.data.invoice.status === 'unpaid') {
 				invoiceData += '<p class="message">Additional fees for shipping and/or tax may apply before submitting final payment.</p>';

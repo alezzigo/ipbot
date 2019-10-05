@@ -45,6 +45,15 @@ onLoad(function() {
 			var item = document.querySelector('.checkbox[name="' + element.target.getAttribute('name') + '"]');
 			hiddenField ? (hiddenField.classList.contains('hidden') ? hiddenField.classList.remove('hidden') : hiddenField.classList.add('hidden')) : null;
 			item.setAttribute('checked', +!+item.getAttribute('checked'));
+
+			if (item.hasAttribute('toggle-display')) {
+				var toggleSelector = '.' + item.getAttribute('toggle-display');
+				var toggleElement = document.querySelector(toggleSelector);
+
+				if (toggleElement) {
+					+item.getAttribute('checked') ? elements.removeClass(toggleSelector, 'hidden') : elements.addClass(toggleSelector, 'hidden');
+				}
+			}
 		});
 	});
 	selectAllElements('.button.window-button, .window .button.submit').map(function(element) {

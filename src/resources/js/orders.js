@@ -108,6 +108,11 @@ var processUpgrade = function(windowName, windowSelector, upgradeQuantity = 1) {
 	requestParameters.data.upgrade_quantity = upgradeQuantity;
 	var upgradeContainer = document.querySelector('.upgrade-container');
 	var upgradeData = '';
+
+	if (requestParameters.data.confirm_upgrade) {
+		requestParameters.data.upgrade_quantity = upgradeContainer.querySelector('.upgrade-quantity').value;
+	}
+
 	sendRequest(function(response) {
 		var messageContainer = document.querySelector('.upgrade-configuration .message-container');
 

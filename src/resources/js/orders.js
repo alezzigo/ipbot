@@ -157,7 +157,9 @@ var processUpgrade = function(windowName, windowSelector, upgradeQuantity = 1) {
 			var upgradeField = upgradeContainer.querySelector('.upgrade-quantity');
 			decreaseButton.removeEventListener('click', decreaseButton.clickListener);
 			increaseButton.removeEventListener('click', increaseButton.clickListener);
-			decreaseButton.clickListener = increaseButton.clickListener = upgradeField.keyupListener = function(button) {
+			upgradeField.removeEventListener('change', upgradeField.changeListener);
+			upgradeField.removeEventListener('keyup', upgradeField.changeListener);
+			decreaseButton.clickListener = increaseButton.clickListener = upgradeField.changeListener = function(button) {
 				upgradeContainer.querySelector('.merged-order-details').innerHTML = '<p class="message">Loading ...</p>';
 				var timeoutId = setTimeout(function() {}, 1);
 
@@ -173,7 +175,8 @@ var processUpgrade = function(windowName, windowSelector, upgradeQuantity = 1) {
 			};
 			decreaseButton.addEventListener('click', decreaseButton.clickListener);
 			increaseButton.addEventListener('click', increaseButton.clickListener);
-			upgradeField.addEventListener('keyup', upgradeField.keyupListener);
+			upgradeField.addEventListener('change', upgradeField.changeListener);
+			upgradeField.addEventListener('keyup', upgradeField.changeListener);
 		}
 	});
 };

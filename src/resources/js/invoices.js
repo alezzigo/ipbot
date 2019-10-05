@@ -29,7 +29,11 @@ var processInvoice = function() {
 
 		if (response.data.invoice) {
 			var amountDue = (response.data.invoice.amount_due_pending ? response.data.invoice.amount_due_pending : response.data.invoice.amount_due);
-			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label> Invoice #' + response.data.invoice.id;
+			var pendingUpgrade = (
+				response.data.orders.length === 1 &&
+				response.data.orders[0].quantity_pending
+			);
+			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label>' + (pendingUpgrade ? '<label class="label">Pending Upgrade</label>' : '') + ' Invoice #' + response.data.invoice.id;
 			document.querySelector('.billing-amount').value = amountDue;
 			document.querySelector('.billing-currency-name').innerHTML = response.data.invoice.payment_currency_name;
 			document.querySelector('.billing-currency-symbol').innerHTML = response.data.invoice.payment_currency_symbol;
@@ -43,11 +47,8 @@ var processInvoice = function() {
 					invoiceData += '<div class="item-container item-button"><p><strong>' + order.quantity + ' ' + order.name + '</strong></p><p class="no-margin-bottom">' + response.data.invoice.payment_currency_symbol + order.price + ' ' + response.data.invoice.payment_currency_name + ' for ' + order.interval_value + ' ' + order.interval_type + (order.interval_value !== 1 ? 's' : '') + '</p><div class="item-link-container">' + (order.status === 'active' ? '<a class="item-link" href="/orders/' + order.id + '"></a>' : '') + '</div></div>';
 				});
 
-				if (
-					response.data.orders.length === 1 &&
-					response.data.orders[0].quantity_pending
-				) {
-					invoiceData += '<p class="message success" style="margin-bottom: 15px;">This invoice has a pending upgrade to the following order:</p>';
+				if (pendingUpgrade) {
+					invoiceData += '<p class="message" style="margin-bottom: 15px;">This invoice has a pending upgrade to the following order:</p>';
 					invoiceData += '<div class="item-container item-button"><p><strong>' + response.data.orders[0].quantity_pending + ' ' + response.data.orders[0].name + '</strong></p><p class="no-margin-bottom">' + response.data.invoice.payment_currency_symbol + response.data.orders[0].price_pending + ' ' + response.data.invoice.payment_currency_name + ' for ' + response.data.orders[0].interval_value_pending + ' ' + response.data.orders[0].interval_type_pending + (response.data.orders[0].interval_value_pending !== 1 ? 's' : '') + '</p><div class="item-link-container"></div></div>';
 				}
 			} else {

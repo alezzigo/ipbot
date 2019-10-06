@@ -178,12 +178,13 @@ class OrdersModel extends InvoicesModel {
 				$mergedData['invoice']['amount_paid'] = $mergedData['order']['quantity'] = 0;
 
 				foreach ($selectedOrders as $key => $selectedOrder) {
-					$pendingInvoice = !empty($pendingInvoices[$selectedOrder['invoice']['id']]) ? $pendingInvoices[$selectedOrder['invoice']['id']] : array();
+					$invoiceId = $selectedOrder['invoice']['id'];
+					$pendingInvoice = !empty($pendingInvoices[$invoiceId]) ? $pendingInvoices[$invoiceId] : array();
 					$selectedOrders[$key] = array_merge($selectedOrder, array(
-						'invoice_pending' => $pendingInvoices[$selectedOrder['invoice']['id']] = array_merge(array(
+						'invoice_pending' => $pendingInvoices[$invoiceId] = array_merge(array(
 							'amount_paid' => $selectedOrder['invoice']['amount_paid'],
-							'id' => $pendingInvoiceIds[$selectedOrder['invoice']['id']] = $selectedOrder['invoice']['id'],
-							'merged_invoice_id' => ($selectedOrder['invoice']['id'] !== $mergedData['invoice']['id'] ? $mergedData['invoice']['id'] : null)
+							'id' => $pendingInvoiceIds[$invoiceId] = $invoiceId,
+							'merged_invoice_id' => ($invoiceId !== $mergedData['invoice']['id'] ? $mergedData['invoice']['id'] : null)
 						), $pendingInvoice),
 						'order_pending' => $pendingOrders[$selectedOrder['order']['id']] = array_merge($mergedInterval, array(
 							'id' => $pendingOrderIds[] = $selectedOrder['order']['id'],
@@ -191,10 +192,10 @@ class OrdersModel extends InvoicesModel {
 						))
 					));
 
-					if (!empty($pendingInvoices[$selectedOrder['invoice']['id']]['amount_paid'])) {
-						$amountPaid = min($selectedOrder['order']['price'], $pendingInvoices[$selectedOrder['invoice']['id']]['amount_paid']);
+					if (!empty($pendingInvoices[$invoiceId]['amount_paid'])) {
+						$amountPaid = min($selectedOrder['order']['price'], $pendingInvoices[$invoiceId]['amount_paid']);
 						$mergedData['invoice']['amount_paid'] += $amountPaid;
-						$pendingInvoices[$selectedOrder['invoice']['id']]['amount_paid'] = min(0, round(($pendingInvoices[$selectedOrder['invoice']['id']]['amount_paid'] - $amountPaid) * 100) / 100);
+						$pendingInvoices[$invoiceId]['amount_paid'] = min(0, round(($pendingInvoices[$invoiceId]['amount_paid'] - $amountPaid) * 100) / 100);
 					}
 
 					$mergedData['order']['quantity'] += (!empty($selectedOrder['order']['quantity_pending']) ? $selectedOrder['order']['quantity_pending'] : $selectedOrder['order']['quantity']);

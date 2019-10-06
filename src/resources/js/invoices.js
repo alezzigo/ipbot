@@ -28,7 +28,7 @@ var processInvoice = function() {
 		}
 
 		if (response.data.invoice) {
-			var amountDue = (response.data.invoice.amount_due_pending ? response.data.invoice.amount_due_pending : response.data.invoice.amount_due);
+			var amountDue = (typeof response.data.invoice.amount_due_pending === 'number' ? response.data.invoice.amount_due_pending : response.data.invoice.amount_due);
 			var billingAmountField = document.querySelector('.billing-amount');
 			var interval = '';
 			var pendingUpgrade = (

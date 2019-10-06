@@ -22,7 +22,11 @@ class InvoicesModel extends UsersModel {
 	protected function _calculateInvoicePaymentDetails($invoiceData) {
 		$response = $invoiceData;
 
-		if (!empty($response['orders'])) {
+		if (
+			!empty($response['orders']) &&
+			!empty($response['invoice']) &&
+			$response['invoice']['status'] !== 'paid'
+		) {
 			$response['invoice']['total'] = $response['invoice']['total_pending'] = $response['invoice']['subtotal'] = $response['invoice']['subtotal_pending'] = 0;
 
 			foreach ($response['orders'] as $key => $invoiceOrder) {
@@ -56,9 +60,12 @@ class InvoicesModel extends UsersModel {
 
 		if (
 			empty($invoiceCalculationData) ||
-			!$this->save('invoices', array(
-				$invoiceCalculationData
-			))
+			(
+				$invoiceCalculationData['status'] !== 'paid' &&
+				!$this->save('invoices', array(
+					$invoiceCalculationData
+				))
+			)
 		) {
 			$response = $invoiceData;
 		}
@@ -103,7 +110,8 @@ class InvoicesModel extends UsersModel {
 		if (!empty($invoiceOrders['count'])) {
 			$orders = $this->find('orders', array(
 				'conditions' => array(
-					'id' => $invoiceOrders['data']
+					'id' => $invoiceOrders['data'],
+					'status !=' => 'merged'
 				),
 				'fields' => array(
 					'created',

@@ -155,18 +155,17 @@ class OrdersModel extends InvoicesModel {
 				);
 
 				foreach ($orders['data'] as $key => $order) {
-					$intervalKey = $order['interval_value'] . '_' . $order['interval_type'];
+					$intervalType = $order['interval_type_pending'] ? $order['interval_type_pending'] : $order['interval_type'];
+					$intervalValue = $order['interval_value_pending'] ? $order['interval_value_pending'] : $order['interval_value'];
+					$intervalKey = $intervalValue . '_' . $intervalType;
 					$productIds[$order['product_id']] = $order['product_id'];
-					$sortInterval = array_search($order['interval_type'], $sortIntervals) . '__';
+					$sortInterval = array_search($intervalType, $sortIntervals) . '__';
 					$groupedOrders[$sortInterval . $intervalKey][] = $selectedOrders[] = array(
 						'invoice' => $this->_retrieveLatestOrderInvoice($order),
 						'order' => $order
 					);
-					$response['data']['quantity'] += $order['quantity'];
-					unset($orders['data'][$key]);
 				}
 
-				$invoices = array();
 				$sortIntervalKeys = array_keys($groupedOrders);
 				natsort($sortIntervalKeys);
 				$largestInterval = explode('_', end(explode('__', ($largestIntervalKey = end($sortIntervalKeys)))));
@@ -179,26 +178,33 @@ class OrdersModel extends InvoicesModel {
 				$mergedData['invoice']['amount_paid'] = $mergedData['order']['quantity'] = 0;
 
 				foreach ($selectedOrders as $key => $selectedOrder) {
+					$pendingInvoice = !empty($pendingInvoices[$selectedOrder['invoice']['id']]) ? $pendingInvoices[$selectedOrder['invoice']['id']] : array();
 					$selectedOrders[$key] = array_merge($selectedOrder, array(
-						'invoice_pending' => $pendingInvoices[$selectedOrder['invoice']['id']] = array(
+						'invoice_pending' => $pendingInvoices[$selectedOrder['invoice']['id']] = array_merge(array(
+							'amount_paid' => $selectedOrder['invoice']['amount_paid'],
 							'id' => $pendingInvoiceIds[$selectedOrder['invoice']['id']] = $selectedOrder['invoice']['id'],
 							'merged_invoice_id' => ($selectedOrder['invoice']['id'] !== $mergedData['invoice']['id'] ? $mergedData['invoice']['id'] : null)
-						),
+						), $pendingInvoice),
 						'order_pending' => $pendingOrders[$selectedOrder['order']['id']] = array_merge($mergedInterval, array(
 							'id' => $pendingOrderIds[] = $selectedOrder['order']['id'],
 							'status' => 'merged'
 						))
 					));
 
-					if (
-						!in_array($selectedOrder['invoice']['id'], $invoices) &&
-						!empty($selectedOrder['invoice']['amount_paid'])
-					) {
-						$invoices[$selectedOrder['invoice']['id']] = $selectedOrder['invoice']['id'];
-						$mergedData['invoice']['amount_paid'] += $selectedOrder['invoice']['amount_paid'];
+					if (!empty($pendingInvoices[$selectedOrder['invoice']['id']]['amount_paid'])) {
+						$amountPaid = min($selectedOrder['order']['price'], $pendingInvoices[$selectedOrder['invoice']['id']]['amount_paid']);
+						$mergedData['invoice']['amount_paid'] += $amountPaid;
+						$pendingInvoices[$selectedOrder['invoice']['id']]['amount_paid'] = min(0, round(($pendingInvoices[$selectedOrder['invoice']['id']]['amount_paid'] - $amountPaid) * 100) / 100);
 					}
 
-					$mergedData['order']['quantity'] += $selectedOrder['order']['quantity'];
+					$mergedData['order']['quantity'] += (!empty($selectedOrder['order']['quantity_pending']) ? $selectedOrder['order']['quantity_pending'] : $selectedOrder['order']['quantity']);
+				}
+
+				foreach ($pendingInvoices as $invoiceId => $pendingInvoice) {
+					if (!empty($pendingInvoice['amount_paid'])) {
+						unset($pendingInvoices[$invoiceId]['merged_invoice_id']);
+						unset($pendingInvoiceIds[$invoiceId]);
+					}
 				}
 
 				if (
@@ -266,7 +272,8 @@ class OrdersModel extends InvoicesModel {
 										'due',
 										'id',
 										'status',
-										'total'
+										'total',
+										'total_pending'
 									),
 									'limit' => 1,
 									'sort' => array(
@@ -285,9 +292,9 @@ class OrdersModel extends InvoicesModel {
 										$previousInvoiceData['amount_paid'] < $previousInvoiceData['total'] &&
 										$previousInvoiceData['status'] === 'unpaid'
 									) {
-										$mergedData['invoice']['remainder_pending'] -= $previousInvoiceData['amount_paid'];
+										$mergedData['invoice']['remainder_pending'] -= min($selectedOrder['order']['price'], $previousInvoiceData['amount_paid']);
 									} else {
-										$amountPaid = min($previousInvoiceData['total'], $previousInvoiceData['amount_paid']);
+										$amountPaid = min($selectedOrder['order']['price'], $previousInvoiceData['amount_paid']);
 										$paidTime = max(1, time() - strtotime($previousInvoiceData['due']));
 										$intervalTime = max(1, strtotime($selectedOrder['invoice']['due']) - strtotime($previousInvoiceData['due']));
 										$proratePercentage = 1;
@@ -401,6 +408,14 @@ class OrdersModel extends InvoicesModel {
 									'text' => 'Redirecting to merged invoice for payment, please wait.'
 								);
 								$response['redirect'] = $this->settings['base_url'] . 'invoices/' . $mergedData['invoice']['id'];
+
+								foreach ($pendingInvoices as $invoiceId => $pendingInvoice) {
+									$this->invoice('invoices', array(
+										'conditions' => array(
+											'id' => $invoiceId
+										)
+									));
+								}
 							}
 						}
 					}

@@ -73,8 +73,7 @@ class InvoicesModel extends UsersModel {
 		$response['invoice']['payment_currency_symbol'] = $this->settings['billing']['currency_symbol'];
 
 		if (!empty($response['invoice']['prorate_pending'])) {
-			$response['invoice']['amount_due_pending'] = max(0, round(($response['invoice']['prorate_pending'] - $response['invoice']['amount_paid']) * 100) / 100);
-			// ..
+			$response['invoice']['amount_due_pending'] = $response['invoice']['prorate_pending'];
 		}
 
 		return $response;

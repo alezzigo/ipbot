@@ -47,7 +47,7 @@ class OrdersModel extends InvoicesModel {
 					'id',
 					'initial_invoice_id',
 					'modified',
-					'prorate_pending',
+					'remainder_pending',
 					'session_id',
 					'shipping',
 					'shipping_pending',
@@ -247,11 +247,11 @@ class OrdersModel extends InvoicesModel {
 						$mergedData['order']['tax_pending'] = $this->_calculateItemTaxPrice($pendingItem);
 						$mergedData['orders'][] = $mergedData['order'];
 						$mergedData = array_replace_recursive($mergedData, $this->_calculateInvoicePaymentDetails($mergedData));
-						$mergedData['invoice']['prorate_pending'] = $mergedData['invoice']['total_pending'];
+						$mergedData['invoice']['remainder_pending'] = $mergedData['invoice']['total_pending'];
 
 						foreach ($selectedOrders as $key => $selectedOrder) {
 							if (empty($processedInvoices[$selectedOrder['invoice']['id']])) {
-								$mergedData['invoice']['prorate_pending'] -= min($selectedOrder['invoice']['total'], $selectedOrder['invoice']['amount_paid']);
+								$mergedData['invoice']['remainder_pending'] -= min($selectedOrder['invoice']['total'], $selectedOrder['invoice']['amount_paid']);
 							}
 
 							if (!empty($selectedOrder['invoice']['initial_invoice_id'])) {
@@ -285,7 +285,7 @@ class OrdersModel extends InvoicesModel {
 										$previousInvoiceData['amount_paid'] < $previousInvoiceData['total'] &&
 										$previousInvoiceData['status'] === 'unpaid'
 									) {
-										$mergedData['invoice']['prorate_pending'] -= $previousInvoiceData['amount_paid'];
+										$mergedData['invoice']['remainder_pending'] -= $previousInvoiceData['amount_paid'];
 									} else {
 										$amountPaid = min($previousInvoiceData['total'], $previousInvoiceData['amount_paid']);
 										$paidTime = max(1, time() - strtotime($previousInvoiceData['due']));
@@ -296,7 +296,7 @@ class OrdersModel extends InvoicesModel {
 											$proratePercentage = 1 - (max(0, $paidTime / $intervalTime));
 										}
 
-										$mergedData['invoice']['prorate_pending'] -= ($proratePercentage * $amountPaid);
+										$mergedData['invoice']['remainder_pending'] -= ($proratePercentage * $amountPaid);
 									}
 
 									$processedInvoices[$previousInvoiceData['id']] = true;
@@ -306,7 +306,7 @@ class OrdersModel extends InvoicesModel {
 							$processedInvoices[$selectedOrder['invoice']['id']] = true;
 						}
 
-						$mergedData['invoice']['prorate_pending'] = max(0, round($mergedData['invoice']['prorate_pending'] * 100) / 100);
+						$mergedData['invoice']['remainder_pending'] = max(0, round($mergedData['invoice']['remainder_pending'] * 100) / 100);
 						$response['data']['merged'] = $mergedData;
 						$response['message'] = array(
 							'status' => 'success',
@@ -372,7 +372,7 @@ class OrdersModel extends InvoicesModel {
 								))));
 							}
 
-							if ($mergedData['invoice']['prorate_pending'] === 0) {
+							if ($mergedData['invoice']['remainder_pending'] === 0) {
 								$pendingTransactions[] = array(
 									'customer_email' => $parameters['user']['email'],
 									'id' => uniqid() . time(),

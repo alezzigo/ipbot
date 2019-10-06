@@ -73,10 +73,10 @@ class InvoicesModel extends UsersModel {
 		$response['invoice']['payment_currency_symbol'] = $this->settings['billing']['currency_symbol'];
 
 		if (
-			isset($response['invoice']['prorate_pending']) &&
-			is_numeric($response['invoice']['prorate_pending'])
+			isset($response['invoice']['remainder_pending']) &&
+			is_numeric($response['invoice']['remainder_pending'])
 		) {
-			$response['invoice']['amount_due_pending'] = $response['invoice']['prorate_pending'];
+			$response['invoice']['amount_due_pending'] = $response['invoice']['remainder_pending'];
 		}
 
 		return $response;
@@ -644,7 +644,7 @@ class InvoicesModel extends UsersModel {
 				'initial_invoice_id',
 				'merged_invoice_id',
 				'modified',
-				'prorate_pending',
+				'remainder_pending',
 				'session_id',
 				'shipping',
 				'shipping_pending',

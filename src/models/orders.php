@@ -224,7 +224,7 @@ class OrdersModel extends InvoicesModel {
 
 					if (!empty($product['count'])) {
 						$response['data']['product'] = $product['data'][0];
-						$response['data']['upgrade_quantity'] = min($product['data'][0]['maximum_quantity'], max(0, $parameters['data']['upgrade_quantity']));
+						$response['data']['upgrade_quantity'] = min($product['data'][0]['maximum_quantity'], max((count($selectedOrders) === 1 ? 1 : 0), $parameters['data']['upgrade_quantity']));
 						$mergedData['order']['quantity_pending'] = $mergedData['order']['quantity'] + $response['data']['upgrade_quantity'];
 						$mergedData['order']['price'] = $this->_calculateItemPrice($order = array(
 							'interval_type' => $mergedData['order']['interval_type'],

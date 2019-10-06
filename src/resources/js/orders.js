@@ -130,10 +130,11 @@ var processUpgrade = function(windowName, windowSelector, upgradeValue = 1) {
 
 		if (response.message.status === 'success') {
 			var orderGridCount = Object.entries(orderGrid).length;
+			var upgradeValueMinimum = (orderGridCount === 1 ? 1 : 0);
 			upgradeData += '<div class="align-left item-container no-margin-top no-padding">';
 			upgradeData += '<label for="upgrade-quantity">Select Order Upgrade Quantity</label>';
 			upgradeData += '<div class="field-group no-margin">';
-			upgradeData += '<a class="button change-quantity-button decrease decrease-quantity"' + (upgradeValue <= 0 ? ' disabled="disabled"' : '') + ' href="javascript:void(0);" event_step="-1">-</a>';
+			upgradeData += '<a class="button change-quantity-button decrease decrease-quantity"' + (upgradeValue <= upgradeValueMinimum ? ' disabled="disabled"' : '') + ' href="javascript:void(0);" event_step="-1">-</a>';
 			upgradeData += '<input class="change-quantity-field upgrade-quantity width-auto" event_step="0" id="upgrade-quantity" max="' + response.data.product.maximum_quantity + '" min="' + response.data.product.minimum_quantity + '" name="upgrade_quantity" step="1" type="number" value="' + response.data.upgrade_quantity + '">';
 			upgradeData += '<input class="hidden" name="confirm_upgrade" type="hidden" value="1">';
 			upgradeData += '<a class="button change-quantity-button increase increase-quantity"' + (upgradeValue >= response.data.product.maximum_quantity ? ' disabled="disabled"' : '') + ' href="javascript:void(0);" event_step="1">+</a>';
@@ -149,7 +150,7 @@ var processUpgrade = function(windowName, windowSelector, upgradeValue = 1) {
 			upgradeData += '<p><strong>Tax</strong><br>' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.tax_pending + ' ' + response.data.merged.invoice.payment_currency_name + '</p>';
 			upgradeData += '<p><strong>Total</strong><br>' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.total_pending + ' ' + response.data.merged.invoice.payment_currency_name + '</p>';
 			upgradeData += '<p><strong>Amount Paid</strong><br><span class="paid">' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.amount_paid + ' ' + response.data.merged.invoice.payment_currency_name + '</span></p>';
-			upgradeData += '<p><strong>Amount Due for ' + (upgradeValue > 0 ? 'Upgrade': 'Merge') + '</strong><br>' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.prorate_pending + ' ' + response.data.merged.invoice.payment_currency_name + '</p>';
+			upgradeData += '<p><strong>Amount Due for ' + (upgradeValue > 0 ? 'Upgrade': 'Merge') + '</strong><br>' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.remainder_pending + ' ' + response.data.merged.invoice.payment_currency_name + '</p>';
 			upgradeData += '</div>';
 			upgradeContainer.innerHTML = upgradeData;
 			var decreaseButton = upgradeContainer.querySelector('.decrease-quantity');
@@ -161,11 +162,12 @@ var processUpgrade = function(windowName, windowSelector, upgradeValue = 1) {
 			upgradeField.removeEventListener('change', upgradeField.changeListener);
 			upgradeField.removeEventListener('keyup', upgradeField.changeListener);
 			decreaseButton.clickListener = increaseButton.clickListener = upgradeField.changeListener = function(button) {
-				upgradeValue = Math.min(response.data.product.maximum_quantity, Math.max(0, parseInt(upgradeField.value) + parseInt(button.target.getAttribute('event_step'))));
 
-				if (upgradeValue <= 0) {
+				upgradeValue = Math.min(response.data.product.maximum_quantity, Math.max(upgradeValueMinimum, parseInt(upgradeField.value) + parseInt(button.target.getAttribute('event_step'))));
+
+				if (upgradeValue <= upgradeValueMinimum) {
 					elements.setAttribute('.decrease-quantity', 'disabled', 'disabled');
-					processUpgrade(false, false, 0);
+					processUpgrade(false, false, upgradeValueMinimum);
 					return false;
 				}
 

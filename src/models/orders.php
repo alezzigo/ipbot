@@ -176,7 +176,7 @@ class OrdersModel extends InvoicesModel {
 					'interval_value_pending' => (integer) $largestInterval[0]
 				);
 				$mergedData['order'] = array_merge($mergedData['order'], $mergedInterval);
-				// ..
+				$mergedData['invoice']['amount_paid'] = $mergedData['order']['quantity'] = 0;
 
 				foreach ($selectedOrders as $key => $selectedOrder) {
 					$selectedOrders[$key] = array_merge($selectedOrder, array(
@@ -190,17 +190,15 @@ class OrdersModel extends InvoicesModel {
 						))
 					));
 
-					if ($selectedOrder['invoice']['id'] !== $mergedData['invoice']['id']) {
-						if (
-							!in_array($selectedOrder['invoice']['id'], $invoices) &&
-							!empty($selectedOrder['invoice']['amount_paid'])
-						) {
-							$invoices[$selectedOrder['invoice']['id']] = $selectedOrder['invoice']['id'];
-							$mergedData['invoice']['amount_paid'] += $selectedOrder['invoice']['amount_paid'];
-						}
-
-						$mergedData['order']['quantity'] += $selectedOrder['order']['quantity'];
+					if (
+						!in_array($selectedOrder['invoice']['id'], $invoices) &&
+						!empty($selectedOrder['invoice']['amount_paid'])
+					) {
+						$invoices[$selectedOrder['invoice']['id']] = $selectedOrder['invoice']['id'];
+						$mergedData['invoice']['amount_paid'] += $selectedOrder['invoice']['amount_paid'];
 					}
+
+					$mergedData['order']['quantity'] += $selectedOrder['order']['quantity'];
 				}
 
 				if (

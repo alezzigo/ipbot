@@ -28,13 +28,14 @@ var processInvoice = function() {
 		}
 
 		if (response.data.invoice) {
-			var amountDue = (typeof response.data.invoice.amount_due_pending === 'number' ? response.data.invoice.amount_due_pending : response.data.invoice.amount_due);
+			var amountDue = response.data.invoice.amount_due;
 			var billingAmountField = document.querySelector('.billing-amount');
 			var interval = '';
 			var pendingUpgrade = (
 				response.data.orders.length === 1 &&
 				response.data.orders[0].quantity_pending
 			);
+			// ..
 			billingAmountField.value = amountDue;
 			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label>' + (pendingUpgrade ? '<label class="label">Pending Upgrade</label>' : '') + ' Invoice #' + response.data.invoice.id;
 			document.querySelector('.billing-currency-name').innerHTML = response.data.invoice.payment_currency_name;
@@ -43,7 +44,16 @@ var processInvoice = function() {
 				closeWindows(defaultTable);
 			});
 
+			if (typeof response.data.invoice.amount_due_pending === 'number') {
+				amountDue = response.data.invoice.amount_due_pending;
+				response.data.invoice.shipping = response.data.invoice.shipping_pending;
+				response.data.invoice.subtotal = response.data.invoice.subtotal_pending;
+				response.data.invoice.tax = response.data.invoice.tax_pending;
+				response.data.invoice.total = response.data.invoice.total_pending;
+			}
+
 			if (response.data.orders.length) {
+				// ..
 				interval = response.data.orders[0].interval_value + ' ' + response.data.orders[0].interval_type + (response.data.orders[0].interval_value !== 1 ? 's' : '');
 				invoiceData += '<h2>Invoice Order' + (response.data.orders.length !== 1 ? 's' : '') + '</h2>';
 				response.data.orders.map(function(order) {
@@ -64,10 +74,10 @@ var processInvoice = function() {
 				response.user.balance > 0
 			);
 			invoiceData += '<h2>Invoice Pricing Details</h2>';
-			invoiceData += '<p><strong>Subtotal</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.subtotal_pending ? response.data.invoice.subtotal_pending : response.data.invoice.subtotal) + ' ' + response.data.invoice.payment_currency_name + '</p>';
-			invoiceData += '<p><strong>Shipping</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.shipping_pending ? response.data.invoice.shipping_pending : response.data.invoice.shipping) + ' ' + response.data.invoice.payment_currency_name + '</p>';
-			invoiceData += '<p><strong>Tax</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.tax_pending ? response.data.invoice.tax_pending : response.data.invoice.tax) + ' ' + response.data.invoice.payment_currency_name + '</p>';
-			invoiceData += '<p><strong>Total</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.total_pending ? response.data.invoice.total_pending : response.data.invoice.total) + ' ' + response.data.invoice.payment_currency_name + '</p>';
+			invoiceData += '<p><strong>Subtotal</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.subtotal) + ' ' + response.data.invoice.payment_currency_name + '</p>';
+			invoiceData += '<p><strong>Shipping</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.shipping) + ' ' + response.data.invoice.payment_currency_name + '</p>';
+			invoiceData += '<p><strong>Tax</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.tax) + ' ' + response.data.invoice.payment_currency_name + '</p>';
+			invoiceData += '<p><strong>Total</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.total) + ' ' + response.data.invoice.payment_currency_name + '</p>';
 
 			if (response.data.invoice.status === 'unpaid') {
 				invoiceData += '<p class="message">Additional fees for shipping and/or tax may apply before submitting final payment.</p>';

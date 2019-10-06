@@ -146,7 +146,7 @@ class OrdersModel extends InvoicesModel {
 			));
 
 			if (!empty($orders['count'])) {
-				$groupedOrders = $pendingInvoices = $pendingInvoiceIds = $pendingOrders = $pendingOrderIds = $pendingProxies = $pendingProxyGroups = $pendingTransactions = $productIds = $selectedOrders = array();
+				$groupedOrders = $pendingInvoices = $pendingInvoiceIds = $pendingOrders = $pendingOrderIds = $pendingProxies = $pendingProxyGroups = $pendingTransactions = $processedInvoices = $productIds = $selectedOrders = array();
 				$sortIntervals = array(
 					'day',
 					'week',
@@ -252,7 +252,9 @@ class OrdersModel extends InvoicesModel {
 						$mergedData['invoice']['prorate_pending'] = $mergedData['invoice']['total_pending'];
 
 						foreach ($selectedOrders as $key => $selectedOrder) {
-							$mergedData['invoice']['prorate_pending'] -= min($selectedOrder['invoice']['total'], $selectedOrder['invoice']['amount_paid']);
+							if (empty($processedInvoices[$selectedOrder['invoice']['id']])) {
+								$mergedData['invoice']['prorate_pending'] -= min($selectedOrder['invoice']['total'], $selectedOrder['invoice']['amount_paid']);
+							}
 
 							if (!empty($selectedOrder['invoice']['initial_invoice_id'])) {
 								$previousInvoice = $this->find('invoices', array(
@@ -278,7 +280,8 @@ class OrdersModel extends InvoicesModel {
 								if (
 									!empty($previousInvoice['count']) &&
 									$previousInvoice['data'][0]['amount_paid'] > 0 &&
-									($previousInvoiceData = $previousInvoice['data'][0])
+									($previousInvoiceData = $previousInvoice['data'][0]) &&
+									empty($processedInvoices[$previousInvoiceData['id']])
 								) {
 									if (
 										$previousInvoiceData['amount_paid'] < $previousInvoiceData['total'] &&
@@ -297,8 +300,12 @@ class OrdersModel extends InvoicesModel {
 
 										$mergedData['invoice']['prorate_pending'] -= ($proratePercentage * $amountPaid);
 									}
+
+									$processedInvoices[$previousInvoiceData['id']] = true;
 								}
 							}
+
+							$processedInvoices[$selectedOrder['invoice']['id']] = true;
 						}
 
 						$mergedData['invoice']['prorate_pending'] = max(0, round($mergedData['invoice']['prorate_pending'] * 100) / 100);

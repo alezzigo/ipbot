@@ -224,7 +224,7 @@ class OrdersModel extends InvoicesModel {
 
 					if (!empty($product['count'])) {
 						$response['data']['product'] = $product['data'][0];
-						$response['data']['upgrade_quantity'] = min($product['data'][0]['maximum_quantity'], max(1, $parameters['data']['upgrade_quantity']));
+						$response['data']['upgrade_quantity'] = min($product['data'][0]['maximum_quantity'], max(0, $parameters['data']['upgrade_quantity']));
 						$mergedData['order']['quantity_pending'] = $mergedData['order']['quantity'] + $response['data']['upgrade_quantity'];
 						$mergedData['order']['price'] = $this->_calculateItemPrice($order = array(
 							'interval_type' => $mergedData['order']['interval_type'],
@@ -370,6 +370,23 @@ class OrdersModel extends InvoicesModel {
 								$pendingTransactions = array_values(array_replace_recursive($transactions['data'], array_fill(0, $transactions['count'], array(
 									'invoice_id' => $mergedData['invoice']['id']
 								))));
+							}
+
+							if ($mergedData['invoice']['prorate_pending'] === 0) {
+								$pendingTransactions[] = array(
+									'customer_email' => $parameters['user']['email'],
+									'id' => uniqid() . time(),
+									'invoice_id' => $mergedData['invoice']['id'],
+									'payment_amount' => 0,
+									'payment_currency' => $this->settings['billing']['currency_name'],
+									'payment_method_id' => 'balance',
+									'payment_status' => 'completed',
+									'payment_status_message' => ($response['data']['upgrade_quantity'] ? 'Upgrade' : 'Merge') . ' successful.',
+									'transaction_charset' => $this->settings['database']['charset'],
+									'transaction_date' => date('Y-m-d h:i:s', time()),
+									'transaction_method' => 'PaymentCompleted',
+									'user_id' => $parameters['user']['id']
+								);
 							}
 
 							if (

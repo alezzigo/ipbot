@@ -101,11 +101,11 @@ var processOrders = function() {
 		processWindowEvents('resize');
 	});
 };
-var processUpgrade = function(windowName, windowSelector, upgradeQuantity = 1) {
+var processUpgrade = function(windowName, windowSelector, upgradeValue = 1) {
 	requestParameters.action = 'upgrade';
 	requestParameters.data.orders = orderGrid;
 	requestParameters.data.products = productIdGrid;
-	requestParameters.data.upgrade_quantity = upgradeQuantity;
+	requestParameters.data.upgrade_quantity = upgradeValue;
 	var upgradeContainer = document.querySelector('.upgrade-container');
 	var upgradeData = '';
 
@@ -133,33 +133,50 @@ var processUpgrade = function(windowName, windowSelector, upgradeQuantity = 1) {
 			upgradeData += '<div class="align-left item-container no-margin-top no-padding">';
 			upgradeData += '<label for="upgrade-quantity">Select Order Upgrade Quantity</label>';
 			upgradeData += '<div class="field-group no-margin">';
-			upgradeData += '<a class="button change-quantity-button decrease decrease-quantity" href="javascript:void(0);" event_step="-1">-</a>';
+			upgradeData += '<a class="button change-quantity-button decrease decrease-quantity"' + (upgradeValue <= 0 ? ' disabled="disabled"' : '') + ' href="javascript:void(0);" event_step="-1">-</a>';
 			upgradeData += '<input class="change-quantity-field upgrade-quantity width-auto" event_step="0" id="upgrade-quantity" max="' + response.data.product.maximum_quantity + '" min="' + response.data.product.minimum_quantity + '" name="upgrade_quantity" step="1" type="number" value="' + response.data.upgrade_quantity + '">';
 			upgradeData += '<input class="hidden" name="confirm_upgrade" type="hidden" value="1">';
-			upgradeData += '<a class="button change-quantity-button increase increase-quantity" href="javascript:void(0);" event_step="1">+</a>';
+			upgradeData += '<a class="button change-quantity-button increase increase-quantity"' + (upgradeValue >= response.data.product.maximum_quantity ? ' disabled="disabled"' : '') + ' href="javascript:void(0);" event_step="1">+</a>';
 			upgradeData += '</div>';
 			upgradeData += '</div>';
 			upgradeData += '<div class="clear"></div>';
 			upgradeData += '<div class="merged-order-details">';
-			upgradeData += '<p class="message no-margin-top success">The ' + orderGridCount + ' order' + (orderGridCount !== 1 ? 's' : '') + ' selected will merge into the following upgraded order and invoice:</p>';
+			upgradeData += '<p class="message no-margin-top success">The ' + orderGridCount + ' order' + (orderGridCount !== 1 ? 's' : '') + ' selected will merge into the following ' + (upgradeValue > 0 ? 'upgraded': '') + ' order and invoice:</p>';
 			upgradeData += '<div class="item-container item-button no-margin-bottom"><p><strong>' + response.data.merged.order.quantity_pending + ' ' + response.data.merged.order.name + '</strong></p><p class="no-margin-bottom">' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.order.price_pending + ' ' + response.data.merged.invoice.payment_currency_name + ' for ' + response.data.merged.order.interval_value_pending + ' ' + response.data.merged.order.interval_type_pending + (response.data.merged.order.interval_value_pending !== 1 ? 's' : '') + '</p><div class="item-link-container"></div></div>';
-			upgradeData += '<h2>Upgraded Invoice Pricing Details</h2>';
+			upgradeData += '<h2>' + (upgradeValue > 0 ? 'Upgraded': 'Merged') + ' Invoice Pricing Details</h2>';
 			upgradeData += '<p><strong>Subtotal</strong><br>' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.subtotal_pending + ' ' + response.data.merged.invoice.payment_currency_name + '</p>';
 			upgradeData += '<p><strong>Shipping</strong><br>' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.shipping_pending + ' ' + response.data.merged.invoice.payment_currency_name + '</p>';
 			upgradeData += '<p><strong>Tax</strong><br>' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.tax_pending + ' ' + response.data.merged.invoice.payment_currency_name + '</p>';
 			upgradeData += '<p><strong>Total</strong><br>' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.total_pending + ' ' + response.data.merged.invoice.payment_currency_name + '</p>';
 			upgradeData += '<p><strong>Amount Paid</strong><br><span class="paid">' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.amount_paid + ' ' + response.data.merged.invoice.payment_currency_name + '</span></p>';
-			upgradeData += '<p><strong>Prorated Amount Due for Upgrade</strong><br>' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.prorate_pending + ' ' + response.data.merged.invoice.payment_currency_name + '</p>';
+			upgradeData += '<p><strong>Amount Due for ' + (upgradeValue > 0 ? 'Upgrade': 'Merge') + '</strong><br>' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.prorate_pending + ' ' + response.data.merged.invoice.payment_currency_name + '</p>';
 			upgradeData += '</div>';
 			upgradeContainer.innerHTML = upgradeData;
 			var decreaseButton = upgradeContainer.querySelector('.decrease-quantity');
 			var increaseButton = upgradeContainer.querySelector('.increase-quantity');
 			var upgradeField = upgradeContainer.querySelector('.upgrade-quantity');
+			upgradeValue = parseInt(upgradeField.value);
 			decreaseButton.removeEventListener('click', decreaseButton.clickListener);
 			increaseButton.removeEventListener('click', increaseButton.clickListener);
 			upgradeField.removeEventListener('change', upgradeField.changeListener);
 			upgradeField.removeEventListener('keyup', upgradeField.changeListener);
 			decreaseButton.clickListener = increaseButton.clickListener = upgradeField.changeListener = function(button) {
+				upgradeValue = Math.min(response.data.product.maximum_quantity, Math.max(0, parseInt(upgradeField.value) + parseInt(button.target.getAttribute('event_step'))));
+
+				if (upgradeValue <= 0) {
+					elements.setAttribute('.decrease-quantity', 'disabled', 'disabled');
+					processUpgrade(false, false, 0);
+					return false;
+				}
+
+				if (upgradeValue >= response.data.product.maximum_quantity) {
+					elements.setAttribute('.increase-quantity', 'disabled', 'disabled');
+					processUpgrade(false, false, response.data.product.maximum_quantity);
+					return false;
+				}
+
+				elements.removeAttribute('.decrease-quantity', 'disabled', 'disabled');
+				elements.removeAttribute('.increase-quantity', 'disabled', 'disabled');
 				upgradeContainer.querySelector('.merged-order-details').innerHTML = '<p class="message">Loading ...</p>';
 				var timeoutId = setTimeout(function() {}, 1);
 
@@ -167,14 +184,20 @@ var processUpgrade = function(windowName, windowSelector, upgradeQuantity = 1) {
 					clearTimeout(timeoutId);
 				}
 
-				var upgradeValue = parseInt(upgradeField.value) ? parseInt(upgradeField.value) + parseInt(button.target.getAttribute('event_step')) : response.data.product.minimum_quantity;
 				var timeoutId = setTimeout(function() {
 					processUpgrade(false, false, upgradeValue);
 				}, 400);
-				upgradeField.value = Math.min(response.data.product.maximum_quantity, Math.max(1, upgradeValue));
+				upgradeField.value = upgradeValue;
 			};
-			decreaseButton.addEventListener('click', decreaseButton.clickListener);
-			increaseButton.addEventListener('click', increaseButton.clickListener);
+
+			if (!decreaseButton.hasAttribute('disabled')) {
+				decreaseButton.addEventListener('click', decreaseButton.clickListener);
+			}
+
+			if (!increaseButton.hasAttribute('disabled')) {
+				increaseButton.addEventListener('click', increaseButton.clickListener);
+			}
+
 			upgradeField.addEventListener('change', upgradeField.changeListener);
 			upgradeField.addEventListener('keyup', upgradeField.changeListener);
 		}

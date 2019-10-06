@@ -5,7 +5,7 @@
 				<div class="upgrade-configuration">
 					<div class="item-header">
 						<span class="button close icon icon-close"></span>
-						<h1>Request Upgrade</h1>
+						<h1>Request Upgrade and Merge</h1>
 					</div>
 					<div class="item-body">
 						<div class="message-container"></div>
@@ -14,7 +14,7 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button main-button submit" process="upgrade" window="upgrade">Merge and Upgrade Order</button>
+						<button class="button main-button submit" process="upgrade" window="upgrade">Confirm Order</button>
 					</div>
 				</div>
 			</div>

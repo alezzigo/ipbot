@@ -26,7 +26,7 @@
 							<div class="item-header">
 								<div class="hidden item-controls">
 									<span checked="0" class="align-left checkbox no-margin-left" index="all-visible"></span>
-									<span class="button icon upgrade hidden tooltip tooltip-bottom window-button" data-title="Request upgrade for selected orders" item-function process="upgrade" window="upgrade"></span>
+									<span class="button icon upgrade hidden tooltip tooltip-bottom window-button" data-title="Request upgrade and/or merge for selected orders" item-function process="upgrade" window="upgrade"></span>
 									<span class="button icon downgrade hidden tooltip tooltip-bottom window-button" data-title="Request downgrade for selected orders" item-function process="downgrade" window="downgrade"></span>
 								</div>
 								<div class="clear"></div>

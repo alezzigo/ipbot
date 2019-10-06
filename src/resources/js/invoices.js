@@ -158,7 +158,7 @@ var processInvoices = function() {
 		merged_invoice_id: null
 	};
 	requestParameters.sort = {
-		field: 'modified',
+		field: 'created',
 		order: 'DESC'
 	};
 	requestParameters.table = 'invoices';

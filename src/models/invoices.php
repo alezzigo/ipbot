@@ -90,109 +90,6 @@ class InvoicesModel extends UsersModel {
 	}
 
 /**
- * Retrieve invoice IDs
- *
- * @param array $invoiceIds
- *
- * @return array $response
- */
-	protected function _retrieveInvoiceIds($invoiceIds) {
-		$response = $invoiceIds;
-		$invoiceParameters = array(
-			'conditions' => array(
-				'OR' => array(
-					'id' => $invoiceIds,
-					'initial_invoice_id' => $invoiceIds,
-					'merged_invoice_id' => $invoiceIds
-				)
-			),
-			'fields' => array(
-				'id',
-				'initial_invoice_id',
-				'merged_invoice_id'
-			)
-		);
-
-		$invoices = $this->find('invoices', $invoiceParameters);
-
-		if (!empty($invoices['count'])) {
-			foreach ($invoices['data'] as $invoice) {
-				$invoiceIds = array_merge($invoiceIds, array_values($invoice));
-			}
-		}
-
-		$invoiceIds = array_unique(array_filter($invoiceIds));
-
-		if (count($invoiceIds) > count($response)) {
-			$response = $this->_retrieveInvoiceIds($invoiceIds);
-		}
-
-		return $response;
-	}
-
-/**
- * Retrieve invoice order data
- *
- * @param array $invoiceData
- *
- * @return array $response
- */
-	protected function _retrieveInvoiceOrders($invoiceData) {
-		$response = array();
-		$invoiceIds = $this->_retrieveInvoiceIds(array_unique(array_filter(array(
-			$invoiceData['id'],
-			$invoiceData['initial_invoice_id'],
-			$invoiceData['merged_invoice_id'],
-		))));
-		$invoiceOrders = $this->find('invoice_orders', array(
-			'conditions' => array(
-				'invoice_id' => $invoiceIds
-			),
-			'fields' => array(
-				'order_id'
-			)
-		));
-
-		if (!empty($invoiceOrders['count'])) {
-			$orders = $this->find('orders', array(
-				'conditions' => array(
-					'id' => $invoiceOrders['data'],
-					'status !=' => 'merged'
-				),
-				'fields' => array(
-					'created',
-					'id',
-					'interval_type',
-					'interval_type_pending',
-					'interval_value',
-					'interval_value_pending',
-					'modified',
-					'name',
-					'price',
-					'price_pending',
-					'product_id',
-					'quantity',
-					'quantity_pending',
-					'session_id',
-					'shipping',
-					'shipping_pending',
-					'status',
-					'tax',
-					'tax_pending',
-					'type',
-					'user_id'
-				)
-			));
-
-			if (!empty($orders['count'])) {
-				$response = $orders['data'];
-			}
-		}
-
-		return $response;
-	}
-
-/**
  * Process invoices
  *
  * @return array $response
@@ -541,6 +438,109 @@ class InvoicesModel extends UsersModel {
 						$response += 1;
 					}
 				}
+			}
+		}
+
+		return $response;
+	}
+
+/**
+ * Retrieve invoice IDs
+ *
+ * @param array $invoiceIds
+ *
+ * @return array $response
+ */
+	protected function _retrieveInvoiceIds($invoiceIds) {
+		$response = $invoiceIds;
+		$invoiceParameters = array(
+			'conditions' => array(
+				'OR' => array(
+					'id' => $invoiceIds,
+					'initial_invoice_id' => $invoiceIds,
+					'merged_invoice_id' => $invoiceIds
+				)
+			),
+			'fields' => array(
+				'id',
+				'initial_invoice_id',
+				'merged_invoice_id'
+			)
+		);
+
+		$invoices = $this->find('invoices', $invoiceParameters);
+
+		if (!empty($invoices['count'])) {
+			foreach ($invoices['data'] as $invoice) {
+				$invoiceIds = array_merge($invoiceIds, array_values($invoice));
+			}
+		}
+
+		$invoiceIds = array_unique(array_filter($invoiceIds));
+
+		if (count($invoiceIds) > count($response)) {
+			$response = $this->_retrieveInvoiceIds($invoiceIds);
+		}
+
+		return $response;
+	}
+
+/**
+ * Retrieve invoice order data
+ *
+ * @param array $invoiceData
+ *
+ * @return array $response
+ */
+	protected function _retrieveInvoiceOrders($invoiceData) {
+		$response = array();
+		$invoiceIds = $this->_retrieveInvoiceIds(array_unique(array_filter(array(
+			$invoiceData['id'],
+			$invoiceData['initial_invoice_id'],
+			$invoiceData['merged_invoice_id'],
+		))));
+		$invoiceOrders = $this->find('invoice_orders', array(
+			'conditions' => array(
+				'invoice_id' => $invoiceIds
+			),
+			'fields' => array(
+				'order_id'
+			)
+		));
+
+		if (!empty($invoiceOrders['count'])) {
+			$orders = $this->find('orders', array(
+				'conditions' => array(
+					'id' => $invoiceOrders['data'],
+					'status !=' => 'merged'
+				),
+				'fields' => array(
+					'created',
+					'id',
+					'interval_type',
+					'interval_type_pending',
+					'interval_value',
+					'interval_value_pending',
+					'modified',
+					'name',
+					'price',
+					'price_pending',
+					'product_id',
+					'quantity',
+					'quantity_pending',
+					'session_id',
+					'shipping',
+					'shipping_pending',
+					'status',
+					'tax',
+					'tax_pending',
+					'type',
+					'user_id'
+				)
+			));
+
+			if (!empty($orders['count'])) {
+				$response = $orders['data'];
 			}
 		}
 

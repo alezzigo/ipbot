@@ -32,11 +32,13 @@ class OrdersModel extends InvoicesModel {
 		));
 
 		if (!empty($latestOrderInvoice['count'])) {
+			$invoiceIds = $this->_retrieveInvoiceIds($latestOrderInvoice['data']);
 			$invoice = $this->find('invoices', array(
 				'conditions' => array(
 					'OR' => array(
-						'id' => $latestOrderInvoice['data'],
-						'initial_invoice_id' => $latestOrderInvoice['data']
+						'id' => $invoiceIds,
+						'initial_invoice_id' => $invoiceIds,
+						'merged_invoice_id' => $invoiceIds
 					)
 				),
 				'fields' => array(
@@ -202,7 +204,6 @@ class OrdersModel extends InvoicesModel {
 
 				foreach ($pendingInvoices as $invoiceId => $pendingInvoice) {
 					if (!empty($pendingInvoice['amount_paid'])) {
-						unset($pendingInvoices[$invoiceId]['merged_invoice_id']);
 						unset($pendingInvoiceIds[$invoiceId]);
 					}
 				}

@@ -326,7 +326,6 @@ class OrdersModel extends InvoicesModel {
 								'text' => $defaultMessage
 							);
 							$mergedData['invoice']['cart_items'] = sha1(uniqid() . $mergedData['invoice']['cart_items']);
-							$mergedData['invoice']['merged_invoice_id'] = current($pendingInvoiceIds);
 							$mergedInvoiceData = array_diff_key($mergedData['invoice'], array(
 								'amount_due' => true,
 								'amount_due_pending' => true,
@@ -344,7 +343,6 @@ class OrdersModel extends InvoicesModel {
 								$mergedInvoice = $this->find('invoices', array(
 									'conditions' => array(
 										'cart_items' => $mergedInvoiceData['cart_items'],
-										'merged_invoice_id' => $mergedInvoiceData['merged_invoice_id'],
 										'user_id' => $mergedInvoiceData['user_id']
 									),
 									'fields' => array_merge(array_keys($mergedInvoiceData), array(
@@ -365,8 +363,7 @@ class OrdersModel extends InvoicesModel {
 									}
 
 									$pendingInvoices[$mergedData['invoice']['id'] . '_merged'] = array(
-										'id' => $mergedInvoiceId,
-										'merged_invoice_id' => null
+										'id' => $mergedInvoiceId
 									);
 								}
 

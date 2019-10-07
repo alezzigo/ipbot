@@ -358,12 +358,12 @@ class TransactionsModel extends InvoicesModel {
 					'id' => $parameters['invoice_id'],
 					'amount_paid' => $invoice['data']['invoice']['amount_paid'] + $parameters['payment_amount']
 				);
-				// ..
+				$total = !empty($invoice['data']['invoice']['total_pending']) ? $invoice['data']['invoice']['total_pending'] : $invoice['data']['invoice']['total'];
 
 				if (
 					!empty($invoice['data']['invoice']['user_id']) &&
 					!empty($parameters['user']) &&
-					$amountToApplyToBalance = max(0, min($parameters['payment_amount'], round(($invoiceData['amount_paid'] - $invoice['data']['invoice']['total']) * 100) / 100))
+					$amountToApplyToBalance = max(0, min($parameters['payment_amount'], round(($invoiceData['amount_paid'] - $total) * 100) / 100))
 				) {
 					if (empty($invoice['data']['orders'])) {
 						$amountToApplyToBalance = $parameters['payment_amount'];
@@ -381,7 +381,7 @@ class TransactionsModel extends InvoicesModel {
 				if (
 					!empty($invoice['data']['invoice']['status']) &&
 					$invoice['data']['invoice']['status'] === 'unpaid' &&
-					$invoiceData['amount_paid'] >= $invoice['data']['invoice']['total']
+					$invoiceData['amount_paid'] >= $total
 				) {
 					foreach ($invoice['data']['orders'] as $order) {
 						if ($order['status'] !== 'active') {

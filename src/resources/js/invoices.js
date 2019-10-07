@@ -35,8 +35,6 @@ var processInvoice = function() {
 				response.data.orders.length === 1 &&
 				response.data.orders[0].quantity_pending
 			);
-			// ..
-			billingAmountField.value = amountDue;
 			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label>' + (pendingUpgrade ? '<label class="label">Pending Upgrade</label>' : '') + ' Invoice #' + response.data.invoice.id;
 			document.querySelector('.billing-currency-name').innerHTML = response.data.invoice.payment_currency_name;
 			document.querySelector('.billing-currency-symbol').innerHTML = response.data.invoice.payment_currency_symbol;
@@ -52,12 +50,18 @@ var processInvoice = function() {
 				response.data.invoice.total = response.data.invoice.total_pending;
 			}
 
+			billingAmountField.value = amountDue;
+
 			if (response.data.orders.length) {
 				// ..
 				interval = response.data.orders[0].interval_value + ' ' + response.data.orders[0].interval_type + (response.data.orders[0].interval_value !== 1 ? 's' : '');
 				invoiceData += '<h2>Invoice Order' + (response.data.orders.length !== 1 ? 's' : '') + '</h2>';
 				response.data.orders.map(function(order) {
-					invoiceData += '<div class="item-container item-button"><p><strong>' + order.quantity + ' ' + order.name + '</strong></p><p class="no-margin-bottom">' + response.data.invoice.payment_currency_symbol + order.price + ' ' + response.data.invoice.payment_currency_name + ' for ' + interval + '</p><div class="item-link-container">' + (order.status === 'active' ? '<a class="item-link" href="/orders/' + order.id + '"></a>' : '') + '</div></div>';
+					invoiceData += '<div class="item-container item-button">';
+					invoiceData += '<p><strong>' + order.quantity + ' ' + order.name + '</strong></p>';
+					invoiceData += '<p class="no-margin-bottom">' + response.data.invoice.payment_currency_symbol + order.price + ' ' + response.data.invoice.payment_currency_name + ' for ' + interval + '</p>';
+					invoiceData += '<div class="item-link-container">' + (order.status === 'active' ? '<a class="item-link" href="/orders/' + order.id + '"></a>' : '') + '</div>';
+					invoiceData += '</div>';
 				});
 
 				if (pendingUpgrade) {

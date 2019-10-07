@@ -358,6 +358,7 @@ class TransactionsModel extends InvoicesModel {
 					'id' => $parameters['invoice_id'],
 					'amount_paid' => $invoice['data']['invoice']['amount_paid'] + $parameters['payment_amount']
 				);
+				// ..
 
 				if (
 					!empty($invoice['data']['invoice']['user_id']) &&
@@ -1806,12 +1807,13 @@ class TransactionsModel extends InvoicesModel {
 								'id' => $parameters['data']['invoice_id']
 							)
 						));
+						$amountDue = isset($invoice['data']['invoice']['amount_due_pending']) ? $invoice['data']['invoice']['amount_due_pending'] : $invoice['data']['invoice']['amount_due'];
 
 						if (
 							$parameters['data']['payment_method'] === 'balance' &&
-							$parameters['data']['billing_amount'] > $invoice['data']['invoice']['amount_due']
+							$parameters['data']['billing_amount'] > $amountDue
 						) {
-							$response['message']['text'] = 'Payment amount from your account balance exceeds the amount due' . ($invoice['data']['invoice']['amount_due'] ? ', please enter an amount less than or equal to ' . $this->settings['billing']['currency_symbol'] . $invoice['data']['invoice']['amount_due'] . ' ' . $this->settings['billing']['currency_name'] : '') . '.';
+							$response['message']['text'] = 'Payment amount from your account balance exceeds the amount due' . ($amountDue ? ', please enter an amount less than or equal to ' . $this->settings['billing']['currency_symbol'] . $amountDue . ' ' . $this->settings['billing']['currency_name'] : '') . '.';
 						} else {
 							if (
 								!empty($invoice['data']) &&

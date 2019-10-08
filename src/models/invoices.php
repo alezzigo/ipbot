@@ -534,7 +534,7 @@ class InvoicesModel extends UsersModel {
 		$invoiceIds = $this->_retrieveInvoiceIds(array_unique(array_filter(array(
 			$invoiceData['id'],
 			$invoiceData['initial_invoice_id'],
-			$invoiceData['merged_invoice_id'],
+			$invoiceData['merged_invoice_id']
 		))));
 		$invoiceOrders = $this->find('invoice_orders', array(
 			'conditions' => array(

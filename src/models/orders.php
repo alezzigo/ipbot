@@ -307,6 +307,7 @@ class OrdersModel extends InvoicesModel {
 										$mergedData['invoice']['remainder_pending'] -= ($proratePercentage * $amountPaid);
 									}
 
+									$pendingInvoiceIds[$previousInvoiceData['id']] = $previousInvoiceData['id'];
 									$processedInvoices[$previousInvoiceData['id']] = true;
 								}
 							}

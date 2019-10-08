@@ -355,10 +355,14 @@ class TransactionsModel extends InvoicesModel {
 
 			if (!empty($invoice['data'])) {
 				$invoiceData = array(
-					'id' => $parameters['invoice_id'],
-					'amount_paid' => $invoice['data']['invoice']['amount_paid'] + $parameters['payment_amount']
+					'amount_paid' => $invoice['data']['invoice']['amount_paid'] + $parameters['payment_amount'],
+					'id' => $parameters['invoice_id']
 				);
 				$total = !empty($invoice['data']['invoice']['total_pending']) ? $invoice['data']['invoice']['total_pending'] : $invoice['data']['invoice']['total'];
+
+				if (is_numeric($invoice['data']['invoice']['remainder_pending'])) {
+					$invoiceData['remainder_pending'] = max(0, round(($invoice['data']['invoice']['remainder_pending'] - $parameters['payment_amount']) * 100) / 100);
+				}
 
 				if (
 					!empty($invoice['data']['invoice']['user_id']) &&
@@ -379,12 +383,23 @@ class TransactionsModel extends InvoicesModel {
 				}
 
 				if (
-					!empty($invoice['data']['invoice']['status']) &&
-					$invoice['data']['invoice']['status'] === 'unpaid' &&
-					$invoiceData['amount_paid'] >= $total
+					$invoiceData['amount_paid'] >= $total ||
+					(
+						isset($invoiceData['remainder_pending']) &&
+						$invoiceData['remainder_pending'] === 0
+					)
 				) {
 					foreach ($invoice['data']['orders'] as $order) {
-						if ($order['status'] !== 'active') {
+						$quantity = $order['quantity'];
+
+						if (
+							$order['status'] !== 'active' ||
+							(
+								is_numeric($order['quantity_pending']) &&
+								$order['quantity_pending'] > $order['quantity'] &&
+								($quantity = ($order['quantity_pending'] - $order['quantity']))
+							)
+						) {
 							$processingNodes = $this->find('nodes', array(
 								'conditions' => array(
 									'AND' => array(
@@ -405,7 +420,7 @@ class TransactionsModel extends InvoicesModel {
 									'isp',
 									'region'
 								),
-								'limit' => $order['quantity'],
+								'limit' => $quantity,
 								'sort' => array(
 									'field' => 'id',
 									'order' => 'ASC'
@@ -414,21 +429,33 @@ class TransactionsModel extends InvoicesModel {
 
 							if (
 								!empty($processingNodes['count']) &&
-								count($processingNodes['data']) === $order['quantity']
+								count($processingNodes['data']) === $quantity
 							) {
 								$newItemData = array(
 									'order_id' => $order['id'],
 									'status' => 'online',
 									'user_id' => $order['user_id']
 								);
-								$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, $order['quantity'], array(
+								$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, $quantity, array(
 									'processing' => true
 								)));
 
 								if ($this->save('nodes', $processingNodes['data'])) {
 									$orderData = array(
 										'id' => $order['id'],
-										'status' => 'active'
+										'interval_type' => (!empty($order['interval_type_pending']) ? $order['interval_type_pending'] : $order['interval_type']),
+										'interval_type_pending' => null,
+										'interval_value' => (!empty($order['interval_value_pending']) ? $order['interval_value_pending'] : $order['interval_value']),
+										'interval_value_pending' => null,
+										'price' => (!empty($order['price_pending']) ? $order['price_pending'] : $order['price']),
+										'price_pending' => null,
+										'quantity' => (!empty($order['quantity_pending']) ? $order['quantity_pending'] : $order['quantity']),
+										'quantity_pending' => null,
+										'shipping' => (!empty($order['shipping_pending']) ? $order['shipping_pending'] : $order['shipping']),
+										'shipping_pending' => null,
+										'status' => 'active',
+										'tax' => (!empty($order['tax_pending']) ? $order['tax_pending'] : $order['tax']),
+										'tax_pending' => null
 									);
 
 									foreach ($processingNodes['data'] as $key => $row) {
@@ -471,10 +498,18 @@ class TransactionsModel extends InvoicesModel {
 
 					$invoiceData['status'] = 'paid';
 					$invoiceData['warning_level'] = 0;
-
-					if (!empty($invoice['data']['orders'])) {
-						$invoiceTotalPaid = true;
-					}
+					$invoiceData = array_merge($invoiceData, array(
+						'remainder_pending' => null,
+						'shipping' => (!empty($invoice['data']['invoice']['shipping_pending']) ? $invoice['data']['invoice']['shipping_pending'] : $invoice['data']['invoice']['shipping']),
+						'shipping_pending' => null,
+						'subtotal' => (!empty($invoice['data']['invoice']['subtotal_pending']) ? $invoice['data']['invoice']['subtotal_pending'] : $invoice['data']['invoice']['subtotal']),
+						'subtotal_pending' => null,
+						'tax' => (!empty($invoice['data']['invoice']['tax_pending']) ? $invoice['data']['invoice']['tax_pending'] : $invoice['data']['invoice']['tax']),
+						'tax_pending' => null,
+						'total' => (!empty($invoice['data']['invoice']['total_pending']) ? $invoice['data']['invoice']['total_pending'] : $invoice['data']['invoice']['total']),
+						'total_pending' => null
+					));
+					$invoiceTotalPaid = true;
 				}
 
 				if ($this->save('invoices', array(

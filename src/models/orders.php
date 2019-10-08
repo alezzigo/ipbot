@@ -196,7 +196,7 @@ class OrdersModel extends InvoicesModel {
 					if (!empty($pendingInvoices[$invoiceId]['amount_paid'])) {
 						$amountPaid = min($selectedOrder['order']['price'], $pendingInvoices[$invoiceId]['amount_paid']);
 						$mergedData['invoice']['amount_paid'] += $amountPaid;
-						$pendingInvoices[$invoiceId]['amount_paid'] = min(0, round(($pendingInvoices[$invoiceId]['amount_paid'] - $amountPaid) * 100) / 100);
+						$pendingInvoices[$invoiceId]['amount_paid'] = max(0, round(($pendingInvoices[$invoiceId]['amount_paid'] - $amountPaid) * 100) / 100);
 					}
 
 					$mergedData['order']['quantity'] += (!empty($selectedOrder['order']['quantity_pending']) ? $selectedOrder['order']['quantity_pending'] : $selectedOrder['order']['quantity']);

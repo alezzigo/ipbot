@@ -769,7 +769,7 @@ class InvoicesModel extends UsersModel {
 					$response = array(
 						'data' => array(
 							'invoice' => $invoiceData,
-							'items' => invoiceItems,
+							'items' => $invoiceItems,
 							'orders' => $invoiceOrders,
 							'subscriptions' => $invoiceSubscriptions,
 							'transactions' => $invoiceTransactions,

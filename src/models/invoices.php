@@ -84,6 +84,8 @@ class InvoicesModel extends UsersModel {
 			is_numeric($response['invoice']['remainder_pending'])
 		) {
 			$response['invoice']['amount_due_pending'] = $response['invoice']['remainder_pending'];
+		} elseif ($response['invoice']['status'] === 'paid') {
+			$response['invoice']['amount_due'] = 0;
 		}
 
 		return $response;

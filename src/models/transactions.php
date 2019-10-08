@@ -483,7 +483,8 @@ class TransactionsModel extends InvoicesModel {
 										'price' => true,
 										'quantity' => true
 									)), array(
-										'invoice_id' => $invoiceData['id']
+										'invoice_id' => $invoiceData['id'],
+										'order_id' => $order['id']
 									));
 
 									if (

@@ -503,7 +503,6 @@ class InvoicesModel extends UsersModel {
 					'invoice_id' => $invoiceData['id']
 				),
 				'fields' => array(
-					'id',
 					'interval_type',
 					'interval_value',
 					'invoice_id',
@@ -515,6 +514,10 @@ class InvoicesModel extends UsersModel {
 			));
 
 			if (!empty($invoiceItems['count'])) {
+				foreach ($invoiceItems['data'] as $invoiceItemKey => $invoiceItem) {
+					$invoiceItems['data'][$invoiceItemKey]['id'] = $invoiceItem['order_id'];
+				}
+
 				$response = $invoiceItems['data'];
 			}
 		}

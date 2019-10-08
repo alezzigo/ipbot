@@ -506,9 +506,11 @@ class InvoicesModel extends UsersModel {
 					'id',
 					'interval_type',
 					'interval_value',
+					'invoice_id',
+					'name',
+					'order_id',
 					'price',
-					'quantity',
-					'invoice_id'
+					'quantity'
 				)
 			));
 

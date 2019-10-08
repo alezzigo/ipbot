@@ -72,7 +72,7 @@ class InvoicesModel extends UsersModel {
 
 		if (!empty($response['invoice']['due'])) {
 			$dueDate = strtotime($response['invoice']['due']);
-			$response['invoice']['due'] = date('M d, Y', $dueDate) . ' at ' . date('g:ia', $dueDate) . ' ' . $this->settings['timezone'];
+			$response['invoice']['due'] = date('M d, Y', $dueDate) . ' ' . date('g:ia', $dueDate) . ' ' . $this->settings['timezone'];
 		}
 
 		$response['invoice']['amount_due'] = max(0, round(($response['invoice']['total'] - $response['invoice']['amount_paid']) * 100) / 100);

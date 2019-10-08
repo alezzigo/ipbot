@@ -264,9 +264,11 @@ class OrdersModel extends InvoicesModel {
 							if (!empty($selectedOrder['invoice']['initial_invoice_id'])) {
 								$previousInvoice = $this->find('invoices', array(
 									'conditions' => array(
-										'due >' => date('Y-m-d H:i:s', strtotime($selectedOrder['invoice']['due'] . ' -' . $selectedOrder['order']['interval_value'] . ' ' . $selectedOrder['order']['interval_type'] . ' -1 day')),
-										'id' => $selectedOrder['invoice']['initial_invoice_id'],
-										'id !=' => $selectedOrder['invoice']['id']
+										'id !=' => $selectedOrder['invoice']['id'],
+										'OR' => array(
+											'id' => $selectedOrder['invoice']['initial_invoice_id'],
+											'initial_invoice_id' => $selectedOrder['invoice']['initial_invoice_id']
+										)
 									),
 									'fields' => array(
 										'amount_paid',

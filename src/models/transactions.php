@@ -396,11 +396,12 @@ class TransactionsModel extends InvoicesModel {
 				) {
 					$invoiceItems = array();
 
-					foreach ($invoice['data']['orders'] as $order) {
-						$quantity = $order['quantity'];
-
+					foreach ($invoice['data']['orders'] as $orderKey => $order) {
 						if (
-							$order['status'] !== 'active' ||
+							(
+								$order['status'] !== 'active' &&
+								($quantity = $order['quantity'])
+							) ||
 							(
 								is_numeric($order['quantity_pending']) &&
 								$order['quantity_pending'] > $order['quantity'] &&
@@ -448,15 +449,15 @@ class TransactionsModel extends InvoicesModel {
 								)));
 
 								if ($this->save('nodes', $processingNodes['data'])) {
-									foreach ($processingNodes['data'] as $key => $row) {
+									foreach ($processingNodes['data'] as $processingNodeKey => $row) {
 										$allocatedNodes[] = array(
 											'allocated' => true,
-											'id' => ($processingNodes['data'][$key]['node_id'] = $row['id']),
+											'id' => ($processingNodes['data'][$processingNodeKey]['node_id'] = $row['id']),
 											'processing' => false
 										);
-										$processingNodes['data'][$key] += $newItemData;
-										unset($processingNodes['data'][$key]['id']);
-										unset($processingNodes['data'][$key]['processing']);
+										$processingNodes['data'][$processingNodeKey] += $newItemData;
+										unset($processingNodes['data'][$processingNodeKey]['id']);
+										unset($processingNodes['data'][$processingNodeKey]['processing']);
 									}
 
 									$orderData = array(
@@ -477,6 +478,7 @@ class TransactionsModel extends InvoicesModel {
 											'tax_pending' => null
 										)
 									);
+									$invoice['data']['orders'][$orderKey] = array_merge($invoice['data']['orders'][$orderKey], $orderData[0]);
 									$invoiceItems[] = array_merge(array_intersect_key($orderData[0], array(
 										'interval_type' => true,
 										'interval_value' => true,

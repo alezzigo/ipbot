@@ -49,6 +49,10 @@ var processInvoice = function() {
 
 			billingAmountField.value = amountDue;
 
+			if (response.data.items.length) {
+				response.data.orders = response.data.items;
+			}
+
 			if (response.data.orders.length) {
 				// ..
 				interval = response.data.orders[0].interval_value + ' ' + response.data.orders[0].interval_type + (response.data.orders[0].interval_value !== 1 ? 's' : '');
@@ -57,7 +61,7 @@ var processInvoice = function() {
 					invoiceData += '<div class="item-container item-button">';
 					invoiceData += '<p><strong>' + order.quantity + ' ' + order.name + '</strong></p>';
 					invoiceData += '<p class="no-margin-bottom">' + response.data.invoice.payment_currency_symbol + order.price + ' ' + response.data.invoice.payment_currency_name + ' for ' + interval + '</p>';
-					invoiceData += '<div class="item-link-container">' + (order.status === 'active' ? '<a class="item-link" href="/orders/' + order.id + '"></a>' : '') + '</div>';
+					invoiceData += '<div class="item-link-container"><a class="item-link" href="/orders/' + order.id + '"></a></div>';
 					invoiceData += '</div>';
 				});
 

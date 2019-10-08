@@ -383,12 +383,19 @@ class TransactionsModel extends InvoicesModel {
 				}
 
 				if (
-					$invoiceData['amount_paid'] >= $total ||
 					(
-						isset($invoiceData['remainder_pending']) &&
-						$invoiceData['remainder_pending'] === 0
-					)
+						$invoiceData['amount_paid'] >= $total ||
+						(
+							isset($invoiceData['remainder_pending']) &&
+							$invoiceData['remainder_pending'] === 0
+						)
+					) &&
+					$this->delete('invoice_items', array(
+						'invoice_id' => $invoiceData['id']
+					))
 				) {
+					$invoiceItems = array();
+
 					foreach ($invoice['data']['orders'] as $order) {
 						$quantity = $order['quantity'];
 
@@ -441,23 +448,6 @@ class TransactionsModel extends InvoicesModel {
 								)));
 
 								if ($this->save('nodes', $processingNodes['data'])) {
-									$orderData = array(
-										'id' => $order['id'],
-										'interval_type' => (!empty($order['interval_type_pending']) ? $order['interval_type_pending'] : $order['interval_type']),
-										'interval_type_pending' => null,
-										'interval_value' => (!empty($order['interval_value_pending']) ? $order['interval_value_pending'] : $order['interval_value']),
-										'interval_value_pending' => null,
-										'price' => (!empty($order['price_pending']) ? $order['price_pending'] : $order['price']),
-										'price_pending' => null,
-										'quantity' => (!empty($order['quantity_pending']) ? $order['quantity_pending'] : $order['quantity']),
-										'quantity_pending' => null,
-										'shipping' => (!empty($order['shipping_pending']) ? $order['shipping_pending'] : $order['shipping']),
-										'shipping_pending' => null,
-										'status' => 'active',
-										'tax' => (!empty($order['tax_pending']) ? $order['tax_pending'] : $order['tax']),
-										'tax_pending' => null
-									);
-
 									foreach ($processingNodes['data'] as $key => $row) {
 										$allocatedNodes[] = array(
 											'allocated' => true,
@@ -469,11 +459,37 @@ class TransactionsModel extends InvoicesModel {
 										unset($processingNodes['data'][$key]['processing']);
 									}
 
+									$orderData = array(
+										array(
+											'id' => $order['id'],
+											'interval_type' => (!empty($order['interval_type_pending']) ? $order['interval_type_pending'] : $order['interval_type']),
+											'interval_type_pending' => null,
+											'interval_value' => (!empty($order['interval_value_pending']) ? $order['interval_value_pending'] : $order['interval_value']),
+											'interval_value_pending' => null,
+											'price' => (!empty($order['price_pending']) ? $order['price_pending'] : $order['price']),
+											'price_pending' => null,
+											'quantity' => (!empty($order['quantity_pending']) ? $order['quantity_pending'] : $order['quantity']),
+											'quantity_pending' => null,
+											'shipping' => (!empty($order['shipping_pending']) ? $order['shipping_pending'] : $order['shipping']),
+											'shipping_pending' => null,
+											'status' => 'active',
+											'tax' => (!empty($order['tax_pending']) ? $order['tax_pending'] : $order['tax']),
+											'tax_pending' => null
+										)
+									);
+									$invoiceItems[] = array_merge(array_intersect_key($orderData[0], array(
+										'interval_type' => true,
+										'interval_value' => true,
+										'price' => true,
+										'quantity' => true
+									)), array(
+										'invoice_id' => $invoiceData['id']
+									));
+
 									if (
+										$this->save('invoice_items', $invoiceItems) &&
 										$this->save('nodes', $allocatedNodes) &&
-										$this->save('orders', array(
-											$orderData
-										)) &&
+										$this->save('orders', $orderData) &&
 										$this->save('proxies', $processingNodes['data'])
 									) {
 										$mailParameters = array(

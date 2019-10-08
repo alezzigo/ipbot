@@ -31,10 +31,7 @@ var processInvoice = function() {
 			var amountDue = response.data.invoice.amount_due;
 			var billingAmountField = document.querySelector('.billing-amount');
 			var interval = '';
-			var pendingUpgrade = (
-				response.data.orders.length === 1 &&
-				response.data.orders[0].quantity_pending
-			);
+			var pendingUpgrade = (typeof response.data.invoice.amount_due_pending === 'number');
 			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label>' + (pendingUpgrade ? '<label class="label">Pending Upgrade</label>' : '') + ' Invoice #' + response.data.invoice.id;
 			document.querySelector('.billing-currency-name').innerHTML = response.data.invoice.payment_currency_name;
 			document.querySelector('.billing-currency-symbol').innerHTML = response.data.invoice.payment_currency_symbol;
@@ -42,7 +39,7 @@ var processInvoice = function() {
 				closeWindows(defaultTable);
 			});
 
-			if (typeof response.data.invoice.amount_due_pending === 'number') {
+			if (pendingUpgrade) {
 				amountDue = response.data.invoice.amount_due_pending;
 				response.data.invoice.shipping = response.data.invoice.shipping_pending;
 				response.data.invoice.subtotal = response.data.invoice.subtotal_pending;

@@ -162,7 +162,6 @@ var processUpgrade = function(windowName, windowSelector, upgradeValue = 1) {
 			upgradeField.removeEventListener('change', upgradeField.changeListener);
 			upgradeField.removeEventListener('keyup', upgradeField.changeListener);
 			decreaseButton.clickListener = increaseButton.clickListener = upgradeField.changeListener = function(button) {
-
 				upgradeValue = Math.min(response.data.product.maximum_quantity, Math.max(upgradeValueMinimum, parseInt(upgradeField.value) + parseInt(button.target.getAttribute('event_step'))));
 
 				if (upgradeValue <= upgradeValueMinimum) {

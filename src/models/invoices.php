@@ -488,6 +488,39 @@ class InvoicesModel extends UsersModel {
 	}
 
 /**
+ * Retrieve invoice items data
+ *
+ * @param array $invoiceData
+ *
+ * @return array $response
+ */
+	protected function _retrieveInvoiceItems($invoiceData) {
+		$response = array();
+
+		if ($invoiceData['status'] === 'paid') {
+			$invoiceItems = $this->find('invoice_items', array(
+				'conditions' => array(
+					'invoice_id' => $invoiceData['id']
+				),
+				'fields' => array(
+					'id',
+					'interval_type',
+					'interval_value',
+					'price',
+					'quantity',
+					'invoice_id'
+				)
+			));
+
+			if (!empty($invoiceItems['count'])) {
+				$response = $invoiceItems['data'];
+			}
+		}
+
+		return $response;
+	}
+
+/**
  * Retrieve invoice order data
  *
  * @param array $invoiceData
@@ -722,6 +755,7 @@ class InvoicesModel extends UsersModel {
 				$response['redirect'] = $this->settings['base_url'] . 'invoices/' . $invoiceData['merged_invoice_id'];
 			} else {
 				$invoiceData['created'] = date('M d Y', strtotime($invoiceData['created'])) . ' at ' . date('g:ia', strtotime($invoiceData['created'])) . ' ' . $this->settings['timezone'];
+				$invoiceItems = $this->_retrieveInvoiceItems($invoiceData);
 				$invoiceOrders = $this->_retrieveInvoiceOrders($invoiceData);
 				$invoiceSubscriptions = $this->_retrieveInvoiceSubscriptions($invoiceData);
 				$invoiceTransactions = $this->_retrieveInvoiceTransactions($invoiceData);
@@ -735,6 +769,7 @@ class InvoicesModel extends UsersModel {
 					$response = array(
 						'data' => array(
 							'invoice' => $invoiceData,
+							'items' => invoiceItems,
 							'orders' => $invoiceOrders,
 							'subscriptions' => $invoiceSubscriptions,
 							'transactions' => $invoiceTransactions,

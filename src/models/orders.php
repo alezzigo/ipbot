@@ -253,8 +253,10 @@ class OrdersModel extends InvoicesModel {
 							'price' => $mergedData['order']['price_pending'],
 							'quantity' => $mergedData['order']['quantity_pending']
 						), $response['data']['product']);
-						$mergedData['order']['shipping_pending'] = $this->_calculateItemShippingPrice($pendingItem);
-						$mergedData['order']['tax_pending'] = $this->_calculateItemTaxPrice($pendingItem);
+						$mergedData['order'] = array_merge($mergedData['order'], array(
+							'shipping_pending' => $this->_calculateItemShippingPrice($pendingItem),
+							'tax_pending' => $this->_calculateItemTaxPrice($pendingItem)
+						));
 						$mergedData['orders'][] = $mergedData['order'];
 						$mergedData = array_replace_recursive($mergedData, $this->_calculateInvoicePaymentDetails($mergedData));
 						$mergedData['invoice']['remainder_pending'] = $mergedData['invoice']['total_pending'];
@@ -332,8 +334,10 @@ class OrdersModel extends InvoicesModel {
 								'status' => 'error',
 								'text' => $defaultMessage
 							);
-							$mergedData['invoice']['cart_items'] = sha1(uniqid() . $mergedData['invoice']['cart_items']);
-							$mergedData['invoice']['payable'] = true;
+							$mergedData['invoice'] = array_merge($mergedData['invoice'], array(
+								'cart_items' => sha1(uniqid() . $mergedData['invoice']['cart_items']),
+								'payable' => true
+							));
 							$mergedInvoiceData = array_diff_key($mergedData['invoice'], array(
 								'amount_due' => true,
 								'amount_due_pending' => true,

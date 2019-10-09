@@ -348,7 +348,8 @@ class TransactionsModel extends InvoicesModel {
 		if (!empty($parameters['invoice_id'])) {
 			$invoice = $this->invoice('invoices', array(
 				'conditions' => array(
-					'id' => $parameters['invoice_id']
+					'id' => $parameters['invoice_id'],
+					'payable' => true
 				)
 			));
 			$invoiceWarningLevel = $invoice['data']['invoice']['warning_level'];
@@ -1874,50 +1875,55 @@ class TransactionsModel extends InvoicesModel {
 								!empty($invoice['data']) &&
 								$parameters['user']['id'] === $invoice['data']['invoice']['user_id']
 							) {
-								$response['message']['text'] = $defaultMessage;
-								$parameters['data'] = array_merge($parameters['data'], $invoice['data']);
-								$planData = array(
-									'cart_items' => $parameters['data']['invoice']['cart_items'],
-									'invoice_id' => $parameters['data']['invoice']['id'],
-									'price' => $parameters['data']['billing_amount']
-								);
-								// ..
-								$existingPlan = $this->find('plans', array(
-									'conditions' => $planData,
-									'fields' => array(
-										'id'
-									),
-									'limit' => 1
-								));
-
-								if (
-									!empty($existingPlan['count']) ||
-									$this->save('plans', array(
-										$planData
-									))
-								) {
-									$plan = $this->find('plans', array(
+								if (empty($invoice['data']['invoice']['payable'])) {
+									$response['message']['text'] = 'Invoice is currently not payable, please try again later.';
+								} else {
+									$response['message']['text'] = $defaultMessage;
+									$parameters['data'] = array_merge($parameters['data'], $invoice['data']);
+									$planData = array(
+										'cart_items' => $parameters['data']['invoice']['cart_items'],
+										'invoice_id' => $parameters['data']['invoice']['id'],
+										'price' => $parameters['data']['billing_amount']
+									);
+									// ..
+									$existingPlan = $this->find('plans', array(
 										'conditions' => $planData,
 										'fields' => array(
-											'cart_items',
-											'created',
-											'id',
-											'invoice_id',
-											'modified',
-											'price'
+											'id'
 										),
-										'limit' => 1,
-										'sort' => array(
-											'field' => 'created',
-											'order' => 'DESC'
-										)
+										'limit' => 1
 									));
 
-									if (!empty($plan['count'])) {
-										$parameters['data']['plan'] = $plan['data'][0];
-										$response = $this->$method($parameters);
+									if (
+										!empty($existingPlan['count']) ||
+										$this->save('plans', array(
+											$planData
+										))
+									) {
+										$plan = $this->find('plans', array(
+											'conditions' => $planData,
+											'fields' => array(
+												'cart_items',
+												'created',
+												'id',
+												'invoice_id',
+												'modified',
+												'price'
+											),
+											'limit' => 1,
+											'sort' => array(
+												'field' => 'created',
+												'order' => 'DESC'
+											)
+										));
+
+										if (!empty($plan['count'])) {
+											$parameters['data']['plan'] = $plan['data'][0];
+											$response = $this->$method($parameters);
+										}
 									}
 								}
+
 							}
 						}
 					}

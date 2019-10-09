@@ -371,7 +371,10 @@ class CartsModel extends AppModel {
 			$invoiceConditions = $orderConditions = array(
 				'session_id' => $cart['id']
 			);
-			$invoiceConditions['status'] = 'unpaid';
+			$invoiceConditions = array_merge($invoiceConditions, array(
+				'payable' => true,
+				'status' => 'unpaid'
+			));
 			$orderConditions['status'] = 'pending';
 			$parameters['user'] = $this->_authenticate('users', $parameters);
 			$total = 0;

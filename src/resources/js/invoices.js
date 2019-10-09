@@ -65,6 +65,7 @@ var processInvoice = function() {
 					invoiceData += '</div>';
 				});
 
+				// .. ^
 				if (pendingUpgrade) {
 					invoiceData += '<p class="message" style="margin-bottom: 15px;">This invoice has a pending upgrade to the following order:</p>';
 					invoiceData += '<div class="item-container item-button"><p><strong>' + response.data.orders[0].quantity_pending + ' ' + response.data.orders[0].name + '</strong></p><p class="no-margin-bottom">' + response.data.invoice.payment_currency_symbol + response.data.orders[0].price_pending + ' ' + response.data.invoice.payment_currency_name + ' for ' + response.data.orders[0].interval_value_pending + ' ' + response.data.orders[0].interval_type_pending + (response.data.orders[0].interval_value_pending !== 1 ? 's' : '') + '</p><div class="item-link-container"></div></div>';
@@ -170,7 +171,8 @@ var processInvoice = function() {
 var processInvoices = function() {
 	requestParameters.action = 'find';
 	requestParameters.conditions = {
-		merged_invoice_id: null
+		merged_invoice_id: null,
+		payable: true
 	};
 	requestParameters.sort = {
 		field: 'created',

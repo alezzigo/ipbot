@@ -49,6 +49,7 @@ class OrdersModel extends InvoicesModel {
 					'id',
 					'initial_invoice_id',
 					'modified',
+					'payable',
 					'remainder_pending',
 					'session_id',
 					'shipping',

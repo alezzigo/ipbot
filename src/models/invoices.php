@@ -106,6 +106,7 @@ class InvoicesModel extends UsersModel {
 		$processedInvoices = 0;
 		$processedInvoices += $this->_processInvoicesFirstPastDueWarning();
 		$processedInvoices += $this->_processInvoicesFirstUpcomingPaymentDueWarning();
+		$processedInvoices += $this->_processInvoicesPayable();
 		$processedInvoices += $this->_processInvoicesOverduePayment();
 		$processedInvoices += $this->_processInvoicesSecondUpcomingPaymentDueWarning();
 		$processedInvoices += $this->_processInvoicesSecondPastDueWarning();
@@ -226,6 +227,39 @@ class InvoicesModel extends UsersModel {
 						$response += 1;
 					}
 				}
+			}
+		}
+
+		return $response;
+	}
+
+/**
+ * Process invoices which are within a payable date range
+ *
+ * @return boolean $response Count invoices processed
+ */
+	protected function _processInvoicesPayable() {
+		$response = 0;
+		$invoices = $this->find('invoices', array(
+			'conditions' => array(
+				'due <' => date('Y-m-d H:i:s', strtotime('+10 days')),
+				'payable' => false,
+				'status' => 'unpaid',
+				'warning_level' => 0
+			),
+			'fields' => array(
+				'id',
+				'payable'
+			)
+		));
+
+		if (!empty($invoices['count'])) {
+			$invoiceData = array_values(array_replace_recursive($invoices['data'], array_fill(0, $invoices['count'], array(
+				'payable' => true
+			))));
+
+			if ($this->save('invoices', $invoiceData)) {
+				$response += $invoices['count'];
 			}
 		}
 
@@ -738,6 +772,7 @@ class InvoicesModel extends UsersModel {
 				'initial_invoice_id',
 				'merged_invoice_id',
 				'modified',
+				'payable',
 				'remainder_pending',
 				'session_id',
 				'shipping',

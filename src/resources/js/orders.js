@@ -150,7 +150,7 @@ var processUpgrade = function(windowName, windowSelector, upgradeValue = 1) {
 			upgradeData += '<p><strong>Tax</strong><br>' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.tax_pending + ' ' + response.data.merged.invoice.payment_currency_name + '</p>';
 			upgradeData += '<p><strong>Total</strong><br>' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.total_pending + ' ' + response.data.merged.invoice.payment_currency_name + '</p>';
 			upgradeData += '<p><strong>Amount Paid</strong><br><span class="paid">' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.amount_paid + ' ' + response.data.merged.invoice.payment_currency_name + '</span></p>';
-			upgradeData += '<p><strong>Amount Due for ' + (upgradeValue > 0 ? 'Upgrade': 'Merge') + '</strong><br>' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.remainder_pending + ' ' + response.data.merged.invoice.payment_currency_name + '</p>';
+			upgradeData += '<p><strong>Remaining Amount Due</strong><br>' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.remainder_pending + ' ' + response.data.merged.invoice.payment_currency_name + '</p>';
 			upgradeData += '</div>';
 			upgradeContainer.innerHTML = upgradeData;
 			var decreaseButton = upgradeContainer.querySelector('.decrease-quantity');

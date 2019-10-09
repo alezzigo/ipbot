@@ -541,7 +541,6 @@ class TransactionsModel extends InvoicesModel {
 					$invoice['data']['invoice'] = array_merge($invoice['data']['invoice'], $invoiceData);
 
 					if ($invoiceTotalPaid) {
-						$invoiceData = array();
 						$additionalDueInvoices = $this->find('invoices', array(
 							'conditions' => array(
 								'due >' => date('Y-m-d h:i:s', strtotime($invoice['data']['invoice']['due'])),
@@ -563,6 +562,7 @@ class TransactionsModel extends InvoicesModel {
 								'order' => 'DESC'
 							)
 						));
+						$invoiceData = array();
 
 						if (!empty($additionalDueInvoices['count'])) {
 							$invoiceData = array_replace_recursive($additionalDueInvoices['data'], array_fill(0, $additionalDueInvoices['count'], array(

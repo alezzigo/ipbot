@@ -179,7 +179,7 @@ class OrdersModel extends InvoicesModel {
 					'interval_value_pending' => (integer) $largestInterval[0]
 				);
 				$mergedData['order'] = array_merge($mergedData['order'], $mergedInterval);
-				$mergedData['invoice']['amount_paid'] = $mergedData['order']['quantity'] = 0;
+				$mergedData['invoice']['amount_paid'] = $mergedData['order']['quantity'] = $mergedData['order']['quantity_active'] = 0;
 
 				foreach ($selectedOrders as $key => $selectedOrder) {
 					$invoiceId = $selectedOrder['invoice']['id'];
@@ -333,6 +333,7 @@ class OrdersModel extends InvoicesModel {
 								'text' => $defaultMessage
 							);
 							$mergedData['invoice']['cart_items'] = sha1(uniqid() . $mergedData['invoice']['cart_items']);
+							$mergedData['invoice']['payable'] = true;
 							$mergedInvoiceData = array_diff_key($mergedData['invoice'], array(
 								'amount_due' => true,
 								'amount_due_pending' => true,

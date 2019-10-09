@@ -519,18 +519,18 @@ class TransactionsModel extends InvoicesModel {
 						}
 					}
 
-					$invoiceData['status'] = 'paid';
-					$invoiceData['warning_level'] = 0;
 					$invoiceData = array_merge($invoiceData, array(
 						'remainder_pending' => null,
 						'shipping' => (!empty($invoice['data']['invoice']['shipping_pending']) ? $invoice['data']['invoice']['shipping_pending'] : $invoice['data']['invoice']['shipping']),
 						'shipping_pending' => null,
+						'status' => 'paid',
 						'subtotal' => (!empty($invoice['data']['invoice']['subtotal_pending']) ? $invoice['data']['invoice']['subtotal_pending'] : $invoice['data']['invoice']['subtotal']),
 						'subtotal_pending' => null,
 						'tax' => (!empty($invoice['data']['invoice']['tax_pending']) ? $invoice['data']['invoice']['tax_pending'] : $invoice['data']['invoice']['tax']),
 						'tax_pending' => null,
 						'total' => (!empty($invoice['data']['invoice']['total_pending']) ? $invoice['data']['invoice']['total_pending'] : $invoice['data']['invoice']['total']),
-						'total_pending' => null
+						'total_pending' => null,
+						'warning_level' => 0
 					));
 					$invoiceTotalPaid = true;
 				}

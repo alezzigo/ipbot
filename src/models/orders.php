@@ -338,26 +338,26 @@ class OrdersModel extends InvoicesModel {
 								'cart_items' => sha1(uniqid() . $mergedData['invoice']['cart_items']),
 								'payable' => true
 							));
-							$mergedInvoiceData = array_diff_key($mergedData['invoice'], array(
-								'amount_due' => true,
-								'amount_due_pending' => true,
-								'created' => true,
-								'due' => true,
-								'id' => true,
-								'modified' => true,
-								'payment_currency_name' => true,
-								'payment_currency_symbol' => true
-							));
+							$mergedInvoiceData = array(
+								array_diff_key($mergedData['invoice'], array(
+									'amount_due' => true,
+									'amount_due_pending' => true,
+									'created' => true,
+									'due' => true,
+									'id' => true,
+									'modified' => true,
+									'payment_currency_name' => true,
+									'payment_currency_symbol' => true
+								))
+							);
 
-							if ($this->save('invoices', array(
-								$mergedInvoiceData
-							))) {
+							if ($this->save('invoices', $mergedInvoiceData)) {
 								$mergedInvoice = $this->find('invoices', array(
 									'conditions' => array(
-										'cart_items' => $mergedInvoiceData['cart_items'],
-										'user_id' => $mergedInvoiceData['user_id']
+										'cart_items' => $mergedData['invoice']['cart_items'],
+										'user_id' => $mergedData['invoice']['user_id']
 									),
-									'fields' => array_merge(array_keys($mergedInvoiceData), array(
+									'fields' => array_merge(array_keys($mergedInvoiceData[0]), array(
 										'id'
 									)),
 									'limit' => 1,

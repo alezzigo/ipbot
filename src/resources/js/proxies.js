@@ -228,7 +228,7 @@ var processOrder = function() {
 		}
 
 		if (response.count) {
-			document.querySelector('.order-name').innerHTML = response.data[0].quantity + ' ' + response.data[0].name;
+			document.querySelector('.order-name').innerHTML = (response.data[0].quantity_active ? response.data[0].quantity_active : response.data[0].quantity) + ' ' + response.data[0].name;
 			requestParameters.table = defaultTable;
 			requestParameters.url = defaultUrl;
 

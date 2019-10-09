@@ -136,6 +136,7 @@ class OrdersModel extends InvoicesModel {
 					'price_pending',
 					'product_id',
 					'quantity',
+					'quantity_active',
 					'quantity_pending',
 					'session_id',
 					'shipping',
@@ -201,6 +202,7 @@ class OrdersModel extends InvoicesModel {
 					}
 
 					$mergedData['order']['quantity'] += (!empty($selectedOrder['order']['quantity_pending']) ? $selectedOrder['order']['quantity_pending'] : $selectedOrder['order']['quantity']);
+					$mergedData['order']['quantity_active'] += $selectedOrder['order']['quantity_active'];
 				}
 
 				foreach ($pendingInvoices as $invoiceId => $pendingInvoice) {

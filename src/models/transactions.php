@@ -402,7 +402,7 @@ class TransactionsModel extends InvoicesModel {
 							(
 								is_numeric($order['quantity_pending']) &&
 								$order['quantity_pending'] > $order['quantity'] &&
-								($quantity = ($order['quantity_pending'] - $order['quantity']))
+								($quantity = ($order['quantity_pending'] - $order['quantity_active']))
 							) ||
 							(
 								$order['status'] !== 'active' &&
@@ -448,6 +448,7 @@ class TransactionsModel extends InvoicesModel {
 								$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, $quantity, array(
 									'processing' => true
 								)));
+								$quantity = (!empty($order['quantity_pending']) ? $order['quantity_pending'] : $order['quantity']);
 
 								if ($this->save('nodes', $processingNodes['data'])) {
 									foreach ($processingNodes['data'] as $processingNodeKey => $row) {
@@ -470,7 +471,8 @@ class TransactionsModel extends InvoicesModel {
 											'interval_value_pending' => null,
 											'price' => (!empty($order['price_pending']) ? $order['price_pending'] : $order['price']),
 											'price_pending' => null,
-											'quantity' => (!empty($order['quantity_pending']) ? $order['quantity_pending'] : $order['quantity']),
+											'quantity' => $quantity,
+											'quantity_active' => $quantity,
 											'quantity_pending' => null,
 											'shipping' => (!empty($order['shipping_pending']) ? $order['shipping_pending'] : $order['shipping']),
 											'shipping_pending' => null,
@@ -875,6 +877,7 @@ class TransactionsModel extends InvoicesModel {
 								$nodeData = $orderData = array();
 								$orderData[] = array(
 									'id' => $order['id'],
+									'quantity_active' => 0,
 									'status' => 'pending'
 								);
 

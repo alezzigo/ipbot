@@ -601,6 +601,7 @@ class InvoicesModel extends UsersModel {
 					'price_pending',
 					'product_id',
 					'quantity',
+					'quantity_active',
 					'quantity_pending',
 					'session_id',
 					'shipping',

@@ -511,3 +511,10 @@ class Config {
 }
 
 $config = new Config();
+
+if (
+	!empty($config->settings['timezone']) &&
+	is_string($config->settings['timezone'])
+) {
+	date_default_timezone_set($config->settings['timezone']);
+}

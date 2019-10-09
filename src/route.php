@@ -2,13 +2,6 @@
 	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/config.php');
 
 	if (
-		!empty($config->settings['timezone']) &&
-		is_string($config->settings['timezone'])
-	) {
-		date_default_timezone_set($config->settings['timezone']);
-	}
-
-	if (
 		$_SERVER['HTTP_HOST'] !== $config->settings['base_domain'] ||
 		(
 			strpos($config->settings['base_domain'], '.') !== false &&

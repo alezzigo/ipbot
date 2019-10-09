@@ -540,7 +540,7 @@ class TransactionsModel extends InvoicesModel {
 					$this->save('invoices', $invoiceData) &&
 					$this->save('invoice_items', $invoiceItems)
 				) {
-					$invoice['data']['invoice'] = array_merge($invoice['data']['invoice'], $invoiceData);
+					$invoice['data']['invoice'] = array_merge($invoice['data']['invoice'], $invoiceData[0]);
 
 					if ($invoiceTotalPaid) {
 						$additionalDueInvoices = $this->find('invoices', array(

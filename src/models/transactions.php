@@ -400,13 +400,13 @@ class TransactionsModel extends InvoicesModel {
 					foreach ($invoice['data']['orders'] as $orderKey => $order) {
 						if (
 							(
-								$order['status'] !== 'active' &&
-								($quantity = $order['quantity'])
-							) ||
-							(
 								is_numeric($order['quantity_pending']) &&
 								$order['quantity_pending'] > $order['quantity'] &&
 								($quantity = ($order['quantity_pending'] - $order['quantity']))
+							) ||
+							(
+								$order['status'] !== 'active' &&
+								($quantity = $order['quantity'])
 							)
 						) {
 							$processingNodes = $this->find('nodes', array(

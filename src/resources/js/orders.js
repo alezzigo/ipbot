@@ -78,7 +78,19 @@ var processOrders = function() {
 		) {
 			elements.removeClass('.item-configuration .item-controls', 'hidden');
 			response.data.map(function(item, index) {
-				ordersData += '<div class="item-container item-button"><div class="item"><span class="checkbox-container"><span checked="0" class="checkbox" index="' + index + '" order_id="' + item.id + '" product_id="' + item.product_id + '"></span></span><div class="item-body item-checkbox"><p><strong>' + item.quantity + ' ' + item.name + '</strong></p><p>$' + item.price + ' per ' + (item.interval_value > 1 ? item.interval_value + ' ' : '') + item.interval_type + (item.interval_value > 1 ? 's' : '') + '</p><label class="label ' + item.status + '">' + capitalizeString(item.status) + '</label></div></div><div class="item-link-container"><a class="item-link" href="/orders/' + item.id + '"></a></div></div>';
+				ordersData += '<div class="item-container item-button">';
+				ordersData += '<div class="item">';
+				ordersData += '<span class="checkbox-container">';
+				ordersData += '<span checked="0" class="checkbox" index="' + index + '" order_id="' + item.id + '" product_id="' + item.product_id + '"></span>';
+				ordersData += '</span>';
+				ordersData += '<div class="item-body item-checkbox">';
+				ordersData += '<p><strong>' + item.quantity + ' ' + item.name + '</strong></p>';
+				ordersData += '<p>$' + item.price + ' per ' + (item.interval_value > 1 ? item.interval_value + ' ' : '') + item.interval_type + (item.interval_value > 1 ? 's' : '') + '</p>';
+				ordersData += '<label class="label ' + item.status + '">' + capitalizeString(item.status) + '</label>';
+				ordersData += '</div>';
+				ordersData += '</div>';
+				ordersData += '<div class="item-link-container"><a class="item-link" href="/orders/' + item.id + '"></a></div>';
+				ordersData += '</div>';
 			});
 			ordersContainer.innerHTML = ordersData;
 			ordersAllVisible.removeEventListener('click', ordersAllVisible.clickListener);

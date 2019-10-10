@@ -216,7 +216,7 @@ var processInvoices = function() {
 
 		if (response.data.length) {
 			response.data.map(function(item, index) {
-				document.querySelector('.invoices-container').innerHTML += '<div class="item-container item-button"><div class="item"><div class="item-body"><p><strong>Invoice #' + item.id + '</strong></p><label class="label ' + item.status + '">' + capitalizeString(item.status) + '</label>' + (item.remainder_pending ? '<label class="label">Upgrade Pending</label>' : '') + '</div></div><div class="item-link-container"><a class="item-link" href="/invoices/' + item.id + '"></a></div></div>';
+				document.querySelector('.invoices-container').innerHTML += '<div class="item-container item-button"><div class="item"><div class="item-body"><p><strong>Invoice #' + item.id + '</strong></p><label class="label ' + item.status + '">' + capitalizeString(item.status) + '</label>' + (item.remainder_pending ? '<label class="label">Pending Order Change</label>' : '') + '</div></div><div class="item-link-container"><a class="item-link" href="/invoices/' + item.id + '"></a></div></div>';
 			});
 		}
 	});

@@ -156,7 +156,12 @@ var processUpgrade = function(windowName, windowSelector, upgradeValue = 1) {
 			upgradeData += '<div class="clear"></div>';
 			upgradeData += '<div class="merged-order-details">';
 			upgradeData += '<p class="message no-margin-top success">The ' + orderGridCount + ' order' + (orderGridCount !== 1 ? 's' : '') + ' selected will merge into the following ' + (upgradeValue > 0 ? 'upgraded': '') + ' order and invoice:</p>';
-			upgradeData += '<div class="item-container item-button no-margin-bottom"><p><strong>' + response.data.merged.order.quantity_pending + ' ' + response.data.merged.order.name + '</strong></p><p class="no-margin-bottom">' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.order.price_pending + ' ' + response.data.merged.invoice.payment_currency_name + ' for ' + response.data.merged.order.interval_value_pending + ' ' + response.data.merged.order.interval_type_pending + (response.data.merged.order.interval_value_pending !== 1 ? 's' : '') + '</p><div class="item-link-container"></div></div>';
+			upgradeData += '<div class="item-container item-button no-margin-bottom">';
+			upgradeData += '<p><strong>Merged Order</strong></p>';
+			upgradeData += '<p>' + response.data.merged.order.quantity_pending + ' ' + response.data.merged.order.name + '</p>';
+			upgradeData += '<p class="no-margin-bottom">' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.order.price_pending + ' ' + response.data.merged.invoice.payment_currency_name + ' for ' + response.data.merged.order.interval_value_pending + ' ' + response.data.merged.order.interval_type_pending + (response.data.merged.order.interval_value_pending !== 1 ? 's' : '') + '</p>';
+			upgradeData += '<div class="item-link-container"></div>';
+			upgradeData += '</div>';
 			upgradeData += '<h2>' + (upgradeValue > 0 ? 'Upgraded': 'Merged') + ' Invoice Pricing Details</h2>';
 			upgradeData += '<p><strong>Subtotal</strong><br>' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.subtotal_pending + ' ' + response.data.merged.invoice.payment_currency_name + '</p>';
 			upgradeData += '<p><strong>Shipping</strong><br>' + response.data.merged.invoice.payment_currency_symbol + response.data.merged.invoice.shipping_pending + ' ' + response.data.merged.invoice.payment_currency_name + '</p>';

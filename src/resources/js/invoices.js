@@ -32,7 +32,6 @@ var processInvoice = function() {
 			var billingAmountField = document.querySelector('.billing-amount');
 			var interval = '';
 			var pendingChange = (typeof response.data.invoice.amount_due_pending === 'number');
-			billingAmountField.value = amountDue;
 
 			if (pendingChange) {
 				amountDue = response.data.invoice.amount_due_pending;
@@ -42,6 +41,7 @@ var processInvoice = function() {
 				response.data.invoice.total = response.data.invoice.total_pending;
 			}
 
+			billingAmountField.value = amountDue;
 			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label>' + (pendingChange ? '<label class="label">Pending Order Change</label>' : '') + ' Invoice #' + response.data.invoice.id;
 			document.querySelector('.billing-currency-name').innerHTML = response.data.invoice.payment_currency_name;
 			document.querySelector('.billing-currency-symbol').innerHTML = response.data.invoice.payment_currency_symbol;

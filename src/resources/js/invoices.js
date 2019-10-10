@@ -31,15 +31,10 @@ var processInvoice = function() {
 			var amountDue = response.data.invoice.amount_due;
 			var billingAmountField = document.querySelector('.billing-amount');
 			var interval = '';
-			var pendingUpgrade = (typeof response.data.invoice.amount_due_pending === 'number');
-			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label>' + (pendingUpgrade ? '<label class="label">Pending Upgrade</label>' : '') + ' Invoice #' + response.data.invoice.id;
-			document.querySelector('.billing-currency-name').innerHTML = response.data.invoice.payment_currency_name;
-			document.querySelector('.billing-currency-symbol').innerHTML = response.data.invoice.payment_currency_symbol;
-			document.querySelector('.billing-view-details').addEventListener('click', function(element) {
-				closeWindows(defaultTable);
-			});
+			var pendingChange = (typeof response.data.invoice.amount_due_pending === 'number');
+			billingAmountField.value = amountDue;
 
-			if (pendingUpgrade) {
+			if (pendingChange) {
 				amountDue = response.data.invoice.amount_due_pending;
 				response.data.invoice.shipping = response.data.invoice.shipping_pending;
 				response.data.invoice.subtotal = response.data.invoice.subtotal_pending;
@@ -47,32 +42,47 @@ var processInvoice = function() {
 				response.data.invoice.total = response.data.invoice.total_pending;
 			}
 
-			billingAmountField.value = amountDue;
+			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label>' + (pendingChange ? '<label class="label">Pending Order Change</label>' : '') + ' Invoice #' + response.data.invoice.id;
+			document.querySelector('.billing-currency-name').innerHTML = response.data.invoice.payment_currency_name;
+			document.querySelector('.billing-currency-symbol').innerHTML = response.data.invoice.payment_currency_symbol;
+			document.querySelector('.billing-view-details').addEventListener('click', function(element) {
+				closeWindows(defaultTable);
+			});
 
 			if (response.data.items.length) {
 				response.data.orders = response.data.items;
 			}
 
 			if (response.data.orders.length) {
-				// ..
 				interval = response.data.orders[0].interval_value + ' ' + response.data.orders[0].interval_type + (response.data.orders[0].interval_value !== 1 ? 's' : '');
 				invoiceData += '<h2>Invoice Order' + (response.data.orders.length !== 1 ? 's' : '') + '</h2>';
 				response.data.orders.map(function(order) {
+					var pendingOrderChange = (
+						pendingChange &&
+						order.quantity_pending
+					);
 					invoiceData += '<div class="item-container item-button">';
-					invoiceData += '<p><strong>' + order.quantity + ' ' + order.name + '</strong></p>';
-					invoiceData += '<p class="no-margin-bottom">' + response.data.invoice.payment_currency_symbol + order.price + ' ' + response.data.invoice.payment_currency_name + ' for ' + interval + '</p>';
+					invoiceData += '<p><strong>Order #' + order.id + '</strong></p>';
+
+					if (pendingOrderChange) {
+						var pendingChangeType = (order.quantity_pending > order.quantity ? 'upgrade' : 'downgrade');
+					}
+
+					invoiceData += '<p>' + order.quantity + ' ' + order.name + (pendingOrderChange ? ' to <span class="success">' + order.quantity_pending + ' ' + order.name + '</span>' : '') + '</p>';
+					invoiceData += '<p class="no-margin-bottom">' + response.data.invoice.payment_currency_symbol + order.price + ' ' + response.data.invoice.payment_currency_name + ' for ' + interval + (pendingOrderChange ? ' to <span class="success">' + response.data.invoice.payment_currency_symbol + order.price_pending + ' ' + response.data.invoice.payment_currency_name + ' for ' + order.interval_value_pending + ' ' + order.interval_type_pending + (order.interval_value_pending !== 1 ? 's' : '') + '</span>' : '') + '</p>';
+
+					if (pendingOrderChange) {
+						invoiceData += '<label class="label">Pending Order ' + capitalizeString(pendingChangeType) + '</label>';
+					}
+
 					invoiceData += '<div class="item-link-container"><a class="item-link" href="/orders/' + order.id + '"></a></div>';
 					invoiceData += '</div>';
 				});
-
-				// .. ^
-				if (pendingUpgrade) {
-					invoiceData += '<p class="message" style="margin-bottom: 15px;">This invoice has a pending upgrade to the following order:</p>';
-					invoiceData += '<div class="item-container item-button"><p><strong>' + response.data.orders[0].quantity_pending + ' ' + response.data.orders[0].name + '</strong></p><p class="no-margin-bottom">' + response.data.invoice.payment_currency_symbol + response.data.orders[0].price_pending + ' ' + response.data.invoice.payment_currency_name + ' for ' + response.data.orders[0].interval_value_pending + ' ' + response.data.orders[0].interval_type_pending + (response.data.orders[0].interval_value_pending !== 1 ? 's' : '') + '</p><div class="item-link-container"></div></div>';
-				}
 			} else {
 				invoiceData += '<h2>Invoice Order</h2>';
-				invoiceData += '<div class="item-container item-button"><p><strong>Add to Account Balance</strong></p><p class="no-margin-bottom">' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.subtotal) + ' ' + response.data.invoice.payment_currency_name + '</p><div class="item-link-container"></div></div>';
+				invoiceData += '<div class="item-container item-button"><p><strong>Add to Account Balance</strong></p><p class="no-margin-bottom">' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.subtotal) + ' ' + response.data.invoice.payment_currency_name + '</p>';
+				invoiceData += '<div class="item-link-container"></div>';
+				invoiceData += '</div>';
 			}
 
 			var hasBalance = (

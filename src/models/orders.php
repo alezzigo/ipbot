@@ -197,9 +197,10 @@ class OrdersModel extends InvoicesModel {
 					));
 
 					if (!empty($pendingInvoices[$invoiceId]['amount_paid'])) {
-						$amountPaid = min($selectedOrder['order']['price'], $pendingInvoices[$invoiceId]['amount_paid']);
+						$selectedOrders[$key]['total'] = $selectedOrder['order']['price'] + $selectedOrder['order']['shipping'] + $selectedOrder['order']['tax'];
+						$amountPaid = min($selectedOrders[$key]['total'], $pendingInvoices[$invoiceId]['amount_paid']);
 						$mergedData['invoice']['amount_paid'] += $amountPaid;
-						$pendingInvoices[$invoiceId]['amount_paid'] = max(0, round(($pendingInvoices[$invoiceId]['amount_paid'] - $amountPaid) * 100) / 100);
+						$pendingInvoices[$invoiceId]['amount_paid'] = max(0, ceil(($pendingInvoices[$invoiceId]['amount_paid'] - $amountPaid) * 100) / 100);
 					}
 
 					$mergedData['order']['quantity'] += (!empty($selectedOrder['order']['quantity_pending']) ? $selectedOrder['order']['quantity_pending'] : $selectedOrder['order']['quantity']);
@@ -263,9 +264,7 @@ class OrdersModel extends InvoicesModel {
 						$mergedData['invoice']['remainder_pending'] = $mergedData['invoice']['total_pending'];
 
 						foreach ($selectedOrders as $key => $selectedOrder) {
-							if (empty($processedInvoices[$selectedOrder['invoice']['id']])) {
-								$mergedData['invoice']['remainder_pending'] -= min($selectedOrder['invoice']['total'], $selectedOrder['invoice']['amount_paid']);
-							}
+							$mergedData['invoice']['remainder_pending'] -= min($selectedOrder['total'], $selectedOrder['invoice']['amount_paid']);
 
 							if (!empty($selectedOrder['invoice']['initial_invoice_id'])) {
 								$previousInvoice = $this->find('invoices', array(
@@ -294,9 +293,10 @@ class OrdersModel extends InvoicesModel {
 								if (
 									!empty($previousInvoice['count']) &&
 									$previousInvoice['data'][0]['amount_paid'] > 0 &&
-									($previousInvoiceData = $previousInvoice['data'][0]) &&
-									empty($processedInvoices[$previousInvoiceData['id']])
+									($previousInvoiceData = $previousInvoice['data'][0])
 								) {
+									// ..
+
 									if (
 										$previousInvoiceData['amount_paid'] < $previousInvoiceData['total'] &&
 										$previousInvoiceData['status'] === 'unpaid'
@@ -316,14 +316,11 @@ class OrdersModel extends InvoicesModel {
 									}
 
 									$pendingInvoiceIds[$previousInvoiceData['id']] = $previousInvoiceData['id'];
-									$processedInvoices[$previousInvoiceData['id']] = true;
 								}
 							}
-
-							$processedInvoices[$selectedOrder['invoice']['id']] = true;
 						}
 
-						$mergedData['invoice']['remainder_pending'] = max(0, round($mergedData['invoice']['remainder_pending'] * 100) / 100);
+						$mergedData['invoice']['remainder_pending'] = max(0, ceil($mergedData['invoice']['remainder_pending'] * 100) / 100);
 						$response['data']['merged'] = $mergedData;
 						$response['message'] = array(
 							'status' => 'success',

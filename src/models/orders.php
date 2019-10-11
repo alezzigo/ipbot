@@ -301,9 +301,9 @@ class OrdersModel extends InvoicesModel {
 										$previousInvoiceData['amount_paid'] < $previousInvoiceData['total'] &&
 										$previousInvoiceData['status'] === 'unpaid'
 									) {
-										$mergedData['invoice']['remainder_pending'] -= min($selectedOrder['order']['price'], $previousInvoiceData['amount_paid']);
+										$mergedData['invoice']['remainder_pending'] -= min($selectedOrder['order']['total'], $previousInvoiceData['amount_paid']);
 									} else {
-										$amountPaid = min($selectedOrder['order']['price'], $previousInvoiceData['amount_paid']);
+										$amountPaid = min($selectedOrder['order']['total'], $previousInvoiceData['amount_paid']);
 										$paidTime = max(1, time() - strtotime($previousInvoiceData['due']));
 										$intervalTime = max(1, strtotime($selectedOrder['invoice']['due']) - strtotime($previousInvoiceData['due']));
 										$proratePercentage = 1;

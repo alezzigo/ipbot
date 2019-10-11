@@ -297,8 +297,6 @@ class OrdersModel extends InvoicesModel {
 									$previousInvoice['data'][0]['amount_paid'] > 0 &&
 									($previousInvoiceData = $previousInvoice['data'][0])
 								) {
-									// ..
-
 									if (
 										$previousInvoiceData['amount_paid'] < $previousInvoiceData['total'] &&
 										$previousInvoiceData['status'] === 'unpaid'
@@ -316,8 +314,6 @@ class OrdersModel extends InvoicesModel {
 
 										$mergedData['invoice']['remainder_pending'] -= ($proratePercentage * $amountPaid);
 									}
-
-									$pendingInvoiceIds[$previousInvoiceData['id']] = $previousInvoiceData['id'];
 								}
 							}
 						}

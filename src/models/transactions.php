@@ -356,19 +356,22 @@ class TransactionsModel extends InvoicesModel {
 
 			if (!empty($invoice['data'])) {
 				$invoiceData = array(
-					'amount_paid' => $invoice['data']['invoice']['amount_paid'] + $parameters['payment_amount'],
-					'id' => $parameters['invoice_id']
+					array(
+						'amount_paid' => $invoice['data']['invoice']['amount_paid'] + $parameters['payment_amount'],
+						'id' => $parameters['invoice_id']
+					)
 				);
+				$invoiceItems = array();
 				$total = !empty($invoice['data']['invoice']['total_pending']) ? $invoice['data']['invoice']['total_pending'] : $invoice['data']['invoice']['total'];
 
 				if (is_numeric($invoice['data']['invoice']['remainder_pending'])) {
-					$invoiceData['remainder_pending'] = max(0, round(($invoice['data']['invoice']['remainder_pending'] - $parameters['payment_amount']) * 100) / 100);
+					$invoiceData[0]['remainder_pending'] = max(0, round(($invoice['data']['invoice']['remainder_pending'] - $parameters['payment_amount']) * 100) / 100);
 				}
 
 				if (
 					!empty($invoice['data']['invoice']['user_id']) &&
 					!empty($parameters['user']) &&
-					$amountToApplyToBalance = max(0, min($parameters['payment_amount'], round(($invoiceData['amount_paid'] - $total) * 100) / 100))
+					$amountToApplyToBalance = max(0, min($parameters['payment_amount'], round(($invoiceData[0]['amount_paid'] - $total) * 100) / 100))
 				) {
 					if (empty($invoice['data']['orders'])) {
 						$amountToApplyToBalance = $parameters['payment_amount'];
@@ -385,18 +388,16 @@ class TransactionsModel extends InvoicesModel {
 
 				if (
 					(
-						$invoiceData['amount_paid'] >= $total ||
+						$invoiceData[0]['amount_paid'] >= $total ||
 						(
-							isset($invoiceData['remainder_pending']) &&
-							$invoiceData['remainder_pending'] === 0
+							isset($invoiceData[0]['remainder_pending']) &&
+							$invoiceData[0]['remainder_pending'] === 0
 						)
 					) &&
 					$this->delete('invoice_items', array(
-						'invoice_id' => $invoiceData['id']
+						'invoice_id' => $invoiceData[0]['id']
 					))
 				) {
-					$invoiceItems = array();
-
 					foreach ($invoice['data']['orders'] as $orderKey => $order) {
 						if (
 							(
@@ -488,7 +489,7 @@ class TransactionsModel extends InvoicesModel {
 										'price' => true,
 										'quantity' => true
 									)), array(
-										'invoice_id' => $invoiceData['id'],
+										'invoice_id' => $invoiceData[0]['id'],
 										'order_id' => $order['id'],
 										'name' => $order['name']
 									));
@@ -519,7 +520,7 @@ class TransactionsModel extends InvoicesModel {
 					}
 
 					$invoiceData = array(
-						array_merge($invoiceData, array(
+						array_merge($invoiceData[0], array(
 							'remainder_pending' => null,
 							'shipping' => (!empty($invoice['data']['invoice']['shipping_pending']) ? $invoice['data']['invoice']['shipping_pending'] : $invoice['data']['invoice']['shipping']),
 							'shipping_pending' => null,

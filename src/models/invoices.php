@@ -45,7 +45,7 @@ class InvoicesModel extends UsersModel {
 
 			foreach ($response['invoice'] as $invoiceKey => $invoiceValue) {
 				if (is_numeric($invoiceValue)) {
-					$response['invoice'][$invoiceKey] = ($invoiceValue * 100) / 100;
+					$response['invoice'][$invoiceKey] = ceil($invoiceValue * 100) / 100;
 				}
 			}
 		}
@@ -75,7 +75,7 @@ class InvoicesModel extends UsersModel {
 			$response['invoice']['due'] = date('M d, Y', $dueDate) . ' ' . date('g:ia', $dueDate) . ' ' . $this->settings['timezone'];
 		}
 
-		$response['invoice']['amount_due'] = max(0, round(($response['invoice']['total'] - $response['invoice']['amount_paid']) * 100) / 100);
+		$response['invoice']['amount_due'] = max(0, ceil(($response['invoice']['total'] - $response['invoice']['amount_paid']) * 100) / 100);
 		$response['invoice']['payment_currency_name'] = $this->settings['billing']['currency_name'];
 		$response['invoice']['payment_currency_symbol'] = $this->settings['billing']['currency_symbol'];
 

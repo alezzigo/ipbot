@@ -45,7 +45,7 @@ class InvoicesModel extends UsersModel {
 
 			foreach ($response['invoice'] as $invoiceKey => $invoiceValue) {
 				if (is_numeric($invoiceValue)) {
-					$response['invoice'][$invoiceKey] = ceil($invoiceValue * 100) / 100;
+					$response['invoice'][$invoiceKey] = (integer) ceil($invoiceValue * 100) / 100;
 				}
 			}
 		}

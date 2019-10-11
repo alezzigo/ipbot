@@ -184,7 +184,10 @@ class OrdersModel extends InvoicesModel {
 				foreach ($selectedOrders as $key => $selectedOrder) {
 					$invoiceId = $selectedOrder['invoice']['id'];
 					$pendingInvoice = !empty($pendingInvoices[$invoiceId]) ? $pendingInvoices[$invoiceId] : array();
-					$selectedOrders[$key] = array_merge($selectedOrder, array(
+					$selectedOrders[$key] = array_merge_recursive($selectedOrder, array(
+						'order' => array(
+							'total' => (($selectedOrder['order']['price_pending'] ? $selectedOrder['order']['price_pending'] : $selectedOrder['order']['price']) + ($selectedOrder['order']['shipping_pending'] ? $selectedOrder['order']['shipping_pending'] : $selectedOrder['order']['shipping']) + ($selectedOrder['order']['tax_pending'] ? $selectedOrder['order']['tax_pending'] : $selectedOrder['order']['tax']))
+						),
 						'invoice_pending' => $pendingInvoices[$invoiceId] = array_merge(array(
 							'amount_paid' => $selectedOrder['invoice']['amount_paid'],
 							'id' => $pendingInvoiceIds[$invoiceId] = $invoiceId
@@ -197,7 +200,6 @@ class OrdersModel extends InvoicesModel {
 					));
 
 					if (!empty($pendingInvoices[$invoiceId]['amount_paid'])) {
-						$selectedOrders[$key]['total'] = $selectedOrder['order']['price'] + $selectedOrder['order']['shipping'] + $selectedOrder['order']['tax'];
 						$amountPaid = min($selectedOrders[$key]['total'], $pendingInvoices[$invoiceId]['amount_paid']);
 						$mergedData['invoice']['amount_paid'] += $amountPaid;
 						$pendingInvoices[$invoiceId]['amount_paid'] = max(0, ceil(($pendingInvoices[$invoiceId]['amount_paid'] - $amountPaid) * 100) / 100);

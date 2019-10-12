@@ -85,8 +85,7 @@ var processOrders = function() {
 				ordersData += '</span>';
 				ordersData += '<div class="item-body item-checkbox">';
 				ordersData += '<p><strong>Order #' + item.id + '</strong></p>';
-				ordersData += '<p>' + item.quantity + ' ' + item.name + '</p>';
-				ordersData += '<p>$' + item.price + ' per ' + (item.interval_value > 1 ? item.interval_value + ' ' : '') + item.interval_type + (item.interval_value > 1 ? 's' : '') + '</p>';
+				ordersData += '<p>' + (item.quantity_active ? item.quantity_active : item.quantity) + ' ' + item.name + '</p>';
 				ordersData += '<label class="label ' + item.status + '">' + capitalizeString(item.status) + '</label>';
 				ordersData += '</div>';
 				ordersData += '</div>';

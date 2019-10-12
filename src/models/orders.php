@@ -385,6 +385,10 @@ class OrdersModel extends InvoicesModel {
 										}
 									}
 
+									foreach ($pendingOrders as $orderId => $pendingOrder) {
+										$pendingOrders[$orderId]['merged_order_id'] = $mergedData['order']['id'];
+									}
+
 									$pendingInvoices[$mergedData['invoice']['id'] . '_merged'] = array(
 										'id' => $mergedInvoiceId
 									);

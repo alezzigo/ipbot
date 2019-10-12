@@ -48,6 +48,7 @@ class OrdersModel extends InvoicesModel {
 					'due',
 					'id',
 					'initial_invoice_id',
+					'merged_invoice_id',
 					'modified',
 					'payable',
 					'remainder_pending',
@@ -65,7 +66,7 @@ class OrdersModel extends InvoicesModel {
 				),
 				'limit' => 1,
 				'sort' => array(
-					'field' => 'due',
+					'field' => 'created',
 					'order' => 'DESC'
 				)
 			));

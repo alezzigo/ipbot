@@ -51,6 +51,10 @@ class InvoicesModel extends UsersModel {
 		}
 
 		$invoiceCalculationData = $response['invoice'];
+		$pendingOrderChange = (
+			isset($response['invoice']['remainder_pending']) &&
+			is_numeric($response['invoice']['remainder_pending'])
+		);
 		unset($invoiceCalculationData['amount_paid']);
 		unset($invoiceCalculationData['billing']);
 		unset($invoiceCalculationData['created']);
@@ -62,9 +66,12 @@ class InvoicesModel extends UsersModel {
 			empty($invoiceCalculationData) ||
 			(
 				$invoiceCalculationData['status'] !== 'paid' &&
-				!$this->save('invoices', array(
-					$invoiceCalculationData
-				))
+				(
+					!$pendingOrderChange &&
+					!$this->save('invoices', array(
+						$invoiceCalculationData
+					))
+				)
 			)
 		) {
 			$response = $invoiceData;
@@ -79,10 +86,7 @@ class InvoicesModel extends UsersModel {
 		$response['invoice']['payment_currency_name'] = $this->settings['billing']['currency_name'];
 		$response['invoice']['payment_currency_symbol'] = $this->settings['billing']['currency_symbol'];
 
-		if (
-			isset($response['invoice']['remainder_pending']) &&
-			is_numeric($response['invoice']['remainder_pending'])
-		) {
+		if ($pendingOrderChange) {
 			$response['invoice']['amount_due_pending'] = $response['invoice']['remainder_pending'];
 		} elseif ($response['invoice']['status'] === 'paid') {
 			$response['invoice']['amount_due'] = 0;

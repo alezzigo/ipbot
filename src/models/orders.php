@@ -267,7 +267,13 @@ class OrdersModel extends InvoicesModel {
 						$mergedData['invoice']['remainder_pending'] = $mergedData['invoice']['total_pending'];
 
 						foreach ($selectedOrders as $key => $selectedOrder) {
-							$mergedData['invoice']['remainder_pending'] -= min($selectedOrder['total'], $selectedOrder['invoice']['amount_paid']);
+							$amountPaid = min($selectedOrder['total'], $selectedOrder['invoice']['amount_paid']);
+
+							if (!empty($selectedOrder['invoice']['remainder_pending'])) {
+								$amountPaid = $selectedOrder['invoice']['total_pending'] - $selectedOrder['invoice']['remainder_pending'];
+							}
+
+							$mergedData['invoice']['remainder_pending'] -= $amountPaid;
 
 							if (!empty($selectedOrder['invoice']['initial_invoice_id'])) {
 								$previousInvoice = $this->find('invoices', array(
@@ -355,6 +361,7 @@ class OrdersModel extends InvoicesModel {
 									'created' => true,
 									'due' => true,
 									'id' => true,
+									'initial_invoice_id' => true,
 									'modified' => true,
 									'payment_currency_name' => true,
 									'payment_currency_symbol' => true

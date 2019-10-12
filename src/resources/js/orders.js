@@ -101,8 +101,8 @@ var processOrders = function() {
 			ordersAllVisible.addEventListener('click', ordersAllVisible.clickListener);
 			elements.loop('.orders-container .item-button', function(index, row) {
 				var orderToggleButton = row.querySelector('.checkbox');
-				orderToggleButton.removeEventListener('click', orderToggleButton.clickListener);
 				var orderId = orderToggleButton.getAttribute('order_id');
+				orderToggleButton.removeEventListener('click', orderToggleButton.clickListener);
 				orderToggleButton.clickListener = function() {
 					orderToggle(orderToggleButton);
 				};

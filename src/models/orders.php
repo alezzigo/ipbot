@@ -505,8 +505,25 @@ class OrdersModel extends InvoicesModel {
 			$this->redirect($this->settings['base_url'] . 'orders');
 		}
 
+		$order = $this->find('orders', array(
+			'conditions' => array(
+				'id' => $orderId
+			),
+			'fields' => array(
+				'id',
+				'merged_order_id'
+			)
+		));
+
+		if (
+			!empty($order['count']) &&
+			!empty($mergedOrderId = $order['data'][0]['merged_order_id'])
+		) {
+			$this->redirect($this->settings['base_url'] . 'orders/' . $mergedOrderId);
+		}
+
 		$response = array(
-			'order_id' => $parameters['id'],
+			'order_id' => $orderId,
 			'results_per_page' => 50
 		);
 		return $response;

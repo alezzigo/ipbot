@@ -463,7 +463,6 @@ class OrdersModel extends TransactionsModel {
 										'transaction_processed' => true,
 										'user_id' => $parameters['user']['id']
 									);
-									$this->_processTransaction($transaction);
 								}
 
 								if (
@@ -487,6 +486,10 @@ class OrdersModel extends TransactionsModel {
 												)
 											));
 										}
+									}
+
+									if (!empty($transaction)) {
+										$this->_processTransaction($transaction);
 									}
 								}
 							}

@@ -263,7 +263,7 @@ class OrdersModel extends TransactionsModel {
 							'tax_pending' => $this->_calculateItemTaxPrice($pendingItem)
 						));
 						$mergedData['orders'][] = $mergedData['order'];
-						$mergedData = array_replace_recursive($mergedData, $this->_calculateInvoicePaymentDetails($mergedData));
+						$mergedData = array_replace_recursive($mergedData, $this->_calculateInvoicePaymentDetails($mergedData, false));
 						$mergedData['invoice']['remainder_pending'] = $mergedData['invoice']['total_pending'];
 
 						foreach ($selectedOrders as $key => $selectedOrder) {

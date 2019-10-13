@@ -330,7 +330,7 @@ class OrdersModel extends TransactionsModel {
 									$remainderPercentage = 1;
 
 									if ($paidTime < $intervalTime) {
-										$remainderPercentage = 1 - (max(0, $paidTime / $intervalTime));
+										$remainderPercentage = (ceil((1 - (max(0, $paidTime / $intervalTime))) * 100) / 100);
 									}
 
 									$amountMerged = ($remainderPercentage * $amountAvailableToMerge);

@@ -8,9 +8,9 @@
  * @link      https://parsonsbots.com
  * @link      https://eightomic.com
  */
-require_once($config->settings['base_path'] . '/models/invoices.php');
+require_once($config->settings['base_path'] . '/models/transactions.php');
 
-class OrdersModel extends InvoicesModel {
+class OrdersModel extends TransactionsModel {
 
 /**
  * Retrieve latest order invoice data
@@ -449,7 +449,7 @@ class OrdersModel extends InvoicesModel {
 								}
 
 								if ($mergedData['invoice']['remainder_pending'] === 0) {
-									$pendingTransactions[] = array(
+									$pendingTransactions[] = $transaction = array(
 										'customer_email' => $parameters['user']['email'],
 										'id' => uniqid() . time(),
 										'invoice_id' => $mergedInvoiceId,
@@ -461,8 +461,10 @@ class OrdersModel extends InvoicesModel {
 										'transaction_charset' => $this->settings['database']['charset'],
 										'transaction_date' => date('Y-m-d h:i:s', time()),
 										'transaction_method' => 'PaymentCompleted',
+										'transaction_processed' => true,
 										'user_id' => $parameters['user']['id']
 									);
+									$this->_processTransaction($transaction);
 								}
 
 								if (

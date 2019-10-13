@@ -16,10 +16,11 @@ class InvoicesModel extends UsersModel {
  * Calculate invoice payment details
  *
  * @param array $invoiceData
+ * @param boolean $saveCalculations
  *
  * @return array $response
  */
-	protected function _calculateInvoicePaymentDetails($invoiceData) {
+	protected function _calculateInvoicePaymentDetails($invoiceData, $saveCalculations = true) {
 		$response = $invoiceData;
 
 		if (
@@ -65,7 +66,7 @@ class InvoicesModel extends UsersModel {
 		if (
 			empty($invoiceCalculationData) ||
 			(
-				$invoiceCalculationData['status'] !== 'paid' &&
+				$saveCalculations &&
 				(
 					!$pendingOrderChange &&
 					!$this->save('invoices', array(

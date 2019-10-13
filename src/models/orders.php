@@ -324,8 +324,7 @@ class OrdersModel extends TransactionsModel {
 										$amountPaid = $previousInvoiceData['total'];
 									}
 
-									$amountAvailableToMerge = ceil(($amountPaid - $pendingInvoices[$previousInvoiceData['id']]['amount_merged']) * 100) / 100;
-									$amountAvailableToMerge = min($selectedOrder['order']['total'], $amountAvailableToMerge);
+									$amountAvailableToMerge = min($selectedOrder['order']['total'], ceil(($amountPaid - $pendingInvoices[$previousInvoiceData['id']]['amount_merged']) * 100) / 100);
 									$paidTime = max(1, time() - strtotime($previousInvoiceData['due']));
 									$intervalTime = max(1, strtotime($selectedOrder['invoice']['due']) - strtotime($previousInvoiceData['due']));
 									$remainderPercentage = 1;

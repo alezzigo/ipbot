@@ -626,23 +626,26 @@ class TransactionsModel extends InvoicesModel {
 						'payment_method' => $this->_retrieveTransactionPaymentMethod($parameters['payment_method_id'])
 					));
 					$invoice = $this->_calculateInvoicePaymentDetails($invoice);
-					$mailParameters = array(
-						'from' => $this->settings['from_email'],
-						'subject' => 'Invoice #' . $invoice['data']['invoice']['id'] . ' payment confirmation',
-						'template' => array(
-							'name' => 'payment_successful',
-							'parameters' => array(
-								'invoice' => $invoice['data']['invoice'],
-								'transaction' => array_merge($transaction, array(
-									'amount_applied_to_balance' => $amountToApplyToBalance
-								)),
-								'transactions' => $invoice['data']['transactions'],
-								'user' => $parameters['user']
-							)
-						),
-						'to' => $parameters['user']['email']
-					);
-					$this->_sendMail($mailParameters);
+
+					if ($parameters['payment_amount'] > 0) {
+						$mailParameters = array(
+							'from' => $this->settings['from_email'],
+							'subject' => 'Invoice #' . $invoice['data']['invoice']['id'] . ' payment confirmation',
+							'template' => array(
+								'name' => 'payment_successful',
+								'parameters' => array(
+									'invoice' => $invoice['data']['invoice'],
+									'transaction' => array_merge($transaction, array(
+										'amount_applied_to_balance' => $amountToApplyToBalance
+									)),
+									'transactions' => $invoice['data']['transactions'],
+									'user' => $parameters['user']
+								)
+							),
+							'to' => $parameters['user']['email']
+						);
+						$this->_sendMail($mailParameters);
+					}
 				}
 			}
 		}

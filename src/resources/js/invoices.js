@@ -109,10 +109,7 @@ var processInvoice = function() {
 				invoiceData += '<p><strong>Due Date</strong><br>' + response.data.invoice.due + '</p>';
 			}
 
-			if (response.data.invoice.amount_paid) {
-				invoiceData += '<p><strong>Amount Paid to Invoice</strong><br><span class="paid">' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_paid + ' ' + response.data.invoice.payment_currency_name + '</span></p>';
-			}
-
+			invoiceData += '<p><strong>Amount Paid to Invoice</strong><br><span class="paid">' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_paid + ' ' + response.data.invoice.payment_currency_name + '</span></p>';
 			invoiceData += '<p><strong>Remaining Amount Due</strong><br>' + response.data.invoice.payment_currency_symbol + amountDue + ' ' + response.data.invoice.payment_currency_name + '</p>';
 			invoiceData += '<h2>Invoice Transactions</h2>';
 			invoiceData += '<div class="invoice-section-container transactions"><label class="label">Invoice Created</label><div class="transaction"><p><strong>' + response.data.invoice.created + '</strong></p></div>';

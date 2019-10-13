@@ -86,7 +86,7 @@ var processOrders = function() {
 				ordersData += '<div class="item-body item-checkbox">';
 				ordersData += '<p><strong>Order #' + item.id + '</strong></p>';
 				ordersData += '<p>' + (item.quantity_active ? item.quantity_active : item.quantity) + ' ' + item.name + '</p>';
-				ordersData += '<label class="label ' + item.status + '">' + capitalizeString(item.status) + '</label>' + (item.quantity_pending ? '<label class="label">Pending Order ' + (item.quantity_pending > item.quantity ? 'Upgrade' : 'Downgrade') + '</label>' : '');
+				ordersData += '<label class="label ' + item.status + '">' + capitalizeString(item.status) + '</label>' + (item.quantity_pending ? '<label class="label">Pending Order ' + (item.quantity_pending >= item.quantity ? 'Upgrade' : 'Downgrade') + '</label>' : '');
 				ordersData += '</div>';
 				ordersData += '</div>';
 				ordersData += '<div class="item-link-container"><a class="item-link" href="/orders/' + item.id + '"></a></div>';

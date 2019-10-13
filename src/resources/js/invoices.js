@@ -42,7 +42,7 @@ var processInvoice = function() {
 			}
 
 			billingAmountField.value = amountDue;
-			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label>' + (pendingChange ? '<label class="label">Pending Order Change</label>' : '') + ' Invoice #' + response.data.invoice.id;
+			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label> Invoice #' + response.data.invoice.id;
 			document.querySelector('.billing-currency-name').innerHTML = response.data.invoice.payment_currency_name;
 			document.querySelector('.billing-currency-symbol').innerHTML = response.data.invoice.payment_currency_symbol;
 			document.querySelector('.billing-view-details').addEventListener('click', function(element) {
@@ -59,7 +59,8 @@ var processInvoice = function() {
 				response.data.orders.map(function(order) {
 					var pendingOrderChange = (
 						pendingChange &&
-						order.quantity_pending
+						order.quantity_pending &&
+						order.quantity_pending !== order.quantity
 					);
 					invoiceData += '<div class="item-container item-button">';
 					invoiceData += '<p><strong>Order #' + order.id + '</strong></p>';
@@ -190,6 +191,7 @@ var processInvoices = function() {
 	};
 	requestParameters.table = 'invoices';
 	requestParameters.url = '/api/invoices';
+	var invoiceData = '';
 	sendRequest(function(response) {
 		var messageContainer = document.querySelector('main .message-container');
 
@@ -216,8 +218,17 @@ var processInvoices = function() {
 
 		if (response.data.length) {
 			response.data.map(function(item, index) {
-				document.querySelector('.invoices-container').innerHTML += '<div class="item-container item-button"><div class="item"><div class="item-body"><p><strong>Invoice #' + item.id + '</strong></p><label class="label ' + item.status + '">' + capitalizeString(item.status) + '</label>' + (item.remainder_pending ? '<label class="label">Pending Order Change</label>' : '') + '</div></div><div class="item-link-container"><a class="item-link" href="/invoices/' + item.id + '"></a></div></div>';
+				invoiceData += '<div class="item-container item-button">';
+				invoiceData += '<div class="item">';
+				invoiceData += '<div class="item-body">';
+				invoiceData += '<p><strong>Invoice #' + item.id + '</strong></p>';
+				invoiceData += '<label class="label ' + item.status + '">' + capitalizeString(item.status) + '</label>' + (item.remainder_pending && item.quantity_pending !== item.quantity ? '<label class="label">Pending Order Change</label>' : '');
+				invoiceData += '</div>';
+				invoiceData += '</div>';
+				invoiceData += '<div class="item-link-container"><a class="item-link" href="/invoices/' + item.id + '"></a></div>';
+				invoiceData += '</div>';
 			});
+			document.querySelector('.invoices-container').innerHTML = invoiceData;
 		}
 	});
 };

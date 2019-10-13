@@ -402,7 +402,7 @@ class TransactionsModel extends InvoicesModel {
 						if (
 							(
 								is_numeric($order['quantity_pending']) &&
-								$order['quantity_pending'] > $order['quantity'] &&
+								$order['quantity_pending'] > $order['quantity_active'] &&
 								($quantity = ($order['quantity_pending'] - $order['quantity_active']))
 							) ||
 							(
@@ -499,6 +499,7 @@ class TransactionsModel extends InvoicesModel {
 										$this->save('orders', $orderData) &&
 										$this->save('proxies', $processingNodes['data'])
 									) {
+										// TODO: Upgrade / downgrade / merge notifications ..
 										$mailParameters = array(
 											'from' => $this->settings['from_email'],
 											'subject' => 'Order #' . $order['id'] . ' is activated',

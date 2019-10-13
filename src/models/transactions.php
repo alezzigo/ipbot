@@ -562,7 +562,7 @@ class TransactionsModel extends InvoicesModel {
 								'warning_level'
 							),
 							'sort' => array(
-								'field' => 'due',
+								'field' => 'created',
 								'order' => 'DESC'
 							)
 						));

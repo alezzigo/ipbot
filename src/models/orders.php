@@ -303,8 +303,11 @@ class OrdersModel extends TransactionsModel {
 
 								if (
 									!empty($previousInvoice['count']) &&
-									$previousInvoice['data'][0]['amount_paid'] > 0 &&
-									($previousInvoiceData = $previousInvoice['data'][0])
+									($previousInvoiceData = $previousInvoice['data'][0]) &&
+									(
+										$previousInvoiceData['amount_paid'] > 0 ||
+										$previousInvoiceData['status'] === 'paid'
+									)
 								) {
 									$pendingInvoices[$previousInvoiceData['id']] = array_merge(!empty($pendingInvoices[$previousInvoiceData['id']]) ? $pendingInvoices[$previousInvoiceData['id']] : array(), array(
 										'amount_merged' => (integer) !empty($pendingInvoices[$previousInvoiceData['id']]['amount_merged']) ? $pendingInvoices[$previousInvoiceData['id']]['amount_merged'] : $previousInvoiceData['amount_merged'],

@@ -251,6 +251,7 @@ class InvoicesModel extends UsersModel {
 		$invoices = $this->find('invoices', array(
 			'conditions' => array(
 				'due <' => date('Y-m-d H:i:s', strtotime('+10 days')),
+				'merged_invoice_id' => null,
 				'payable' => false,
 				'status' => 'unpaid',
 				'warning_level' => 0

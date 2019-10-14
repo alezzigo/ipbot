@@ -267,7 +267,7 @@ class OrdersModel extends TransactionsModel {
 						$mergedData['invoice']['remainder_pending'] = $mergedData['invoice']['total_pending'];
 
 						foreach ($selectedOrders as $key => $selectedOrder) {
-							$amountPaid = min($selectedOrder['total'], $selectedOrder['invoice']['amount_paid']);
+							$amountPaid = min($selectedOrder['order']['total'], $selectedOrder['invoice']['amount_paid']);
 
 							if (!empty($selectedOrder['invoice']['remainder_pending'])) {
 								$amountPaid = $selectedOrder['invoice']['total_pending'] - $selectedOrder['invoice']['remainder_pending'];

@@ -66,9 +66,9 @@ class InvoicesModel extends UsersModel {
 		if (
 			empty($invoiceCalculationData) ||
 			(
-				$saveCalculations &&
+				!$pendingOrderChange &&
 				(
-					!$pendingOrderChange &&
+					$saveCalculations &&
 					!$this->save('invoices', array(
 						$invoiceCalculationData
 					))

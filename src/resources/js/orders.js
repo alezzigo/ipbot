@@ -118,15 +118,33 @@ var processOrders = function() {
 	});
 };
 var processUpgrade = function(windowName, windowSelector, upgradeValue = 1) {
+	if (!document.querySelector('.orders-container .checkbox[index="0"]')) {
+		processOrders();
+	}
+
 	requestParameters.action = 'upgrade';
 	requestParameters.data.orders = orderGrid;
 	requestParameters.data.products = productIdGrid;
 	requestParameters.data.upgrade_quantity = upgradeValue;
+	var orderId = parseInt(replaceCharacter(window.location.search, 0, ''));
 	var upgradeContainer = document.querySelector('.upgrade-container');
 	var upgradeData = '';
 
 	if (requestParameters.data.confirm_upgrade) {
 		requestParameters.data.upgrade_quantity = upgradeContainer.querySelector('.upgrade-quantity').value;
+	}
+
+	var orderGridCount = Object.entries(requestParameters.data.orders).length;
+
+	if (
+		!orderGridCount &&
+		orderId &&
+		typeof orderId === 'number'
+	) {
+		orderGridCount = 1;
+		requestParameters.data.orders = {
+			orderId: orderId
+		};
 	}
 
 	sendRequest(function(response) {
@@ -145,7 +163,6 @@ var processUpgrade = function(windowName, windowSelector, upgradeValue = 1) {
 		}
 
 		if (response.message.status === 'success') {
-			var orderGridCount = Object.entries(orderGrid).length;
 			var upgradeValueMinimum = (orderGridCount === 1 ? 1 : 0);
 			upgradeData += '<div class="align-left item-container no-margin-top no-padding">';
 			upgradeData += '<label for="upgrade-quantity">Select Order Upgrade Quantity</label>';

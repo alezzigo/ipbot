@@ -654,7 +654,7 @@ main {
 				border: none;
 			}
 	.icon {
-		color: #fff;
+		color: #fff !important;
 		cursor: pointer;
 		display: block;
 		height: 18px;

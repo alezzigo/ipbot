@@ -38,9 +38,8 @@
 								</div>
 								<div class="align-left hidden item-controls">
 									<span checked="0" class="align-left checkbox no-margin-left" index="all-visible"></span>
-									<div class="search-container align-left">
-										<span class="button icon tooltip tooltip-bottom window-button" data-title="Proxy search and filter" window="search"></span>
-									</div>
+									<a class="button icon upgrade tooltip tooltip-bottom" data-title="Add more proxies to current order" href="<?php echo $config->settings['base_url'] . 'orders?' . $data['order_id'] . '#upgrade'; ?>" window="upgrade"></a>
+									<span class="button icon tooltip tooltip-bottom window-button" data-title="Proxy search and filter" window="search"></span>
 									<span class="button icon tooltip tooltip-bottom window-button" data-title="Manage proxy groups" process="group" window="group"></span>
 									<span class="button icon hidden tooltip tooltip-bottom window-button" data-title="Configure proxy replacement settings" item-function window="replace"></span>
 									<span class="button icon hidden tooltip tooltip-bottom window-button" data-title="Configure authentication settings" item-function window="authenticate"></span>

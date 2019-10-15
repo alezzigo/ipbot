@@ -203,7 +203,7 @@ class OrdersModel extends TransactionsModel {
 					if (!empty($pendingInvoices[$invoiceId]['amount_paid'])) {
 						$amountPaid = min($selectedOrders[$key]['order']['total'], $pendingInvoices[$invoiceId]['amount_paid']);
 						$mergedData['invoice']['amount_paid'] += $amountPaid;
-						$pendingInvoices[$invoiceId]['amount_paid'] = max(0, ceil(($pendingInvoices[$invoiceId]['amount_paid'] - $amountPaid) * 100) / 100);
+						$pendingInvoices[$invoiceId]['amount_paid'] = max(0, round(($pendingInvoices[$invoiceId]['amount_paid'] - $amountPaid) * 100) / 100);
 					}
 
 					$mergedData['order']['quantity'] += (!empty($selectedOrder['order']['quantity_pending']) ? $selectedOrder['order']['quantity_pending'] : $selectedOrder['order']['quantity']);
@@ -324,23 +324,23 @@ class OrdersModel extends TransactionsModel {
 										$amountPaid = $previousInvoiceData['total'];
 									}
 
-									$amountAvailableToMerge = min($selectedOrder['order']['total'], ceil(($amountPaid - $pendingInvoices[$previousInvoiceData['id']]['amount_merged']) * 100) / 100);
+									$amountAvailableToMerge = min($selectedOrder['order']['total'], round(($amountPaid - $pendingInvoices[$previousInvoiceData['id']]['amount_merged']) * 100) / 100);
 									$paidTime = max(1, time() - strtotime($previousInvoiceData['due']));
 									$intervalTime = max(1, strtotime($selectedOrder['invoice']['due']) - strtotime($previousInvoiceData['due']));
 									$remainderPercentage = 1;
 
 									if ($paidTime < $intervalTime) {
-										$remainderPercentage = (ceil((1 - (max(0, $paidTime / $intervalTime))) * 100) / 100);
+										$remainderPercentage = (round((1 - (max(0, $paidTime / $intervalTime))) * 100) / 100);
 									}
 
 									$amountMerged = ($remainderPercentage * $amountAvailableToMerge);
 									$mergedData['invoice']['remainder_pending'] -= $amountMerged;
-									$pendingInvoices[$previousInvoiceData['id']]['amount_merged'] = ceil((is_numeric($pendingInvoices[$previousInvoiceData['id']]['amount_merged']) ? ($pendingInvoices[$previousInvoiceData['id']]['amount_merged'] + $amountMerged) : $amountMerged) * 100) / 100;
+									$pendingInvoices[$previousInvoiceData['id']]['amount_merged'] = round((is_numeric($pendingInvoices[$previousInvoiceData['id']]['amount_merged']) ? ($pendingInvoices[$previousInvoiceData['id']]['amount_merged'] + $amountMerged) : $amountMerged) * 100) / 100;
 								}
 							}
 						}
 
-						$mergedData['invoice']['remainder_pending'] = max(0, ceil($mergedData['invoice']['remainder_pending'] * 100) / 100);
+						$mergedData['invoice']['remainder_pending'] = max(0, round($mergedData['invoice']['remainder_pending'] * 100) / 100);
 						$response['data']['merged'] = $mergedData;
 						$response['message'] = array(
 							'status' => 'success',

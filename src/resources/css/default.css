@@ -891,6 +891,7 @@ main {
 	display: block;
 	margin-bottom: 0;
 	margin-right: 0;
+	padding-top: 1px;
 }
 	.transactions .transaction {
 		font-size: 12px;

@@ -407,6 +407,22 @@ class OrdersModel extends TransactionsModel {
 													$pendingInvoices[$selectedOrder['invoice']['id']]['merged_invoice_id'] = null;
 												}
 											}
+
+											$pendingTransactions[] = array(
+												'customer_email' => $parameters['user']['email'],
+												'details' => '<a href="' . $this->settings['base_url'] . 'orders/' . $selectedOrder['order']['id'] . '">Order #' . $selectedOrder['order']['id'] . '</a> merged to <a href="' . $this->settings['base_url'] . 'invoices/' . $mergedInvoiceId . '">invoice #' . $mergedInvoiceId . '</a><br> ' . $selectedOrder['order']['quantity'] . ' ' . $selectedOrder['order']['name'] . '<br> ' . $this->settings['billing']['currency_symbol'] . $selectedOrder['order']['total'] . ' ' . $this->settings['billing']['currency_name'] . ' for ' . $selectedOrder['order']['interval_value'] . ' ' . $selectedOrder['order']['interval_type'] . ($selectedOrder['order']['interval_value'] !== 1 ? 's' : ''),
+												'id' => uniqid() . time(),
+												'invoice_id' => $selectedOrder['invoice']['id'],
+												'payment_amount' => null,
+												'payment_currency' => $this->settings['billing']['currency_name'],
+												'payment_status' => 'completed',
+												'payment_status_message' => 'Order merged to new invoice.',
+												'transaction_charset' => $this->settings['database']['charset'],
+												'transaction_date' => date('Y-m-d h:i:s', time()),
+												'transaction_method' => 'Miscellaneous',
+												'transaction_processed' => true,
+												'user_id' => $parameters['user']['id']
+											);
 										}
 									}
 

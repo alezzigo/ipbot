@@ -116,7 +116,15 @@ var processInvoice = function() {
 
 			if (response.data.transactions.length) {
 				response.data.transactions.map(function(transaction) {
-					invoiceData += (transaction.payment_status_message ? '<label class="label ' + (Math.sign(transaction.payment_amount) >= 0 ? 'payment' : 'refund') + '">' + capitalizeString(transaction.payment_status_message) + '</label>' : '') + '<div class="transaction"><p><strong>' + transaction.transaction_date + '</strong><br>' + (transaction.payment_amount ? transaction.payment_amount + ' ' + transaction.payment_currency + '<br>' : '') + (transaction.payment_method ? transaction.payment_method + ' ' : '') + 'Transaction ID ' + transaction.id + '</p>' + (transaction.billing_name ? '<p>' + (transaction.billing_name ? '<strong>' + transaction.billing_name + '</strong><br>' : '') + (transaction.billing_address_1 ? ' ' + transaction.billing_address_1 : '') + (transaction.billing_address_2 ? ' ' + transaction.billing_address_2 : '') + '<br>' + (transaction.billing_city ? ' ' + transaction.billing_city : '') + (transaction.billing_region ? ' ' + transaction.billing_region : '') + (transaction.billing_zip ? ' ' + transaction.billing_zip : '') + (transaction.billing_country_code ? ' ' + transaction.billing_country_code : '') + '</p>' : '') + '</div>';
+					invoiceData += (transaction.payment_status_message ? '<label class="label ' + (typeof transaction.payment_amount === 'number' ? (Math.sign(transaction.payment_amount) >= 0 ? 'payment' : 'refund') : '') + '">' + capitalizeString(transaction.payment_status_message) + '</label>' : '');
+					invoiceData += '<div class="transaction">';
+					invoiceData += '<p><strong>' + transaction.transaction_date + '</strong><br>' + (transaction.payment_amount ? transaction.payment_amount + ' ' + transaction.payment_currency + '<br>' : '') + (transaction.payment_method ? transaction.payment_method + ' ' : '') + 'Transaction ID ' + transaction.id + '</p>' + (transaction.billing_name ? '<p>' + (transaction.billing_name ? '<strong>' + transaction.billing_name + '</strong><br>' : '') + (transaction.billing_address_1 ? ' ' + transaction.billing_address_1 : '') + (transaction.billing_address_2 ? ' ' + transaction.billing_address_2 : '') + '<br>' + (transaction.billing_city ? ' ' + transaction.billing_city : '') + (transaction.billing_region ? ' ' + transaction.billing_region : '') + (transaction.billing_zip ? ' ' + transaction.billing_zip : '') + (transaction.billing_country_code ? ' ' + transaction.billing_country_code : '') + '</p>' : '');
+
+					if (transaction.details) {
+						invoiceData += '<p>' + transaction.details + '</p>';
+					}
+
+					invoiceData += '</div>';
 				});
 			}
 

@@ -54,7 +54,7 @@ var processInvoice = function() {
 			}
 
 			invoiceData += '<h2>Invoice Payment Details</h2>';
-			invoiceData += '<p><strong>Amount Paid to Invoice</strong><br><span class="paid">' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_paid + ' ' + response.data.invoice.payment_currency_name + '</span></p>';
+			invoiceData += '<p><strong>Amount Paid to Invoice</strong><br><span' + (response.data.invoice.amount_paid ? ' class="paid"' : '') + '>' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_paid + ' ' + response.data.invoice.payment_currency_name + '</span></p>';
 			invoiceData += '<p><strong>Remaining Amount Due</strong><br>' + response.data.invoice.payment_currency_symbol + amountDue + ' ' + response.data.invoice.payment_currency_name + '</p>';
 
 			if (

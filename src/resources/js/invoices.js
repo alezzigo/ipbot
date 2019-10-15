@@ -53,6 +53,17 @@ var processInvoice = function() {
 				response.data.orders = response.data.items;
 			}
 
+			invoiceData += '<h2>Invoice Payment Details</h2>';
+			invoiceData += '<p><strong>Amount Paid to Invoice</strong><br><span class="paid">' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_paid + ' ' + response.data.invoice.payment_currency_name + '</span></p>';
+			invoiceData += '<p><strong>Remaining Amount Due</strong><br>' + response.data.invoice.payment_currency_symbol + amountDue + ' ' + response.data.invoice.payment_currency_name + '</p>';
+
+			if (
+				response.data.invoice.due &&
+				response.data.orders.length
+			) {
+				invoiceData += '<p><strong>Due Date</strong><br>' + response.data.invoice.due + '</p>';
+			}
+
 			if (response.data.orders.length) {
 				interval = response.data.orders[0].interval_value + ' ' + response.data.orders[0].interval_type + (response.data.orders[0].interval_value !== 1 ? 's' : '');
 				invoiceData += '<h2>Invoice Order' + (response.data.orders.length !== 1 ? 's' : '') + '</h2>';
@@ -100,17 +111,6 @@ var processInvoice = function() {
 				invoiceData += '<p class="message">Additional fees for shipping and/or tax may apply before submitting final payment.</p>';
 			}
 
-			invoiceData += '<h2>Invoice Payment Details</h2>';
-
-			if (
-				response.data.invoice.due &&
-				response.data.orders.length
-			) {
-				invoiceData += '<p><strong>Due Date</strong><br>' + response.data.invoice.due + '</p>';
-			}
-
-			invoiceData += '<p><strong>Amount Paid to Invoice</strong><br><span class="paid">' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_paid + ' ' + response.data.invoice.payment_currency_name + '</span></p>';
-			invoiceData += '<p><strong>Remaining Amount Due</strong><br>' + response.data.invoice.payment_currency_symbol + amountDue + ' ' + response.data.invoice.payment_currency_name + '</p>';
 			invoiceData += '<h2>Invoice Transactions</h2>';
 			invoiceData += '<div class="invoice-section-container transactions"><label class="label">Invoice Created</label><div class="transaction"><p><strong>' + response.data.invoice.created + '</strong></p></div>';
 

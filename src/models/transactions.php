@@ -64,7 +64,7 @@ class TransactionsModel extends InvoicesModel {
 				if ($this->save('users', array(
 					$userData
 				))) {
-					$this->_processTransactionPaymentCompleted($transaction);
+					$this->_processTransaction($transaction);
 					$response = array(
 						'data' => $transaction,
 						'message' => array(

@@ -83,7 +83,7 @@ class InvoicesModel extends UsersModel {
 
 		if (!empty($response['invoice']['due'])) {
 			$dueDate = strtotime($response['invoice']['due']);
-			$response['invoice']['due'] = date('M d, Y', $dueDate) . ' ' . date('g:ia', $dueDate) . ' ' . $this->settings['timezone'];
+			$response['invoice']['due'] = date('M d, Y', $dueDate) . ' ' . date('g:ia', $dueDate) . ' ' . $this->settings['timezone']['display'];
 		}
 
 		$response['invoice']['amount_due'] = max(0, round(($response['invoice']['total'] - $response['invoice']['amount_paid']) * 100) / 100);
@@ -743,7 +743,7 @@ class InvoicesModel extends UsersModel {
 
 			foreach ($invoiceTransactions['data'] as $key => $invoiceTransaction) {
 				$transactionTime = strtotime($invoiceTransaction['transaction_date']);
-				$invoiceTransactions['data'][$key]['transaction_date'] = date('M d Y', $transactionTime) . ' at ' . date('g:ia', $transactionTime) . ' ' . $this->settings['timezone'];
+				$invoiceTransactions['data'][$key]['transaction_date'] = date('M d Y', $transactionTime) . ' at ' . date('g:ia', $transactionTime) . ' ' . $this->settings['timezone']['display'];
 
 				if (!empty($paymentMethod = $paymentMethods['data'][$invoiceTransaction['payment_method_id']])) {
 					$invoiceTransactions['data'][$key]['payment_method'] = $paymentMethod;
@@ -805,7 +805,7 @@ class InvoicesModel extends UsersModel {
 			if (!empty($invoiceData['merged_invoice_id'])) {
 				$response['redirect'] = $this->settings['base_url'] . 'invoices/' . $invoiceData['merged_invoice_id'];
 			} else {
-				$invoiceData['created'] = date('M d Y', strtotime($invoiceData['created'])) . ' at ' . date('g:ia', strtotime($invoiceData['created'])) . ' ' . $this->settings['timezone'];
+				$invoiceData['created'] = date('M d Y', strtotime($invoiceData['created'])) . ' at ' . date('g:ia', strtotime($invoiceData['created'])) . ' ' . $this->settings['timezone']['display'];
 				$invoiceItems = $this->_retrieveInvoiceItems($invoiceData);
 				$invoiceOrders = $this->_retrieveInvoiceOrders($invoiceData);
 				$invoiceSubscriptions = $this->_retrieveInvoiceSubscriptions($invoiceData);

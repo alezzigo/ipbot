@@ -55,7 +55,7 @@ class AppModel extends Config {
 				if (!empty($existingData['count'])) {
 					unset($existingData['data'][0]['password']);
 					$passwordModified = strtotime($existingData['data'][0]['password_modified']);
-					$existingData['data'][0]['password_modified'] = date('M d, Y', $passwordModified) . ' at ' . date('g:ia', $passwordModified) . ' ' . $this->settings['timezone'];
+					$existingData['data'][0]['password_modified'] = date('M d, Y', $passwordModified) . ' at ' . date('g:ia', $passwordModified) . ' ' . $this->settings['timezone']['display'];
 					$response = $existingData['data'][0];
 				}
 			}

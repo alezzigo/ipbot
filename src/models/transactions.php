@@ -398,6 +398,22 @@ class TransactionsModel extends InvoicesModel {
 						'invoice_id' => $invoiceData[0]['id']
 					))
 				) {
+					$invoiceData = array(
+						array_merge($invoiceData[0], array(
+							'remainder_pending' => null,
+							'shipping' => (!empty($invoice['data']['invoice']['shipping_pending']) ? $invoice['data']['invoice']['shipping_pending'] : $invoice['data']['invoice']['shipping']),
+							'shipping_pending' => null,
+							'status' => 'paid',
+							'subtotal' => (!empty($invoice['data']['invoice']['subtotal_pending']) ? $invoice['data']['invoice']['subtotal_pending'] : $invoice['data']['invoice']['subtotal']),
+							'subtotal_pending' => null,
+							'tax' => (!empty($invoice['data']['invoice']['tax_pending']) ? $invoice['data']['invoice']['tax_pending'] : $invoice['data']['invoice']['tax']),
+							'tax_pending' => null,
+							'total' => (!empty($invoice['data']['invoice']['total_pending']) ? $invoice['data']['invoice']['total_pending'] : $invoice['data']['invoice']['total']),
+							'total_pending' => null,
+							'warning_level' => 0
+						))
+					);
+
 					foreach ($invoice['data']['orders'] as $orderKey => $order) {
 						if (
 							(
@@ -499,20 +515,30 @@ class TransactionsModel extends InvoicesModel {
 										$this->save('orders', $orderData) &&
 										$this->save('proxies', $processingNodes['data'])
 									) {
-										// TODO: Upgrade / downgrade / merge notifications ..
 										$mailParameters = array(
 											'from' => $this->settings['from_email'],
 											'subject' => 'Order #' . $order['id'] . ' is activated',
 											'template' => array(
 												'name' => 'order_activated',
 												'parameters' => array(
-													'invoice' => $invoice['data']['invoice'],
+													'invoice' => $invoiceData[0],
 													'order' => $order,
 													'user' => $parameters['user']
 												)
 											),
 											'to' => $parameters['user']['email']
 										);
+
+										if (is_numeric($order['quantity_pending'])) {
+											$action = $order['quantity_pending'] > $order['quantity_active'] ? 'upgraded' : 'downgraded';
+											$mailParameters = array_replace_recursive($mailParameters, array(
+												'subject' => 'Order #' . $order['id'] . ' is ' . $action,
+												'template' => array(
+													'name' => 'order_' . $action
+												)
+											));
+										}
+
 										$this->_sendMail($mailParameters);
 									}
 								}
@@ -520,21 +546,6 @@ class TransactionsModel extends InvoicesModel {
 						}
 					}
 
-					$invoiceData = array(
-						array_merge($invoiceData[0], array(
-							'remainder_pending' => null,
-							'shipping' => (!empty($invoice['data']['invoice']['shipping_pending']) ? $invoice['data']['invoice']['shipping_pending'] : $invoice['data']['invoice']['shipping']),
-							'shipping_pending' => null,
-							'status' => 'paid',
-							'subtotal' => (!empty($invoice['data']['invoice']['subtotal_pending']) ? $invoice['data']['invoice']['subtotal_pending'] : $invoice['data']['invoice']['subtotal']),
-							'subtotal_pending' => null,
-							'tax' => (!empty($invoice['data']['invoice']['tax_pending']) ? $invoice['data']['invoice']['tax_pending'] : $invoice['data']['invoice']['tax']),
-							'tax_pending' => null,
-							'total' => (!empty($invoice['data']['invoice']['total_pending']) ? $invoice['data']['invoice']['total_pending'] : $invoice['data']['invoice']['total']),
-							'total_pending' => null,
-							'warning_level' => 0
-						))
-					);
 					$invoiceTotalPaid = true;
 				}
 

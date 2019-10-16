@@ -1,7 +1,7 @@
 <?php
 	$message = 'Hello,' . "\n";
 	$message .= "\n";
-	$message .= 'This is a confirmation of activation for order #' . $templateParameters['order']['id'] . ' at ' . $this->settings['site_name'] . '.' . "\n";
+	$message .= 'This is a confirmation of activation for your order at ' . $this->settings['site_name'] . '.' . "\n";
 	$message .= "\n";
 	$message .= 'Order Details' . "\n";
 	$message .= '--' . "\n";

@@ -636,7 +636,7 @@ class TransactionsModel extends InvoicesModel {
 					$invoice['data']['transactions'][] = $transaction = array_merge($parameters, array(
 						'payment_method' => $this->_retrieveTransactionPaymentMethod($parameters['payment_method_id'])
 					));
-					$invoice = $this->_calculateInvoicePaymentDetails($invoice);
+					$invoice['data'] = $this->_calculateInvoicePaymentDetails($invoice['data']);
 
 					if ($parameters['payment_amount'] > 0) {
 						$mailParameters = array(

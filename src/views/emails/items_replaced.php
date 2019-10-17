@@ -1,7 +1,7 @@
 <?php
 	$message = 'Hello,' . "\n";
 	$message .= "\n";
-	$message .= count($templateParameters['old_items']) . ' ' . $templateParameters['table'] . ' were recently replaced at ' . $this->settings['site_name'] . '.' . "\n";
+	$message .= 'This is a confirmation of your recent replacement request at ' . $this->settings['site_name'] . '.' . "\n";
 	$message .= "\n";
 	$message .= 'Below is the link to your control panel so you can manage your list of ' . $templateParameters['table'] . ' and change configuration settings if needed:' . "\n";
 	$message .= $templateParameters['link'] . "\n";

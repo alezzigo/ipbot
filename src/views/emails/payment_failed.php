@@ -21,7 +21,7 @@
 	$message .= '--' . "\n";
 	$message .= 'User Email: ' . $templateParameters['user']['email'] . "\n";
 	$message .= "\n";
-	$message .= 'If you have any questions about this failed payment, please reply to this email.' . "\n";
+	$message .= 'If you have any questions about this failed payment or would like to submit a new payment, please reply to this email.' . "\n";
 	$message .= "\n";
 	$message .= '--' . "\n";
 	$message .= $this->settings['site_name'] . "\n";

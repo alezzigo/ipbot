@@ -196,6 +196,7 @@ class InvoicesModel extends UsersModel {
 		$invoices = $this->find('invoices', array(
 			'conditions' => array(
 				'due <' => date('Y-m-d H:i:s', strtotime('+5 days')),
+				'initial_invoice_id !=' => null,
 				'status' => 'unpaid',
 				'warning_level' => 0
 			),

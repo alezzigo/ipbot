@@ -762,10 +762,11 @@ class InvoicesModel extends UsersModel {
  *
  * @param string $table
  * @param array $parameters
+ * @param boolean $mostRecent
  *
  * @return array $response
  */
-	public function invoice($table, $parameters) {
+	public function invoice($table, $parameters, $mostRecent = false) {
 		$response = array(
 			'data' => array(),
 			'message' => array(
@@ -773,7 +774,7 @@ class InvoicesModel extends UsersModel {
 				'text' => ($defaultMessage = 'Error processing your invoice request, please try again.')
 			)
 		);
-		$invoiceData = $this->find($table, array(
+		$invoiceParameters = array(
 			'conditions' => $parameters['conditions'],
 			'fields' => array(
 				'amount_paid',
@@ -797,8 +798,22 @@ class InvoicesModel extends UsersModel {
 				'total',
 				'total_pending',
 				'user_id'
-			)
-		));
+			),
+			'limit' => 1
+		);
+
+		if (
+			$mostRecent === true &&
+			!empty($invoiceParameters['conditions']['id'])
+		) {
+			$invoiceParameters['conditions']['id'] = $this->_retrieveInvoiceIds((array) $invoiceParameters['conditions']['id']);
+			$invoiceParameters['sort'] = array(
+				'field' => 'created',
+				'order' => 'DESC'
+			);
+		}
+
+		$invoiceData = $this->find($table, $invoiceParameters);
 
 		if (!empty($invoiceData['count'])) {
 			$invoiceData = $invoiceData['data'][0];

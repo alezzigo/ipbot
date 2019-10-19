@@ -351,7 +351,7 @@ class TransactionsModel extends InvoicesModel {
 					'id' => $parameters['invoice_id'],
 					'payable' => true
 				)
-			));
+			), true);
 			$invoiceWarningLevel = $invoice['data']['invoice']['warning_level'];
 
 			if (!empty($invoice['data'])) {
@@ -699,7 +699,7 @@ class TransactionsModel extends InvoicesModel {
 				'conditions' => array(
 					'id' => $parameters['invoice_id']
 				)
-			));
+			), true);
 
 			if (!empty($invoice['data'])) {
 				$mailParameters = array(
@@ -740,7 +740,7 @@ class TransactionsModel extends InvoicesModel {
 				'conditions' => array(
 					'id' => $parameters['invoice_id']
 				)
-			));
+			), true);
 
 			if (!empty($invoice['data'])) {
 				$mailParameters = array(
@@ -792,7 +792,7 @@ class TransactionsModel extends InvoicesModel {
 				'conditions' => array(
 					'id' => $parameters['invoice_id']
 				)
-			));
+			), true);
 
 			if (!empty($invoice['data'])) {
 				$mailParameters = array(
@@ -833,7 +833,7 @@ class TransactionsModel extends InvoicesModel {
 				'conditions' => array(
 					'id' => $parameters['invoice_id']
 				)
-			));
+			), true);
 
 			if (!empty($invoice['data'])) {
 				$mailParameters = array(

@@ -1,7 +1,7 @@
 <?php
 	$message = 'Hello,' . "\n";
 	$message .= "\n";
-	$message .= 'This is a confirmation of payment receipt for invoice #' . $templateParameters['invoice']['id'] . ' at ' . $this->settings['site_name'] . '.' . "\n";
+	$message .= 'This is a confirmation of payment receipt at ' . $this->settings['site_name'] . '.' . "\n";
 	$message .= "\n";
 	$message .= 'Payment Details' . "\n";
 	$message .= '--' . "\n";

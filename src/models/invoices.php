@@ -24,17 +24,17 @@ class InvoicesModel extends UsersModel {
 	protected function _calculateDeductionsFromInvoice($invoiceData, $amount, $invoiceDeductions = array()) {
 		if (!empty($invoiceData)) {
 			$remainder = min(0, round(($invoiceData['amount_paid'] + $amount) * 100) / 100);
-			$amount = max(($invoiceData['amount_paid'] * -1), round(($amount - $remainder) * 100) / 100);
+			$amountDeducted = max(($invoiceData['amount_paid'] * -1), round(($amount - $remainder) * 100) / 100);
 			$invoiceDeduction = array(
 				'amount_paid' => $invoiceData['amount_paid'],
-				'amount_deducted' => $amount,
+				'amount_deducted' => $amountDeducted,
 				'id' => $invoiceData['id'],
 				'remainder' => $remainder
 			);
 
 			if (
-				$amount < 0 &&
-				($amount * -1) === $invoiceDeduction['amount_paid']
+				$amountDeducted < 0 &&
+				($amountDeducted * -1) === $invoiceDeduction['amount_paid']
 			) {
 				$invoiceDeduction['status'] = 'unpaid';
 			}

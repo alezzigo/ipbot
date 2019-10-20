@@ -840,11 +840,23 @@ class TransactionsModel extends InvoicesModel {
 										!empty($invoice['data']) &&
 										$amountToRefundExceedingBalance < 0
 									) {
-										// ..
+										$invoiceDeductions = array_merge($invoiceDeductions, $this->_calculateDeductionsFromInvoice($invoice['data']['invoice'], max(min(($balanceTransaction['payment_amount'] * -1), $amountToRefundExceedingBalance), $amountToRefundExceedingBalance)));
+										$mostRecentInvoiceDeduction = end($invoiceDeductions);
+										$amountToRefundExceedingBalance = min(0, $mostRecentInvoiceDeduction['remainder']);
 									}
+
+									// ..
 								}
 							}
 						}
+					}
+				}
+
+				foreach ($invoiceDeductions as $key => $invoiceDeduction) {
+					$processedInvoiceIds[] = $invoiceDeduction['id'];
+
+					if ($invoiceDeduction['amount_deducted'] >= 0) {
+						unset($invoiceDeductions[$key]);
 					}
 				}
 

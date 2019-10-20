@@ -28,7 +28,7 @@ var processInvoice = function() {
 		}
 
 		if (response.data.invoice) {
-			var amountDue = response.data.invoice.amount_due;
+			var amountDue = response.data.invoice.amount_due.toLocaleString(false, {minimumFractionDigits: 2});
 			var billingAmountField = document.querySelector('.billing-amount');
 			var interval = '';
 			var pendingChange = (typeof response.data.invoice.amount_due_pending === 'number');
@@ -157,7 +157,7 @@ var processInvoice = function() {
 			});
 			var paymentMessage = function(element) {
 				var intitialPaymentAmount = (element.value ? element.value : element.target.value).toLocaleString(false, {minimumFractionDigits: 2});
-				document.querySelector('.recurring-message').innerHTML = '<p class="message">This <span class="recurring-message-item">first </span>payment will be ' + response.data.invoice.payment_currency_symbol + intitialPaymentAmount + ' ' + response.data.invoice.payment_currency_name + '<span class="recurring-message-item"> and the recurring payments will be ' + response.data.invoice.payment_currency_symbol + (intitialPaymentAmount >= amountDue ? (response.data.invoice.total_pending ? response.data.invoice.total_pending : response.data.invoice.total) : intitialPaymentAmount) + ' ' + response.data.invoice.payment_currency_name + ' every ' + interval + '</span>.</p>';
+				document.querySelector('.recurring-message').innerHTML = '<p class="message">This <span class="recurring-message-item">first </span>payment will be ' + response.data.invoice.payment_currency_symbol + intitialPaymentAmount + ' ' + response.data.invoice.payment_currency_name + '<span class="recurring-message-item"> and the recurring payments will be ' + response.data.invoice.payment_currency_symbol + (intitialPaymentAmount >= amountDue ? (response.data.invoice.total_pending ? response.data.invoice.total_pending : response.data.invoice.total) : intitialPaymentAmount).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency_name + ' every ' + interval + '</span>.</p>';
 			};
 			billingAmountField.addEventListener('change', paymentMessage);
 			billingAmountField.addEventListener('keyup', paymentMessage);

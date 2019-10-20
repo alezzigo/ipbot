@@ -772,6 +772,24 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionPaymentRefunded($parameters) {
+		$invoices = $invoiceDeductions = $transactionData = array();
+
+		if (
+			!empty($parameters['invoice_id']) &&
+			!empty($parameters['user'])
+		) {
+			$invoice = $this->invoice('invoices', array(
+				'conditions' => array(
+					'id' => $parameters['invoice_id']
+				)
+			));
+
+			if (!empty($invoice['data'])) {
+				$invoiceDeductions = array_merge($invoiceDeductions, $this->_calculateDeductionsFromInvoice($invoice['data']['invoice'], $parameters['payment_amount']));
+				// ..
+			}
+		}
+
 		return;
 	}
 

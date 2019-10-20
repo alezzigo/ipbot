@@ -13,6 +13,75 @@ require_once($config->settings['base_path'] . '/models/users.php');
 class InvoicesModel extends UsersModel {
 
 /**
+ * Calculate deduction amounts from merged and additional invoices
+ *
+ * @param array $invoiceData
+ * @param integer $amount
+ * @param array $invoiceDeductions
+ *
+ * @return array $response
+ */
+	protected function _calculateDeductionsFromInvoice($invoiceData, $amount, $invoiceDeductions = array()) {
+		if (!empty($invoiceData)) {
+			$remainder = min(0, round(($invoiceData['amount_paid'] + $amount) * 100) / 100);
+			$amount = max(($invoiceData['amount_paid'] * -1), round(($amount - $remainder) * 100) / 100);
+			$invoiceDeduction = array(
+				'amount_paid' => $invoiceData['amount_paid'],
+				'amount_deducted' => $amount,
+				'id' => $invoiceData['id'],
+				'remainder' => $remainder
+			);
+
+			if (
+				$amount < 0 &&
+				($amount * -1) === $invoiceDeduction['amount_paid']
+			) {
+				$invoiceDeduction['status'] = 'unpaid';
+			}
+
+			$invoiceDeductions[] = $invoiceDeduction;
+
+			if ($remainder < 0) {
+				$additionalInvoice = $this->find('invoices', array(
+					'conditions' => array(
+						'created >' => date('Y-m-d h:i:s', strtotime($invoiceData['created'])),
+						'OR' => array(
+							'initial_invoice_id' => $invoiceData['id'],
+							'id' => $invoiceData['merged_invoice_id']
+						)
+					),
+					'fields' => array(
+						'amount_paid',
+						'created',
+						'id',
+						'initial_invoice_id',
+						'merged_invoice_id',
+						'status'
+					),
+					'limit' => 1,
+					'sort' => array(
+						'field' => 'created',
+						'order' => 'ASC'
+					)
+				));
+
+				if (!empty($additionalInvoice['count'])) {
+					$invoiceDeductions = $this->_calculateDeductionsFromInvoice($additionalInvoice['data'][0], $remainder, $invoiceDeductions);
+				}
+			}
+		}
+
+		foreach ($invoiceDeductions as $key => $invoiceDeduction) {
+			if ($invoiceDeduction['amount_deducted'] >= 0) {
+				unset($invoiceDeductions[$key]);
+			}
+		}
+
+		$response = $invoiceDeductions;
+		return $response;
+	}
+
+/**
  * Calculate invoice payment details
  *
  * @param array $invoiceData

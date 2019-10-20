@@ -142,7 +142,6 @@ class TransactionsModel extends InvoicesModel {
 					't1' => $parameters['request']['t3']
 				));
 			}
-			// ..
 		} else {
 			$parameters['request'] = array_merge($parameters['request'], array(
 				'amount' => $parameters['data']['billing_amount']
@@ -1725,7 +1724,6 @@ class TransactionsModel extends InvoicesModel {
 										'invoice_id' => $parameters['data']['invoice']['id'],
 										'price' => $parameters['data']['billing_amount']
 									);
-									// ..
 									$existingPlan = $this->find('plans', array(
 										'conditions' => $planData,
 										'fields' => array(

@@ -772,7 +772,7 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionPaymentRefunded($parameters) {
-		$invoices = $invoiceDeductions = $transactionData = array();
+		$invoices = $invoiceDeductions = $transactionData = $userData = array();
 
 		if (
 			!empty($parameters['invoice_id']) &&
@@ -786,6 +786,19 @@ class TransactionsModel extends InvoicesModel {
 
 			if (!empty($invoice['data'])) {
 				$invoiceDeductions = array_merge($invoiceDeductions, $this->_calculateDeductionsFromInvoice($invoice['data']['invoice'], $parameters['payment_amount']));
+				$mostRecentInvoiceDeduction = end($invoiceDeductions);
+				$amountToDeductFromBalance = min(0, $mostRecentInvoiceDeduction['remainder']);
+
+				if ($amountToDeductFromBalance < 0) {
+					$invoiceDeductions[] = array(
+						'amount_deducted' => round(max(($parameters['user']['balance'] * -1), $amountToDeductFromBalance) * 100) / 100
+					);
+					$userData = array(
+						'id' => $parameters['user']['id'],
+						'balance' => max(0, $amountRefundedExceedingBalance = round(($parameters['user']['balance'] + $amountToDeductFromBalance) * 100) / 100)
+					);
+					// ..
+				}
 				// ..
 			}
 		}

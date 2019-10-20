@@ -391,7 +391,10 @@ class OrdersModel extends TransactionsModel {
 
 									foreach ($pendingInvoices as $invoiceId => $pendingInvoice) {
 										if (!array_key_exists('merged_invoice_id', $pendingInvoice)) {
-											$pendingInvoices[$invoiceId]['merged_invoice_id'] = $mergedInvoiceId;
+											$pendingInvoices[$invoiceId] = array_merge($pendingInvoices[$invoiceId], array(
+												'merged_invoice_id' => $mergedInvoiceId,
+												'warning_level' => 5
+											));
 										}
 									}
 
@@ -402,6 +405,7 @@ class OrdersModel extends TransactionsModel {
 											foreach ($additionalOrders as $additionalOrder) {
 												if (!in_array($additionalOrder['id'], $pendingOrderIds)) {
 													$pendingInvoices[$selectedOrder['invoice']['id']]['merged_invoice_id'] = null;
+													unset($pendingInvoices[$selectedOrder['invoice']['id']]['warning_level']);
 												}
 											}
 

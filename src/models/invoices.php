@@ -71,12 +71,6 @@ class InvoicesModel extends UsersModel {
 			}
 		}
 
-		foreach ($invoiceDeductions as $key => $invoiceDeduction) {
-			if ($invoiceDeduction['amount_deducted'] >= 0) {
-				unset($invoiceDeductions[$key]);
-			}
-		}
-
 		$response = $invoiceDeductions;
 		return $response;
 	}

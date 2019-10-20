@@ -772,7 +772,7 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionPaymentRefunded($parameters) {
-		$invoices = $invoiceDeductions = $transactionData = $userData = array();
+		$invoices = $invoiceDeductions = $processedInvoiceIds = $transactionData = $userData = array();
 
 		if (
 			!empty($parameters['invoice_id']) &&
@@ -789,16 +789,65 @@ class TransactionsModel extends InvoicesModel {
 				$mostRecentInvoiceDeduction = end($invoiceDeductions);
 				$amountToDeductFromBalance = min(0, $mostRecentInvoiceDeduction['remainder']);
 
+				foreach ($invoiceDeductions as $key => $invoiceDeduction) {
+					$processedInvoiceIds[] = $invoiceDeduction['id'];
+				}
+
 				if ($amountToDeductFromBalance < 0) {
 					$invoiceDeductions[] = array(
-						'amount_deducted' => round(max(($parameters['user']['balance'] * -1), $amountToDeductFromBalance) * 100) / 100
+						'amount_deducted' => ($amountDeductedFromBalance = round(max(($parameters['user']['balance'] * -1), $amountToDeductFromBalance) * 100) / 100),
+						'remainder' => $amountToDeductFromBalance - $amountDeductedFromBalance
 					);
 					$userData = array(
 						'id' => $parameters['user']['id'],
-						'balance' => max(0, $amountRefundedExceedingBalance = round(($parameters['user']['balance'] + $amountToDeductFromBalance) * 100) / 100)
+						'balance' => max(0, $amountToRefundExceedingBalance = round(($parameters['user']['balance'] + $amountToDeductFromBalance) * 100) / 100)
 					);
-					// ..
+
+					if ($amountToRefundExceedingBalance < 0) {
+						$balanceTransactions = $this->find('transactions', array(
+							'conditions' => array(
+								'payment_method_id' => 'balance',
+								'transaction_method' => 'PaymentCompleted',
+								'transaction_processed' => true,
+								'transaction_processing' => false,
+								'user_id' => $parameters['user']['id'],
+								'NOT' => array(
+									'invoice_id' => $processedInvoiceIds
+								)
+							),
+							'fields' => array(
+								'id',
+								'invoice_id',
+								'payment_amount',
+								'plan_id'
+							),
+							'sort' => array(
+								'field' => 'created',
+								'order' => 'DESC'
+							)
+						));
+
+						if (!empty($balanceTransactions['count'])) {
+							foreach ($balanceTransactions['data'] as $balanceTransaction) {
+								if (!empty($balanceTransaction['invoice_id'])) {
+									$invoice = $this->invoice('invoices', array(
+										'conditions' => array(
+											'id' => $balanceTransaction['invoice_id']
+										)
+									));
+
+									if (
+										!empty($invoice['data']) &&
+										$amountToRefundExceedingBalance < 0
+									) {
+										// ..
+									}
+								}
+							}
+						}
+					}
 				}
+
 				// ..
 			}
 		}

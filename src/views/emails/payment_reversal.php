@@ -5,7 +5,7 @@
 	$message .= "\n";
 	$message .= 'Payment Details' . "\n";
 	$message .= '--' . "\n";
-	$message .= 'Payment Reversal Transaction ID: #' . ($templateParameters['transaction']['id'] ? $templateParameters['transaction']['id'] : 'N/A') . "\n";
+	$message .= 'Payment Reversal Transaction ID: #' . ($templateParameters['transaction']['payment_transaction_id'] ? $templateParameters['transaction']['payment_transaction_id'] : 'N/A') . "\n";
 	$message .= 'Original Payment Transaction ID: #' . ($templateParameters['transaction']['parent_transaction_id'] ? $templateParameters['transaction']['parent_transaction_id'] : 'N/A') . "\n";
 	$message .= 'Payment Method: ' . ($templateParameters['transaction']['payment_method'] ? $templateParameters['transaction']['payment_method'] : 'N/A') . "\n";
 	$message .= "\n";

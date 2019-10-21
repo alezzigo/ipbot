@@ -5,7 +5,7 @@
 	$message .= "\n";
 	$message .= 'Payment Details' . "\n";
 	$message .= '--' . "\n";
-	$message .= 'Payment Transaction ID: #' . ($templateParameters['transaction']['id'] ? $templateParameters['transaction']['id'] : 'N/A') . "\n";
+	$message .= 'Payment Transaction ID: #' . ($templateParameters['transaction']['payment_transaction_id'] ? $templateParameters['transaction']['payment_transaction_id'] : 'N/A') . "\n";
 	$message .= 'Payment Method: ' . ($templateParameters['transaction']['payment_method'] ? $templateParameters['transaction']['payment_method'] : 'N/A') . "\n";
 	$message .= 'Payment Amount: ' . $this->settings['billing']['currency_symbol'] . number_format($templateParameters['transaction']['payment_amount'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . "\n";
 	$message .= "\n";

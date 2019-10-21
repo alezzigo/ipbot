@@ -5,6 +5,8 @@
 	$message .= "\n";
 	$message .= 'Transaction Details' . "\n";
 	$message .= '--' . "\n";
+	$message .= 'Refund Transaction ID: #' . ($templateParameters['transaction']['payment_transaction_id'] ? $templateParameters['transaction']['payment_transaction_id'] : 'N/A') . "\n";
+	$message .= 'Original Payment Transaction ID: #' . ($templateParameters['transaction']['parent_transaction_id'] ? $templateParameters['transaction']['parent_transaction_id'] : 'N/A') . "\n";
 	$message .= 'Payment Method: ' . ($templateParameters['transaction']['payment_method'] ? $templateParameters['transaction']['payment_method'] : 'N/A') . "\n";
 	$message .= 'Payment Amount: -' . $this->settings['billing']['currency_symbol'] . number_format(($templateParameters['transaction']['payment_amount'] * -1), 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . "\n";
 	$message .= "\n";

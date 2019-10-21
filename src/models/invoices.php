@@ -740,6 +740,7 @@ class InvoicesModel extends UsersModel {
 		$response = array();
 		$invoiceTransactions = $this->find('transactions', array(
 			'conditions' => array(
+				'transaction_method !=' => 'PaymentRefunded',
 				'invoice_id' => $invoiceData['id'],
 				'transaction_processed' => true,
 				'transaction_processing' => false

@@ -908,8 +908,23 @@ class TransactionsModel extends InvoicesModel {
 					$this->save('invoces', $invoiceData) &&
 					$this->save('transactions', $transactionData) &&
 					$this->save('users', $userData)
-					// ..
 				) {
+					$mailParameters = array(
+						'from' => $this->settings['from_email'],
+						'subject' => 'Transaction #' . $parameters['payment_transaction_id'] . ' refund confirmation',
+						'template' => array(
+							'name' => 'payment_refunded',
+							'parameters' => array(
+								'deductions' => $transactionData,
+								'transaction' => array_merge($parameters, array(
+									'payment_method' => $this->_retrieveTransactionPaymentMethod($parameters['payment_method_id'])
+								)),
+								'user' => $parameters['user']
+							)
+						),
+						'to' => $parameters['user']['email']
+					);
+					$this->_sendMail($mailParameters);
 					// ..
 				}
 			}

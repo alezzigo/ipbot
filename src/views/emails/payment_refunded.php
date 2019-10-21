@@ -3,16 +3,18 @@
 	$message .= "\n";
 	$message .= 'This is a confirmation of a refunded payment at ' . $this->settings['site_name'] . '.' . "\n";
 	$message .= "\n";
-	$message .= 'Refund Details' . "\n";
+	$message .= 'Transaction Details' . "\n";
 	$message .= '--' . "\n";
 	$message .= 'Payment Method: ' . ($templateParameters['transaction']['payment_method'] ? $templateParameters['transaction']['payment_method'] : 'N/A') . "\n";
-	$message .= 'Refund Amount: ' . $this->settings['billing']['currency_symbol'] . number_format(($templateParameters['transaction']['payment_amount'] * -1), 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'];
+	$message .= 'Payment Amount: -' . $this->settings['billing']['currency_symbol'] . number_format(($templateParameters['transaction']['payment_amount'] * -1), 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . "\n";
+	$message .= "\n";
+	$message .= 'Refund Details' . "\n";
+	$message .= '--' . "\n";
 
-	if (!empty($templateParameters['transaction']['amount_deducted_from_balance'])) {
-		$message .= ' (' . $this->settings['billing']['currency_symbol'] . number_format(($templateParameters['transaction']['amount_deducted_from_balance'] * -1), 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . ' from this amount deducted from your account balance)';
+	foreach ($templateParameters['deductions'] as $deduction) {
+		$message .= 'Applied -' . $this->settings['billing']['currency_symbol'] . number_format(($deduction['payment_amount'] * -1), 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . ' to ' . (!empty($deduction['invoice_id']) ? 'invoice #' . $deduction['invoice_id'] . '.' : 'account balance.') . "\n";
 	}
 
-	$message .= "\n";
 	$message .= "\n";
 	$message .= 'User Details' . "\n";
 	$message .= '--' . "\n";

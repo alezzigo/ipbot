@@ -369,11 +369,11 @@ class CartsModel extends AppModel {
 		) {
 			$invoices = $orders = array();
 			$invoiceConditions = $orderConditions = array(
+				'currency' => $this->settings['billing']['currency'],
 				'session_id' => $cart['id']
 			);
 			$invoiceConditions = array_merge($invoiceConditions, array(
 				'payable' => true,
-				'currency' => $this->settings['billing']['currency'],
 				'status' => 'unpaid'
 			));
 			$orderConditions['status'] = 'pending';

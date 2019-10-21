@@ -128,6 +128,7 @@ class OrdersModel extends TransactionsModel {
 				),
 				'fields' => array(
 					'created',
+					'currency',
 					'id',
 					'interval_type',
 					'interval_type_pending',

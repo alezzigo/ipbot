@@ -482,6 +482,7 @@ class TransactionsModel extends InvoicesModel {
 
 									$orderData = array(
 										array(
+											'currency' => $order['currency'],
 											'id' => $order['id'],
 											'interval_type' => (!empty($order['interval_type_pending']) ? $order['interval_type_pending'] : $order['interval_type']),
 											'interval_type_pending' => null,
@@ -501,6 +502,7 @@ class TransactionsModel extends InvoicesModel {
 									);
 									$invoice['data']['orders'][$orderKey] = array_merge($invoice['data']['orders'][$orderKey], $orderData[0]);
 									$invoiceItems[] = array_merge(array_intersect_key($orderData[0], array(
+										'currency' => true,
 										'interval_type' => true,
 										'interval_value' => true,
 										'price' => true,

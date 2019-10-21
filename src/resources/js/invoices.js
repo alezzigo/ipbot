@@ -80,7 +80,7 @@ var processInvoice = function() {
 					}
 
 					invoiceData += '<p>' + order.quantity + ' ' + order.name + (pendingOrderChange ? ' to <span class="success">' + order.quantity_pending + ' ' + order.name + '</span>' : '') + '</p>';
-					invoiceData += '<p class="no-margin-bottom">' + order.price.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.currency + ' for ' + interval + (pendingOrderChange ? ' to <span class="success">' + order.price_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.currency + ' for ' + order.interval_value_pending + ' ' + order.interval_type_pending + (order.interval_value_pending !== 1 ? 's' : '') + '</span>' : '') + '</p>';
+					invoiceData += '<p class="no-margin-bottom">' + order.price.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + order.currency + ' for ' + interval + (pendingOrderChange ? ' to <span class="success">' + order.price_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + order.currency + ' for ' + order.interval_value_pending + ' ' + order.interval_type_pending + (order.interval_value_pending !== 1 ? 's' : '') + '</span>' : '') + '</p>';
 
 					if (pendingOrderChange) {
 						invoiceData += '<label class="label">Pending Order ' + capitalizeString(pendingChangeType) + '</label>';

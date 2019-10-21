@@ -613,6 +613,7 @@ class InvoicesModel extends UsersModel {
 					'invoice_id' => $invoiceData['id']
 				),
 				'fields' => array(
+					'currency',
 					'interval_type',
 					'interval_value',
 					'invoice_id',
@@ -666,6 +667,7 @@ class InvoicesModel extends UsersModel {
 				),
 				'fields' => array(
 					'created',
+					'currency',
 					'id',
 					'interval_type',
 					'interval_type_pending',

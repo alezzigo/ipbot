@@ -44,6 +44,7 @@ class Config {
 			),
 			'orders' => array(
 				'cart_item_id',
+				'currency',
 				'id',
 				'interval_type',
 				'interval_type_pending',

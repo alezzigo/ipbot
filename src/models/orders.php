@@ -511,6 +511,7 @@ class OrdersModel extends TransactionsModel {
 										'payment_currency' => $this->settings['billing']['currency_name'],
 										'payment_status' => 'completed',
 										'payment_status_message' => 'Order ' . ($response['data']['upgrade_quantity'] ? 'upgrade' : 'merge') . ' successful.',
+										'payment_transaction_id' => uniqid() . time(),
 										'transaction_charset' => $this->settings['database']['charset'],
 										'transaction_date' => date('Y-m-d h:i:s', time()),
 										'transaction_method' => 'PaymentCompleted',

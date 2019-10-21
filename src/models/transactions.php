@@ -35,6 +35,7 @@ class TransactionsModel extends InvoicesModel {
 			'payment_method_id' => 'balance',
 			'payment_status' => 'completed',
 			'payment_status_message' => 'Payment successful.',
+			'payment_transaction_id' => uniqid() . time(),
 			'plan_id' => $parameters['data']['plan']['id'],
 			'transaction_charset' => $this->settings['database']['charset'],
 			'transaction_date' => date('Y-m-d h:i:s', time()),
@@ -244,6 +245,7 @@ class TransactionsModel extends InvoicesModel {
 				'payment_status_code',
 				'payment_status_message',
 				'payment_tax_amount',
+				'payment_transaction_id',
 				'plan_id',
 				'provider_country_code',
 				'provider_email',
@@ -818,6 +820,7 @@ class TransactionsModel extends InvoicesModel {
 								'id',
 								'invoice_id',
 								'payment_amount',
+								'payment_transaction_id',
 								'plan_id'
 							),
 							'sort' => array(
@@ -1378,7 +1381,7 @@ class TransactionsModel extends InvoicesModel {
 		if (!empty($parentTransactionId = $parameters['parent_transaction_id'])) {
 			$transactionParameters = array(
 				'conditions' => array(
-					'id' => $parentTransactionId
+					'payment_transaction_id' => $parentTransactionId
 				),
 				'fields' => array(
 					'invoice_id'
@@ -1494,7 +1497,7 @@ class TransactionsModel extends InvoicesModel {
 				'customer_id' => $parameters['payer_id'],
 				'customer_last_name' => $parameters['last_name'],
 				'customer_status' => $parameters['payer_status'],
-				'id' => (!empty($parameters['txn_id']) ? $parameters['txn_id'] : uniqid() . time()),
+				'id' => uniqid() . time(),
 				'invoice_id' => (!empty($itemNumberIds[0]) && is_numeric($itemNumberIds[0]) ? $itemNumberIds[0] : 0),
 				'parent_transaction_id' => (!empty($parameters['parent_txn_id']) ? $parameters['parent_txn_id'] : null),
 				'payment_amount' => (!empty($parameters['mc_gross']) ? $parameters['mc_gross'] : $parameters['amount3']),
@@ -1504,6 +1507,7 @@ class TransactionsModel extends InvoicesModel {
 				'payment_shipping_amount' => $parameters['shipping'],
 				'payment_status' => strtolower($parameters['payment_status']),
 				'payment_tax_amount' => $parameters['tax'],
+				'payment_transaction_id' => (!empty($parameters['txn_id']) ? $parameters['txn_id'] : uniqid() . time()),
 				'plan_id' => (!empty($itemNumberIds[1]) && is_numeric($itemNumberIds[1]) ? $itemNumberIds[1] : 0),
 				'provider_country_code' => $parameters['residence_country'],
 				'provider_email' => $parameters['receiver_email'],

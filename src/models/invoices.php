@@ -775,6 +775,7 @@ class InvoicesModel extends UsersModel {
 				'payment_status_code',
 				'payment_status_message',
 				'payment_tax_amount',
+				'payment_transaction_id',
 				'plan_id',
 				'provider_country_code',
 				'provider_email',

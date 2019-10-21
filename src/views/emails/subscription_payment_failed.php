@@ -7,7 +7,7 @@
 	$message .= '--' . "\n";
 	$message .= 'Subscription ID: #' . $templateParameters['subscription']['id'] . "\n";
 	$message .= 'Subscription Status: ' . ucwords($templateParameters['subscription']['status']) . "\n";
-	$message .= 'Recurring Payment Amount: ' . $this->settings['billing']['currency_symbol'] . number_format($templateParameters['subscription']['price'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . "\n";
+	$message .= 'Recurring Payment Amount: ' . number_format($templateParameters['subscription']['price'], 2, '.', ',') . ' ' . $this->settings['billing']['currency'] . "\n";
 	$message .= 'Recurring Payment Interval: ' . $templateParameters['subscription']['interval_value'] . ' ' . $templateParameters['subscription']['interval_type'] . ($templateParameters['subscription']['interval_value'] !== 1 ? 's' : '') . "\n";
 	$message .= 'Recurring Payment Failed Attempts: ' . $templateParameters['subscription']['payment_attempts'] . "\n";
 	$message .= "\n";

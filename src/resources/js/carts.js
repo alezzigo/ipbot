@@ -138,7 +138,7 @@ var processCartItems = function(response) {
 			quantityValues.map(function(quantityValue, index) {
 				quantitySelectValues += '<option ' + (quantityValue == cartItem[1].quantity ? 'selected ' : '') + 'value="' + quantityValue + '">' + quantityValue + '</option>';
 			});
-			cartItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem[1].id + '"><span checked="' + +(typeof cartItemGrid['cartItem' + cartItem[1].id] !== 'undefined') + '" class="checkbox" index="' + index + '" cart_item_id="' + cartItem[1].id + '"></span><p><a href="' + requestParameters.settings.base_url + cartItem[1].uri + '">' + cartItem[1].name + '</a></p><div class="field-group"><span>Quantity:</span><select class="quantity" name="quantity">' + quantitySelectValues + '</select></div><div class="field-group no-margin"><span>' + requestParameters.settings.billing_currency_name + ' Price:</span><span class="display">' + requestParameters.settings.billing_currency_symbol + cartItem[1].price + '</span><span>for</span><select class="interval-value" name="interval_value">' + intervalSelectValues + '</select><select class="interval-type" name="interval_type">' + intervalSelectTypes + '</select></div><div class="clear"></div></div>';
+			cartItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem[1].id + '"><span checked="' + +(typeof cartItemGrid['cartItem' + cartItem[1].id] !== 'undefined') + '" class="checkbox" index="' + index + '" cart_item_id="' + cartItem[1].id + '"></span><p><a href="' + requestParameters.settings.base_url + cartItem[1].uri + '">' + cartItem[1].name + '</a></p><div class="field-group"><span>Quantity:</span><select class="quantity" name="quantity">' + quantitySelectValues + '</select></div><div class="field-group no-margin"><span>Price:</span><span class="display">' + cartItem[1].price + ' ' + requestParameters.settings.billing_currency + '</span><span>for</span><select class="interval-value" name="interval_value">' + intervalSelectValues + '</select><select class="interval-type" name="interval_type">' + intervalSelectTypes + '</select></div><div class="clear"></div></div>';
 			cartSubtotal += parseFloat(cartItem[1].price);
 		});
 		cartItemContainer.innerHTML = cartItems;
@@ -175,7 +175,7 @@ var processCartItems = function(response) {
 		});
 		var cartItemGridLength = +(Object.entries(cartItemGrid).length);
 		var selectableItemsCount = selectAllElements('.cart-items-container .item-button-selectable').length;
-		elements.html('.item-configuration .cart-subtotal .total', requestParameters.settings.billing_currency_symbol + (Math.round(cartSubtotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + requestParameters.settings.billing_currency_name);
+		elements.html('.item-configuration .cart-subtotal .total', (Math.round(cartSubtotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + requestParameters.settings.billing_currency);
 		elements.html('.item-configuration .total-checked', cartItemGridLength);
 		elements.html('.item-configuration .total-results', cartItemData.length);
 		elements.removeAttribute('.button.checkout', 'disabled');
@@ -197,21 +197,21 @@ var processCartItems = function(response) {
 
 		checkoutItems += '<h2>Order Items</h2>';
 		cartItemData.map(function(cartItem, index) {
-			checkoutItems += '<div class="item-container item-button"><p>' + cartItem[1].quantity + ' ' + cartItem[1].name + '</p><p class="no-margin-bottom">' + requestParameters.settings.billing_currency_symbol + cartItem[1].price + ' ' + requestParameters.settings.billing_currency_name + ' for ' + cartItem[1].interval_value + ' ' + cartItem[1].interval_type + (cartItem[1].interval_value !== 1 ? 's' : '') + '</p><div class="item-link-container"></div></div>';
+			checkoutItems += '<div class="item-container item-button"><p>' + cartItem[1].quantity + ' ' + cartItem[1].name + '</p><p class="no-margin-bottom">' + cartItem[1].price + ' ' + requestParameters.settings.billing_currency + ' for ' + cartItem[1].interval_value + ' ' + cartItem[1].interval_type + (cartItem[1].interval_value !== 1 ? 's' : '') + '</p><div class="item-link-container"></div></div>';
 			cartSubtotal += parseFloat(cartItem[1].price);
 		});
 		cartTotal = cartSubtotal;
 		checkoutItems += '<h2>Pricing Details</h2>';
 		checkoutItems += '<p class="no-margin-bottom"><label>Subtotal</label></p>';
-		checkoutItems += '<p>' + requestParameters.settings.billing_currency_symbol + (Math.round(cartSubtotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + requestParameters.settings.billing_currency_name + '</p>';
+		checkoutItems += '<p>' + (Math.round(cartSubtotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + requestParameters.settings.billing_currency + '</p>';
 		checkoutItems += '<p class="hidden no-margin-bottom"><label for="discount-code">Discount Code</label></p>';
 		checkoutItems += '<div class="field-group hidden no-margin-top"><input class="discount-code-field" id="discount-code" name="discount_code" placeholder="Enter discount code" type="text"><button class="button discount-code-button">Apply Discount</button></div>';
 		checkoutItems += '<p class="no-margin-bottom"><label>Cart Total</label></p>';
-		checkoutItems += '<p>' + requestParameters.settings.billing_currency_symbol + (Math.round(cartTotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + requestParameters.settings.billing_currency_name + '</p>';
+		checkoutItems += '<p>' + (Math.round(cartTotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + requestParameters.settings.billing_currency + '</p>';
 		checkoutItems += '<p class="message">Additional fees for shipping and/or tax may apply before submitting final payment.</p>';
 		checkoutItems += '<a class="button confirm main-button" disabled href="' + requestParameters.settings.base_url + 'confirm">Proceed to Payment</a>';
 		checkoutItemContainer.innerHTML = checkoutItems;
-		elements.html('.item-configuration .cart-total .total', requestParameters.settings.billing_currency_symbol + (Math.round(cartTotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + requestParameters.settings.billing_currency_name);
+		elements.html('.item-configuration .cart-total .total', (Math.round(cartTotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + requestParameters.settings.billing_currency);
 		elements.removeAttribute('.button.confirm', 'disabled');
 	}
 

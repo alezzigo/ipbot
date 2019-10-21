@@ -43,8 +43,7 @@ var processInvoice = function() {
 
 			billingAmountField.value = amountDue;
 			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label> Invoice #' + response.data.invoice.id;
-			document.querySelector('.billing-currency-name').innerHTML = response.data.invoice.payment_currency_name;
-			document.querySelector('.billing-currency-symbol').innerHTML = response.data.invoice.payment_currency_symbol;
+			document.querySelector('.billing-currency').innerHTML = response.data.invoice.payment_currency;
 			document.querySelector('.billing-view-details').addEventListener('click', function(element) {
 				closeWindows(defaultTable);
 			});
@@ -54,8 +53,8 @@ var processInvoice = function() {
 			}
 
 			invoiceData += '<h2>Invoice Payment Details</h2>';
-			invoiceData += '<p><strong>Amount Paid to Invoice</strong><br><span' + (response.data.invoice.amount_paid ? ' class="paid"' : '') + '>' + response.data.invoice.payment_currency_symbol + response.data.invoice.amount_paid.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency_name + '</span></p>';
-			invoiceData += '<p><strong>Remaining Amount Due</strong><br>' + response.data.invoice.payment_currency_symbol + amountDue + ' ' + response.data.invoice.payment_currency_name + '</p>';
+			invoiceData += '<p><strong>Amount Paid to Invoice</strong><br><span' + (response.data.invoice.amount_paid ? ' class="paid"' : '') + '>' + response.data.invoice.amount_paid.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency + '</span></p>';
+			invoiceData += '<p><strong>Remaining Amount Due</strong><br>' + amountDue + ' ' + response.data.invoice.payment_currency + '</p>';
 
 			if (
 				response.data.invoice.due &&
@@ -81,7 +80,7 @@ var processInvoice = function() {
 					}
 
 					invoiceData += '<p>' + order.quantity + ' ' + order.name + (pendingOrderChange ? ' to <span class="success">' + order.quantity_pending + ' ' + order.name + '</span>' : '') + '</p>';
-					invoiceData += '<p class="no-margin-bottom">' + response.data.invoice.payment_currency_symbol + order.price.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency_name + ' for ' + interval + (pendingOrderChange ? ' to <span class="success">' + response.data.invoice.payment_currency_symbol + order.price_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency_name + ' for ' + order.interval_value_pending + ' ' + order.interval_type_pending + (order.interval_value_pending !== 1 ? 's' : '') + '</span>' : '') + '</p>';
+					invoiceData += '<p class="no-margin-bottom">' + order.price.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency + ' for ' + interval + (pendingOrderChange ? ' to <span class="success">' + order.price_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency + ' for ' + order.interval_value_pending + ' ' + order.interval_type_pending + (order.interval_value_pending !== 1 ? 's' : '') + '</span>' : '') + '</p>';
 
 					if (pendingOrderChange) {
 						invoiceData += '<label class="label">Pending Order ' + capitalizeString(pendingChangeType) + '</label>';
@@ -92,7 +91,7 @@ var processInvoice = function() {
 				});
 			} else {
 				invoiceData += '<h2>Invoice Order</h2>';
-				invoiceData += '<div class="item-container item-button"><p><strong>Add to Account Balance</strong></p><p class="no-margin-bottom">' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.subtotal) + ' ' + response.data.invoice.payment_currency_name + '</p>';
+				invoiceData += '<div class="item-container item-button"><p><strong>Add to Account Balance</strong></p><p class="no-margin-bottom">' + parseFloat(response.data.invoice.subtotal) + ' ' + response.data.invoice.payment_currency + '</p>';
 				invoiceData += '<div class="item-link-container"></div>';
 				invoiceData += '</div>';
 			}
@@ -102,10 +101,10 @@ var processInvoice = function() {
 				response.user.balance > 0
 			);
 			invoiceData += '<h2>Invoice Pricing Details</h2>';
-			invoiceData += '<p><strong>Subtotal</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.subtotal).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency_name + '</p>';
-			invoiceData += '<p><strong>Shipping</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.shipping).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency_name + '</p>';
-			invoiceData += '<p><strong>Tax</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.tax).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency_name + '</p>';
-			invoiceData += '<p><strong>Total</strong><br>' + response.data.invoice.payment_currency_symbol + parseFloat(response.data.invoice.total).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency_name + '</p>';
+			invoiceData += '<p><strong>Subtotal</strong><br>' + parseFloat(response.data.invoice.subtotal).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency + '</p>';
+			invoiceData += '<p><strong>Shipping</strong><br>' + parseFloat(response.data.invoice.shipping).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency + '</p>';
+			invoiceData += '<p><strong>Tax</strong><br>' + parseFloat(response.data.invoice.tax).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency + '</p>';
+			invoiceData += '<p><strong>Total</strong><br>' + parseFloat(response.data.invoice.total).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency + '</p>';
 
 			if (response.data.invoice.status === 'unpaid') {
 				invoiceData += '<p class="message">Additional fees for shipping and/or tax may apply before submitting final payment.</p>';
@@ -157,7 +156,7 @@ var processInvoice = function() {
 			});
 			var paymentMessage = function(element) {
 				var intitialPaymentAmount = (element.value ? element.value : element.target.value).toLocaleString(false, {minimumFractionDigits: 2});
-				document.querySelector('.recurring-message').innerHTML = '<p class="message">This <span class="recurring-message-item">first </span>payment will be ' + response.data.invoice.payment_currency_symbol + intitialPaymentAmount + ' ' + response.data.invoice.payment_currency_name + '<span class="recurring-message-item"> and the recurring payments will be ' + response.data.invoice.payment_currency_symbol + (intitialPaymentAmount >= amountDue ? (response.data.invoice.total_pending ? response.data.invoice.total_pending : response.data.invoice.total) : intitialPaymentAmount).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency_name + ' every ' + interval + '</span>.</p>';
+				document.querySelector('.recurring-message').innerHTML = '<p class="message">This <span class="recurring-message-item">first </span>payment will be ' + intitialPaymentAmount + ' ' + response.data.invoice.payment_currency + '<span class="recurring-message-item"> and the recurring payments will be ' + (intitialPaymentAmount >= amountDue ? (response.data.invoice.total_pending ? response.data.invoice.total_pending : response.data.invoice.total) : intitialPaymentAmount).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency + ' every ' + interval + '</span>.</p>';
 			};
 			billingAmountField.addEventListener('change', paymentMessage);
 			billingAmountField.addEventListener('keyup', paymentMessage);
@@ -169,7 +168,7 @@ var processInvoice = function() {
 				response.data.orders.length
 			) {
 				elements.removeClass('.payment-methods label[for="balance"]', 'hidden');
-				elements.html('.payment-method.balance .message ', 'You have an available account balance of ' + response.data.invoice.payment_currency_symbol + response.user.balance.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency_name);
+				elements.html('.payment-method.balance .message ', 'You have an available account balance of ' + response.user.balance.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.payment_currency);
 			}
 
 			if (!response.data.orders.length) {

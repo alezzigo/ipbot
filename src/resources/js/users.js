@@ -124,11 +124,11 @@ var processUser = function() {
 				userData += '<p><strong>Email Address</strong><br>' + response.user.email + '<br><a class="email" href="' + requestParameters.settings.base_url + 'account/?#email">Change email address</a></p>';
 				userData += '<p><strong>Password</strong><br>********<br>Last changed: ' + response.user.password_modified + '<br><a class="password" href="' + requestParameters.settings.base_url + 'account/?#reset">Change password</a></p>';
 				userData += '<h2>Account Balance</h2>';
-				userData += '<p><strong>Current Balance</strong><br>' + requestParameters.settings.billing_currency_symbol + response.user.balance + ' ' + requestParameters.settings.billing_currency_name + '</p>';
+				userData += '<p><strong>Current Balance</strong><br>' + response.user.balance + ' ' + requestParameters.settings.billing_currency + '</p>';
 				userData += '<div class="balance-message-container"></div>';
 				userData += '<p class="no-margin-bottom"><strong>Add to Account Balance</strong></p>';
 				userData += '<div class="clear"></div>';
-				userData += '<div class="align-left item-container no-margin-bottom"><div class="field-group no-margin"><span class="balance-currency-symbol">' + requestParameters.settings.billing_currency_symbol + '</span><input class="balance-amount billing-amount" id="balance-amount" max="10000" min="20" name="balance_amount" step="0.01" type="number" value="100.00"><span class="balance-currency-name">' + requestParameters.settings.billing_currency_name + '</span><a class="add add-to-balance button" disabled href="javascript:void(0);">Add</a></div></div>';
+				userData += '<div class="align-left item-container no-margin-bottom"><div class="field-group no-margin"><input class="balance-amount billing-amount" id="balance-amount" max="10000" min="20" name="balance_amount" step="0.01" type="number" value="100.00"><span class="balance-currency-name">' + requestParameters.settings.billing_currency + '</span><a class="add add-to-balance button" disabled href="javascript:void(0);">Add</a></div></div>';
 				userData += '<div class="clear"></div>';
 				userData += '<h2>Remove Account</h2>';
 

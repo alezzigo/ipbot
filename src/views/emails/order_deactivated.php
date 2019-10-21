@@ -7,7 +7,7 @@
 	$message .= '--' . "\n";
 	$message .= 'Order ID: #' . $templateParameters['order']['id'] . "\n";
 	$message .= 'Order Name: ' . $templateParameters['order']['quantity'] . ' ' . $templateParameters['order']['name'] . "\n";
-	$message .= 'Order Price: ' . $this->settings['billing']['currency_symbol'] . number_format($templateParameters['order']['price'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . "\n";
+	$message .= 'Order Price: ' . number_format($templateParameters['order']['price'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . "\n";
 	$message .= 'Order Interval: ' . $templateParameters['order']['interval_value'] . ' ' . $templateParameters['order']['interval_type'] . "\n";
 	$message .= 'Order URL: ' . ($domain = 'https://' . $this->settings['base_domain']) . '/orders/' . $templateParameters['order']['id'] . "\n";
 	$message .= "\n";

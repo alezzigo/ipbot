@@ -127,7 +127,7 @@ class UsersModel extends AppModel {
 				!empty($balanceData['count']) &&
 				is_numeric($parameters['data']['balance'])
 			) {
-				$response['message']['text'] = 'Balance amount must be <strong>less than ' . $this->settings['billing']['currency_symbol'] . number_format($balanceData['data'][0]['maximum_quantity'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . '</strong> and <strong>greater than ' . $this->settings['billing']['currency_symbol'] . number_format($balanceData['data'][0]['minimum_quantity'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . '</strong>, please try again.';
+				$response['message']['text'] = 'Balance amount must be <strong>less than ' . number_format($balanceData['data'][0]['maximum_quantity'], 2, '.', ',') . ' ' . $this->settings['billing']['currency'] . '</strong> and <strong>greater than ' . number_format($balanceData['data'][0]['minimum_quantity'], 2, '.', ',') . ' ' . $this->settings['billing']['currency'] . '</strong>, please try again.';
 
 				if (
 					$parameters['data']['balance'] > $balanceData['data'][0]['minimum_quantity'] &&

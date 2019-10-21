@@ -155,8 +155,7 @@ class InvoicesModel extends UsersModel {
 		}
 
 		$response['invoice']['amount_due'] = max(0, round(($response['invoice']['total'] - $response['invoice']['amount_paid']) * 100) / 100);
-		$response['invoice']['payment_currency_name'] = $this->settings['billing']['currency_name'];
-		$response['invoice']['payment_currency_symbol'] = $this->settings['billing']['currency_symbol'];
+		$response['invoice']['payment_currency'] = $this->settings['billing']['currency']; // TODO: save to invoice data
 
 		if ($pendingOrderChange) {
 			$response['invoice']['amount_due_pending'] = $response['invoice']['remainder_pending'];

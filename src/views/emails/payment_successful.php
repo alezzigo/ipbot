@@ -7,10 +7,10 @@
 	$message .= '--' . "\n";
 	$message .= 'Payment Transaction ID: #' . ($templateParameters['transaction']['payment_transaction_id'] ? $templateParameters['transaction']['payment_transaction_id'] : 'N/A') . "\n";
 	$message .= 'Payment Method: ' . ($templateParameters['transaction']['payment_method'] ? $templateParameters['transaction']['payment_method'] : 'N/A') . "\n";
-	$message .= 'Payment Amount: ' . $this->settings['billing']['currency_symbol'] . number_format($templateParameters['transaction']['payment_amount'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'];
+	$message .= 'Payment Amount: ' . number_format($templateParameters['transaction']['payment_amount'], 2, '.', ',') . ' ' . $this->settings['billing']['currency'];
 
 	if (!empty($templateParameters['transaction']['amount_applied_to_balance'])) {
-		$message .= ' (' . $this->settings['billing']['currency_symbol'] . number_format($templateParameters['transaction']['amount_applied_to_balance'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . ' applied to your account balance)';
+		$message .= ' (' . number_format($templateParameters['transaction']['amount_applied_to_balance'], 2, '.', ',') . ' ' . $this->settings['billing']['currency'] . ' applied to your account balance)';
 	}
 
 	$message .= "\n";
@@ -35,11 +35,11 @@
 	$message .= 'Invoice ID: #' . $templateParameters['invoice']['id'] . "\n";
 	$message .= 'Invoice URL: ' . ($domain = 'https://' . $this->settings['base_domain']) . '/invoices/' . $templateParameters['invoice']['id'] . "\n";
 	$message .= 'Invoice Status: ' . ucwords($templateParameters['invoice']['status']) . "\n";
-	$message .= 'Remaining Amount Due: ' . $this->settings['billing']['currency_symbol'] . number_format(is_numeric($templateParameters['invoice']['remainder_pending']) ? $templateParameters['invoice']['remainder_pending'] : $templateParameters['invoice']['amount_due'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . "\n";
-	$message .= 'Total Amount Paid to Invoice: ' . $this->settings['billing']['currency_symbol'] . number_format($templateParameters['invoice']['amount_paid'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'];
+	$message .= 'Remaining Amount Due: ' . number_format(is_numeric($templateParameters['invoice']['remainder_pending']) ? $templateParameters['invoice']['remainder_pending'] : $templateParameters['invoice']['amount_due'], 2, '.', ',') . ' ' . $this->settings['billing']['currency'] . "\n";
+	$message .= 'Total Amount Paid to Invoice: ' . number_format($templateParameters['invoice']['amount_paid'], 2, '.', ',') . ' ' . $this->settings['billing']['currency'];
 
 	if (!empty($templateParameters['invoice']['amount_applied_to_balance'])) {
-		$message .= ' (' . $this->settings['billing']['currency_symbol'] . number_format($templateParameters['invoice']['amount_applied_to_balance'], 2, '.', ',') . ' ' . $this->settings['billing']['currency_name'] . ' applied to account balance)';
+		$message .= ' (' . number_format($templateParameters['invoice']['amount_applied_to_balance'], 2, '.', ',') . ' ' . $this->settings['billing']['currency'] . ' applied to account balance)';
 	}
 
 	$message .= "\n";

@@ -365,8 +365,7 @@ class OrdersModel extends TransactionsModel {
 									'id' => true,
 									'initial_invoice_id' => true,
 									'modified' => true,
-									'payment_currency_name' => true,
-									'payment_currency_symbol' => true
+									'payment_currency' => true
 								))
 							);
 
@@ -412,11 +411,11 @@ class OrdersModel extends TransactionsModel {
 											if (!$pendingInvoices[$selectedOrder['invoice']['id']]['merged_invoice_id']) {
 												$pendingTransactions[] = array(
 													'customer_email' => $parameters['user']['email'],
-													'details' => '<a href="' . $this->settings['base_url'] . 'orders/' . $selectedOrder['order']['id'] . '">Order #' . $selectedOrder['order']['id'] . '</a> merged to <a href="' . $this->settings['base_url'] . 'invoices/' . $mergedInvoiceId . '">invoice #' . $mergedInvoiceId . '</a><br> ' . $selectedOrder['order']['quantity'] . ' ' . $selectedOrder['order']['name'] . '<br> ' . $this->settings['billing']['currency_symbol'] . $selectedOrder['order']['total'] . ' ' . $this->settings['billing']['currency_name'] . ' for ' . $selectedOrder['order']['interval_value'] . ' ' . $selectedOrder['order']['interval_type'] . ($selectedOrder['order']['interval_value'] !== 1 ? 's' : ''),
+													'details' => '<a href="' . $this->settings['base_url'] . 'orders/' . $selectedOrder['order']['id'] . '">Order #' . $selectedOrder['order']['id'] . '</a> merged to <a href="' . $this->settings['base_url'] . 'invoices/' . $mergedInvoiceId . '">invoice #' . $mergedInvoiceId . '</a><br> ' . $selectedOrder['order']['quantity'] . ' ' . $selectedOrder['order']['name'] . '<br> ' . $selectedOrder['order']['total'] . ' ' . $this->settings['billing']['currency'] . ' for ' . $selectedOrder['order']['interval_value'] . ' ' . $selectedOrder['order']['interval_type'] . ($selectedOrder['order']['interval_value'] !== 1 ? 's' : ''),
 													'id' => uniqid() . time(),
 													'invoice_id' => $selectedOrder['invoice']['id'],
 													'payment_amount' => null,
-													'payment_currency' => $this->settings['billing']['currency_name'],
+													'payment_currency' => $this->settings['billing']['currency'],
 													'payment_status' => 'completed',
 													'payment_status_message' => 'Order merged to new invoice.',
 													'transaction_charset' => $this->settings['database']['charset'],
@@ -508,7 +507,7 @@ class OrdersModel extends TransactionsModel {
 										'id' => uniqid() . time(),
 										'invoice_id' => $mergedInvoiceId,
 										'payment_amount' => 0,
-										'payment_currency' => $this->settings['billing']['currency_name'],
+										'payment_currency' => $this->settings['billing']['currency'],
 										'payment_status' => 'completed',
 										'payment_status_message' => 'Order ' . ($response['data']['upgrade_quantity'] ? 'upgrade' : 'merge') . ' successful.',
 										'payment_transaction_id' => uniqid() . time(),

@@ -31,7 +31,7 @@ class TransactionsModel extends InvoicesModel {
 			'id' => uniqid() . time(),
 			'invoice_id' => $parameters['data']['invoice']['id'],
 			'payment_amount' => $parameters['data']['billing_amount'],
-			'payment_currency' => $this->settings['billing']['currency_name'],
+			'payment_currency' => $this->settings['billing']['currency'],
 			'payment_method_id' => 'balance',
 			'payment_status' => 'completed',
 			'payment_status_message' => 'Payment successful.',
@@ -879,7 +879,7 @@ class TransactionsModel extends InvoicesModel {
 							'invoice_id' => $invoiceDeduction['id'],
 							'parent_transaction_id' => $parameters['parent_transaction_id'],
 							'payment_amount' => $invoiceDeduction['amount_deducted'],
-							'payment_currency' => $this->settings['billing']['currency_name'],
+							'payment_currency' => $this->settings['billing']['currency'],
 							'payment_method_id' => $parameters['payment_method_id'],
 							'payment_status' => 'completed',
 							'payment_status_message' => 'Payment refunded.',
@@ -1853,7 +1853,7 @@ class TransactionsModel extends InvoicesModel {
 						$parameters['data']['payment_method'] === 'balance' &&
 						$parameters['data']['billing_amount'] > $parameters['user']['balance']
 					) {
-						$response['message']['text'] = 'Payment amount from your account balance exceeds your account balance, please enter an amount less than or equal to ' . $this->settings['billing']['currency_symbol'] . $parameters['user']['balance'] . ' ' . $this->settings['billing']['currency_name'] . '.';
+						$response['message']['text'] = 'Payment amount from your account balance exceeds your account balance, please enter an amount less than or equal to ' . $parameters['user']['balance'] . ' ' . $this->settings['billing']['currency'] . '.';
 					} else {
 						$response['message']['text'] = 'Invalid invoice ID, please try again.';
 						$invoice = $this->invoice('invoices', array(
@@ -1867,7 +1867,7 @@ class TransactionsModel extends InvoicesModel {
 							$parameters['data']['payment_method'] === 'balance' &&
 							$parameters['data']['billing_amount'] > $amountDue
 						) {
-							$response['message']['text'] = 'Payment amount from your account balance exceeds the amount due' . ($amountDue ? ', please enter an amount less than or equal to ' . $this->settings['billing']['currency_symbol'] . $amountDue . ' ' . $this->settings['billing']['currency_name'] : '') . '.';
+							$response['message']['text'] = 'Payment amount from your account balance exceeds the amount due' . ($amountDue ? ', please enter an amount less than or equal to ' . $amountDue . ' ' . $this->settings['billing']['currency'] : '') . '.';
 						} else {
 							if (
 								!empty($invoice['data']) &&

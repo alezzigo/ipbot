@@ -464,8 +464,7 @@ class Config {
 				'company' => '',
 				'country_code' => 'US',
 				'country_name' => '',
-				'currency_name' => 'USD',
-				'currency_symbol' => '$',
+				'currency' => 'USD',
 				'merchant_ids' => array(
 					'credit_card' => '',
 					'paypal' => ''

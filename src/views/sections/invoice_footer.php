@@ -2,8 +2,7 @@
 	$settings = array(
 		'base_domain' => (!empty($config->settings['base_domain']) ? $config->settings['base_domain'] : ''),
 		'base_url' => (!empty($config->settings['base_url']) ? $config->settings['base_url'] : ''),
-		'billing_currency_name' => (!empty($config->settings['billing']['currency_name']) ? $config->settings['billing']['currency_name'] : ''),
-		'billing_currency_symbol' => (!empty($config->settings['billing']['currency_symbol']) ? $config->settings['billing']['currency_symbol'] : ''),
+		'billing_currency' => (!empty($config->settings['billing']['currency']) ? $config->settings['billing']['currency'] : ''),
 		'timezone' => (!empty($config->settings['timezone']) ? $config->settings['timezone'] : '')
 	);
 	echo '<div class="hidden settings">' . json_encode($settings) . '</div>';

@@ -76,9 +76,8 @@
 						</div>
 						<label for="billing-amount">Payment Amount</label>
 						<div class="field-group no-margin-top">
-							<span class="billing-currency-symbol"></span>
 							<input class="billing-amount" id="billing_amount" min="0.01" name="billing_amount" step="0.01" type="number">
-							<span class="billing-currency-name"></span>
+							<span class="billing-currency"></span>
 							<a class="billing-view-details" href="javascript:void(0);">View invoice details</a>
 						</div>
 						<div class="clear"></div>

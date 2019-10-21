@@ -854,13 +854,30 @@ class TransactionsModel extends InvoicesModel {
 				}
 
 				foreach ($invoiceDeductions as $key => $invoiceDeduction) {
-					$processedInvoiceIds[] = $invoiceDeduction['id'];
-
 					if (
 						!isset($invoiceDeduction['amount_deducted']) ||
 						$invoiceDeduction['amount_deducted'] >= 0
 					) {
 						unset($invoiceDeductions[$key]);
+					} else {
+						$transactionData[] = array(
+							'customer_email' => $parameters['user']['email'],
+							'id' => uniqid() . time(),
+							'invoice_id' => $invoiceDeduction['id'],
+							'parent_transaction_id' => $parameters['parent_transaction_id'],
+							'payment_amount' => $invoiceDeduction['amount_deducted'],
+							'payment_currency' => $this->settings['billing']['currency_name'],
+							'payment_method_id' => $parameters['payment_method_id'],
+							'payment_status' => 'completed',
+							'payment_status_message' => 'Payment refunded.',
+							'payment_transaction_id' => $parameters['payment_transaction_id'],
+							'plan_id' => $parameters['plan_id'],
+							'transaction_charset' => $this->settings['database']['charset'],
+							'transaction_date' => date('Y-m-d h:i:s', time()),
+							'transaction_method' => 'PaymentRefundProcessed',
+							'transaction_processed' => true,
+							'user_id' => $parameters['user']['id']
+						);
 					}
 
 					if ($invoiceDeduction['status'] === 'unpaid') {
@@ -869,9 +886,13 @@ class TransactionsModel extends InvoicesModel {
 				}
 
 				if (
-					$this->delete('invoice_items', array(
-						'invoice_id' => $unpaidInvoiceIds
-					))
+					(
+						empty($unpaidInvoiceIds) ||
+						$this->delete('invoice_items', array(
+							'invoice_id' => $unpaidInvoiceIds
+						))
+					) &&
+					$this->save('transactions', $transactionData)
 					// ..
 				) {
 					// ..

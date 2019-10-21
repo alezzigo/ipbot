@@ -772,7 +772,7 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionPaymentRefunded($parameters) {
-		$invoices = $invoiceDeductions = $processedInvoiceIds = $transactionData = $userData = array();
+		$invoices = $invoiceDeductions = $processedInvoiceIds = $transactionData = $unpaidInvoiceIds = $userData = array();
 
 		if (
 			!empty($parameters['invoice_id']) &&
@@ -860,10 +860,19 @@ class TransactionsModel extends InvoicesModel {
 						unset($invoiceDeductions[$key]);
 					}
 
-					// ..
+					if ($invoiceDeduction['status'] === 'unpaid') {
+						$unpaidInvoiceIds[] = $invoiceDeduction['id'];
+					}
 				}
 
-				// ..
+				if (
+					$this->delete('invoice_items', array(
+						'invoice_id' => $unpaidInvoiceIds
+					))
+					// ..
+				) {
+					// ..
+				}
 			}
 		}
 

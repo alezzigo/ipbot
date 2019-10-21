@@ -774,7 +774,7 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionPaymentRefunded($parameters) {
-		$invoices = $invoiceDeductions = $processedInvoiceIds = $transactionData = $unpaidInvoiceIds = $userData = array();
+		$invoices = $invoiceData = $invoiceDeductions = $processedInvoiceIds = $transactionData = $unpaidInvoiceIds = $userData = array();
 
 		if (
 			!empty($parameters['invoice_id']) &&
@@ -847,8 +847,6 @@ class TransactionsModel extends InvoicesModel {
 										$invoiceDeductions = $this->_calculateDeductionsFromInvoice($invoice['data']['invoice'], max(min(($balanceTransaction['payment_amount'] * -1), $amountToRefundExceedingBalance), $amountToRefundExceedingBalance), $invoiceDeductions);
 										$amountToRefundExceedingBalance = min(0, $invoiceDeductions['remainder']);
 									}
-
-									// ..
 								}
 							}
 						}
@@ -862,6 +860,19 @@ class TransactionsModel extends InvoicesModel {
 					) {
 						unset($invoiceDeductions[$key]);
 					} else {
+						if (!empty($invoiceDeduction['id'])) {
+							$invoiceDeductionData = array(
+								'amount_paid' => round(($invoiceDeduction['amount_paid'] + $invoiceDeduction['amount_deducted']) * 100) / 100,
+								'id' => $invoiceDeduction['id']
+							);
+
+							if (!empty($invoiceDeduction['status'])) {
+								$invoiceDeductionData['status'] = $invoiceDeduction['status'];
+							}
+
+							$invoiceData[] = $invoiceDeductionData;
+						}
+
 						$transactionData[] = array(
 							'customer_email' => $parameters['user']['email'],
 							'id' => uniqid() . time(),
@@ -894,6 +905,7 @@ class TransactionsModel extends InvoicesModel {
 							'invoice_id' => $unpaidInvoiceIds
 						))
 					) &&
+					$this->save('invoces', $invoiceData) &&
 					$this->save('transactions', $transactionData) &&
 					$this->save('users', $userData)
 					// ..

@@ -24,12 +24,16 @@ class InvoicesModel extends UsersModel {
 	protected function _calculateDeductionsFromInvoice($invoiceData, $amount, $invoiceDeductions = array()) {
 		if (!empty($invoiceData)) {
 			$remainder = min(0, round(($invoiceData['amount_paid'] + $amount) * 100) / 100);
+
+			if (!empty($invoiceDeductions[$invoiceData['id']])) {
+				$remainder = min(0, round(($invoiceData['amount_paid'] + $invoiceDeductions[$invoiceData['id']]['amount_deducted'] + $amount) * 100) / 100);
+			}
+
 			$amountDeducted = max(($invoiceData['amount_paid'] * -1), round(($amount - $remainder) * 100) / 100);
 			$invoiceDeduction = array(
 				'amount_paid' => $invoiceData['amount_paid'],
 				'amount_deducted' => $amountDeducted,
-				'id' => $invoiceData['id'],
-				'remainder' => $remainder
+				'id' => $invoiceData['id']
 			);
 
 			if (
@@ -39,7 +43,8 @@ class InvoicesModel extends UsersModel {
 				$invoiceDeduction['status'] = 'unpaid';
 			}
 
-			$invoiceDeductions[] = $invoiceDeduction;
+			$invoiceDeductions[$invoiceData['id']] = $invoiceDeduction;
+			$invoiceDeductions['remainder'] = $remainder;
 
 			if ($remainder < 0) {
 				$additionalInvoice = $this->find('invoices', array(
@@ -66,7 +71,7 @@ class InvoicesModel extends UsersModel {
 				));
 
 				if (!empty($additionalInvoice['count'])) {
-					$invoiceDeductions = $this->_calculateDeductionsFromInvoice($additionalInvoice['data'][0], $remainder, $invoiceDeductions);
+					$invoiceDeductions = $this->_calculateDeductionsFromInvoice($additionalInvoice['data'][0], $invoiceDeductions['remainder'], $invoiceDeductions);
 				}
 			}
 		}

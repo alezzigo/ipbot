@@ -785,19 +785,18 @@ class TransactionsModel extends InvoicesModel {
 			));
 
 			if (!empty($invoice['data'])) {
-				$invoiceDeductions = array_merge($invoiceDeductions, $this->_calculateDeductionsFromInvoice($invoice['data']['invoice'], $parameters['payment_amount']));
-				$mostRecentInvoiceDeduction = end($invoiceDeductions);
-				$amountToDeductFromBalance = min(0, $mostRecentInvoiceDeduction['remainder']);
+				$invoiceDeductions = $this->_calculateDeductionsFromInvoice($invoice['data']['invoice'], $parameters['payment_amount']);
+				$amountToDeductFromBalance = min(0, $invoiceDeductions['remainder']);
 
 				foreach ($invoiceDeductions as $key => $invoiceDeduction) {
 					$processedInvoiceIds[] = $invoiceDeduction['id'];
 				}
 
 				if ($amountToDeductFromBalance < 0) {
-					$invoiceDeductions[] = array(
+					$invoiceDeductions['balance'] = array(
 						'amount_deducted' => ($amountDeductedFromBalance = round(max(($parameters['user']['balance'] * -1), $amountToDeductFromBalance) * 100) / 100),
-						'remainder' => $amountToDeductFromBalance - $amountDeductedFromBalance
 					);
+					$invoiceDeductions['remainder'] = $amountToDeductFromBalance - $amountDeductedFromBalance;
 					$userData = array(
 						'id' => $parameters['user']['id'],
 						'balance' => max(0, $amountToRefundExceedingBalance = round(($parameters['user']['balance'] + $amountToDeductFromBalance) * 100) / 100)
@@ -840,9 +839,8 @@ class TransactionsModel extends InvoicesModel {
 										!empty($invoice['data']) &&
 										$amountToRefundExceedingBalance < 0
 									) {
-										$invoiceDeductions = array_merge($invoiceDeductions, $this->_calculateDeductionsFromInvoice($invoice['data']['invoice'], max(min(($balanceTransaction['payment_amount'] * -1), $amountToRefundExceedingBalance), $amountToRefundExceedingBalance)));
-										$mostRecentInvoiceDeduction = end($invoiceDeductions);
-										$amountToRefundExceedingBalance = min(0, $mostRecentInvoiceDeduction['remainder']);
+										$invoiceDeductions = $this->_calculateDeductionsFromInvoice($invoice['data']['invoice'], max(min(($balanceTransaction['payment_amount'] * -1), $amountToRefundExceedingBalance), $amountToRefundExceedingBalance), $invoiceDeductions);
+										$amountToRefundExceedingBalance = min(0, $invoiceDeductions['remainder']);
 									}
 
 									// ..
@@ -855,9 +853,14 @@ class TransactionsModel extends InvoicesModel {
 				foreach ($invoiceDeductions as $key => $invoiceDeduction) {
 					$processedInvoiceIds[] = $invoiceDeduction['id'];
 
-					if ($invoiceDeduction['amount_deducted'] >= 0) {
+					if (
+						!isset($invoiceDeduction['amount_deducted']) ||
+						$invoiceDeduction['amount_deducted'] >= 0
+					) {
 						unset($invoiceDeductions[$key]);
 					}
+
+					// ..
 				}
 
 				// ..

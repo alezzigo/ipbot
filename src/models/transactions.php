@@ -800,8 +800,10 @@ class TransactionsModel extends InvoicesModel {
 					);
 					$invoiceDeductions['remainder'] = $amountToDeductFromBalance - $amountDeductedFromBalance;
 					$userData = array(
-						'id' => $parameters['user']['id'],
-						'balance' => max(0, $amountToRefundExceedingBalance = round(($parameters['user']['balance'] + $amountToDeductFromBalance) * 100) / 100)
+						array(
+							'id' => $parameters['user']['id'],
+							'balance' => max(0, $amountToRefundExceedingBalance = round(($parameters['user']['balance'] + $amountToDeductFromBalance) * 100) / 100)
+						)
 					);
 
 					if ($amountToRefundExceedingBalance < 0) {
@@ -892,7 +894,8 @@ class TransactionsModel extends InvoicesModel {
 							'invoice_id' => $unpaidInvoiceIds
 						))
 					) &&
-					$this->save('transactions', $transactionData)
+					$this->save('transactions', $transactionData) &&
+					$this->save('users', $userData)
 					// ..
 				) {
 					// ..

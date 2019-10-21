@@ -908,7 +908,7 @@ class TransactionsModel extends InvoicesModel {
 							'invoice_id' => $unpaidInvoiceIds
 						))
 					) &&
-					$this->save('invoces', $invoiceData) &&
+					$this->save('invoices', $invoiceData) &&
 					$this->save('transactions', $transactionData) &&
 					$this->save('users', $userData)
 				) {

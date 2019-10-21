@@ -632,6 +632,7 @@ class TransactionsModel extends InvoicesModel {
 
 								$invoiceData[] = array(
 									'cart_items' => $invoice['data']['invoice']['cart_items'],
+									'currency' => $invoice['data']['invoice']['currency'],
 									'due' => date('Y-m-d h:i:s', strtotime($invoice['data']['invoice']['due'] . ' +' . $intervalValue . ' ' . $intervalType)),
 									'initial_invoice_id' => !empty($invoice['data']['invoice']['initial_invoice_id']) ? $invoice['data']['invoice']['initial_invoice_id'] : $invoice['data']['invoice']['id'],
 									'session_id' => $invoice['data']['invoice']['session_id'],

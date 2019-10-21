@@ -45,6 +45,7 @@ class OrdersModel extends TransactionsModel {
 					'amount_paid',
 					'cart_items',
 					'created',
+					'currency',
 					'due',
 					'id',
 					'initial_invoice_id',
@@ -354,7 +355,8 @@ class OrdersModel extends TransactionsModel {
 							);
 							$mergedData['invoice'] = array_merge($mergedData['invoice'], array(
 								'cart_items' => sha1(uniqid() . $mergedData['invoice']['cart_items']),
-								'payable' => true
+								'payable' => true,
+								'currency' => $this->settings['billing']['currency'] // TODO: Calculate payment amounts from pendingInvoices to match config currency
 							));
 							$mergedInvoiceData = array(
 								array_diff_key($mergedData['invoice'], array(
@@ -364,8 +366,7 @@ class OrdersModel extends TransactionsModel {
 									'due' => true,
 									'id' => true,
 									'initial_invoice_id' => true,
-									'modified' => true,
-									'payment_currency' => true
+									'modified' => true
 								))
 							);
 

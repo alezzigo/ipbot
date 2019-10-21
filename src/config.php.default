@@ -34,6 +34,7 @@ class Config {
 				'user_id'
 			),
 			'invoices' => array(
+				'currency',
 				'due',
 				'id',
 				'remainder_pending',

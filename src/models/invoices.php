@@ -829,7 +829,7 @@ class InvoicesModel extends UsersModel {
 	}
 
 /**
- * Cancel pending invoice requests
+ * Cancel pending invoice order requests
  *
  * @param string $table
  * @param array $parameters
@@ -837,8 +837,31 @@ class InvoicesModel extends UsersModel {
  * @return array $response
  */
 	public function cancel($table, $parameters) {
-		$response = array();
-		// ..
+		$response = array(
+			'data' => array(),
+			'message' => array(
+				'status' => 'error',
+				'text' => ($defaultMessage = 'Error processing your pending invoice order cancellation request, please try again.')
+			)
+		);
+
+		$invoiceOrders = array();
+
+		if (!empty($parameters['conditions'])) {
+			$invoice = $this->invoice('invoices', array(
+				'conditions' => $parameters['conditions']
+			));
+
+			if (!empty($invoice['data']['orders'])) {
+				foreach ($invoice['data']['orders'] as $order) {
+					$invoiceOrders[$order['id']] = $order;
+				}
+
+				$invoice['data']['orders'] = $invoiceOrders;
+				// ..
+			}
+		}
+
 		return $response;
 	}
 

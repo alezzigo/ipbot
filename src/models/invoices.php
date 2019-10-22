@@ -668,7 +668,6 @@ class InvoicesModel extends UsersModel {
 				'fields' => array(
 					'created',
 					'currency',
-					'deactivate_after_refund',
 					'id',
 					'interval_type',
 					'interval_type_pending',
@@ -677,6 +676,7 @@ class InvoicesModel extends UsersModel {
 					'modified',
 					'name',
 					'price',
+					'price_active',
 					'price_pending',
 					'product_id',
 					'quantity',

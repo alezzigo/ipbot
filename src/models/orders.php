@@ -136,6 +136,7 @@ class OrdersModel extends TransactionsModel {
 					'interval_value_pending',
 					'name',
 					'price',
+					'price_active',
 					'price_pending',
 					'product_id',
 					'quantity',
@@ -206,6 +207,10 @@ class OrdersModel extends TransactionsModel {
 						$amountPaid = min($selectedOrders[$key]['order']['total'], $pendingInvoices[$invoiceId]['amount_paid']);
 						$mergedData['invoice']['amount_paid'] += $amountPaid;
 						$pendingInvoices[$invoiceId]['amount_paid'] = max(0, round(($pendingInvoices[$invoiceId]['amount_paid'] - $amountPaid) * 100) / 100);
+					}
+
+					if ($selectedOrder['order']['id'] != $mergedData['invoice']['id']) {
+						$mergedData['order']['price_active'] += $selectedOrder['order']['price_active'];
 					}
 
 					$mergedData['order']['quantity'] += (!empty($selectedOrder['order']['quantity_pending']) ? $selectedOrder['order']['quantity_pending'] : $selectedOrder['order']['quantity']);

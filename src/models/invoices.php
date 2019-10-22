@@ -829,6 +829,20 @@ class InvoicesModel extends UsersModel {
 	}
 
 /**
+ * Cancel pending invoice requests
+ *
+ * @param string $table
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	public function cancel($table, $parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
  * Process invoice requests
  *
  * @param string $table

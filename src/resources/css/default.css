@@ -551,6 +551,12 @@ main {
 		border: 1px solid #dddbf4;
 		padding: 15px !important;
 	}
+		.item-container.item-button .cancel-pending {
+			display: inline-block;
+			font-size: 13px;
+			position: relative;
+			z-index: 2;
+		}
 		.item-container.item-button .item .checkbox-container {
 			height: 50px;
 			left: 0;

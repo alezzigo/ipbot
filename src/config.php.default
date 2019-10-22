@@ -122,6 +122,10 @@ class Config {
 				)
 			),
 			'invoices' => array(
+				'cancel' => array(
+					'fields' => array_merge($defaultFields['invoices']),
+					'group' => 'user'
+				),
 				'find' => array(
 					'fields' => array_merge($defaultFields['invoices'], array(
 						'created',

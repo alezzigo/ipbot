@@ -918,13 +918,6 @@ class TransactionsModel extends InvoicesModel {
 									$pendingInvoiceOrders[$invoiceOrder['id']]['quantity_active'] = 0;
 									$pendingInvoiceOrders[$invoiceOrder['id']]['status'] = 'pending';
 								}
-
-								$pendingInvoiceOrders[$invoiceOrder['id']] = array_intersect_key($pendingInvoiceOrders[$invoiceOrder['id']], array(
-									'id' => true,
-									'price_active' => true,
-									'quantity_active' => true,
-									'status' => true
-								));
 							}
 						}
 					}
@@ -960,7 +953,53 @@ class TransactionsModel extends InvoicesModel {
 					$this->_sendMail($mailParameters);
 
 					foreach ($pendingInvoiceOrders as $pendingInvoiceOrder) {
-						// ..
+						if ($pendingInvoiceOrder['quantity_active'] === 0) {
+							$proxyParameters = array(
+								'conditions' => array(
+									'order_id' => $pendingInvoiceOrder['id']
+								),
+								'fields' => array(
+									'node_id'
+								)
+							);
+							$nodeIds = $this->find('proxies', $proxyParameters);
+							$proxyParameters['fields'] = array(
+								'id'
+							);
+							$proxyIds = $this->find('proxies', $proxyParameters);
+
+							if (
+								!empty($nodeIds['count']) &&
+								!empty($proxyIds['count'])
+							) {
+								foreach ($nodeIds['data'] as $nodeId) {
+									$nodeData[$nodeId] = array(
+										'allocated' => false,
+										'id' => $nodeId,
+										'processing' => false
+									);
+								}
+
+								$this->save('nodes', array_values($nodeData));
+								$this->delete('proxies', array(
+									'id' => $proxyIds['data']
+								));
+							}
+
+							$mailParameters = array(
+								'from' => $this->settings['from_email'],
+								'subject' => 'Order #' . $pendingInvoiceOrder['id'] . ' is deactivated',
+								'template' => array(
+									'name' => 'order_deactivated',
+									'parameters' => array(
+										'order' => $pendingInvoiceOrder,
+										'user' => $parameters['user']
+									)
+								),
+								'to' => $parameters['user']['email']
+							);
+							$this->_sendMail($mailParameters);
+						}
 					}
 				}
 			}

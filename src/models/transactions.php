@@ -778,7 +778,7 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionPaymentRefunded($parameters) {
-		$invoices = $invoiceData = $invoiceDeductions = $processedInvoiceIds = $transactionData = $unpaidInvoiceIds = $userData = array();
+		$invoices = $invoiceData = $invoiceDeductions = $processedInvoiceIds = $pendingInvoiceOrders = $transactionData = $unpaidInvoiceIds = $userData = array();
 
 		if (
 			!empty($parameters['invoice_id']) &&
@@ -899,6 +899,34 @@ class TransactionsModel extends InvoicesModel {
 
 					if ($invoiceDeduction['status'] === 'unpaid') {
 						$unpaidInvoiceIds[] = $invoiceDeduction['id'];
+						$invoiceOrders = $this->_retrieveInvoiceOrders($invoiceDeduction);
+
+						foreach ($invoiceOrders as $invoiceOrder) {
+							if (empty($pendingInvoiceOrders[$invoiceOrder['id']])) {
+								$pendingInvoiceOrders[$invoiceOrder['id']] = $invoiceOrder;
+							}
+
+							if ($invoiceDeduction['amount_deducted'] < 0) {
+								$priceActive = $pendingInvoiceOrders[$invoiceOrder['id']]['price_active'];
+								$pendingInvoiceOrders[$invoiceOrder['id']]['price_active'] = max(0, round(($pendingInvoiceOrders[$invoiceOrder['id']]['price_active'] + $invoiceDeduction['amount_deducted']) * 100) / 100);
+								$invoiceDeduction['amount_deducted'] = min(0, $invoiceDeduction['amount_deducted'] + $priceActive);
+
+								if (
+									$pendingInvoiceOrders[$invoiceOrder['id']]['price_active'] === 0 &&
+									$pendingInvoiceOrders[$invoiceOrder['id']]['status'] == 'active'
+								) {
+									$pendingInvoiceOrders[$invoiceOrder['id']]['quantity_active'] = 0;
+									$pendingInvoiceOrders[$invoiceOrder['id']]['status'] = 'pending';
+								}
+
+								$pendingInvoiceOrders[$invoiceOrder['id']] = array_intersect_key($pendingInvoiceOrders[$invoiceOrder['id']], array(
+									'id' => true,
+									'price_active' => true,
+									'quantity_active' => true,
+									'status' => true
+								));
+							}
+						}
 					}
 				}
 
@@ -910,6 +938,7 @@ class TransactionsModel extends InvoicesModel {
 						))
 					) &&
 					$this->save('invoices', $invoiceData) &&
+					$this->save('orders', array_values($pendingInvoiceOrders)) &&
 					$this->save('transactions', $transactionData) &&
 					$this->save('users', $userData)
 				) {
@@ -929,7 +958,10 @@ class TransactionsModel extends InvoicesModel {
 						'to' => $parameters['user']['email']
 					);
 					$this->_sendMail($mailParameters);
-					// ..
+
+					foreach ($pendingInvoiceOrders as $pendingInvoiceOrder) {
+						// ..
+					}
 				}
 			}
 		}

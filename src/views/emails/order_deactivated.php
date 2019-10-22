@@ -11,17 +11,11 @@
 	$message .= 'Order Interval: ' . $templateParameters['order']['interval_value'] . ' ' . $templateParameters['order']['interval_type'] . "\n";
 	$message .= 'Order URL: ' . ($domain = 'https://' . $this->settings['base_domain']) . '/orders/' . $templateParameters['order']['id'] . "\n";
 	$message .= "\n";
-	$message .= 'Invoice Details' . "\n";
-	$message .= '--' . "\n";
-	$message .= 'Invoice ID: #' . $templateParameters['invoice']['id'] . "\n";
-	$message .= 'Invoice URL: ' . $domain . '/invoices/' . $templateParameters['invoice']['id'] . "\n";
-	$message .= 'Invoice Status: ' . ucwords($templateParameters['invoice']['status']) . "\n";
-	$message .= "\n";
 	$message .= 'User Details' . "\n";
 	$message .= '--' . "\n";
 	$message .= 'User Email: ' . $templateParameters['user']['email'] . "\n";
 	$message .= "\n";
-	$message .= 'If you\'d like to reactivate order #' . $templateParameters['order']['id'] . ', please pay the remaining amount due at ' . $domain . '/invoices/' . $templateParameters['invoice']['id'] . ' or reply to this email immediately.' . "\n";
+	$message .= 'If you\'d like to reactivate order #' . $templateParameters['order']['id'] . ', please pay the overdue invoices at ' . $domain . '/invoices or reply to this email for assistance.' . "\n";
 	$message .= "\n";
 	$message .= '--' . "\n";
 	$message .= $this->settings['site_name'] . "\n";

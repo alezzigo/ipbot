@@ -13,15 +13,15 @@ require_once($config->settings['base_path'] . '/models/transactions.php');
 class OrdersModel extends TransactionsModel {
 
 /**
- * Retrieve latest order invoice data
+ * Retrieve most recent order invoice data
  *
  * @param array $orderData
  *
  * @return array $response
  */
-	protected function _retrieveLatestOrderInvoice($orderData) {
+	protected function _retrieveMostRecentOrderInvoice($orderData) {
 		$response = array();
-		$latestOrderInvoice = $this->find('invoice_orders', array(
+		$mostRecentOrderInvoice = $this->find('invoice_orders', array(
 			'conditions' => array(
 				'order_id' => $orderData['id']
 			),
@@ -31,8 +31,8 @@ class OrdersModel extends TransactionsModel {
 			'limit' => 1
 		));
 
-		if (!empty($latestOrderInvoice['count'])) {
-			$invoiceIds = $this->_retrieveInvoiceIds($latestOrderInvoice['data']);
+		if (!empty($mostRecentOrderInvoice['count'])) {
+			$invoiceIds = $this->_retrieveInvoiceIds($mostRecentOrderInvoice['data']);
 			$invoice = $this->find('invoices', array(
 				'conditions' => array(
 					'OR' => array(
@@ -168,7 +168,7 @@ class OrdersModel extends TransactionsModel {
 					$productIds[$order['product_id']] = $order['product_id'];
 					$sortInterval = array_search($intervalType, $sortIntervals) . '__';
 					$groupedOrders[$sortInterval . $intervalKey][] = $selectedOrders[] = array(
-						'invoice' => $this->_retrieveLatestOrderInvoice($order),
+						'invoice' => $this->_retrieveMostRecentOrderInvoice($order),
 						'order' => $order
 					);
 				}

@@ -872,7 +872,22 @@ class InvoicesModel extends UsersModel {
 					);
 
 					if ($this->save('orders', $orderData)) {
+						$invoiceData = array(
+							array(
+								'id' => $invoice['data']['invoice']['id'],
+								'remainder_pending' => max(0, round(($invoice['data']['invoice']['remainder_pending'] - max(0, (round(($invoice['data']['invoice']['total_pending'] - $invoice['data']['invoice']['total']) * 100) / 100))) * 100) / 100)
+							)
+						);
+
+						if ($invoiceData[0]['remainder_pending'] === 0) {
+							$invoiceData[0]['remainder_pending'] = null;
+						}
+
 						// ..
+
+						if ($this->save('invoices', $invoiceData)) {
+							// ..
+						}
 					}
 				}
 			}

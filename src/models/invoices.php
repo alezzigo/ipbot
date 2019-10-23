@@ -888,6 +888,7 @@ class InvoicesModel extends UsersModel {
 							'customer_email' => $parameters['user']['email'],
 							'details' => '<a href="' . $this->settings['base_url'] . 'orders/' . $selectedOrder['order']['id'] . '">Order #' . $order['id'] . '</a> upgrade cancelled.<br>' . $order['quantity_pending'] . ' ' . $order['name'] . ' reverted to ' . $order['quantity'] . ' ' . $order['name'] . '<br>' . $order['price_pending'] . ' for ' . $order['interval_value_pending'] . ' ' . $order['interval_type_pending'] . ($order['interval_value_pending'] !== 1 ? 's' : '') . ' reverted to ' . $order['price'] . ' for ' . $order['interval_value'] . ' ' . $order['interval_type'] . ($order['interval_value'] !== 1 ? 's' : ''),
 							'id' => uniqid() . time(),
+							'initial_invoice_id' => $invoice['data']['invoice']['id'],
 							'invoice_id' => $invoice['data']['invoice']['id'],
 							'payment_amount' => null,
 							'payment_currency' => $this->settings['billing']['currency'],

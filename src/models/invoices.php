@@ -763,6 +763,7 @@ class InvoicesModel extends UsersModel {
 				'customer_status',
 				'details',
 				'id',
+				'initial_invoice_id',
 				'interval_type',
 				'interval_value',
 				'invoice_id',

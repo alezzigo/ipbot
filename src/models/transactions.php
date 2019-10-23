@@ -232,6 +232,7 @@ class TransactionsModel extends InvoicesModel {
 				'customer_last_name',
 				'customer_status',
 				'id',
+				'initial_invoice_id',
 				'interval_type',
 				'interval_value',
 				'invoice_id',

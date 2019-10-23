@@ -209,7 +209,7 @@ class OrdersModel extends TransactionsModel {
 						$pendingInvoices[$invoiceId]['amount_paid'] = max(0, round(($pendingInvoices[$invoiceId]['amount_paid'] - $amountPaid) * 100) / 100);
 					}
 
-					if ($selectedOrder['order']['id'] != $mergedData['invoice']['id']) {
+					if ($selectedOrder['order']['id'] != $mergedData['order']['id']) {
 						$mergedData['order']['price_active'] += $selectedOrder['order']['price_active'];
 					}
 

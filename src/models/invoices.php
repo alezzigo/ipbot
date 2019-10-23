@@ -846,7 +846,7 @@ class InvoicesModel extends UsersModel {
 			)
 		);
 
-		$invoiceOrders = array();
+		$invoiceOrders = $pendingTransactions = array();
 
 		if (!empty($parameters['conditions'])) {
 			$invoice = $this->invoice('invoices', array(
@@ -860,7 +860,7 @@ class InvoicesModel extends UsersModel {
 
 				$invoice['data']['orders'] = $invoiceOrders;
 
-				if (!empty($orderData = $invoice['data']['orders'][$order['id']])) {
+				if (!empty($order = $orderData = $invoice['data']['orders'][$order['id']])) {
 					$orderData = array(
 						array_merge($orderData, array(
 							'interval_type_pending' => null,
@@ -873,20 +873,37 @@ class InvoicesModel extends UsersModel {
 					);
 
 					if ($this->save('orders', $orderData)) {
-						$invoiceData = array(
+						$pendingInvoices = array(
 							array(
 								'id' => $invoice['data']['invoice']['id'],
 								'remainder_pending' => max(0, round(($invoice['data']['invoice']['remainder_pending'] - max(0, (round(($invoice['data']['invoice']['total_pending'] - $invoice['data']['invoice']['total']) * 100) / 100))) * 100) / 100)
 							)
 						);
 
-						if ($invoiceData[0]['remainder_pending'] === 0) {
-							$invoiceData[0]['remainder_pending'] = null;
+						if ($pendingInvoices[0]['remainder_pending'] === 0) {
+							$pendingInvoices[0]['remainder_pending'] = null;
 						}
 
-						// ..
+						$pendingTransactions[] = array(
+							'customer_email' => $parameters['user']['email'],
+							'details' => '<a href="' . $this->settings['base_url'] . 'orders/' . $selectedOrder['order']['id'] . '">Order #' . $order['id'] . '</a> upgrade cancelled.<br>' . $order['quantity_pending'] . ' ' . $order['name'] . ' reverted to ' . $order['quantity'] . ' ' . $order['name'] . '<br>' . $order['price_pending'] . ' for ' . $order['interval_value_pending'] . ' ' . $order['interval_type_pending'] . ($order['interval_value_pending'] !== 1 ? 's' : '') . ' reverted to ' . $order['price'] . ' for ' . $order['interval_value'] . ' ' . $order['interval_type'] . ($order['interval_value'] !== 1 ? 's' : ''),
+							'id' => uniqid() . time(),
+							'invoice_id' => $invoice['data']['invoice']['id'],
+							'payment_amount' => null,
+							'payment_currency' => $this->settings['billing']['currency'],
+							'payment_status' => 'completed',
+							'payment_status_message' => 'Order upgrade request cancelled.',
+							'transaction_charset' => $this->settings['database']['charset'],
+							'transaction_date' => date('Y-m-d h:i:s', time()),
+							'transaction_method' => 'Miscellaneous',
+							'transaction_processed' => true,
+							'user_id' => $parameters['user']['id']
+						);
 
-						if ($this->save('invoices', $invoiceData)) {
+						if (
+							$this->save('invoices', $pendingInvoices) &&
+							$this->save('transactions', $pendingTransactions)
+						) {
 							// ..
 						}
 					}

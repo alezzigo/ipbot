@@ -858,7 +858,23 @@ class InvoicesModel extends UsersModel {
 				}
 
 				$invoice['data']['orders'] = $invoiceOrders;
-				// ..
+
+				if (!empty($orderData = $invoice['data']['orders'][$order['id']])) {
+					$orderData = array(
+						array_merge($orderData, array(
+							'interval_type_pending' => null,
+							'interval_value_pending' => null,
+							'price_pending' => null,
+							'quantity_pending' => null,
+							'shipping_pending' => null,
+							'tax_pending' => null
+						))
+					);
+
+					if ($this->save('orders', $orderData)) {
+						// ..
+					}
+				}
 			}
 		}
 

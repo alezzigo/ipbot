@@ -29,6 +29,7 @@ class TransactionsModel extends InvoicesModel {
 		$transaction = array(
 			'customer_email' => $parameters['user']['email'],
 			'id' => uniqid() . time(),
+			'initial_invoice_id' => $parameters['data']['invoice']['id'],
 			'invoice_id' => $parameters['data']['invoice']['id'],
 			'payment_amount' => $parameters['data']['billing_amount'],
 			'payment_currency' => $this->settings['billing']['currency'],

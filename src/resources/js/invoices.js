@@ -111,7 +111,7 @@ var processInvoice = function() {
 			}
 
 			invoiceData += '<h2>Invoice Transactions</h2>';
-			invoiceData += '<div class="invoice-section-container transactions"><label class="label">Invoice Created</label><div class="transaction"><p><strong>' + response.data.invoice.created + '</strong></p></div>';
+			invoiceData += '<div class="invoice-section-container transactions"><label class="label">Invoice created.</label><div class="transaction"><p><strong>' + response.data.invoice.created + '</strong></p></div>';
 
 			if (response.data.transactions.length) {
 				response.data.transactions.map(function(transaction) {

@@ -41,7 +41,7 @@ var processInvoice = function() {
 				response.data.invoice.total = response.data.invoice.total_pending;
 			}
 
-			billingAmountField.value = amountDue.toLocaleString(false, {minimumFractionDigits: 2});
+			billingAmountField.value = amountDue.toLocaleString(false, {minimumFractionDigits: 2}).replace(',', '');
 			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label> Invoice #' + response.data.invoice.id;
 			document.querySelector('.billing-currency').innerHTML = response.data.invoice.currency;
 			document.querySelector('.billing-view-details').addEventListener('click', function(element) {
@@ -156,11 +156,11 @@ var processInvoice = function() {
 						hasBalance &&
 						paymentMethod == 'balance'
 					) {
-						billingAmountField.value = Math.min(amountDue, response.user.balance).toLocaleString(false, {minimumFractionDigits: 2});
+						billingAmountField.value = Math.min(amountDue, response.user.balance).toLocaleString(false, {minimumFractionDigits: 2}).replace(',', '');
 						elements.addClass('.recurring-checkbox-container', 'hidden');
 						elements.addClass('.recurring-message', 'hidden');
 					} else {
-						billingAmountField.value = amountDue.toLocaleString(false, {minimumFractionDigits: 2});
+						billingAmountField.value = amountDue.toLocaleString(false, {minimumFractionDigits: 2}).replace(',', '');
 						elements.removeClass('.recurring-checkbox-container', 'hidden');
 						elements.removeClass('.recurring-message', 'hidden');
 					}

@@ -895,7 +895,7 @@ main {
 }
 .transactions .label {
 	display: block;
-	margin-bottom: 0;
+	margin-bottom: 2px;
 	margin-right: 0;
 	padding-top: 1px;
 }

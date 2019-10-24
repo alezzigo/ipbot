@@ -435,142 +435,166 @@ class OrdersModel extends TransactionsModel {
 										}
 									}
 
+									$action = ($response['data']['upgrade_quantity'] ? 'upgrade' : 'merge');
+									$mergeDetails = ' order <a href="' . $this->settings['base_url'] . 'orders/' . $mergedData['order']['id'] . '">#' . $mergedData['order']['id'] . '</a>.<br>' . $mergedData['order']['quantity'] . ' ' . $mergedData['order']['name'] . '<br>' . $mergedData['order']['price'] . ' ' . $mergedData['order']['currency'] . ' for ' . $mergedData['order']['interval_value'] . ' ' . $mergedData['order']['interval_type'] . ($mergedData['order']['interval_value'] !== 1 ? 's' : '');
+									$pendingOrderMergeDetails = 'order' . (count($pendingOrders) !== 1 ? 's' : '') . ' ';
+									$upgradeDetails = ' order <a href="' . $this->settings['base_url'] . 'orders/' . $mergedData['order']['id'] . '">#' . $mergedData['order']['id'] . '</a>.<br>' . $mergedData['order']['quantity'] . ' ' . $mergedData['order']['name'] . ' to ' . $mergedData['order']['quantity_pending'] . ' ' . $mergedData['order']['name'] . '<br>' . $mergedData['order']['price'] . ' ' . $mergedData['order']['currency'] . ' for ' . $mergedData['order']['interval_value'] . ' ' . $mergedData['order']['interval_type'] . ($mergedData['order']['interval_value'] !== 1 ? 's' : '') . ' to ' . $mergedData['order']['price_pending'] . ' ' . $mergedData['order']['currency'] . ' for ' . $mergedData['order']['interval_value_pending'] . ' ' . $mergedData['order']['interval_type_pending'] . ($mergedData['order']['interval_value_pending'] !== 1 ? 's' : '');
+
 									foreach ($pendingOrders as $orderId => $pendingOrder) {
 										$pendingOrders[$orderId]['merged_order_id'] = $mergedData['order']['id'];
+										$pendingOrderMergeDetails .= '<a anchor_order_id="' . $orderId . '" href="' . $this->settings['base_url'] . 'orders/' . $orderId . '">#' . $orderId . '</a>, ';
 									}
 
 									$pendingInvoices[$mergedData['invoice']['id'] . '_merged'] = array(
 										'id' => $mergedInvoiceId
 									);
-								}
-
-								$mergedInvoiceOrders = $this->find('invoice_orders', array(
-									'conditions' => array(
-										'order_id' => $mergedData['order']['id']
-									),
-									'fields' => array(
-										'id',
-										'invoice_id',
-										'order_id'
-									),
-									'limit' => 1
-								));
-
-								if (!empty($mergedInvoiceOrders['count'])) {
-									$pendingInvoiceOrders[] = array_merge($mergedInvoiceOrders['data'][0], array(
-										'invoice_id' => $mergedInvoiceId
+									$mergedInvoiceOrders = $this->find('invoice_orders', array(
+										'conditions' => array(
+											'order_id' => $mergedData['order']['id']
+										),
+										'fields' => array(
+											'id',
+											'invoice_id',
+											'order_id'
+										),
+										'limit' => 1
 									));
-								}
 
-								$pendingOrders[$mergedData['order']['id']] = $mergedData['order'];
-								$proxyParameters = array(
-									'conditions' => array(
-										'order_id' => $pendingOrderIds
-									),
-									'fields' => array(
-										'id',
-										'order_id'
-									)
-								);
-								$proxies = $this->find('proxies', $proxyParameters);
-
-								if (!empty($proxies['count'])) {
-									foreach ($proxies['data'] as $key => $proxy) {
-										$proxies['data'][$key]['order_id'] = $mergedData['order']['id'];
+									if (!empty($mergedInvoiceOrders['count'])) {
+										$pendingInvoiceOrders[] = array_merge($mergedInvoiceOrders['data'][0], array(
+											'invoice_id' => $mergedInvoiceId
+										));
 									}
 
-									$pendingProxies = array_values($proxies['data']);
-								}
+									$pendingOrders[$mergedData['order']['id']] = $mergedData['order'];
+									$proxyParameters = array(
+										'conditions' => array(
+											'order_id' => $pendingOrderIds
+										),
+										'fields' => array(
+											'id',
+											'order_id'
+										)
+									);
+									$proxies = $this->find('proxies', $proxyParameters);
 
-								$proxyGroups = $this->find('proxy_groups', $proxyParameters);
+									if (!empty($proxies['count'])) {
+										foreach ($proxies['data'] as $key => $proxy) {
+											$proxies['data'][$key]['order_id'] = $mergedData['order']['id'];
+										}
 
-								if (!empty($proxyGroups['count'])) {
-									foreach ($proxyGroups['data'] as $key => $proxyGroup) {
-										$proxyGroups['data'][$key]['order_id'] = $mergedData['order']['id'];
+										$pendingProxies = array_values($proxies['data']);
 									}
 
-									$pendingProxyGroups = array_values($proxyGroups['data']);
-								}
+									$proxyGroups = $this->find('proxy_groups', $proxyParameters);
 
-								$transactions = $this->find('transactions', array(
-									'conditions' => array(
-										'invoice_id' => array_values($pendingInvoiceIds)
-									),
-									'fields' => array(
-										'id',
-										'invoice_id'
-									)
-								));
+									if (!empty($proxyGroups['count'])) {
+										foreach ($proxyGroups['data'] as $key => $proxyGroup) {
+											$proxyGroups['data'][$key]['order_id'] = $mergedData['order']['id'];
+										}
 
-								if (!empty($transactions['count'])) {
-									$pendingTransactions = array_merge($pendingTransactions, array_values(array_replace_recursive($transactions['data'], array_fill(0, $transactions['count'], array(
-										'invoice_id' => $mergedInvoiceId
-									)))));
-								}
+										$pendingProxyGroups = array_values($proxyGroups['data']);
+									}
 
-								$action = ($response['data']['upgrade_quantity'] ? 'upgrade' : 'merge');
-								$pendingTransactions[] = array(
-									'customer_email' => $parameters['user']['email'],
-									'details' => '<a href="' . $this->settings['base_url'] . 'orders/' . $selectedOrder['order']['id'] . '">Order #' . $mergedData['order']['id'] . '</a> ' . $action . ' requested.<br>' . $mergedData['order']['quantity'] . ' ' . $mergedData['order']['name'] . ($action === 'upgrade' ? ' to ' . $mergedData['order']['quantity_pending'] . ' ' . $mergedData['order']['name'] : '') . '<br>' . $mergedData['order']['price'] . ' ' . $mergedData['order']['currency'] . ' for ' . $mergedData['order']['interval_value'] . ' ' . $mergedData['order']['interval_type'] . ($mergedData['order']['interval_value'] !== 1 ? 's' : '') . ($action === 'upgrade' ? ' to ' . $mergedData['order']['price_pending'] . ' ' . $mergedData['order']['currency'] . ' for ' . $mergedData['order']['interval_value_pending'] . ' ' . $mergedData['order']['interval_type_pending'] . ($mergedData['order']['interval_value_pending'] !== 1 ? 's' : '') : ''),
-									'id' => uniqid() . time(),
-									'initial_invoice_id' => $mergedInvoiceId,
-									'invoice_id' => $mergedInvoiceId,
-									'payment_amount' => null,
-									'payment_currency' => $this->settings['billing']['currency'],
-									'payment_status' => 'completed',
-									'payment_status_message' => 'Order ' . $action . ' requested.',
-									'transaction_charset' => $this->settings['database']['charset'],
-									'transaction_date' => date('Y-m-d h:i:s', time()),
-									'transaction_method' => 'Miscellaneous',
-									'transaction_processed' => true,
-									'user_id' => $parameters['user']['id']
-								);
+									$transactions = $this->find('transactions', array(
+										'conditions' => array(
+											'invoice_id' => array_values($pendingInvoiceIds)
+										),
+										'fields' => array(
+											'id',
+											'invoice_id'
+										)
+									));
 
-								if ($mergedData['invoice']['remainder_pending'] === 0) {
-									$pendingTransactions[] = $transaction = array(
+									if (!empty($transactions['count'])) {
+										$pendingTransactions = array_merge($pendingTransactions, array_values(array_replace_recursive($transactions['data'], array_fill(0, $transactions['count'], array(
+											'invoice_id' => $mergedInvoiceId
+										)))));
+									}
+
+									$pendingOrderMergeDetails = str_replace(', <a anchor_order_id="' . $orderId, ' and <a anchor_order_id="' . $orderId, rtrim(trim($pendingOrderMergeDetails), ','));
+									$pendingTransactions[] = array(
 										'customer_email' => $parameters['user']['email'],
+										'details' => 'Merge requested from ' . $pendingOrderMergeDetails . ' to ' . $mergeDetails,
 										'id' => uniqid() . time(),
 										'initial_invoice_id' => $mergedInvoiceId,
 										'invoice_id' => $mergedInvoiceId,
-										'payment_amount' => 0,
+										'payment_amount' => null,
 										'payment_currency' => $this->settings['billing']['currency'],
 										'payment_status' => 'completed',
-										'payment_status_message' => 'Order ' . $action . ' successful.',
-										'payment_transaction_id' => uniqid() . time(),
+										'payment_status_message' => 'Order merge requested.',
 										'transaction_charset' => $this->settings['database']['charset'],
 										'transaction_date' => date('Y-m-d h:i:s', time()),
-										'transaction_method' => 'PaymentCompleted',
+										'transaction_method' => 'Miscellaneous',
 										'transaction_processed' => true,
 										'user_id' => $parameters['user']['id']
 									);
-								}
 
-								if (
-									$this->save('invoices', array_values($pendingInvoices)) &&
-									$this->save('invoice_orders', $pendingInvoiceOrders) &&
-									$this->save('orders', array_values($pendingOrders)) &&
-									$this->save('proxies', $pendingProxies) &&
-									$this->save('proxy_groups', $pendingProxyGroups) &&
-									$this->save('transactions', $pendingTransactions)
-								) {
-									$response['message'] = array(
-										'status' => 'success',
-										'text' => 'Redirecting to merged invoice for payment, please wait.'
-									);
-									$response['redirect'] = $this->settings['base_url'] . 'invoices/' . $mergedInvoiceId;
-
-									foreach ($pendingInvoices as $invoiceId => $pendingInvoice) {
-										if (!empty($invoiceId)) {
-											$this->invoice('invoices', array(
-												'conditions' => array(
-													'id' => $invoiceId
-												)
-											));
-										}
+									if ($action === 'upgrade') {
+										$pendingTransactions[] = array(
+											'customer_email' => $parameters['user']['email'],
+											'details' => 'Order upgrade requested for ' . $upgradeDetails,
+											'id' => uniqid() . time(),
+											'initial_invoice_id' => $mergedInvoiceId,
+											'invoice_id' => $mergedInvoiceId,
+											'payment_amount' => null,
+											'payment_currency' => $this->settings['billing']['currency'],
+											'payment_status' => 'completed',
+											'payment_status_message' => 'Order upgrade requested.',
+											'transaction_charset' => $this->settings['database']['charset'],
+											'transaction_date' => date('Y-m-d h:i:s', time()),
+											'transaction_method' => 'Miscellaneous',
+											'transaction_processed' => true,
+											'user_id' => $parameters['user']['id']
+										);
 									}
 
-									if (!empty($transaction)) {
-										$this->_processTransaction($transaction);
+									if ($mergedData['invoice']['remainder_pending'] === 0) {
+										$pendingTransactions[] = $transactionToProcess = array(
+											'customer_email' => $parameters['user']['email'],
+											'id' => uniqid() . time(),
+											'initial_invoice_id' => $mergedInvoiceId,
+											'invoice_id' => $mergedInvoiceId,
+											'payment_amount' => 0,
+											'payment_currency' => $this->settings['billing']['currency'],
+											'payment_status' => 'completed',
+											'payment_status_message' => 'Order ' . $action . ' successful.',
+											'payment_transaction_id' => uniqid() . time(),
+											'transaction_charset' => $this->settings['database']['charset'],
+											'transaction_date' => date('Y-m-d h:i:s', time()),
+											'transaction_method' => 'PaymentCompleted',
+											'transaction_processed' => true,
+											'user_id' => $parameters['user']['id']
+										);
+									}
+
+									if (
+										$this->save('invoices', array_values($pendingInvoices)) &&
+										$this->save('invoice_orders', $pendingInvoiceOrders) &&
+										$this->save('orders', array_values($pendingOrders)) &&
+										$this->save('proxies', $pendingProxies) &&
+										$this->save('proxy_groups', $pendingProxyGroups) &&
+										$this->save('transactions', $pendingTransactions)
+									) {
+										$response['message'] = array(
+											'status' => 'success',
+											'text' => 'Redirecting to merged invoice for payment, please wait.'
+										);
+										$response['redirect'] = $this->settings['base_url'] . 'invoices/' . $mergedInvoiceId;
+
+										foreach ($pendingInvoices as $invoiceId => $pendingInvoice) {
+											if (!empty($invoiceId)) {
+												$this->invoice('invoices', array(
+													'conditions' => array(
+														'id' => $invoiceId
+													)
+												));
+											}
+										}
+
+										if (!empty($transactionToProcess)) {
+											$this->_processTransaction($transactionToProcess);
+										}
 									}
 								}
 							}

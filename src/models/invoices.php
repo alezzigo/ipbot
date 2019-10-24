@@ -873,12 +873,36 @@ class InvoicesModel extends UsersModel {
 					);
 
 					if ($this->save('orders', $orderData)) {
+						$amountPaidForUpgrade = 0;
+						$upgradeTransactions = $this->find('transactions', array(
+							'conditions' => array(
+								'transaction_method' => 'PaymentCompleted',
+								'initial_invoice_id' => $invoice['data']['invoice']['id']
+							),
+							'fields' => array(
+								'id',
+								'initial_invoice_id',
+								'invoice_id',
+								'payment_amount'
+							)
+						));
+
+						if (!empty($upgradeTransactions['count'])) {
+							foreach ($upgradeTransactions['data'] as $upgradeTransaction) {
+								$amountPaidForUpgrade += $upgradeTransaction['payment_amount'];
+							}
+						}
+
+						$upgradeDifference = max(0, (round(($invoice['data']['invoice']['total_pending'] - $invoice['data']['invoice']['total']) * 100) / 100));
 						$pendingInvoices = array(
 							array(
+								'amount_paid' => ($amountPaid = max(0, round(($invoice['data']['invoice']['amount_paid'] - $upgradeDifference) * 100) / 100)),
 								'id' => $invoice['data']['invoice']['id'],
-								'remainder_pending' => max(0, round(($invoice['data']['invoice']['remainder_pending'] - max(0, (round(($invoice['data']['invoice']['total_pending'] - $invoice['data']['invoice']['total']) * 100) / 100))) * 100) / 100)
+								'remainder_pending' => $invoice['data']['invoice']['remainder_pending'] + $upgradeDifference
 							)
 						);
+
+						// ..
 
 						if ($pendingInvoices[0]['remainder_pending'] === 0) {
 							$pendingInvoices[0]['remainder_pending'] = null;

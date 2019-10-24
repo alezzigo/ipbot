@@ -508,16 +508,17 @@ class OrdersModel extends TransactionsModel {
 									)))));
 								}
 
+								$action = ($response['data']['upgrade_quantity'] ? 'upgrade' : 'merge');
 								$pendingTransactions[] = array(
 									'customer_email' => $parameters['user']['email'],
-									'details' => '<a href="' . $this->settings['base_url'] . 'orders/' . $selectedOrder['order']['id'] . '">Order #' . $mergedData['order']['id'] . '</a> upgrade requested.<br>' . $mergedData['order']['quantity'] . ' ' . $mergedData['order']['name'] . ' to ' . $mergedData['order']['quantity_pending'] . ' ' . $mergedData['order']['name'] . '<br>' . $mergedData['order']['price'] . ' ' . $mergedData['order']['currency'] . ' for ' . $mergedData['order']['interval_value'] . ' ' . $mergedData['order']['interval_type'] . ($mergedData['order']['interval_value'] !== 1 ? 's' : '') . ' to ' . $mergedData['order']['price_pending'] . ' ' . $mergedData['order']['currency'] . ' for ' . $mergedData['order']['interval_value_pending'] . ' ' . $mergedData['order']['interval_type_pending'] . ($mergedData['order']['interval_value_pending'] !== 1 ? 's' : ''),
+									'details' => '<a href="' . $this->settings['base_url'] . 'orders/' . $selectedOrder['order']['id'] . '">Order #' . $mergedData['order']['id'] . '</a> ' . $action . ' requested.<br>' . $mergedData['order']['quantity'] . ' ' . $mergedData['order']['name'] . ($action === 'upgrade' ? ' to ' . $mergedData['order']['quantity_pending'] . ' ' . $mergedData['order']['name'] : '') . '<br>' . $mergedData['order']['price'] . ' ' . $mergedData['order']['currency'] . ' for ' . $mergedData['order']['interval_value'] . ' ' . $mergedData['order']['interval_type'] . ($mergedData['order']['interval_value'] !== 1 ? 's' : '') . ($action === 'upgrade' ? ' to ' . $mergedData['order']['price_pending'] . ' ' . $mergedData['order']['currency'] . ' for ' . $mergedData['order']['interval_value_pending'] . ' ' . $mergedData['order']['interval_type_pending'] . ($mergedData['order']['interval_value_pending'] !== 1 ? 's' : '') : ''),
 									'id' => uniqid() . time(),
 									'initial_invoice_id' => $mergedInvoiceId,
 									'invoice_id' => $mergedInvoiceId,
 									'payment_amount' => null,
 									'payment_currency' => $this->settings['billing']['currency'],
 									'payment_status' => 'completed',
-									'payment_status_message' => 'Order upgrade requested.',
+									'payment_status_message' => 'Order ' . $action . ' requested.',
 									'transaction_charset' => $this->settings['database']['charset'],
 									'transaction_date' => date('Y-m-d h:i:s', time()),
 									'transaction_method' => 'Miscellaneous',
@@ -534,7 +535,7 @@ class OrdersModel extends TransactionsModel {
 										'payment_amount' => 0,
 										'payment_currency' => $this->settings['billing']['currency'],
 										'payment_status' => 'completed',
-										'payment_status_message' => 'Order ' . ($response['data']['upgrade_quantity'] ? 'upgrade' : 'merge') . ' successful.',
+										'payment_status_message' => 'Order ' . $action . ' successful.',
 										'payment_transaction_id' => uniqid() . time(),
 										'transaction_charset' => $this->settings['database']['charset'],
 										'transaction_date' => date('Y-m-d h:i:s', time()),

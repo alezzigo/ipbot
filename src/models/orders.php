@@ -513,59 +513,43 @@ class OrdersModel extends TransactionsModel {
 									}
 
 									$pendingOrderMergeDetails = str_replace(', <a anchor_order_id="' . $orderId, ' and <a anchor_order_id="' . $orderId, rtrim(trim($pendingOrderMergeDetails), ','));
-									$pendingTransactions[] = array(
+									$pendingTransaction = array(
 										'customer_email' => $parameters['user']['email'],
-										'details' => 'Merge requested from ' . $pendingOrderMergeDetails . ' to ' . $mergeDetails,
-										'id' => uniqid() . time(),
 										'initial_invoice_id' => $mergedInvoiceId,
 										'invoice_id' => $mergedInvoiceId,
 										'payment_amount' => null,
 										'payment_currency' => $this->settings['billing']['currency'],
 										'payment_status' => 'completed',
-										'payment_status_message' => 'Order merge requested.',
 										'transaction_charset' => $this->settings['database']['charset'],
 										'transaction_date' => date('Y-m-d h:i:s', time()),
 										'transaction_method' => 'Miscellaneous',
 										'transaction_processed' => true,
 										'user_id' => $parameters['user']['id']
 									);
+									$pendingTransactions[] = array_merge(array(
+										'details' => ($mergeDetails = 'Merge requested from ' . $pendingOrderMergeDetails . ' to ' . $mergeDetails),
+										'id' => uniqid() . time(),
+										'payment_status_message' => 'Order merge requested.'
+									), $pendingTransaction);
 
 									if ($action === 'upgrade') {
-										$pendingTransactions[] = array(
-											'customer_email' => $parameters['user']['email'],
-											'details' => 'Order upgrade requested for ' . $upgradeDetails,
+										$pendingTransactions[] = array_merge(array(
+											'details' => ($upgradeDetails = 'Order upgrade requested for ' . $upgradeDetails),
 											'id' => uniqid() . time(),
-											'initial_invoice_id' => $mergedInvoiceId,
-											'invoice_id' => $mergedInvoiceId,
-											'payment_amount' => null,
-											'payment_currency' => $this->settings['billing']['currency'],
-											'payment_status' => 'completed',
 											'payment_status_message' => 'Order upgrade requested.',
-											'transaction_charset' => $this->settings['database']['charset'],
 											'transaction_date' => date('Y-m-d h:i:s', time()),
-											'transaction_method' => 'Miscellaneous',
-											'transaction_processed' => true,
-											'user_id' => $parameters['user']['id']
-										);
+										), $pendingTransaction);
 									}
 
 									if ($mergedData['invoice']['remainder_pending'] === 0) {
-										$pendingTransactions[] = $transactionToProcess = array(
-											'customer_email' => $parameters['user']['email'],
+										$pendingTransactions[] = $transactionToProcess = array_merge(array(
+											'details' => ($action === 'upgrade' ? str_replace('requested', 'successful', $upgradeDetails) : $mergeDetails),
 											'id' => uniqid() . time(),
-											'initial_invoice_id' => $mergedInvoiceId,
-											'invoice_id' => $mergedInvoiceId,
 											'payment_amount' => 0,
-											'payment_currency' => $this->settings['billing']['currency'],
-											'payment_status' => 'completed',
 											'payment_status_message' => 'Order ' . $action . ' successful.',
-											'payment_transaction_id' => uniqid() . time(),
-											'transaction_charset' => $this->settings['database']['charset'],
 											'transaction_date' => date('Y-m-d h:i:s', time()),
-											'transaction_method' => 'PaymentCompleted',
-											'transaction_processed' => true,
-											'user_id' => $parameters['user']['id']
-										);
+											'transaction_method' => 'PaymentCompleted'
+										), $pendingTransaction);
 									}
 
 									if (

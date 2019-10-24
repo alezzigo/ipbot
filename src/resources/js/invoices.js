@@ -28,20 +28,20 @@ var processInvoice = function() {
 		}
 
 		if (response.data.invoice) {
-			var amountDue = response.data.invoice.amount_due.toLocaleString(false, {minimumFractionDigits: 2});
+			var amountDue = response.data.invoice.amount_due;
 			var billingAmountField = document.querySelector('.billing-amount');
 			var interval = '';
 			var pendingChange = (typeof response.data.invoice.amount_due_pending === 'number');
 
 			if (pendingChange) {
-				amountDue = response.data.invoice.amount_due_pending.toLocaleString(false, {minimumFractionDigits: 2});
-				response.data.invoice.shipping = response.data.invoice.shipping_pending.toLocaleString(false, {minimumFractionDigits: 2});
-				response.data.invoice.subtotal = response.data.invoice.subtotal_pending.toLocaleString(false, {minimumFractionDigits: 2});
-				response.data.invoice.tax = response.data.invoice.tax_pending.toLocaleString(false, {minimumFractionDigits: 2});
-				response.data.invoice.total = response.data.invoice.total_pending.toLocaleString(false, {minimumFractionDigits: 2});
+				amountDue = response.data.invoice.amount_due_pending;
+				response.data.invoice.shipping = response.data.invoice.shipping_pending;
+				response.data.invoice.subtotal = response.data.invoice.subtotal_pending;
+				response.data.invoice.tax = response.data.invoice.tax_pending;
+				response.data.invoice.total = response.data.invoice.total_pending;
 			}
 
-			billingAmountField.value = amountDue;
+			billingAmountField.value = amountDue.toLocaleString(false, {minimumFractionDigits: 2});
 			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label> Invoice #' + response.data.invoice.id;
 			document.querySelector('.billing-currency').innerHTML = response.data.invoice.currency;
 			document.querySelector('.billing-view-details').addEventListener('click', function(element) {
@@ -54,7 +54,7 @@ var processInvoice = function() {
 
 			invoiceData += '<h2>Invoice Payment Details</h2>';
 			invoiceData += '<p><strong>Amount Paid to Invoice</strong><br><span' + (response.data.invoice.amount_paid ? ' class="paid"' : '') + '>' + response.data.invoice.amount_paid.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.currency + '</span></p>';
-			invoiceData += '<p><strong>Remaining Amount Due</strong><br>' + amountDue + ' ' + response.data.invoice.currency + '</p>';
+			invoiceData += '<p><strong>Remaining Amount Due</strong><br>' + amountDue.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.currency + '</p>';
 
 			if (
 				response.data.invoice.due &&
@@ -160,14 +160,14 @@ var processInvoice = function() {
 						elements.addClass('.recurring-checkbox-container', 'hidden');
 						elements.addClass('.recurring-message', 'hidden');
 					} else {
-						billingAmountField.value = amountDue;
+						billingAmountField.value = amountDue.toLocaleString(false, {minimumFractionDigits: 2});
 						elements.removeClass('.recurring-checkbox-container', 'hidden');
 						elements.removeClass('.recurring-message', 'hidden');
 					}
 				});
 			});
 			var paymentMessage = function(element) {
-				var intitialPaymentAmount = (element.value ? element.value : element.target.value).toLocaleString(false, {minimumFractionDigits: 2});
+				var intitialPaymentAmount = parseFloat(element.value ? element.value : element.target.value).toLocaleString(false, {minimumFractionDigits: 2});
 				document.querySelector('.recurring-message').innerHTML = '<p class="message">This <span class="recurring-message-item">first </span>payment will be ' + intitialPaymentAmount + ' ' + response.data.invoice.currency + '<span class="recurring-message-item"> and the recurring payments will be ' + (intitialPaymentAmount >= amountDue ? (response.data.invoice.total_pending ? response.data.invoice.total_pending : response.data.invoice.total) : intitialPaymentAmount).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.currency + ' every ' + interval + '</span>.</p>';
 			};
 			billingAmountField.addEventListener('change', paymentMessage);

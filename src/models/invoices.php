@@ -846,7 +846,7 @@ class InvoicesModel extends UsersModel {
 			)
 		);
 
-		$invoiceOrders = $pendingTransactions = array();
+		$invoiceOrders = $pendingTransactions = $userData = array();
 
 		if (!empty($parameters['conditions'])) {
 			$invoice = $this->invoice('invoices', array(
@@ -896,21 +896,19 @@ class InvoicesModel extends UsersModel {
 						$upgradeDifference = max(0, (round(($invoice['data']['invoice']['total_pending'] - $invoice['data']['invoice']['total']) * 100) / 100));
 						$pendingInvoices = array(
 							array(
-								'amount_paid' => ($amountPaid = max(0, round(($invoice['data']['invoice']['amount_paid'] - $upgradeDifference) * 100) / 100)),
+								'amount_paid' => ($amountPaid = max(0, round(($invoice['data']['invoice']['amount_paid'] - $amountPaidForUpgrade) * 100) / 100)),
 								'id' => $invoice['data']['invoice']['id'],
-								'remainder_pending' => $invoice['data']['invoice']['remainder_pending'] + $upgradeDifference
+								'remainder_pending' => max(0, round(($invoice['data']['invoice']['remainder_pending'] - $upgradeDifference) * 100) / 100)
 							)
 						);
-
-						// ..
 
 						if ($pendingInvoices[0]['remainder_pending'] === 0) {
 							$pendingInvoices[0]['remainder_pending'] = null;
 						}
 
-						$pendingTransactions[] = array(
+						$upgradeCancellationTransaction = array(
 							'customer_email' => $parameters['user']['email'],
-							'details' => '<a href="' . $this->settings['base_url'] . 'orders/' . $selectedOrder['order']['id'] . '">Order #' . $order['id'] . '</a> upgrade cancelled.<br>' . $order['quantity_pending'] . ' ' . $order['name'] . ' reverted to ' . $order['quantity'] . ' ' . $order['name'] . '<br>' . $order['price_pending'] . ' for ' . $order['interval_value_pending'] . ' ' . $order['interval_type_pending'] . ($order['interval_value_pending'] !== 1 ? 's' : '') . ' reverted to ' . $order['price'] . ' for ' . $order['interval_value'] . ' ' . $order['interval_type'] . ($order['interval_value'] !== 1 ? 's' : ''),
+							'details' => '<a href="' . $this->settings['base_url'] . 'orders/' . $selectedOrder['order']['id'] . '">Order #' . $order['id'] . '</a> upgrade cancelled.<br>' . $order['quantity_pending'] . ' ' . $order['name'] . ' reverted to ' . $order['quantity'] . ' ' . $order['name'] . '<br>' . $order['price_pending'] . ' ' . $order['currency'] . ' for ' . $order['interval_value_pending'] . ' ' . $order['interval_type_pending'] . ($order['interval_value_pending'] !== 1 ? 's' : '') . ' reverted to ' . $order['price'] . ' ' . $order['currency'] . ' for ' . $order['interval_value'] . ' ' . $order['interval_type'] . ($order['interval_value'] !== 1 ? 's' : ''),
 							'id' => uniqid() . time(),
 							'initial_invoice_id' => $invoice['data']['invoice']['id'],
 							'invoice_id' => $invoice['data']['invoice']['id'],
@@ -925,9 +923,24 @@ class InvoicesModel extends UsersModel {
 							'user_id' => $parameters['user']['id']
 						);
 
+						if ($amountPaidForUpgrade > 0) {
+							$upgradeCancellationTransaction['details'] .= '<br>' . number_format($amountPaidForUpgrade, 2, '.', '') . ' ' . $order['currency'] . ' overpayment added to account balance.';
+							$userData = array(
+								array(
+									'balance' => $parameters['user']['balance'] + $amountPaidForUpgrade,
+									'id' => $parameters['user']['id']
+								)
+							);
+						}
+
+						$pendingTransactions[] = $upgradeCancellationTransaction;
+
+						// ..
+
 						if (
 							$this->save('invoices', $pendingInvoices) &&
-							$this->save('transactions', $pendingTransactions)
+							$this->save('transactions', $pendingTransactions) &&
+							$this->save('users', $userData)
 						) {
 							// ..
 						}

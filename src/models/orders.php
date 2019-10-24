@@ -533,23 +533,23 @@ class OrdersModel extends TransactionsModel {
 									), $pendingTransaction);
 
 									if ($action === 'upgrade') {
-										$pendingTransactions[] = array_merge(array(
+										$pendingTransactions[] = array_merge($pendingTransaction, array(
 											'details' => ($upgradeDetails = 'Order upgrade requested for ' . $upgradeDetails),
 											'id' => uniqid() . time(),
 											'payment_status_message' => 'Order upgrade requested.',
-											'transaction_date' => date('Y-m-d h:i:s', time()),
-										), $pendingTransaction);
+											'transaction_date' => date('Y-m-d h:i:s', strtotime('+1 second')),
+										));
 									}
 
 									if ($mergedData['invoice']['remainder_pending'] === 0) {
-										$pendingTransactions[] = $transactionToProcess = array_merge(array(
+										$pendingTransactions[] = $transactionToProcess = array_merge($pendingTransaction, array(
 											'details' => ($action === 'upgrade' ? str_replace('requested', 'successful', $upgradeDetails) : $mergeDetails),
 											'id' => uniqid() . time(),
 											'payment_amount' => 0,
 											'payment_status_message' => 'Order ' . $action . ' successful.',
-											'transaction_date' => date('Y-m-d h:i:s', time()),
+											'transaction_date' => date('Y-m-d h:i:s', strtotime('+2 seconds')),
 											'transaction_method' => 'PaymentCompleted'
-										), $pendingTransaction);
+										));
 									}
 
 									if (

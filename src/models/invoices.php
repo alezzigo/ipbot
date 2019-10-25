@@ -830,6 +830,65 @@ class InvoicesModel extends UsersModel {
 	}
 
 /**
+ * Retrieve most recent payable invoice data
+ *
+ * @param integer $invoiceId
+ *
+ * @return array $response
+ */
+	protected function _retrieveMostRecentPayableInvoice($invoiceId) {
+		$response = array();
+		$invoiceIds = $this->_retrieveInvoiceIds(array(
+			$invoiceId
+		));
+		$invoice = $this->find('invoices', array(
+			'conditions' => array(
+				'payable' => true,
+				'OR' => array(
+					'id' => $invoiceIds,
+					'initial_invoice_id' => $invoiceIds,
+					'merged_invoice_id' => $invoiceIds
+				)
+			),
+			'fields' => array(
+				'amount_paid',
+				'cart_items',
+				'created',
+				'currency',
+				'due',
+				'id',
+				'initial_invoice_id',
+				'merged_invoice_id',
+				'modified',
+				'payable',
+				'remainder_pending',
+				'session_id',
+				'shipping',
+				'shipping_pending',
+				'status',
+				'subtotal',
+				'subtotal_pending',
+				'tax',
+				'tax_pending',
+				'total',
+				'total_pending',
+				'user_id'
+			),
+			'limit' => 1,
+			'sort' => array(
+				'field' => 'created',
+				'order' => 'DESC'
+			)
+		));
+
+		if (!empty($invoice['count'])) {
+			$response = $invoice['data'][0];
+		}
+
+		return $response;
+	}
+
+/**
  * Cancel pending invoice order requests
  *
  * @param string $table
@@ -902,10 +961,6 @@ class InvoicesModel extends UsersModel {
 							)
 						);
 
-						if ($pendingInvoices[0]['remainder_pending'] === 0) {
-							$pendingInvoices[0]['remainder_pending'] = null;
-						}
-
 						$upgradeCancellationTransaction = array(
 							'customer_email' => $parameters['user']['email'],
 							'details' => 'Order upgrade request cancelled for order <a href="' . $this->settings['base_url'] . 'orders/' . $order['id'] . '">#' . $order['id'] . '</a>.<br>' . $order['quantity_pending'] . ' ' . $order['name'] . ' reverted to ' . $order['quantity'] . ' ' . $order['name'] . '<br>' . $order['price_pending'] . ' ' . $order['currency'] . ' for ' . $order['interval_value_pending'] . ' ' . $order['interval_type_pending'] . ($order['interval_value_pending'] !== 1 ? 's' : '') . ' reverted to ' . $order['price'] . ' ' . $order['currency'] . ' for ' . $order['interval_value'] . ' ' . $order['interval_type'] . ($order['interval_value'] !== 1 ? 's' : ''),
@@ -933,16 +988,53 @@ class InvoicesModel extends UsersModel {
 							);
 						}
 
-						$pendingTransactions[] = $upgradeCancellationTransaction;
+						if ($pendingInvoices[0]['remainder_pending'] === 0) {
+							$this->delete('invoices', array(
+								'id' => ($invoiceId = $pendingInvoices[0]['id'])
+							));
+							$pendingInvoices = array();
+							$revertedInvoice = $this->find('invoices', array(
+								'conditions' => array(
+									'merged_invoice_id' => $invoiceId
+								),
+								'fields' => array(
+									'id',
+									'merged_invoice_id',
+									'payable',
+									'warning_level'
+								),
+								'limit' => 1,
+								'sort' => array(
+									'field' => 'created',
+									'order' => 'DESC'
+								)
+							));
 
-						// ..
+							if (!empty($revertedInvoice['count'])) {
+								$revertedInvoice['data'][0]['merged_invoice_id'] = null;
+
+								if (!$revertedInvoice['data'][0]['payable']) {
+									$revertedInvoice['data'][0]['warning_level'] = 0;
+								}
+
+								$this->save('invoices', $revertedInvoice['data']);
+								$invoice = $this->_retrieveMostRecentPayableInvoice($revertedInvoice['data'][0]['id']);
+
+								if (!empty($invoice)) {
+									$response['redirect'] = $this->settings['base_url'] . 'invoices/' . $invoice['id'];
+								}
+
+								// ..
+							}
+						}
+
+						$pendingTransactions[] = $upgradeCancellationTransaction;
 
 						if (
 							$this->save('invoices', $pendingInvoices) &&
 							$this->save('transactions', $pendingTransactions) &&
 							$this->save('users', $userData)
 						) {
-							// ..
 							$response['message'] = array(
 								'status' => 'success',
 								'text' => 'Invoice order canceled successfully for order #' . $order['id'] . '.'

@@ -450,7 +450,7 @@ class OrdersModel extends TransactionsModel {
 									$pendingInvoices[$mergedData['invoice']['id'] . '_merged'] = array(
 										'id' => $mergedInvoiceId
 									);
-									$mergedInvoiceOrders = $this->find('invoice_orders', array(
+									$mergedInvoiceOrder = $this->find('invoice_orders', array(
 										'conditions' => array(
 											'order_id' => $mergedData['order']['id']
 										),
@@ -462,8 +462,8 @@ class OrdersModel extends TransactionsModel {
 										'limit' => 1
 									));
 
-									if (!empty($mergedInvoiceOrders['count'])) {
-										$pendingInvoiceOrders[] = array_merge($mergedInvoiceOrders['data'][0], array(
+									if (!empty($mergedInvoiceOrder['count'])) {
+										$pendingInvoiceOrders[] = array_merge($mergedInvoiceOrder['data'][0], array(
 											'invoice_id' => $mergedInvoiceId
 										));
 									}

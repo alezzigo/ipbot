@@ -905,7 +905,7 @@ class InvoicesModel extends UsersModel {
 			)
 		);
 
-		$invoiceOrders = $pendingTransactions = $userData = array();
+		$invoiceOrders = $pendingInvoiceOrders = $pendingTransactions = $userData = array();
 
 		if (!empty($parameters['conditions'])) {
 			$invoice = $this->invoice('invoices', array(
@@ -993,12 +993,13 @@ class InvoicesModel extends UsersModel {
 								'id' => ($invoiceId = $pendingInvoices[0]['id'])
 							));
 							$pendingInvoices = array();
-							$revertedInvoice = $this->find('invoices', array(
+							$revertedInvoices = $this->find('invoices', array(
 								'conditions' => array(
 									'merged_invoice_id' => $invoiceId
 								),
 								'fields' => array(
 									'id',
+									'initial_invoice_id',
 									'merged_invoice_id',
 									'payable',
 									'warning_level'
@@ -1010,18 +1011,47 @@ class InvoicesModel extends UsersModel {
 								)
 							));
 
-							if (!empty($revertedInvoice['count'])) {
-								$revertedInvoice['data'][0]['merged_invoice_id'] = null;
+							if (!empty($revertedInvoices['count'])) {
+								$revertedInvoices['data'][0] = array_merge($revertedInvoices['data'][0], array(
+									'amount_merged' => null,
+									'merged_invoice_id' => null
+								));
 
-								if (!$revertedInvoice['data'][0]['payable']) {
-									$revertedInvoice['data'][0]['warning_level'] = 0;
+								if (!$revertedInvoices['data'][0]['payable']) {
+									$revertedInvoices['data'][0]['warning_level'] = 0;
+									$revertedInvoices['data'][] = array(
+										'amount_merged' => null,
+										'id' => $revertedInvoices['data'][0]['initial_invoice_id']
+									);
 								}
 
-								$this->save('invoices', $revertedInvoice['data']);
-								$invoice = $this->_retrieveMostRecentPayableInvoice($revertedInvoice['data'][0]['id']);
+								if ($this->save('invoices', $revertedInvoices['data'])) {
+									$invoice = $this->_retrieveMostRecentPayableInvoice($revertedInvoices['data'][0]['id']);
 
-								if (!empty($invoice)) {
-									$response['redirect'] = $this->settings['base_url'] . 'invoices/' . $invoice['id'];
+									if (!empty($invoice)) {
+										$revertedInvoiceOrder = $this->find('invoice_orders', array(
+											'conditions' => array(
+												'invoice_id' => $invoiceId,
+												'order_id' => $order['id']
+											),
+											'fields' => array(
+												'id',
+												'invoice_id',
+												'order_id'
+											),
+											'limit' => 1
+										));
+
+										if (!empty($revertedInvoiceOrder['count'])) {
+											$pendingInvoiceOrders[] = array_merge($revertedInvoiceOrder['data'][0], array(
+												'invoice_id' => $invoice['id']
+											));
+										}
+
+										if ($this->save('invoice_orders', $pendingInvoiceOrders)) {
+											$response['redirect'] = $this->settings['base_url'] . 'invoices/' . $invoice['id'];
+										}
+									}
 								}
 
 								// ..

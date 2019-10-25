@@ -347,7 +347,10 @@ class OrdersModel extends TransactionsModel {
 							}
 						}
 
-						$mergedData['invoice']['remainder_pending'] = max(0, round($mergedData['invoice']['remainder_pending'] * 100) / 100);
+						$mergedData['invoice'] = array_merge($mergedData['invoice'], array(
+							'currency' => $this->settings['billing']['currency'], // TODO: Calculate payment amounts from pendingInvoices to match config currency
+							'remainder_pending' => max(0, round($mergedData['invoice']['remainder_pending'] * 100) / 100)
+						));
 						$response['data']['merged'] = $mergedData;
 						$response['message'] = array(
 							'status' => 'success',
@@ -361,8 +364,7 @@ class OrdersModel extends TransactionsModel {
 							);
 							$mergedData['invoice'] = array_merge($mergedData['invoice'], array(
 								'cart_items' => sha1(uniqid() . $mergedData['invoice']['cart_items']),
-								'payable' => true,
-								'currency' => $this->settings['billing']['currency'] // TODO: Calculate payment amounts from pendingInvoices to match config currency
+								'payable' => true
 							));
 							$mergedInvoiceData = array(
 								array_diff_key($mergedData['invoice'], array(

@@ -526,11 +526,14 @@ class OrdersModel extends TransactionsModel {
 										'transaction_processed' => true,
 										'user_id' => $parameters['user']['id']
 									);
-									$pendingTransactions[] = array_merge(array(
-										'details' => ($mergeDetails = 'Merge requested from ' . $pendingOrderMergeDetails . ' to ' . $mergeDetails),
-										'id' => uniqid() . time(),
-										'payment_status_message' => 'Order merge requested.'
-									), $pendingTransaction);
+
+									if (count($pendingOrders) !== 1) {
+										$pendingTransactions[] = array_merge(array(
+											'details' => ($mergeDetails = 'Merge requested from ' . $pendingOrderMergeDetails . ' to ' . $mergeDetails),
+											'id' => uniqid() . time(),
+											'payment_status_message' => 'Order merge requested.'
+										), $pendingTransaction);
+									}
 
 									if ($action === 'upgrade') {
 										$pendingTransactions[] = array_merge($pendingTransaction, array(

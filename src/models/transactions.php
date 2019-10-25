@@ -364,7 +364,7 @@ class TransactionsModel extends InvoicesModel {
 						'id' => $parameters['invoice_id']
 					)
 				);
-				$invoiceItems = array();
+				$invoiceItems = $pendingTransactions = array();
 				$total = !empty($invoice['data']['invoice']['total_pending']) ? $invoice['data']['invoice']['total_pending'] : $invoice['data']['invoice']['total'];
 
 				if (is_numeric($invoice['data']['invoice']['remainder_pending'])) {
@@ -536,13 +536,33 @@ class TransactionsModel extends InvoicesModel {
 										);
 
 										if (is_numeric($order['quantity_pending'])) {
-											$action = $order['quantity_pending'] > $order['quantity_active'] ? 'upgraded' : 'downgraded';
+											$action = $order['quantity_pending'] > $order['quantity_active'] ? 'upgrade' : 'downgrade';
 											$mailParameters = array_replace_recursive($mailParameters, array(
-												'subject' => 'Order #' . $order['id'] . ' is ' . $action,
+												'subject' => 'Order #' . $order['id'] . ' is ' . $action . 'd',
 												'template' => array(
-													'name' => 'order_' . $action
+													'name' => 'order_' . $action . 'd'
 												)
 											));
+											$pendingTransactions[] = $transactionToProcess = array(
+												'customer_email' => $parameters['user']['email'],
+												'details' => 'Order ' . $action . ' successful for order <a href="' . $this->settings['base_url'] . 'orders/' . $order['id'] . '">#' . $order['id'] . '</a>.<br>' . $order['quantity'] . ' ' . $order['name'] . ' to ' . $order['quantity_pending'] . ' ' . $order['name'] . '<br>' . $order['price'] . ' ' . $order['currency'] . ' for ' . $order['interval_value'] . ' ' . $order['interval_type'] . ($order['interval_value'] !== 1 ? 's' : '') . ' to ' . $order['price_pending'] . ' ' . $order['currency'] . ' for ' . $order['interval_value_pending'] . ' ' . $order['interval_type_pending'] . ($order['interval_value_pending'] !== 1 ? 's' : ''),
+												'id' => uniqid() . time(),
+												'initial_invoice_id' => $invoiceData[0]['id'],
+												'invoice_id' => $invoiceData[0]['id'],
+												'payment_amount' => 0,
+												'payment_currency' => $this->settings['billing']['currency'],
+												'payment_status' => 'completed',
+												'payment_status_message' => 'Order ' . $action . ' successful.',
+												'transaction_charset' => $this->settings['database']['charset'],
+												'transaction_date' => date('Y-m-d h:i:s', strtotime('+1 second')),
+												'transaction_method' => 'PaymentCompleted',
+												'transaction_processed' => true,
+												'user_id' => $parameters['user']['id']
+											);
+
+											if ($this->save('transactions', $pendingTransactions)) {
+												$this->_processTransaction($transactionToProcess);
+											}
 										}
 
 										$this->_sendMail($mailParameters);

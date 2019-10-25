@@ -943,6 +943,10 @@ class InvoicesModel extends UsersModel {
 							$this->save('users', $userData)
 						) {
 							// ..
+							$response['message'] = array(
+								'status' => 'success',
+								'text' => 'Invoice order canceled successfully for order #' . $order['id'] . '.'
+							);
 						}
 					}
 				}

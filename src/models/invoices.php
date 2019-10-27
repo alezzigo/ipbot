@@ -958,10 +958,7 @@ class InvoicesModel extends UsersModel {
 						));
 						$mostRecentPayableInvoice = $this->_retrieveMostRecentPayableInvoice($invoiceId);
 
-						if (
-							$this->save('invoice_orders', $invoiceOrders['data']) &&
-							!empty($mostRecentPayableInvoice)
-						) {
+						if (!empty($mostRecentPayableInvoice)) {
 							$amountPaidForUpgrade = 0;
 							$invoiceIds = $this->_retrieveInvoiceIds(array(
 								$invoice['data']['invoice']['id']
@@ -1036,6 +1033,8 @@ class InvoicesModel extends UsersModel {
 									'id' => $invoiceIds
 								)) &&
 								$this->save('invoices', $pendingInvoices) &&
+								$this->save('invoice_orders', $invoiceOrders['data']) &&
+								$this->save('orders', $orderData) &&
 								$this->save('transactions', $pendingTransactions) &&
 								$this->save('users', $userData)
 							) {

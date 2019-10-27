@@ -548,7 +548,7 @@ class OrdersModel extends TransactionsModel {
 
 									if ($mergedData['invoice']['remainder_pending'] === 0) {
 										$pendingTransactions[] = $transactionToProcess = array_merge($pendingTransaction, array(
-											'details' => ($action === 'upgrade' ? str_replace('requested', 'successful', $upgradeDetails) : $mergeDetails),
+											'details' => str_replace('requested', 'successful', ($action === 'upgrade' ? $upgradeDetails : $mergeDetails)),
 											'id' => uniqid() . time(),
 											'payment_amount' => 0,
 											'payment_status_message' => 'Order ' . $action . ' successful.',

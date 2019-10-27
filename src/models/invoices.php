@@ -958,7 +958,10 @@ class InvoicesModel extends UsersModel {
 						));
 						$mostRecentPayableInvoice = $this->_retrieveMostRecentPayableInvoice($invoiceId);
 
-						if ($this->save('invoice_orders', $invoiceOrders['data'])) {
+						if (
+							$this->save('invoice_orders', $invoiceOrders['data']) &&
+							!empty($mostRecentPayableInvoice)
+						) {
 							$amountPaidForUpgrade = 0;
 							$invoiceIds = $this->_retrieveInvoiceIds(array(
 								$invoice['data']['invoice']['id']
@@ -979,9 +982,12 @@ class InvoicesModel extends UsersModel {
 							if (!empty($upgradeTransactions['count'])) {
 								foreach ($upgradeTransactions['data'] as $upgradeTransaction) {
 									$amountPaidForUpgrade += $upgradeTransaction['payment_amount'];
+									$pendingTransactions[] = array(
+										'id' => $upgradeTransaction['id'],
+										'initial_invoice_id' => null,
+										'invoice_id' => $mostRecentPayableInvoice['id']
+									);
 								}
-
-								// ..
 							}
 
 							$upgradeDifference = max(0, (round(($invoice['data']['invoice']['total_pending'] - $revertedInvoice['invoice']['total']) * 100) / 100));

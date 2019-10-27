@@ -830,65 +830,6 @@ class InvoicesModel extends UsersModel {
 	}
 
 /**
- * Retrieve most recent payable invoice data
- *
- * @param integer $invoiceId
- *
- * @return array $response
- */
-	protected function _retrieveMostRecentPayableInvoice($invoiceId) {
-		$response = array();
-		$invoiceIds = $this->_retrieveInvoiceIds(array(
-			$invoiceId
-		));
-		$invoice = $this->find('invoices', array(
-			'conditions' => array(
-				'payable' => true,
-				'OR' => array(
-					'id' => $invoiceIds,
-					'initial_invoice_id' => $invoiceIds,
-					'merged_invoice_id' => $invoiceIds
-				)
-			),
-			'fields' => array(
-				'amount_paid',
-				'cart_items',
-				'created',
-				'currency',
-				'due',
-				'id',
-				'initial_invoice_id',
-				'merged_invoice_id',
-				'modified',
-				'payable',
-				'remainder_pending',
-				'session_id',
-				'shipping',
-				'shipping_pending',
-				'status',
-				'subtotal',
-				'subtotal_pending',
-				'tax',
-				'tax_pending',
-				'total',
-				'total_pending',
-				'user_id'
-			),
-			'limit' => 1,
-			'sort' => array(
-				'field' => 'created',
-				'order' => 'DESC'
-			)
-		));
-
-		if (!empty($invoice['count'])) {
-			$response = $invoice['data'][0];
-		}
-
-		return $response;
-	}
-
-/**
  * Cancel pending invoice order requests
  *
  * @param string $table

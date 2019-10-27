@@ -968,7 +968,6 @@ class InvoicesModel extends UsersModel {
 							));
 							$upgradeTransactions = $this->find('transactions', array(
 								'conditions' => array(
-									'transaction_method' => 'PaymentCompleted',
 									'initial_invoice_id' => $invoiceIds
 								),
 								'fields' => array(
@@ -981,7 +980,10 @@ class InvoicesModel extends UsersModel {
 
 							if (!empty($upgradeTransactions['count'])) {
 								foreach ($upgradeTransactions['data'] as $upgradeTransaction) {
-									$amountPaidForUpgrade += $upgradeTransaction['payment_amount'];
+									if (is_numeric($upgradeTransaction['payment_amount'])) {
+										$amountPaidForUpgrade += $upgradeTransaction['payment_amount'];
+									}
+
 									$pendingTransactions[] = array(
 										'id' => $upgradeTransaction['id'],
 										'initial_invoice_id' => null,

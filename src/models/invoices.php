@@ -1030,6 +1030,9 @@ class InvoicesModel extends UsersModel {
 							// ..
 
 							if (
+								$this->delete('invoices', array(
+									'id' => $invoiceIds
+								)) &&
 								$this->save('invoices', $pendingInvoices) &&
 								$this->save('transactions', $pendingTransactions) &&
 								$this->save('users', $userData)
@@ -1038,6 +1041,8 @@ class InvoicesModel extends UsersModel {
 									'status' => 'success',
 									'text' => 'Invoice order canceled successfully for order #' . $order['id'] . '.'
 								);
+
+								// ..
 							}
 						}
 					}

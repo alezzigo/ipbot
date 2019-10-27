@@ -456,6 +456,7 @@ class OrdersModel extends TransactionsModel {
 										),
 										'fields' => array(
 											'id',
+											'initial_invoice_id',
 											'invoice_id',
 											'order_id'
 										),
@@ -463,9 +464,15 @@ class OrdersModel extends TransactionsModel {
 									));
 
 									if (!empty($mergedInvoiceOrder['count'])) {
-										$pendingInvoiceOrders[] = array_merge($mergedInvoiceOrder['data'][0], array(
+										$pendingInvoiceOrder = array_merge($mergedInvoiceOrder['data'][0], array(
 											'invoice_id' => $mergedInvoiceId
 										));
+
+										if (empty($mergedInvoiceOrder['data'][0]['initial_invoice_id'])) {
+											$pendingInvoiceOrder['initial_invoice_id'] = $mergedInvoiceOrder['data'][0]['invoice_id'];
+										}
+
+										$pendingInvoiceOrders[] = $pendingInvoiceOrder;
 									}
 
 									$pendingOrders[$mergedData['order']['id']] = $mergedData['order'];

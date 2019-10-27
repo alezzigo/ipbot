@@ -325,6 +325,7 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionPaymentCompleted($parameters) {
+		$invoiceItemData = $invoiceOrderData = $pendingTransactions = array();
 		$invoiceTotalPaid = false;
 
 		if (!empty($parameters['subscription_id'])) {
@@ -364,7 +365,6 @@ class TransactionsModel extends InvoicesModel {
 						'id' => $parameters['invoice_id']
 					)
 				);
-				$invoiceItems = $pendingTransactions = array();
 				$total = !empty($invoice['data']['invoice']['total_pending']) ? $invoice['data']['invoice']['total_pending'] : $invoice['data']['invoice']['total'];
 
 				if (is_numeric($invoice['data']['invoice']['remainder_pending'])) {
@@ -504,7 +504,7 @@ class TransactionsModel extends InvoicesModel {
 										)
 									);
 									$invoice['data']['orders'][$orderKey] = array_merge($invoice['data']['orders'][$orderKey], $orderData[0]);
-									$invoiceItems[] = array_merge(array_intersect_key($orderData[0], array(
+									$invoiceItemData[] = array_merge(array_intersect_key($orderData[0], array(
 										'currency' => true,
 										'interval_type' => true,
 										'interval_value' => true,
@@ -572,17 +572,39 @@ class TransactionsModel extends InvoicesModel {
 						}
 					}
 
+					$invoiceOrders = $this->find('invoice_orders', array(
+						'conditions' => array(
+							'invoice_id' => array_unique(array_filter(array(
+								$invoice['data']['invoice']['id'],
+								$invoice['data']['invoice']['initial_invoice_id'],
+								$invoice['data']['invoice']['merged_invoice_id']
+							)))
+						),
+						'fields' => array(
+							'id',
+							'initial_invoice_id',
+							'invoice_id',
+							'order_id'
+						)
+					));
+
+					if (!empty($invoiceOrders['count'])) {
+						$invoiceOrderData = array_replace_recursive($invoiceOrders['data'], array_fill(0, $invoiceOrders['count'], array(
+							'initial_invoice_id' => null
+						)));
+					}
+
 					$invoiceTotalPaid = true;
 				}
 
 				if (
 					$invoiceTotalPaid &&
-					empty($invoiceItems) &&
+					empty($invoiceItemData) &&
 					count($invoice['data']['orders']) === 1 &&
 					($order = $invoice['data']['orders'][0]) &&
 					$order['quantity_active'] === $order['quantity_pending']
 				) {
-					$invoiceItems[] = array_merge(array_intersect_key($order, array(
+					$invoiceItemData[] = array_merge(array_intersect_key($order, array(
 						'interval_type' => true,
 						'interval_value' => true,
 						'price' => true,
@@ -596,7 +618,8 @@ class TransactionsModel extends InvoicesModel {
 
 				if (
 					$this->save('invoices', $invoiceData) &&
-					$this->save('invoice_items', $invoiceItems)
+					$this->save('invoice_items', $invoiceItemData) &&
+					$this->save('invoice_orders', $invoiceOrderData)
 				) {
 					$invoice['data']['invoice'] = array_merge($invoice['data']['invoice'], $invoiceData[0]);
 

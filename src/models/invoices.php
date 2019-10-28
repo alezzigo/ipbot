@@ -848,6 +848,7 @@ class InvoicesModel extends UsersModel {
 		));
 		$invoice = $this->find('invoices', array(
 			'conditions' => array(
+				'merged_invoice_id' => null,
 				'payable' => true,
 				'remainder_pending' => null,
 				'OR' => array(
@@ -910,7 +911,7 @@ class InvoicesModel extends UsersModel {
 				'text' => ($defaultMessage = 'Error processing your pending invoice order cancellation request, please try again.')
 			)
 		);
-		$invoiceOrders = $pendingInvoiceOrders = $pendingTransactions = $userData = array();
+		$initialInvoiceIds = $invoiceOrders = $pendingInvoices = $pendingInvoiceOrders = $pendingTransactions = $userData = array();
 
 		if (!empty($parameters['conditions'])) {
 			$invoice = $this->invoice('invoices', array(
@@ -968,9 +969,10 @@ class InvoicesModel extends UsersModel {
 							$invoiceIds = $this->_retrieveInvoiceIds(array(
 								$invoice['data']['invoice']['id']
 							));
-							$upgradeTransactions = $this->find('transactions', array(
+							$transactionParameters = array(
 								'conditions' => array(
-									'initial_invoice_id' => $invoiceIds
+									'invoice_id' => $invoiceIds,
+									'transaction_method' => 'Miscellaneous'
 								),
 								'fields' => array(
 									'id',
@@ -978,21 +980,55 @@ class InvoicesModel extends UsersModel {
 									'invoice_id',
 									'payment_amount'
 								)
-							));
+							);
+							$amountMergedTransactions = $this->find('transactions', $transactionParameters);
+							$transactionParameters['conditions'] = array(
+								'initial_invoice_id' => $invoiceIds
+							);
+							$upgradeTransactions = $this->find('transactions', $transactionParameters);
 							$cancelledInvoiceIds = array_diff($invoiceIds, array(
 								$invoice['data']['invoice']['id']
 							));
 
 							foreach ($cancelledInvoiceIds as $cancelledInvoiceId) {
-								$pendingInvoices[] = array(
+								$pendingInvoices[$cancelledInvoiceId] = array(
 									'id' => $cancelledInvoiceId,
 									'merged_invoice_id' => $invoiceId
 								);
 							}
 
+							if (!empty($amountMergedTransactions['count'])) {
+								foreach ($amountMergedTransactions['data'] as $amountMergedTransaction) {
+									$initialInvoiceIds[$amountMergedTransaction['initial_invoice_id']] = $amountMergedTransaction['initial_invoice_id'];
+								}
+
+								$initialInvoices = $this->find('invoices', array(
+									'conditions' => array(
+										'id' => array_values($initialInvoiceIds)
+									),
+									'fields' => array(
+										'amount_merged',
+										'id'
+									)
+								));
+
+								if (!empty($initialInvoices['count'])) {
+									foreach ($initialInvoices['data'] as $initialInvoice) {
+										$pendingInvoices[$initialInvoice['id']] = $initialInvoice;
+									}
+								}
+
+								foreach ($amountMergedTransactions['data'] as $amountMergedTransaction) {
+									$pendingInvoices[$amountMergedTransaction['initial_invoice_id']]['amount_merged'] = max(0, round(($pendingInvoices[$amountMergedTransaction['initial_invoice_id']]['amount_merged'] - $amountMergedTransaction['payment_amount'] * 100)) / 100);
+								}
+							}
+
 							if (!empty($upgradeTransactions['count'])) {
 								foreach ($upgradeTransactions['data'] as $upgradeTransaction) {
-									if (is_numeric($upgradeTransaction['payment_amount'])) {
+									if (
+										is_numeric($upgradeTransaction['payment_amount']) &&
+										$upgradeTransaction['transaction_method'] != 'Miscellaneous'
+									) {
 										$amountPaidForUpgrade += $upgradeTransaction['payment_amount'];
 									}
 
@@ -1005,13 +1041,11 @@ class InvoicesModel extends UsersModel {
 							}
 
 							$upgradeDifference = max(0, (round(($invoice['data']['invoice']['total_pending'] - $revertedInvoice['invoice']['total']) * 100) / 100));
-							$pendingInvoices = array(
-								array(
-									'amount_paid' => ($amountPaid = max(0, round(($invoice['data']['invoice']['amount_paid'] - $amountPaidForUpgrade) * 100) / 100)),
-									'id' => $invoice['data']['invoice']['id'],
-									'merged_invoice_id' => $invoiceId,
-									'remainder_pending' => max(0, round(($invoice['data']['invoice']['remainder_pending'] - $upgradeDifference) * 100) / 100)
-								)
+							$pendingInvoices[$invoice['data']['invoice']['id']] = array(
+								'amount_paid' => ($amountPaid = max(0, round(($invoice['data']['invoice']['amount_paid'] - $amountPaidForUpgrade) * 100) / 100)),
+								'id' => $invoice['data']['invoice']['id'],
+								'merged_invoice_id' => $invoiceId,
+								'remainder_pending' => max(0, round(($invoice['data']['invoice']['remainder_pending'] - $upgradeDifference) * 100) / 100)
 							);
 							$upgradeCancellationTransaction = array(
 								'customer_email' => $parameters['user']['email'],
@@ -1043,7 +1077,7 @@ class InvoicesModel extends UsersModel {
 							$pendingTransactions[] = $upgradeCancellationTransaction;
 
 							if (
-								$this->save('invoices', $pendingInvoices) &&
+								$this->save('invoices', array_values($pendingInvoices)) &&
 								$this->save('invoice_orders', $invoiceOrders['data']) &&
 								$this->save('orders', $orderData) &&
 								$this->save('transactions', $pendingTransactions) &&

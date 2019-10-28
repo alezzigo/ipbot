@@ -35,6 +35,7 @@ class OrdersModel extends TransactionsModel {
 			$invoiceIds = $this->_retrieveInvoiceIds($mostRecentOrderInvoice['data']);
 			$invoice = $this->find('invoices', array(
 				'conditions' => array(
+					'merged_invoice_id' => null,
 					'OR' => array(
 						'id' => $invoiceIds,
 						'initial_invoice_id' => $invoiceIds,
@@ -154,7 +155,7 @@ class OrdersModel extends TransactionsModel {
 			));
 
 			if (!empty($orders['count'])) {
-				$groupedOrders = $pendingInvoices = $pendingInvoiceIds = $pendingInvoiceOrders = $pendingOrders = $pendingOrderIds = $pendingProxies = $pendingProxyGroups = $pendingTransactions = $processedInvoices = $productIds = $selectedOrders = array();
+				$groupedOrders = $pendingAmountMergedTransactions = $pendingInvoices = $pendingInvoiceIds = $pendingInvoiceOrders = $pendingOrders = $pendingOrderIds = $pendingProxies = $pendingProxyGroups = $pendingTransactions = $processedInvoices = $productIds = $selectedOrders = array();
 				$sortIntervals = array(
 					'day',
 					'week',
@@ -342,6 +343,20 @@ class OrdersModel extends TransactionsModel {
 
 									$amountMerged = ($remainderPercentage * $amountAvailableToMerge);
 									$mergedData['invoice']['remainder_pending'] -= $amountMerged;
+									$pendingAmountMergedTransactions[] = array(
+										'customer_email' => $parameters['user']['email'],
+										'id' => uniqid() . time(),
+										'initial_invoice_id' => $previousInvoiceData['id'],
+										'invoice_id' => $previousInvoiceData['id'],
+										'payment_amount' => $amountMerged,
+										'payment_currency' => $this->settings['billing']['currency'],
+										'payment_status' => 'completed',
+										'transaction_charset' => $this->settings['database']['charset'],
+										'transaction_date' => date('Y-m-d h:i:s', time()),
+										'transaction_method' => 'Miscellaneous',
+										'transaction_processed' => true,
+										'user_id' => $parameters['user']['id']
+									);
 									$pendingInvoices[$previousInvoiceData['id']]['amount_merged'] = round((is_numeric($pendingInvoices[$previousInvoiceData['id']]['amount_merged']) ? ($pendingInvoices[$previousInvoiceData['id']]['amount_merged'] + $amountMerged) : $amountMerged) * 100) / 100;
 								}
 							}
@@ -515,6 +530,12 @@ class OrdersModel extends TransactionsModel {
 											'invoice_id'
 										)
 									));
+
+									if (!empty($pendingAmountMergedTransactions)) {
+										$pendingTransactions = array_merge($pendingTransactions, array_values(array_replace_recursive($pendingAmountMergedTransactions, array_fill(0, count($pendingAmountMergedTransactions), array(
+											'invoice_id' => $mergedInvoiceId
+										)))));
+									}
 
 									if (!empty($transactions['count'])) {
 										$pendingTransactions = array_merge($pendingTransactions, array_values(array_replace_recursive($transactions['data'], array_fill(0, $transactions['count'], array(

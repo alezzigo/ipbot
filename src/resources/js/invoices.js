@@ -201,6 +201,14 @@ var processInvoice = function() {
 			requestParameters.data.order_id = orderId;
 			sendRequest(function(response) {
 				// ..
+
+				if (
+					typeof response.redirect === 'string' &&
+					response.redirect
+				) {
+					window.location.href = response.redirect;
+					return false;
+				}
 			});
 		};
 

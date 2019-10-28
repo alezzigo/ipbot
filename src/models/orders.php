@@ -282,59 +282,31 @@ class OrdersModel extends TransactionsModel {
 							}
 
 							$mergedData['invoice']['remainder_pending'] -= $amountPaid;
+							$previousInvoices = $this->_retrievePreviousInvoices($selectedOrder['invoice']);
 
-							if (!empty($selectedOrder['invoice']['initial_invoice_id'])) {
-								$previousInvoice = $this->find('invoices', array(
-									'conditions' => array(
-										'id !=' => $selectedOrder['invoice']['id'],
-										'OR' => array(
-											'id' => $selectedOrder['invoice']['initial_invoice_id'],
-											'initial_invoice_id' => $selectedOrder['invoice']['initial_invoice_id']
-										)
-									),
-									'fields' => array(
-										'amount_merged',
-										'amount_paid',
-										'due',
-										'id',
-										'remainder_pending',
-										'status',
-										'total',
-										'total_pending'
-									),
-									'limit' => 1,
-									'sort' => array(
-										'field' => 'created',
-										'order' => 'DESC'
-									)
-								));
-
+							foreach ($previousInvoices as $previousInvoice) {
 								if (
-									!empty($previousInvoice['count']) &&
-									($previousInvoiceData = $previousInvoice['data'][0]) &&
-									(
-										$previousInvoiceData['amount_paid'] > 0 ||
-										$previousInvoiceData['status'] === 'paid'
-									)
+									$previousInvoice['amount_paid'] > 0 ||
+									$previousInvoice['status'] === 'paid'
 								) {
-									$pendingInvoices[$previousInvoiceData['id']] = array_merge(!empty($pendingInvoices[$previousInvoiceData['id']]) ? $pendingInvoices[$previousInvoiceData['id']] : array(), array(
-										'amount_merged' => (integer) !empty($pendingInvoices[$previousInvoiceData['id']]['amount_merged']) ? $pendingInvoices[$previousInvoiceData['id']]['amount_merged'] : $previousInvoiceData['amount_merged'],
-										'id' => $previousInvoiceData['id'],
+									$pendingInvoices[$previousInvoice['id']] = array_merge(!empty($pendingInvoices[$previousInvoice['id']]) ? $pendingInvoices[$previousInvoice['id']] : array(), array(
+										'amount_merged' => (integer) !empty($pendingInvoices[$previousInvoice['id']]['amount_merged']) ? $pendingInvoices[$previousInvoice['id']]['amount_merged'] : $previousInvoice['amount_merged'],
+										'id' => $previousInvoice['id'],
 										'merged_invoice_id' => null
 									));
-									$amountPaid = $previousInvoiceData['amount_paid'];
+									$amountPaid = $previousInvoice['amount_paid'];
 
 									if (
-										!is_numeric($previousInvoiceData['remainder_pending']) &&
-										$amountPaid < $previousInvoiceData['total'] &&
-										$previousInvoiceData['status'] === 'paid'
+										!is_numeric($previousInvoice['remainder_pending']) &&
+										$amountPaid < $previousInvoice['total'] &&
+										$previousInvoice['status'] === 'paid'
 									) {
-										$amountPaid = $previousInvoiceData['total'];
+										$amountPaid = $previousInvoice['total'];
 									}
 
-									$amountAvailableToMerge = min($selectedOrder['order']['total'], round(($amountPaid - $pendingInvoices[$previousInvoiceData['id']]['amount_merged']) * 100) / 100);
-									$paidTime = max(1, time() - strtotime($previousInvoiceData['due']));
-									$intervalTime = max(1, strtotime($selectedOrder['invoice']['due']) - strtotime($previousInvoiceData['due']));
+									$amountAvailableToMerge = min($selectedOrder['order']['total'], round(($amountPaid - $pendingInvoices[$previousInvoice['id']]['amount_merged']) * 100) / 100);
+									$paidTime = max(1, time() - strtotime($previousInvoice['due']));
+									$intervalTime = max(1, strtotime($selectedOrder['invoice']['due']) - strtotime($previousInvoice['due']));
 									$remainderPercentage = 1;
 
 									if ($paidTime < $intervalTime) {
@@ -346,8 +318,8 @@ class OrdersModel extends TransactionsModel {
 									$pendingAmountMergedTransactions[] = array(
 										'customer_email' => $parameters['user']['email'],
 										'id' => uniqid() . time(),
-										'initial_invoice_id' => $previousInvoiceData['id'],
-										'invoice_id' => $previousInvoiceData['id'],
+										'initial_invoice_id' => $previousInvoice['id'],
+										'invoice_id' => $previousInvoice['id'],
 										'payment_amount' => $amountMerged,
 										'payment_currency' => $this->settings['billing']['currency'],
 										'payment_status' => 'completed',
@@ -357,7 +329,7 @@ class OrdersModel extends TransactionsModel {
 										'transaction_processed' => true,
 										'user_id' => $parameters['user']['id']
 									);
-									$pendingInvoices[$previousInvoiceData['id']]['amount_merged'] = round((is_numeric($pendingInvoices[$previousInvoiceData['id']]['amount_merged']) ? ($pendingInvoices[$previousInvoiceData['id']]['amount_merged'] + $amountMerged) : $amountMerged) * 100) / 100;
+									$pendingInvoices[$previousInvoice['id']]['amount_merged'] = round((is_numeric($pendingInvoices[$previousInvoice['id']]['amount_merged']) ? ($pendingInvoices[$previousInvoice['id']]['amount_merged'] + $amountMerged) : $amountMerged) * 100) / 100;
 								}
 							}
 						}

@@ -115,27 +115,29 @@ var processInvoice = function() {
 
 			if (response.data.transactions.length) {
 				response.data.transactions.map(function(transaction) {
-					invoiceData += (transaction.payment_status_message ? '<label class="label ' + (typeof transaction.payment_amount === 'number' ? (Math.sign(transaction.payment_amount) >= 0 ? 'payment' : 'refund') : '') + '">' + capitalizeString(transaction.payment_status_message) + '</label>' : '');
-					invoiceData += '<div class="transaction">';
-					invoiceData += '<p>';
-					invoiceData += '<strong>' + transaction.transaction_date + '</strong><br>';
-					invoiceData += (transaction.payment_amount ? 'Amount: ' + transaction.payment_amount.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + transaction.payment_currency + '<br>' : '');
-					invoiceData += (transaction.payment_method ? 'Payment Method: ' + transaction.payment_method + '<br>' : '');
-					invoiceData += (transaction.payment_transaction_id ? 'Transaction ID: ' + transaction.payment_transaction_id + '<br>' : '')
-					invoiceData += (transaction.billing_name ? '<strong>' + transaction.billing_name + '</strong><br>' : '');
-					invoiceData += (transaction.billing_address_1 ? ' ' + transaction.billing_address_1 + '<br>' : '');
-					invoiceData += (transaction.billing_address_2 ? ' ' + transaction.billing_address_2 + '<br>' : '');
-					invoiceData += (transaction.billing_city ? ' ' + transaction.billing_city : '');
-					invoiceData += (transaction.billing_region ? ' ' + transaction.billing_region : '');
-					invoiceData += (transaction.billing_zip ? ' ' + transaction.billing_zip : '');
-					invoiceData += (transaction.billing_country_code ? ' ' + transaction.billing_country_code : '');
+					if (transaction.payment_status_message) {
+						invoiceData += '<label class="label ' + (typeof transaction.payment_amount === 'number' ? (Math.sign(transaction.payment_amount) >= 0 ? 'payment' : 'refund') : '') + '">' + capitalizeString(transaction.payment_status_message) + '</label>';
+						invoiceData += '<div class="transaction">';
+						invoiceData += '<p>';
+						invoiceData += '<strong>' + transaction.transaction_date + '</strong><br>';
+						invoiceData += (transaction.payment_amount ? 'Amount: ' + transaction.payment_amount.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + transaction.payment_currency + '<br>' : '');
+						invoiceData += (transaction.payment_method ? 'Payment Method: ' + transaction.payment_method + '<br>' : '');
+						invoiceData += (transaction.payment_transaction_id ? 'Transaction ID: ' + transaction.payment_transaction_id + '<br>' : '')
+						invoiceData += (transaction.billing_name ? '<strong>' + transaction.billing_name + '</strong><br>' : '');
+						invoiceData += (transaction.billing_address_1 ? ' ' + transaction.billing_address_1 + '<br>' : '');
+						invoiceData += (transaction.billing_address_2 ? ' ' + transaction.billing_address_2 + '<br>' : '');
+						invoiceData += (transaction.billing_city ? ' ' + transaction.billing_city : '');
+						invoiceData += (transaction.billing_region ? ' ' + transaction.billing_region : '');
+						invoiceData += (transaction.billing_zip ? ' ' + transaction.billing_zip : '');
+						invoiceData += (transaction.billing_country_code ? ' ' + transaction.billing_country_code : '');
 
-					if (transaction.details) {
-						invoiceData += transaction.details;
+						if (transaction.details) {
+							invoiceData += transaction.details;
+						}
+
+						invoiceData += '</p>';
+						invoiceData += '</div>';
 					}
-
-					invoiceData += '</p>';
-					invoiceData += '</div>';
 				});
 			}
 

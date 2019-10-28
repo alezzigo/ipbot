@@ -205,8 +205,8 @@ var processInvoice = function() {
 		};
 
 		if (cancelPendingButton) {
-			cancelPendingButton.removeEventListener('click', cancelPendingButton.clickListener);
 			cancelPendingButton.clickListener = function() {
+				cancelPendingButton.removeEventListener('click', cancelPendingButton.clickListener);
 				cancelPending(cancelPendingButton.getAttribute('order_id'));
 			};
 			cancelPendingButton.addEventListener('click', cancelPendingButton.clickListener);

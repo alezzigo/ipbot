@@ -896,6 +896,53 @@ class InvoicesModel extends UsersModel {
 	}
 
 /**
+ * Retrieve previous invoice data
+ *
+ * @param array $invoiceData
+ * @param array $previousInvoices
+ *
+ * @return array $response
+ */
+	protected function _retrievePreviousInvoices($invoiceData, $previousInvoices = array()) {
+		$response = $previousInvoices;
+		$previousInvoiceParameters = array(
+			'conditions' => array(
+				'created <=' => date('Y-m-d h:i:s', strtotime($invoiceData['created'])),
+				'id !=' => $invoiceData['id'],
+				'OR' => array(
+					'id' => $invoiceData['initial_invoice_id'],
+					'merged_invoice_id' => $invoiceData['id']
+				)
+			),
+			'fields' => array(
+				'amount_merged',
+				'amount_paid',
+				'created',
+				'due',
+				'id',
+				'initial_invoice_id',
+				'remainder_pending',
+				'status',
+				'total',
+				'total_pending'
+			),
+			'limit' => 1,
+			'sort' => array(
+				'field' => 'created',
+				'order' => 'DESC'
+			)
+		);
+		$previousInvoice = $this->find('invoices', $previousInvoiceParameters);
+
+		if (!empty($previousInvoice['count'])) {
+			$previousInvoices[] = $previousInvoice['data'][0];
+			$response = $this->_retrievePreviousInvoices($previousInvoice['data'][0], $previousInvoices);
+		}
+
+		return $response;
+	}
+
+/**
  * Cancel pending invoice order requests
  *
  * @param string $table

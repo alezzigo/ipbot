@@ -1042,6 +1042,8 @@ class InvoicesModel extends UsersModel {
 									'id' => $cancelledInvoiceIds
 								),
 								'fields' => array(
+									'created',
+									'due',
 									'id',
 									'initial_invoice_id'
 								)
@@ -1051,7 +1053,7 @@ class InvoicesModel extends UsersModel {
 								foreach ($cancelledInvoices['data'] as $cancelledInvoice) {
 									$pendingInvoices[$cancelledInvoice['id']] = array(
 										'id' => $cancelledInvoice['id'],
-										'merged_invoice_id' => ($cancelledInvoice['initial_invoice_id'] == $invoiceId ? null : $invoiceId)
+										'merged_invoice_id' => $invoiceId
 									);
 								}
 							}
@@ -1131,6 +1133,9 @@ class InvoicesModel extends UsersModel {
 								);
 							}
 
+							$pendingInvoices[] = array(
+								// ..
+							);
 							$pendingTransactions[] = $upgradeCancellationTransaction;
 
 							if (

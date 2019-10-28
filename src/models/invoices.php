@@ -96,7 +96,7 @@ class InvoicesModel extends UsersModel {
 			!empty($response['invoice']) &&
 			$response['invoice']['status'] !== 'paid'
 		) {
-			$response['invoice']['total'] = $response['invoice']['total_pending'] = $response['invoice']['subtotal'] = $response['invoice']['subtotal_pending'] = 0;
+			$response['invoice']['total'] = $response['invoice']['total_pending'] = $response['invoice']['shipping'] = $response['invoice']['shipping_pending'] = $response['invoice']['subtotal'] = $response['invoice']['subtotal_pending'] = 0;
 
 			foreach ($response['orders'] as $key => $invoiceOrder) {
 				$response['invoice']['shipping'] += $invoiceOrder['shipping'];
@@ -958,7 +958,7 @@ class InvoicesModel extends UsersModel {
 				'text' => ($defaultMessage = 'Error processing your pending invoice order cancellation request, please try again.')
 			)
 		);
-		$initialInvoiceIds = $invoiceOrders = $pendingInvoices = $pendingInvoiceOrders = $pendingTransactions = $userData = array();
+		$amountMergedTransactionIds = $initialInvoiceIds = $invoiceOrders = $pendingInvoices = $pendingInvoiceOrders = $pendingTransactions = $userData = array();
 
 		if (!empty($parameters['conditions'])) {
 			$invoice = $this->invoice('invoices', array(
@@ -1019,6 +1019,7 @@ class InvoicesModel extends UsersModel {
 							$transactionParameters = array(
 								'conditions' => array(
 									'invoice_id' => $invoiceIds,
+									'payment_amount >' => 0,
 									'transaction_method' => 'Miscellaneous'
 								),
 								'fields' => array(
@@ -1030,22 +1031,35 @@ class InvoicesModel extends UsersModel {
 							);
 							$amountMergedTransactions = $this->find('transactions', $transactionParameters);
 							$transactionParameters['conditions'] = array(
-								'initial_invoice_id' => $invoiceIds
+								'initial_invoice_id' => $invoiceIds,
+								'transaction_method !=' => 'Miscellaneous'
 							);
 							$upgradeTransactions = $this->find('transactions', $transactionParameters);
 							$cancelledInvoiceIds = array_diff($invoiceIds, array(
 								$invoice['data']['invoice']['id']
 							));
+							$cancelledInvoices = $this->find('invoices', array(
+								'conditions' => array(
+									'id' => $cancelledInvoiceIds
+								),
+								'fields' => array(
+									'id',
+									'initial_invoice_id'
+								)
+							));
 
-							foreach ($cancelledInvoiceIds as $cancelledInvoiceId) {
-								$pendingInvoices[$cancelledInvoiceId] = array(
-									'id' => $cancelledInvoiceId,
-									'merged_invoice_id' => $invoiceId
-								);
+							if (!empty($cancelledInvoices['count'])) {
+								foreach ($cancelledInvoices['data'] as $cancelledInvoice) {
+									$pendingInvoices[$cancelledInvoice['id']] = array(
+										'id' => $cancelledInvoice['id'],
+										'merged_invoice_id' => ($cancelledInvoice['initial_invoice_id'] == $invoiceId ? null : $invoiceId)
+									);
+								}
 							}
 
 							if (!empty($amountMergedTransactions['count'])) {
 								foreach ($amountMergedTransactions['data'] as $amountMergedTransaction) {
+									$amountMergedTransactionIds[] = $amountMergedTransaction['id'];
 									$initialInvoiceIds[$amountMergedTransaction['initial_invoice_id']] = $amountMergedTransaction['initial_invoice_id'];
 								}
 
@@ -1072,10 +1086,7 @@ class InvoicesModel extends UsersModel {
 
 							if (!empty($upgradeTransactions['count'])) {
 								foreach ($upgradeTransactions['data'] as $upgradeTransaction) {
-									if (
-										is_numeric($upgradeTransaction['payment_amount']) &&
-										$upgradeTransaction['transaction_method'] != 'Miscellaneous'
-									) {
+									if (is_numeric($upgradeTransaction['payment_amount'])) {
 										$amountPaidForUpgrade += $upgradeTransaction['payment_amount'];
 									}
 
@@ -1124,6 +1135,9 @@ class InvoicesModel extends UsersModel {
 							$pendingTransactions[] = $upgradeCancellationTransaction;
 
 							if (
+								$this->delete('transactions', array(
+									'id' => $amountMergedTransactionIds
+								)) &&
 								$this->save('invoices', array_values($pendingInvoices)) &&
 								$this->save('invoice_orders', $invoiceOrders['data']) &&
 								$this->save('orders', $orderData) &&

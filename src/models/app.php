@@ -1048,6 +1048,14 @@ class AppModel extends Config {
 					return $value;
 				}, array_values($row));
 
+				if (
+					!in_array('created', $fields) &&
+					!in_array('id', $fields)
+				) {
+					$fields[] = 'created';
+					$values[] = date('Y-m-d H:i:s', time());
+				}
+
 				if (!in_array('modified', $fields)) {
 					$fields[] = 'modified';
 					$values[] = date('Y-m-d H:i:s', time());

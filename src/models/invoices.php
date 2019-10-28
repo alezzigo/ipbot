@@ -853,8 +853,7 @@ class InvoicesModel extends UsersModel {
 				'remainder_pending' => null,
 				'OR' => array(
 					'id' => $invoiceIds,
-					'initial_invoice_id' => $invoiceIds,
-					'merged_invoice_id' => $invoiceIds
+					'initial_invoice_id' => $invoiceIds
 				)
 			),
 			'fields' => array(

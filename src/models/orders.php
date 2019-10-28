@@ -420,8 +420,9 @@ class OrdersModel extends TransactionsModel {
 											if (!$pendingInvoices[$selectedOrder['invoice']['id']]['merged_invoice_id']) {
 												$pendingTransactions[] = array(
 													'customer_email' => $parameters['user']['email'],
-													'details' => '<a href="' . $this->settings['base_url'] . 'orders/' . $selectedOrder['order']['id'] . '">Order #' . $selectedOrder['order']['id'] . '</a> merged to <a href="' . $this->settings['base_url'] . 'invoices/' . $mergedInvoiceId . '">invoice #' . $mergedInvoiceId . '</a><br> ' . $selectedOrder['order']['quantity'] . ' ' . $selectedOrder['order']['name'] . '<br> ' . $selectedOrder['order']['total'] . ' ' . $this->settings['billing']['currency'] . ' for ' . $selectedOrder['order']['interval_value'] . ' ' . $selectedOrder['order']['interval_type'] . ($selectedOrder['order']['interval_value'] !== 1 ? 's' : ''),
+													'details' => 'Order <a href="' . $this->settings['base_url'] . 'orders/' . $selectedOrder['order']['id'] . '">#' . $selectedOrder['order']['id'] . '</a> merged to invoice <a href="' . $this->settings['base_url'] . 'invoices/' . $mergedInvoiceId . '">#' . $mergedInvoiceId . '</a><br> ' . $selectedOrder['order']['quantity'] . ' ' . $selectedOrder['order']['name'] . '<br> ' . $selectedOrder['order']['total'] . ' ' . $this->settings['billing']['currency'] . ' for ' . $selectedOrder['order']['interval_value'] . ' ' . $selectedOrder['order']['interval_type'] . ($selectedOrder['order']['interval_value'] !== 1 ? 's' : ''),
 													'id' => uniqid() . time(),
+													'initial_invoice_id' => $selectedOrder['invoice']['id'],
 													'invoice_id' => $selectedOrder['invoice']['id'],
 													'payment_amount' => null,
 													'payment_currency' => $this->settings['billing']['currency'],

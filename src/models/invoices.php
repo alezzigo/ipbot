@@ -974,6 +974,18 @@ class InvoicesModel extends UsersModel {
 									'payment_amount'
 								)
 							));
+							$cancelledInvoiceIds = array_diff($invoiceIds, array(
+								$invoice['data']['invoice']['id']
+							));
+
+							foreach ($cancelledInvoiceIds as $cancelledInvoiceId) {
+								$pendingInvoices[] = array(
+									'id' => $cancelledInvoiceId,
+									'merged_invoice_id' => $invoiceId,
+									'payable' => false,
+									'warning_level' => 5
+								);
+							}
 
 							if (!empty($upgradeTransactions['count'])) {
 								foreach ($upgradeTransactions['data'] as $upgradeTransaction) {
@@ -994,6 +1006,7 @@ class InvoicesModel extends UsersModel {
 								array(
 									'amount_paid' => ($amountPaid = max(0, round(($invoice['data']['invoice']['amount_paid'] - $amountPaidForUpgrade) * 100) / 100)),
 									'id' => $invoice['data']['invoice']['id'],
+									'merged_invoice_id' => $invoiceId,
 									'remainder_pending' => max(0, round(($invoice['data']['invoice']['remainder_pending'] - $upgradeDifference) * 100) / 100)
 								)
 							);
@@ -1026,12 +1039,7 @@ class InvoicesModel extends UsersModel {
 
 							$pendingTransactions[] = $upgradeCancellationTransaction;
 
-							// ..
-
 							if (
-								$this->delete('invoices', array(
-									'id' => $invoiceIds
-								)) &&
 								$this->save('invoices', $pendingInvoices) &&
 								$this->save('invoice_orders', $invoiceOrders['data']) &&
 								$this->save('orders', $orderData) &&
@@ -1042,8 +1050,6 @@ class InvoicesModel extends UsersModel {
 									'status' => 'success',
 									'text' => 'Invoice order canceled successfully for order #' . $order['id'] . '.'
 								);
-
-								// ..
 							}
 						}
 					}

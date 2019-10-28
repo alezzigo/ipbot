@@ -1049,10 +1049,25 @@ class InvoicesModel extends UsersModel {
 								$this->save('transactions', $pendingTransactions) &&
 								$this->save('users', $userData)
 							) {
+								$initialInvoiceIds = $this->_retrieveInvoiceIds(array(
+									$invoiceId
+								));
+
+								if (!empty($initialInvoiceIds)) {
+									foreach ($initialInvoiceIds as $initialInvoiceId) {
+										$this->invoice('invoices', array(
+											'conditions' => array(
+												'id' => $initialInvoiceId
+											)
+										));
+									}
+								}
+
 								$response['message'] = array(
 									'status' => 'success',
 									'text' => 'Invoice order canceled successfully for order #' . $order['id'] . '.'
 								);
+								$response['redirect'] = $this->settings['base_url'] . 'invoices/' . $mostRecentPayableInvoice['id'];
 							}
 						}
 					}

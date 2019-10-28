@@ -207,6 +207,7 @@ class InvoicesModel extends UsersModel {
 		$invoices = $this->find('invoices', array(
 			'conditions' => array(
 				'due <' => date('Y-m-d H:i:s', strtotime('-1 day')),
+				'merged_invoice_id' => null,
 				'status' => 'unpaid',
 				'warning_level' => 2
 			),
@@ -263,6 +264,7 @@ class InvoicesModel extends UsersModel {
 			'conditions' => array(
 				'due <' => date('Y-m-d H:i:s', strtotime('+5 days')),
 				'initial_invoice_id !=' => null,
+				'merged_invoice_id' => null,
 				'status' => 'unpaid',
 				'warning_level' => 0
 			),
@@ -352,6 +354,7 @@ class InvoicesModel extends UsersModel {
 		$invoices = $this->find('invoices', array(
 			'conditions' => array(
 				'due <' => date('Y-m-d H:i:s', strtotime('-6 days')),
+				'merged_invoice_id' => null,
 				'status' => 'unpaid',
 				'warning_level' => 4
 			),
@@ -456,6 +459,7 @@ class InvoicesModel extends UsersModel {
 		$invoices = $this->find('invoices', array(
 			'conditions' => array(
 				'due <' => date('Y-m-d H:i:s', strtotime('-1 day')),
+				'merged_invoice_id' => null,
 				'status' => 'unpaid',
 				'warning_level' => 3
 			),
@@ -511,6 +515,7 @@ class InvoicesModel extends UsersModel {
 		$invoices = $this->find('invoices', array(
 			'conditions' => array(
 				'due <' => date('Y-m-d H:i:s', strtotime('+1 day')),
+				'merged_invoice_id' => null,
 				'status' => 'unpaid',
 				'warning_level' => 1
 			),
@@ -981,9 +986,7 @@ class InvoicesModel extends UsersModel {
 							foreach ($cancelledInvoiceIds as $cancelledInvoiceId) {
 								$pendingInvoices[] = array(
 									'id' => $cancelledInvoiceId,
-									'merged_invoice_id' => $invoiceId,
-									'payable' => false,
-									'warning_level' => 5
+									'merged_invoice_id' => $invoiceId
 								);
 							}
 

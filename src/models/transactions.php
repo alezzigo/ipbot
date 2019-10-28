@@ -39,7 +39,7 @@ class TransactionsModel extends InvoicesModel {
 			'payment_transaction_id' => uniqid() . time(),
 			'plan_id' => $parameters['data']['plan']['id'],
 			'transaction_charset' => $this->settings['database']['charset'],
-			'transaction_date' => date('Y-m-d h:i:s', time()),
+			'transaction_date' => date('Y-m-d H:i:s', time()),
 			'transaction_method' => 'PaymentCompleted',
 			'transaction_processed' => true,
 			'user_id' => $parameters['user']['id']
@@ -554,7 +554,7 @@ class TransactionsModel extends InvoicesModel {
 												'payment_status' => 'completed',
 												'payment_status_message' => 'Order ' . $action . ' successful.',
 												'transaction_charset' => $this->settings['database']['charset'],
-												'transaction_date' => date('Y-m-d h:i:s', strtotime('+1 second')),
+												'transaction_date' => date('Y-m-d H:i:s', strtotime('+1 second')),
 												'transaction_method' => 'PaymentCompleted',
 												'transaction_processed' => true,
 												'user_id' => $parameters['user']['id']
@@ -626,7 +626,7 @@ class TransactionsModel extends InvoicesModel {
 					if ($invoiceTotalPaid) {
 						$additionalDueInvoices = $this->find('invoices', array(
 							'conditions' => array(
-								'due >' => date('Y-m-d h:i:s', strtotime($invoice['data']['invoice']['due'])),
+								'due >' => date('Y-m-d H:i:s', strtotime($invoice['data']['invoice']['due'])),
 								'id !=' => $invoice['data']['invoice']['id'],
 								'initial_invoice_id' => array_filter(array(
 									$invoice['data']['invoice']['id'],
@@ -681,7 +681,7 @@ class TransactionsModel extends InvoicesModel {
 								$invoiceData[] = array(
 									'cart_items' => $invoice['data']['invoice']['cart_items'],
 									'currency' => $invoice['data']['invoice']['currency'],
-									'due' => date('Y-m-d h:i:s', strtotime($invoice['data']['invoice']['due'] . ' +' . $intervalValue . ' ' . $intervalType)),
+									'due' => date('Y-m-d H:i:s', strtotime($invoice['data']['invoice']['due'] . ' +' . $intervalValue . ' ' . $intervalType)),
 									'initial_invoice_id' => !empty($invoice['data']['invoice']['initial_invoice_id']) ? $invoice['data']['invoice']['initial_invoice_id'] : $invoice['data']['invoice']['id'],
 									'session_id' => $invoice['data']['invoice']['session_id'],
 									'shipping' => $invoice['data']['invoice']['shipping'],
@@ -935,7 +935,7 @@ class TransactionsModel extends InvoicesModel {
 							'payment_transaction_id' => $parameters['payment_transaction_id'],
 							'plan_id' => $parameters['plan_id'],
 							'transaction_charset' => $this->settings['database']['charset'],
-							'transaction_date' => date('Y-m-d h:i:s', time()),
+							'transaction_date' => date('Y-m-d H:i:s', time()),
 							'transaction_method' => 'PaymentRefundProcessed',
 							'transaction_processed' => true,
 							'user_id' => $parameters['user']['id']
@@ -1687,7 +1687,7 @@ class TransactionsModel extends InvoicesModel {
 				'sandbox' => (!empty($parameters['test_ipn']) ? true : false),
 				'subscription_id' => (!empty($parameters['subscr_id']) ? $parameters['subscr_id'] : null),
 				'transaction_charset' => $this->settings['database']['charset'],
-				'transaction_date' => date('Y-m-d h:i:s', strtotime((!empty($parameters['subscr_date']) ? $parameters['subscr_date'] : $parameters['payment_date']))),
+				'transaction_date' => date('Y-m-d H:i:s', strtotime((!empty($parameters['subscr_date']) ? $parameters['subscr_date'] : $parameters['payment_date']))),
 				'transaction_raw' => json_encode($parameters),
 				'transaction_token' => $parameters['verify_sign'],
 				'user_id' => (!empty($itemNumberIds[2]) && is_numeric($itemNumberIds[2]) ? $itemNumberIds[2] : 0)

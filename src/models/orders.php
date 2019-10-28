@@ -324,7 +324,7 @@ class OrdersModel extends TransactionsModel {
 										'payment_currency' => $this->settings['billing']['currency'],
 										'payment_status' => 'completed',
 										'transaction_charset' => $this->settings['database']['charset'],
-										'transaction_date' => date('Y-m-d h:i:s', time()),
+										'transaction_date' => date('Y-m-d H:i:s', time()),
 										'transaction_method' => 'Miscellaneous',
 										'transaction_processed' => true,
 										'user_id' => $parameters['user']['id']
@@ -416,7 +416,7 @@ class OrdersModel extends TransactionsModel {
 													'payment_status' => 'completed',
 													'payment_status_message' => 'Order merged to new invoice.',
 													'transaction_charset' => $this->settings['database']['charset'],
-													'transaction_date' => date('Y-m-d h:i:s', time()),
+													'transaction_date' => date('Y-m-d H:i:s', time()),
 													'transaction_method' => 'Miscellaneous',
 													'transaction_processed' => true,
 													'user_id' => $parameters['user']['id']
@@ -524,7 +524,7 @@ class OrdersModel extends TransactionsModel {
 										'payment_currency' => $this->settings['billing']['currency'],
 										'payment_status' => 'completed',
 										'transaction_charset' => $this->settings['database']['charset'],
-										'transaction_date' => date('Y-m-d h:i:s', time()),
+										'transaction_date' => date('Y-m-d H:i:s', time()),
 										'transaction_method' => 'Miscellaneous',
 										'transaction_processed' => true,
 										'user_id' => $parameters['user']['id']
@@ -543,7 +543,7 @@ class OrdersModel extends TransactionsModel {
 											'details' => ($upgradeDetails = 'Order upgrade requested for ' . $upgradeDetails),
 											'id' => uniqid() . time(),
 											'payment_status_message' => 'Order upgrade requested.',
-											'transaction_date' => date('Y-m-d h:i:s', strtotime('+1 second')),
+											'transaction_date' => date('Y-m-d H:i:s', strtotime('+1 second')),
 										));
 									}
 
@@ -553,7 +553,7 @@ class OrdersModel extends TransactionsModel {
 											'id' => uniqid() . time(),
 											'payment_amount' => 0,
 											'payment_status_message' => 'Order ' . $action . ' successful.',
-											'transaction_date' => date('Y-m-d h:i:s', strtotime('+2 seconds')),
+											'transaction_date' => date('Y-m-d H:i:s', strtotime('+2 seconds')),
 											'transaction_method' => 'PaymentCompleted'
 										));
 									}

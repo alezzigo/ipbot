@@ -49,7 +49,7 @@ class InvoicesModel extends UsersModel {
 			if ($remainder < 0) {
 				$additionalInvoice = $this->find('invoices', array(
 					'conditions' => array(
-						'created >' => date('Y-m-d h:i:s', strtotime($invoiceData['created'])),
+						'created >' => date('Y-m-d H:i:s', strtotime($invoiceData['created'])),
 						'OR' => array(
 							'initial_invoice_id' => $invoiceData['id'],
 							'id' => $invoiceData['merged_invoice_id']
@@ -907,7 +907,7 @@ class InvoicesModel extends UsersModel {
 		$response = $previousInvoices;
 		$previousInvoiceParameters = array(
 			'conditions' => array(
-				'created <=' => date('Y-m-d h:i:s', strtotime($invoiceData['created'])),
+				'created <' => date('Y-m-d H:i:s', strtotime($invoiceData['created'])),
 				'id !=' => $invoiceData['id'],
 				'OR' => array(
 					'id' => $invoiceData['initial_invoice_id'],
@@ -1105,7 +1105,7 @@ class InvoicesModel extends UsersModel {
 								'payment_status' => 'completed',
 								'payment_status_message' => 'Order upgrade request cancelled.',
 								'transaction_charset' => $this->settings['database']['charset'],
-								'transaction_date' => date('Y-m-d h:i:s', time()),
+								'transaction_date' => date('Y-m-d H:i:s', time()),
 								'transaction_method' => 'Miscellaneous',
 								'transaction_processed' => true,
 								'user_id' => $parameters['user']['id']

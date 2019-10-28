@@ -196,7 +196,8 @@ class OrdersModel extends TransactionsModel {
 					));
 					$pendingInvoices[$invoiceId] = array_merge(array(
 						'amount_paid' => $selectedOrder['invoice']['amount_paid'],
-						'id' => $pendingInvoiceIds[$invoiceId] = $invoiceId
+						'id' => ($pendingInvoiceIds[$invoiceId] = $invoiceId),
+						'initial_invoice_id' => $selectedOrder['invoice']['initial_invoice_id']
 					), $pendingInvoice);
 					$pendingOrders[$selectedOrder['order']['id']] = array_merge($mergedInterval, array(
 						'id' => $pendingOrderIds[] = $selectedOrder['order']['id'],
@@ -385,10 +386,12 @@ class OrdersModel extends TransactionsModel {
 									$mergedInvoiceId = $mergedInvoice['data'][0]['id'];
 
 									foreach ($pendingInvoices as $invoiceId => $pendingInvoice) {
-										if (!array_key_exists('merged_invoice_id', $pendingInvoice)) {
+										if (
+											!array_key_exists('merged_invoice_id', $pendingInvoice) &&
+											$pendingInvoice['initial_invoice_id'] != $mergedInvoiceId
+										) {
 											$pendingInvoices[$invoiceId] = array_merge($pendingInvoices[$invoiceId], array(
-												'merged_invoice_id' => $mergedInvoiceId,
-												'warning_level' => 5
+												'merged_invoice_id' => $mergedInvoiceId
 											));
 										}
 									}

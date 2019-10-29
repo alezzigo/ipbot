@@ -1031,7 +1031,10 @@ class InvoicesModel extends UsersModel {
 							$amountMergedTransactions = $this->find('transactions', $transactionParameters);
 							$transactionParameters['conditions'] = array(
 								'initial_invoice_id' => $invoiceIds,
-								'transaction_method !=' => 'Miscellaneous'
+								'OR' => array(
+									'payment_amount' => null,
+									'transaction_method !=' => 'Miscellaneous'
+								)
 							);
 							$upgradeTransactions = $this->find('transactions', $transactionParameters);
 							$cancelledInvoiceIds = array_diff($invoiceIds, array(

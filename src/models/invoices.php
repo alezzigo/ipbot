@@ -1090,17 +1090,15 @@ class InvoicesModel extends UsersModel {
 
 							if (!empty($upgradeTransactions['count'])) {
 								foreach ($upgradeTransactions['data'] as $upgradeTransaction) {
-									if (is_numeric($upgradeTransaction['payment_amount'])) {
-										$amountPaidForUpgrade += $upgradeTransaction['payment_amount'];
-									}
+									if (!in_array($upgradeTransaction['invoice_id'], $initialInvoiceIds)) {
+										if (is_numeric($upgradeTransaction['payment_amount'])) {
+											$amountPaidForUpgrade += $upgradeTransaction['payment_amount'];
+										}
 
-									if ($upgradeTransaction['invoice_id'] == $invoice['data']['invoice']['id']) {
 										$pendingTransactions[] = array(
-											'details' => $upgradeTransaction['details'],
 											'id' => $upgradeTransaction['id'],
 											'initial_invoice_id' => null,
-											'invoice_id' => $mostRecentPayableInvoice['id'],
-											'payment_status_message' => $upgradeTransaction['payment_status_message']
+											'invoice_id' => $mostRecentPayableInvoice['id']
 										);
 									}
 								}

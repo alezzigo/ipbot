@@ -2041,7 +2041,6 @@ class TransactionsModel extends InvoicesModel {
 										}
 									}
 								}
-
 							}
 						}
 					}

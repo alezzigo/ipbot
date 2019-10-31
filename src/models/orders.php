@@ -154,7 +154,7 @@ class OrdersModel extends TransactionsModel {
 			));
 
 			if (!empty($orders['count'])) {
-				$groupedOrders = $pendingAmountMergedTransactions = $pendingInvoices = $pendingInvoiceIds = $pendingInvoiceOrders = $pendingOrders = $pendingOrderIds = $pendingProxies = $pendingProxyGroups = $pendingTransactions = $processedInvoices = $productIds = $selectedOrders = array();
+				$groupedOrders = $pendingAmountMergedTransactions = $pendingInvoices = $pendingInvoiceIds = $pendingInvoiceMerges = $pendingInvoiceOrders = $pendingOrders = $pendingOrderIds = $pendingProxies = $pendingProxyGroups = $pendingTransactions = $processedInvoices = $productIds = $selectedOrders = array();
 				$sortIntervals = array(
 					'day',
 					'week',
@@ -326,6 +326,10 @@ class OrdersModel extends TransactionsModel {
 									'user_id' => $parameters['user']['id']
 								);
 								$pendingInvoices[$previouslyPaidInvoice['id']]['amount_merged'] = round((is_numeric($pendingInvoices[$previouslyPaidInvoice['id']]['amount_merged']) ? ($pendingInvoices[$previouslyPaidInvoice['id']]['amount_merged'] + $amountMerged) : $amountMerged) * 100) / 100;
+								$pendingInvoiceMerges[] = array(
+									'amount_merged' => $amountMerged,
+									'initial_invoice_id' => $previouslyPaidInvoice['id']
+								);
 							}
 						}
 
@@ -388,6 +392,10 @@ class OrdersModel extends TransactionsModel {
 												'merged_invoice_id' => $mergedInvoiceId
 											));
 										}
+									}
+
+									foreach ($pendingInvoiceMerges as $key => $pendingInvoiceMerge) {
+										$pendingInvoiceMerges[$key]['invoice_id'] = $mergedInvoiceId;
 									}
 
 									foreach ($selectedOrders as $key => $selectedOrder) {
@@ -557,6 +565,7 @@ class OrdersModel extends TransactionsModel {
 
 									if (
 										$this->save('invoices', array_values($pendingInvoices)) &&
+										$this->save('invoice_merges', $pendingInvoiceMerges) &&
 										$this->save('invoice_orders', $pendingInvoiceOrders) &&
 										$this->save('orders', array_values($pendingOrders)) &&
 										$this->save('proxies', $pendingProxies) &&

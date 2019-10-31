@@ -937,12 +937,12 @@ class InvoicesModel extends UsersModel {
  * Retrieve previously-paid invoice data
  *
  * @param array $invoiceData
- * @param array $previousInvoices
+ * @param array $orderData
  *
  * @return array $response
  */
-	protected function _retrievePreviouslyPaidInvoices($invoiceData, $previousInvoices = array()) {
-		$response = $previousInvoices;
+	protected function _retrievePreviouslyPaidInvoices($invoiceData, $orderData) {
+		$response = array();
 		$invoiceIds = $this->_retrieveInvoiceIds(array(
 			$invoiceData['id']
 		));
@@ -951,6 +951,7 @@ class InvoicesModel extends UsersModel {
 				'id' => $invoiceIds,
 				'id !=' => $invoiceData['id'],
 				'created <' => date('Y-m-d H:i:s', strtotime($invoiceData['created'])),
+				'due >=' => date('Y-m-d 00:00:00', strtotime($invoiceData['due'] . ' -' . $orderData['interval_value'] . ' ' . $orderData['interval_type'] . ' -1 day')),
 				'OR' => array(
 					'amount_paid >' => 0,
 					'status' => 'paid'
@@ -968,7 +969,6 @@ class InvoicesModel extends UsersModel {
 				'total',
 				'total_pending'
 			),
-			'limit' => 1,
 			'sort' => array(
 				'field' => 'created',
 				'order' => 'DESC'
@@ -977,8 +977,7 @@ class InvoicesModel extends UsersModel {
 		$previousInvoice = $this->find('invoices', $previousInvoiceParameters);
 
 		if (!empty($previousInvoice['count'])) {
-			$previousInvoices[] = $previousInvoice['data'][0];
-			$response = $this->_retrievePreviouslyPaidInvoices($previousInvoice['data'][0], $previousInvoices);
+			$response = $previousInvoice['data'];
 		}
 
 		return $response;

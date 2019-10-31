@@ -282,7 +282,8 @@ class OrdersModel extends TransactionsModel {
 							}
 
 							$mergedData['invoice']['remainder_pending'] -= $amountPaid;
-							$previouslyPaidInvoices = $this->_retrievePreviouslyPaidInvoices($selectedOrder['invoice']);
+							$previouslyPaidInvoices = $this->_retrievePreviouslyPaidInvoices($selectedOrder['invoice'], $selectedOrder['order']);
+							// TODO: Calculate remainder_pending from each transaction_date instead of invoice due date
 
 							foreach ($previouslyPaidInvoices as $previouslyPaidInvoice) {
 								$pendingInvoices[$previouslyPaidInvoice['id']] = array_merge(!empty($pendingInvoices[$previouslyPaidInvoice['id']]) ? $pendingInvoices[$previouslyPaidInvoice['id']] : array(), array(

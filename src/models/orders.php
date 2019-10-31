@@ -38,8 +38,7 @@ class OrdersModel extends TransactionsModel {
 					'merged_invoice_id' => null,
 					'OR' => array(
 						'id' => $invoiceIds,
-						'initial_invoice_id' => $invoiceIds,
-						'merged_invoice_id' => $invoiceIds
+						'initial_invoice_id' => $invoiceIds
 					)
 				),
 				'fields' => array(

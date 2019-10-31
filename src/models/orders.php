@@ -304,6 +304,7 @@ class OrdersModel extends TransactionsModel {
 								$paidTime = max(1, time() - strtotime($previouslyPaidInvoice['due']));
 								$intervalTime = max(1, strtotime($selectedOrder['invoice']['due']) - strtotime($previouslyPaidInvoice['due']));
 								$remainderPercentage = 1;
+								// ..
 
 								if ($paidTime < $intervalTime) {
 									$remainderPercentage = (round((1 - (max(0, $paidTime / $intervalTime))) * 100) / 100);

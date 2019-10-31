@@ -1000,7 +1000,7 @@ class InvoicesModel extends UsersModel {
 				'text' => ($defaultMessage = 'Error processing your pending invoice order cancellation request, please try again.')
 			)
 		);
-		$additionalDueInvoice = $amountMergedTransactionIds = $initialInvoiceIds = $invoiceOrders = $pendingInvoices = $pendingInvoiceOrders = $pendingTransactions = $userData = array();
+		$additionalDueInvoice = $amountMergedInvoiceIds = $amountMergedTransactionIds = $initialInvoiceIds = $invoiceOrders = $pendingInvoices = $pendingInvoiceOrders = $pendingTransactions = $userData = array();
 
 		if (!empty($parameters['conditions'])) {
 			$invoice = $this->invoice('invoices', array(
@@ -1058,28 +1058,9 @@ class InvoicesModel extends UsersModel {
 							$invoiceIds = $this->_retrieveInvoiceIds(array(
 								$invoice['data']['invoice']['id']
 							));
-							$transactionParameters = array(
-								'conditions' => array(
-									'invoice_id' => $invoiceIds,
-									'payment_amount >' => 0,
-									'transaction_method' => 'Miscellaneous'
-								),
-								'fields' => array(
-									'id',
-									'initial_invoice_id',
-									'invoice_id',
-									'payment_amount'
-								)
-							);
-							$amountMergedTransactions = $this->find('transactions', $transactionParameters);
-							$transactionParameters['conditions'] = array(
-								'initial_invoice_id' => $invoiceIds,
-								'OR' => array(
-									'payment_amount' => null,
-									'transaction_method !=' => 'Miscellaneous'
-								)
-							);
-							$upgradeTransactions = $this->find('transactions', $transactionParameters);
+							$cancelledInvoiceIds = array_diff($invoiceIds, array(
+								$invoice['data']['invoice']['id']
+							));
 							$invoiceParameters = array(
 								'conditions' => array(
 									'id' => $cancelledInvoiceIds
@@ -1109,12 +1090,46 @@ class InvoicesModel extends UsersModel {
 									'user_id'
 								)
 							);
-							$cancelledInvoiceIds = array_diff($invoiceIds, array(
-								$invoice['data']['invoice']['id']
-							));
 							$cancelledInvoices = $this->find('invoices', $invoiceParameters);
 							$invoiceParameters['conditions']['id'] = $mostRecentPayableInvoice['id'];
 							$revertedInvoice = $this->find('invoices', $invoiceParameters);
+							$amountMergedInvoices = $this->find('invoice_merges', array(
+								'conditions' => array(
+									'invoice_id' => $invoiceIds
+								),
+								'fields' => array(
+									'amount_merged',
+									'id',
+									'initial_invoice_id',
+									'invoice_id'
+								),
+								'sort' => array(
+									'field' => 'created',
+									'order' => 'DESC'
+								)
+							));
+							$transactionParameters = array(
+								'conditions' => array(
+									'invoice_id' => $invoiceIds,
+									'payment_amount >' => 0,
+									'transaction_method' => 'Miscellaneous'
+								),
+								'fields' => array(
+									'id',
+									'initial_invoice_id',
+									'invoice_id',
+									'payment_amount'
+								)
+							);
+							$amountMergedTransactions = $this->find('transactions', $transactionParameters);
+							$transactionParameters['conditions'] = array(
+								'initial_invoice_id' => $invoiceIds,
+								'OR' => array(
+									'payment_amount' => null,
+									'transaction_method !=' => 'Miscellaneous'
+								)
+							);
+							$upgradeTransactions = $this->find('transactions', $transactionParameters);
 
 							if (!empty($cancelledInvoices['count'])) {
 								foreach ($cancelledInvoices['data'] as $cancelledInvoice) {
@@ -1133,12 +1148,14 @@ class InvoicesModel extends UsersModel {
 
 									$pendingInvoices[$cancelledInvoice['id']] = array(
 										'id' => $cancelledInvoice['id'],
-										'merged_invoice_id' => $mostRecentPayableInvoice['id']
+										'merged_invoice_id' => ($mostRecentPayableInvoice['id'] != $cancelledInvoice['id'] ? $mostRecentPayableInvoice['id'] : null)
 									);
 								}
 							}
 
 							if (!empty($amountMergedTransactions['count'])) {
+								$amountMergedRemainder = 0;
+
 								foreach ($amountMergedTransactions['data'] as $amountMergedTransaction) {
 									$amountMergedTransactionIds[] = $amountMergedTransaction['id'];
 									$initialInvoiceIds[$amountMergedTransaction['initial_invoice_id']] = $amountMergedTransaction['initial_invoice_id'];
@@ -1160,8 +1177,26 @@ class InvoicesModel extends UsersModel {
 									}
 								}
 
-								foreach ($amountMergedTransactions['data'] as $amountMergedTransaction) {
-									$pendingInvoices[$amountMergedTransaction['initial_invoice_id']]['amount_merged'] = max(0, round(($pendingInvoices[$amountMergedTransaction['initial_invoice_id']]['amount_merged'] - $amountMergedTransaction['payment_amount'] * 100)) / 100);
+								if (!empty($amountMergedInvoices['count'])) {
+									$amountMerged = 0;
+
+									foreach ($amountMergedInvoices['data'] as $amountMergedInvoice) {
+										$amountMerged += $amountMergedInvoice['amount_merged'];
+										$amountMergedInvoiceIds[] = $amountMergedInvoice['id'];
+									}
+
+									$amountMergedRemainder = min($amountMerged, $orderData[0]['price']);
+								}
+
+								if ($amountMergedRemainder > 0) {
+									foreach ($amountMergedInvoices['data'] as $key => $amountMergedInvoice) {
+										if ($amountMergedRemainder <= 0) {
+											break;
+										}
+
+										$pendingInvoices[$amountMergedInvoice['initial_invoice_id']]['amount_merged'] = round(($pendingInvoices[$amountMergedInvoice['initial_invoice_id']]['amount_merged'] - ($amountMergedToDeduct = min($amountMergedRemainder, $pendingInvoices[$amountMergedInvoice['initial_invoice_id']]['amount_merged']))) * 100) / 100;
+										$amountMergedRemainder = round(($amountMergedRemainder - $amountMergedToDeduct) * 100) / 100;
+									}
 								}
 							}
 

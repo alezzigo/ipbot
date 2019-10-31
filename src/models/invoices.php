@@ -996,7 +996,7 @@ class InvoicesModel extends UsersModel {
 				'text' => ($defaultMessage = 'Error processing your pending invoice order cancellation request, please try again.')
 			)
 		);
-		$amountMergedTransactionIds = $initialInvoiceIds = $invoiceOrders = $pendingInvoices = $pendingInvoiceOrders = $pendingTransactions = $userData = array();
+		$additionalDueInvoice = $amountMergedTransactionIds = $initialInvoiceIds = $invoiceOrders = $pendingInvoices = $pendingInvoiceOrders = $pendingTransactions = $userData = array();
 
 		if (!empty($parameters['conditions'])) {
 			$invoice = $this->invoice('invoices', array(
@@ -1076,26 +1076,60 @@ class InvoicesModel extends UsersModel {
 								)
 							);
 							$upgradeTransactions = $this->find('transactions', $transactionParameters);
-							$cancelledInvoiceIds = array_diff($invoiceIds, array(
-								$invoice['data']['invoice']['id']
-							));
-							$cancelledInvoices = $this->find('invoices', array(
+							$invoiceParameters = array(
 								'conditions' => array(
 									'id' => $cancelledInvoiceIds
 								),
 								'fields' => array(
+									'amount_paid',
+									'cart_items',
 									'created',
+									'currency',
 									'due',
 									'id',
-									'initial_invoice_id'
+									'initial_invoice_id',
+									'merged_invoice_id',
+									'modified',
+									'payable',
+									'remainder_pending',
+									'session_id',
+									'shipping',
+									'shipping_pending',
+									'status',
+									'subtotal',
+									'subtotal_pending',
+									'tax',
+									'tax_pending',
+									'total',
+									'total_pending',
+									'user_id'
 								)
+							);
+							$cancelledInvoiceIds = array_diff($invoiceIds, array(
+								$invoice['data']['invoice']['id']
 							));
+							$cancelledInvoices = $this->find('invoices', $invoiceParameters);
+							$invoiceParameters['conditions']['id'] = $mostRecentPayableInvoice['id'];
+							$revertedInvoice = $this->find('invoices', $invoiceParameters);
 
 							if (!empty($cancelledInvoices['count'])) {
 								foreach ($cancelledInvoices['data'] as $cancelledInvoice) {
+									if (
+										$cancelledInvoice['initial_invoice_id'] == $invoiceId &&
+										$cancelledInvoice['status'] == 'unpaid'
+									) {
+										$pendingInvoices['reverted'] = array_diff_key($cancelledInvoice, array(
+											'created' => true,
+											'due' => true,
+											'id' => true,
+											'merged_invoice_id' => true,
+											'modified' => true
+										));
+									}
+
 									$pendingInvoices[$cancelledInvoice['id']] = array(
 										'id' => $cancelledInvoice['id'],
-										'merged_invoice_id' => $invoiceId
+										'merged_invoice_id' => $mostRecentPayableInvoice['id']
 									);
 								}
 							}
@@ -1155,7 +1189,7 @@ class InvoicesModel extends UsersModel {
 								'details' => 'Order upgrade request cancelled for order <a href="' . $this->settings['base_url'] . 'orders/' . $order['id'] . '">#' . $order['id'] . '</a>.<br>' . $order['quantity_pending'] . ' ' . $order['name'] . ' reverted to ' . $orderData[0]['quantity'] . ' ' . $order['name'] . '<br>' . $order['price_pending'] . ' ' . $order['currency'] . ' for ' . $order['interval_value_pending'] . ' ' . $order['interval_type_pending'] . ($order['interval_value_pending'] !== 1 ? 's' : '') . ' reverted to ' . $orderData[0]['price'] . ' ' . $order['currency'] . ' for ' . $order['interval_value'] . ' ' . $order['interval_type'] . ($order['interval_value'] !== 1 ? 's' : ''),
 								'id' => uniqid() . time(),
 								'initial_invoice_id' => $invoiceId,
-								'invoice_id' => $invoiceId,
+								'invoice_id' => $mostRecentPayableInvoice['id'],
 								'payment_amount' => null,
 								'payment_currency' => $this->settings['billing']['currency'],
 								'payment_status' => 'completed',
@@ -1177,40 +1211,76 @@ class InvoicesModel extends UsersModel {
 								);
 							}
 
-							$pendingInvoices[] = array(
-								// ..
-							);
-							$pendingTransactions[] = $upgradeCancellationTransaction;
+							if (!empty($revertedInvoice['count'])) {
+								$additionalDueInvoices = $this->_retrieveDueInvoices($revertedInvoice['data'][0]);
 
-							if (
-								$this->delete('transactions', array(
-									'id' => $amountMergedTransactionIds
-								)) &&
-								$this->save('invoices', array_values($pendingInvoices)) &&
-								$this->save('invoice_orders', $invoiceOrders['data']) &&
-								$this->save('orders', $orderData) &&
-								$this->save('transactions', $pendingTransactions) &&
-								$this->save('users', $userData)
-							) {
-								$initialInvoiceIds = $this->_retrieveInvoiceIds(array(
-									$invoiceId
-								));
-
-								if (!empty($initialInvoiceIds)) {
-									foreach ($initialInvoiceIds as $initialInvoiceId) {
-										$this->invoice('invoices', array(
-											'conditions' => array(
-												'id' => $initialInvoiceId
-											)
-										));
-									}
+								if (!empty($additionalDueInvoices)) {
+									$additionalDueInvoice = array_diff_key($additionalDueInvoices[0], array(
+										'created' => true,
+										'due' => true,
+										'modified' => true
+									));
 								}
 
-								$response['message'] = array(
-									'status' => 'success',
-									'text' => 'Invoice order canceled successfully for order #' . $order['id'] . '.'
+								$pendingInvoices['reverted'] = array_merge(
+									array(
+										'due' => date('Y-m-d H:i:s', strtotime($revertedInvoice['data'][0]['due'] . ' +' . $orderData[0]['interval_value'] . ' ' . $orderData[0]['interval_type'])),
+										'initial_invoice_id' => (!empty($revertedInvoice['data'][0]['initial_invoice_id']) ? $revertedInvoice['data'][0]['initial_invoice_id'] : $revertedInvoice['data'][0]['id'])
+									),
+									$additionalDueInvoice,
+									!empty($pendingInvoices['reverted']) ? $pendingInvoices['reverted'] : array()
 								);
-								$response['redirect'] = $this->settings['base_url'] . 'invoices/' . $mostRecentPayableInvoice['id'];
+
+								$pendingTransactions[] = $upgradeCancellationTransaction;
+								$pendingInvoices['reverted'] = array_merge($pendingInvoices['reverted'], array(
+									'session_id' => $parameters['session'],
+									'user_id' => $parameters['user']['id']
+								));
+
+								if (empty($pendingInvoices['reverted']['cart_items'])) {
+									$pendingInvoices['reverted']['cart_items'] = sha1(uniqid() . time());
+								}
+
+								$additionalDueInvoiceIdentifier = $pendingInvoices['reverted']['cart_items'];
+
+								if (
+									$this->delete('transactions', array(
+										'id' => $amountMergedTransactionIds
+									)) &&
+									$this->save('invoices', array_values(array_filter($pendingInvoices))) &&
+									$this->save('invoice_orders', $invoiceOrders['data']) &&
+									$this->save('orders', $orderData) &&
+									$this->save('transactions', $pendingTransactions) &&
+									$this->save('users', $userData)
+								) {
+									$initialInvoiceIds = $this->_retrieveInvoiceIds(array(
+										$invoiceId
+									));
+									$invoiceParameters['conditions'] = array(
+										'cart_items' => $additionalDueInvoiceIdentifier
+									);
+									$additionalDueInvoice = $this->find('invoices', $invoiceParameters);
+
+									if (!empty($additionalDueInvoice['count'])) {
+										$initialInvoiceIds[] = $additionalDueInvoice['data'][0]['id'];
+									}
+
+									if (!empty($initialInvoiceIds)) {
+										foreach ($initialInvoiceIds as $initialInvoiceId) {
+											$this->invoice('invoices', array(
+												'conditions' => array(
+													'id' => $initialInvoiceId
+												)
+											));
+										}
+									}
+
+									$response['message'] = array(
+										'status' => 'success',
+										'text' => 'Invoice order canceled successfully for order #' . $order['id'] . '.'
+									);
+									$response['redirect'] = $this->settings['base_url'] . 'invoices/' . $mostRecentPayableInvoice['id'];
+								}
 							}
 						}
 					}

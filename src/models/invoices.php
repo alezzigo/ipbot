@@ -562,6 +562,45 @@ class InvoicesModel extends UsersModel {
 	}
 
 /**
+ * Retrieve additional due invoice data
+ *
+ * @param array $invoiceData
+ *
+ * @return array $response
+ */
+	protected function _retrieveDueInvoices($invoiceData) {
+		$response = array();
+		$dueInvoices = $this->find('invoices', array(
+			'conditions' => array(
+				'due >' => date('Y-m-d H:i:s', strtotime($invoiceData['due'])),
+				'id !=' => $invoiceData['id'],
+				'initial_invoice_id' => array_filter(array(
+					$invoiceData['id'],
+					$invoiceData['initial_invoice_id']
+				)),
+				'merged_invoice_id' => null,
+				'status' => 'unpaid',
+				'user_id' => $invoiceData['user_id']
+			),
+			'fields' => array(
+				'due',
+				'id',
+				'warning_level'
+			),
+			'sort' => array(
+				'field' => 'created',
+				'order' => 'DESC'
+			)
+		));
+
+		if (!empty($dueInvoices['count'])) {
+			$response = $dueInvoices['data'];
+		}
+
+		return $response;
+	}
+
+/**
  * Retrieve invoice IDs
  *
  * @param array $invoiceIds
@@ -603,7 +642,7 @@ class InvoicesModel extends UsersModel {
 	}
 
 /**
- * Retrieve invoice items data
+ * Retrieve invoice item data
  *
  * @param array $invoiceData
  *

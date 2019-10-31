@@ -624,31 +624,11 @@ class TransactionsModel extends InvoicesModel {
 					$invoice['data']['invoice'] = array_merge($invoice['data']['invoice'], $invoiceData[0]);
 
 					if ($invoiceTotalPaid) {
-						$additionalDueInvoices = $this->find('invoices', array(
-							'conditions' => array(
-								'due >' => date('Y-m-d H:i:s', strtotime($invoice['data']['invoice']['due'])),
-								'id !=' => $invoice['data']['invoice']['id'],
-								'initial_invoice_id' => array_filter(array(
-									$invoice['data']['invoice']['id'],
-									$invoice['data']['invoice']['initial_invoice_id']
-								)),
-								'status' => 'unpaid',
-								'user_id' => $invoice['data']['invoice']['user_id']
-							),
-							'fields' => array(
-								'due',
-								'id',
-								'warning_level'
-							),
-							'sort' => array(
-								'field' => 'created',
-								'order' => 'DESC'
-							)
-						));
+						$additionalDueInvoices = $this->_retrieveDueInvoices($invoice['data']['invoice']);
 						$invoiceData = array();
 
-						if (!empty($additionalDueInvoices['count'])) {
-							$invoiceData = array_replace_recursive($additionalDueInvoices['data'], array_fill(0, $additionalDueInvoices['count'], array(
+						if (!empty($additionalDueInvoices)) {
+							$invoiceData = array_replace_recursive($additionalDueInvoices, array_fill(0, count($additionalDueInvoices), array(
 								'due' => null,
 								'warning_level' => 5
 							)));
@@ -665,10 +645,10 @@ class TransactionsModel extends InvoicesModel {
 							!empty($intervalValue = $invoice['data']['orders'][0]['interval_value'])
 						) {
 							if (
-								empty($additionalDueInvoices['count']) ||
+								empty($additionalDueInvoices) ||
 								(
-									!empty($additionalDueInvoices['data'][0]['warning_level']) &&
-									$additionalDueInvoices['data'][0]['warning_level'] === 5
+									!empty($additionalDueInvoices[0]['warning_level']) &&
+									$additionalDueInvoices[0]['warning_level'] === 5
 								)
 							) {
 								if (
@@ -698,6 +678,7 @@ class TransactionsModel extends InvoicesModel {
 						}
 
 						if (!empty($invoiceData)) {
+							// ..
 							$this->save('invoices', $invoiceData);
 						}
 					}

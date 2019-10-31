@@ -934,22 +934,26 @@ class InvoicesModel extends UsersModel {
 	}
 
 /**
- * Retrieve previous invoice data
+ * Retrieve previously-paid invoice data
  *
  * @param array $invoiceData
  * @param array $previousInvoices
  *
  * @return array $response
  */
-	protected function _retrievePreviousInvoices($invoiceData, $previousInvoices = array()) {
+	protected function _retrievePreviouslyPaidInvoices($invoiceData, $previousInvoices = array()) {
 		$response = $previousInvoices;
+		$invoiceIds = $this->_retrieveInvoiceIds(array(
+			$invoiceData['id']
+		));
 		$previousInvoiceParameters = array(
 			'conditions' => array(
-				'created <' => date('Y-m-d H:i:s', strtotime($invoiceData['created'])),
+				'id' => $invoiceIds,
 				'id !=' => $invoiceData['id'],
+				'created <' => date('Y-m-d H:i:s', strtotime($invoiceData['created'])),
 				'OR' => array(
-					'id' => $invoiceData['initial_invoice_id'],
-					'merged_invoice_id' => $invoiceData['id']
+					'amount_paid >' => 0,
+					'status' => 'paid'
 				)
 			),
 			'fields' => array(
@@ -974,7 +978,7 @@ class InvoicesModel extends UsersModel {
 
 		if (!empty($previousInvoice['count'])) {
 			$previousInvoices[] = $previousInvoice['data'][0];
-			$response = $this->_retrievePreviousInvoices($previousInvoice['data'][0], $previousInvoices);
+			$response = $this->_retrievePreviouslyPaidInvoices($previousInvoice['data'][0], $previousInvoices);
 		}
 
 		return $response;

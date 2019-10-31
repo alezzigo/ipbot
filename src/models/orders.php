@@ -67,7 +67,7 @@ class OrdersModel extends TransactionsModel {
 				),
 				'limit' => 1,
 				'sort' => array(
-					'field' => 'created',
+					'field' => 'due',
 					'order' => 'DESC'
 				)
 			));

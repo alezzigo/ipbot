@@ -215,7 +215,7 @@ class AppModel extends Config {
 			!empty($expirationMinutes) &&
 			is_numeric($expirationMinutes)
 		) {
-			$tokenParameters['conditions']['expiration'] = date('Y-m-d h:i:s', strtotime('+' . $expirationMinutes . ' minutes'));
+			$tokenParameters['conditions']['expiration'] = date('Y-m-d H:i:s', strtotime('+' . $expirationMinutes . ' minutes'));
 		}
 
 		$this->save('tokens', array(
@@ -242,7 +242,7 @@ class AppModel extends Config {
  */
 	protected function _hashPassword($string, $timestamp) {
 		$response = array(
-			'modified' => $modified = date('Y-m-d h:i:s', $timestamp),
+			'modified' => $modified = date('Y-m-d H:i:s', $timestamp),
 			'string' => 'e1Gh7$' . sha1($string . $modified . $this->keys['start'])
 		);
 		return $response;
@@ -884,7 +884,7 @@ class AppModel extends Config {
 				if (!empty($users['count'])) {
 					foreach ($users['data'] as $key => $user) {
 						$users['data'][$key]['password'] = '';
-						$users['data'][$key]['password_modified'] = date('Y-m-d h:i:s', time());
+						$users['data'][$key]['password_modified'] = date('Y-m-d H:i:s', time());
 					}
 
 					$this->save('users', $users['data']);

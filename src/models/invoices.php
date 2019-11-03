@@ -947,6 +947,7 @@ class InvoicesModel extends UsersModel {
 		));
 		$orderMerges = $this->find('order_merges', array(
 			'conditions' => array(
+				'amount_merged >' => 0,
 				'initial_invoice_id !=' => $invoiceIds,
 				'invoice_id' => $invoiceIds
 			),

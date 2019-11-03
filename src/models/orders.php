@@ -275,6 +275,7 @@ class OrdersModel extends TransactionsModel {
 						$mergedData['invoice']['remainder_pending'] = $mergedData['invoice']['total_pending'];
 						$orderMerges = $this->find('order_merges', array(
 							'conditions' => array(
+								'amount_merged >' => 0,
 								'OR' => array(
 									'initial_invoice_id' => $invoiceIds,
 									'invoice_id' => $invoiceIds
@@ -326,12 +327,13 @@ class OrdersModel extends TransactionsModel {
 									'id' => $previouslyPaidInvoice['id'],
 									'merged_invoice_id' => null
 								));
-								$previouslyPaidInvoiceIds = array(
+								$previouslyPaidInvoiceIds = array_filter(array(
 									$previouslyPaidInvoice['id'],
 									$previouslyPaidInvoice['initial_invoice_id']
-								);
+								));
 								$previousOrderMerges = $this->find('order_merges', array(
 									'conditions' => array(
+										'amount_merged >' => 0,
 										'initial_order_id !=' => $selectedOrder['order']['id'],
 										'order_id' => $selectedOrder['order']['id'],
 										'OR' => array(

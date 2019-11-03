@@ -1171,39 +1171,9 @@ class InvoicesModel extends UsersModel {
 							}
 
 							if (!empty($amountMergedTransactions['count'])) {
-								$amountMergedRemainder = 0;
-
 								foreach ($amountMergedTransactions['data'] as $amountMergedTransaction) {
 									$amountMergedTransactionIds[] = $amountMergedTransaction['id'];
 									$initialInvoiceIds[$amountMergedTransaction['initial_invoice_id']] = $amountMergedTransaction['initial_invoice_id'];
-								}
-
-								if (!empty($amountMergedInvoices['count'])) {
-									$amountMerged = 0;
-
-									foreach ($amountMergedInvoices['data'] as $amountMergedInvoice) {
-										$amountMerged += $amountMergedInvoice['amount_merged'];
-									}
-
-									$amountMergedRemainder = max(0, round(($amountMerged - $orderData[0]['price_active']) * 100) / 100);
-								}
-
-								if ($amountMergedRemainder > 0) {
-									foreach ($amountMergedInvoices['data'] as $key => $amountMergedInvoice) {
-										if ($amountMergedRemainder <= 0) {
-											break;
-										}
-
-										if (empty($pendingOrderMerges[$amountMergedInvoice['id']])) {
-											$pendingOrderMerges[$amountMergedInvoice['id']] = array(
-												'amount_merged' => $amountMergedInvoice['amount_merged'],
-												'id' => $amountMergedInvoice['id']
-											);
-										}
-
-										$pendingOrderMerges[$amountMergedInvoice['id']]['amount_merged'] = round(($pendingOrderMerges[$amountMergedInvoice['id']]['amount_merged'] - ($amountMergedToDeduct = min($amountMergedRemainder, $pendingOrderMerges[$amountMergedInvoice['id']]['amount_merged']))) * 100) / 100;
-										$amountMergedRemainder = round(($amountMergedRemainder - $amountMergedToDeduct) * 100) / 100;
-									}
 								}
 							}
 

@@ -608,7 +608,7 @@ class InvoicesModel extends UsersModel {
  * @return array $response
  */
 	protected function _retrieveInvoiceIds($invoiceIds) {
-		$response = $invoiceIds;
+		$invoiceIds = $response = array_unique(array_filter($invoiceIds));
 		$invoiceParameters = array(
 			'conditions' => array(
 				'OR' => array(
@@ -689,11 +689,11 @@ class InvoicesModel extends UsersModel {
  */
 	protected function _retrieveInvoiceOrders($invoiceData) {
 		$response = array();
-		$invoiceIds = $this->_retrieveInvoiceIds(array_unique(array_filter(array(
+		$invoiceIds = $this->_retrieveInvoiceIds(array(
 			$invoiceData['id'],
 			$invoiceData['initial_invoice_id'],
 			$invoiceData['merged_invoice_id']
-		))));
+		));
 		$invoiceOrders = $this->find('invoice_orders', array(
 			'conditions' => array(
 				'invoice_id' => $invoiceIds

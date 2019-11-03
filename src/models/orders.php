@@ -88,7 +88,7 @@ class OrdersModel extends TransactionsModel {
  * @return array $response
  */
 	protected function _retrieveOrderIds($orderIds) {
-		$response = array_unique(array_filter($orderIds));
+		$orderIds = $response = array_unique(array_filter($orderIds));
 		$orderParameters = array(
 			'conditions' => array(
 				'OR' => array(
@@ -312,7 +312,7 @@ class OrdersModel extends TransactionsModel {
 						$mergedData['orders'][] = $mergedData['order'];
 						$mergedData = array_replace_recursive($mergedData, $this->_calculateInvoicePaymentDetails($mergedData, false));
 						$mergedData['invoice']['remainder_pending'] = $mergedData['invoice']['total_pending'];
-						$orderMerges = $this->find('order_merges', array(
+						$orderMergeParameters = array(
 							'conditions' => array(
 								'amount_merged >' => 0,
 								'OR' => array(
@@ -334,7 +334,8 @@ class OrdersModel extends TransactionsModel {
 								'field' => 'created',
 								'order' => 'DESC'
 							)
-						));
+						);
+						$orderMerges = $this->find('order_merges', $orderMergeParameters);
 
 						if (!empty($orderMerges['count'])) {
 							foreach ($orderMerges['data'] as $orderMerge) {
@@ -364,32 +365,17 @@ class OrdersModel extends TransactionsModel {
 									$previouslyPaidInvoice['id'],
 									$previouslyPaidInvoice['initial_invoice_id']
 								));
-								$previousOrderMerges = $this->find('order_merges', array(
-									'conditions' => array(
-										'amount_merged >' => 0,
-										'order_id' => $this->_retrieveOrderIds(array(
-											$selectedOrder['order']['id']
-										)),
-										'OR' => array(
-											'initial_invoice_id' => $previouslyPaidInvoiceIds,
-											'invoice_id' => $previouslyPaidInvoiceIds
-										)
-									),
-									'fields' => array(
-										'amount_merged',
-										'due',
-										'initial_invoice_id',
-										'initial_order_id',
-										'interval_type',
-										'interval_value',
-										'invoice_id',
-										'order_id'
-									),
-									'sort' => array(
-										'field' => 'created',
-										'order' => 'DESC'
+								$orderMergeParameters['conditions'] = array(
+									'amount_merged >' => 0,
+									'order_id' => $this->_retrieveOrderIds(array(
+										$selectedOrder['order']['id']
+									)),
+									'OR' => array(
+										'initial_invoice_id' => $previouslyPaidInvoiceIds,
+										'invoice_id' => $previouslyPaidInvoiceIds
 									)
-								));
+								);
+								$previousOrderMerges = $this->find('order_merges', $orderMergeParameters);
 								$amountAvailableToMerge = $selectedOrder['order']['total'];
 
 								if (!empty($previousOrderMerges['count'])) {

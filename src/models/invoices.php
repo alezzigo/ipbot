@@ -976,7 +976,6 @@ class InvoicesModel extends UsersModel {
 				)
 			),
 			'fields' => array(
-				'amount_merged',
 				'amount_paid',
 				'created',
 				'due',

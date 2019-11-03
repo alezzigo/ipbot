@@ -304,13 +304,7 @@ class OrdersModel extends TransactionsModel {
 						}
 
 						foreach ($selectedOrders as $key => $selectedOrder) {
-							$amountPaid = min($selectedOrder['order']['total'], $selectedOrder['invoice']['amount_paid']);
-
-							if (!empty($selectedOrder['invoice']['remainder_pending'])) {
-								$amountPaid = $selectedOrder['invoice']['total_pending'] - $selectedOrder['invoice']['remainder_pending'];
-							}
-
-							$mergedData['invoice']['remainder_pending'] -= $amountPaid;
+							$mergedData['invoice']['remainder_pending'] -= min($selectedOrder['order']['total'], $selectedOrder['invoice']['amount_paid']);
 							$previouslyPaidInvoices = $this->_retrievePreviouslyPaidInvoices($selectedOrder['invoice']);
 
 							foreach ($previouslyPaidInvoices as $previouslyPaidInvoice) {
@@ -355,16 +349,6 @@ class OrdersModel extends TransactionsModel {
 										'order' => 'DESC'
 									)
 								));
-								$amountPaid = $previouslyPaidInvoice['amount_paid'];
-
-								if (
-									!is_numeric($previouslyPaidInvoice['remainder_pending']) &&
-									$amountPaid < $previouslyPaidInvoice['total'] &&
-									$previouslyPaidInvoice['status'] === 'paid'
-								) {
-									$amountPaid = $previouslyPaidInvoice['total'];
-								}
-
 								$amountAvailableToMerge = $selectedOrder['order']['total'];
 
 								if (!empty($previousOrderMerges['count'])) {
@@ -375,7 +359,7 @@ class OrdersModel extends TransactionsModel {
 									}
 								}
 
-								$amountAvailableToMerge = min($amountAvailableToMerge, $amountPaid);
+								$amountAvailableToMerge = min($amountAvailableToMerge, $previouslyPaidInvoice['amount_paid']);
 								$paidTime = max(1, time() - strtotime($orderMerge['due']));
 								$intervalTime = max(1, strtotime($selectedOrder['invoice']['due']) - strtotime($orderMerge['due']));
 								$remainderPercentage = 1;

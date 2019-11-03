@@ -402,7 +402,10 @@ class OrdersModel extends TransactionsModel {
 									'user_id' => $parameters['user']['id']
 								);
 
-								if (empty($groupedOrderMerges[$orderMergeKey])) {
+								if (
+									empty($groupedOrderMerges[$orderMergeKey]) &&
+									empty($previousOrderMerges['count'])
+								) {
 									$pendingOrderMerges[] = $groupedOrderMerges[$orderMergeKey] = $orderMerge;
 								}
 							}

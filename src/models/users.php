@@ -677,7 +677,7 @@ class UsersModel extends AppModel {
 					$tokenParameters = explode('_', $token['data'][0]['foreign_value']);
 
 					if (
-						$token['data'][0]['expiration'] > date('Y-m-d h:i:s', time()) &&
+						$token['data'][0]['expiration'] > date('Y-m-d H:i:s', time()) &&
 						!empty($userId = $tokenParameters[0]) &&
 						is_numeric($userId) &&
 						!empty($passwordModified = $tokenParameters[1]) &&

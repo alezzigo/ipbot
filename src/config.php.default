@@ -50,6 +50,7 @@ class Config {
 				'interval_type_pending',
 				'interval_value',
 				'interval_value_pending',
+				'merged_order_id',
 				'name',
 				'price',
 				'price_pending',

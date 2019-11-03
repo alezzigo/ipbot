@@ -945,7 +945,7 @@ class InvoicesModel extends UsersModel {
 		$invoiceIds = $this->_retrieveInvoiceIds(array(
 			$invoiceData['id']
 		));
-		$invoiceMerges = $this->find('invoice_merges', array(
+		$orderMerges = $this->find('order_merges', array(
 			'conditions' => array(
 				'initial_invoice_id !=' => $invoiceIds,
 				'invoice_id' => $invoiceIds
@@ -959,8 +959,8 @@ class InvoicesModel extends UsersModel {
 			)
 		));
 
-		if (!empty($invoiceMerges['count'])) {
-			$invoiceIds = array_unique(array_merge($invoiceIds, $invoiceMerges['data']));
+		if (!empty($orderMerges['count'])) {
+			$invoiceIds = array_unique(array_merge($invoiceIds, $orderMerges['data']));
 		}
 
 		$previousInvoiceParameters = array(
@@ -1016,7 +1016,7 @@ class InvoicesModel extends UsersModel {
 				'text' => ($defaultMessage = 'Error processing your pending invoice order cancellation request, please try again.')
 			)
 		);
-		$additionalDueInvoice = $amountMergedTransactionIds = $initialInvoiceIds = $invoiceOrders = $pendingInvoiceMerges = $pendingInvoices = $pendingInvoiceOrders = $pendingTransactions = $userData = array();
+		$additionalDueInvoice = $amountMergedTransactionIds = $initialInvoiceIds = $invoiceOrders = $pendingInvoices = $pendingInvoiceOrders = $pendingOrderMerges = $pendingTransactions = $userData = array();
 
 		if (!empty($parameters['conditions'])) {
 			$invoice = $this->invoice('invoices', array(
@@ -1193,14 +1193,14 @@ class InvoicesModel extends UsersModel {
 											break;
 										}
 
-										if (empty($pendingInvoiceMerges[$amountMergedInvoice['id']])) {
-											$pendingInvoiceMerges[$amountMergedInvoice['id']] = array(
+										if (empty($pendingOrderMerges[$amountMergedInvoice['id']])) {
+											$pendingOrderMerges[$amountMergedInvoice['id']] = array(
 												'amount_merged' => $amountMergedInvoice['amount_merged'],
 												'id' => $amountMergedInvoice['id']
 											);
 										}
 
-										$pendingInvoiceMerges[$amountMergedInvoice['id']]['amount_merged'] = round(($pendingInvoiceMerges[$amountMergedInvoice['id']]['amount_merged'] - ($amountMergedToDeduct = min($amountMergedRemainder, $pendingInvoiceMerges[$amountMergedInvoice['id']]['amount_merged']))) * 100) / 100;
+										$pendingOrderMerges[$amountMergedInvoice['id']]['amount_merged'] = round(($pendingOrderMerges[$amountMergedInvoice['id']]['amount_merged'] - ($amountMergedToDeduct = min($amountMergedRemainder, $pendingOrderMerges[$amountMergedInvoice['id']]['amount_merged']))) * 100) / 100;
 										$amountMergedRemainder = round(($amountMergedRemainder - $amountMergedToDeduct) * 100) / 100;
 									}
 								}
@@ -1293,9 +1293,9 @@ class InvoicesModel extends UsersModel {
 										'id' => $amountMergedTransactionIds
 									)) &&
 									$this->save('invoices', array_values(array_filter($pendingInvoices))) &&
-									$this->save('invoice_merges', array_values($pendingInvoiceMerges)) &&
 									$this->save('invoice_orders', $invoiceOrders['data']) &&
 									$this->save('orders', $orderData) &&
+									$this->save('order_merges', array_values($pendingOrderMerges)) &&
 									$this->save('transactions', $pendingTransactions) &&
 									$this->save('users', $userData)
 								) {

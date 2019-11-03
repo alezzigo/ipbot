@@ -154,7 +154,7 @@ class OrdersModel extends TransactionsModel {
 			));
 
 			if (!empty($orders['count'])) {
-				$groupedInvoiceMerges = $groupedOrders = $invoiceIds = $pendingAmountMergedTransactions = $pendingInvoices = $pendingInvoiceIds = $pendingInvoiceMerges = $pendingInvoiceOrders = $pendingOrders = $pendingOrderIds = $pendingProxies = $pendingProxyGroups = $pendingTransactions = $processedInvoices = $productIds = $selectedOrders = array();
+				$groupedOrders = $groupedOrderMerges = $invoiceIds = $pendingAmountMergedTransactions = $pendingInvoices = $pendingInvoiceIds = $pendingInvoiceOrders = $pendingOrders = $pendingOrderMerges = $pendingOrderIds = $pendingProxies = $pendingProxyGroups = $pendingTransactions = $processedInvoices = $productIds = $selectedOrders = array();
 				$sortIntervals = array(
 					'day',
 					'week',
@@ -273,7 +273,7 @@ class OrdersModel extends TransactionsModel {
 						$mergedData['orders'][] = $mergedData['order'];
 						$mergedData = array_replace_recursive($mergedData, $this->_calculateInvoicePaymentDetails($mergedData, false));
 						$mergedData['invoice']['remainder_pending'] = $mergedData['invoice']['total_pending'];
-						$invoiceMerges = $this->find('invoice_merges', array(
+						$orderMerges = $this->find('order_merges', array(
 							'conditions' => array(
 								'OR' => array(
 									'initial_invoice_id' => $invoiceIds,
@@ -296,9 +296,9 @@ class OrdersModel extends TransactionsModel {
 							)
 						));
 
-						if (!empty($invoiceMerges['count'])) {
-							foreach ($invoiceMerges['data'] as $invoiceMerge) {
-								$groupedInvoiceMerges[$invoiceMerge['interval_value'] . $invoiceMerge['interval_type'] . $invoiceMerge['order_id'] . '_' . $invoiceMerge['invoice_id']] = $invoiceMerge;
+						if (!empty($orderMerges['count'])) {
+							foreach ($orderMerges['data'] as $orderMerge) {
+								$groupedOrderMerges[$orderMerge['interval_value'] . $orderMerge['interval_type'] . $orderMerge['order_id'] . '_' . $orderMerge['invoice_id']] = $orderMerge;
 							}
 						}
 
@@ -313,7 +313,7 @@ class OrdersModel extends TransactionsModel {
 							$previouslyPaidInvoices = $this->_retrievePreviouslyPaidInvoices($selectedOrder['invoice']);
 
 							foreach ($previouslyPaidInvoices as $previouslyPaidInvoice) {
-								$invoiceMerge = array(
+								$orderMerge = array(
 									'due' => $selectedOrder['invoice']['due'],
 									'initial_invoice_id' => $previouslyPaidInvoice['id'],
 									'initial_order_id' => $selectedOrder['order']['id'],
@@ -330,7 +330,7 @@ class OrdersModel extends TransactionsModel {
 									$previouslyPaidInvoice['id'],
 									$previouslyPaidInvoice['initial_invoice_id']
 								);
-								$previousInvoiceMerges = $this->find('invoice_merges', array(
+								$previousOrderMerges = $this->find('order_merges', array(
 									'conditions' => array(
 										'initial_order_id !=' => $selectedOrder['order']['id'],
 										'order_id' => $selectedOrder['order']['id'],
@@ -366,25 +366,25 @@ class OrdersModel extends TransactionsModel {
 
 								$amountAvailableToMerge = $selectedOrder['order']['total'];
 
-								if (!empty($previousInvoiceMerges['count'])) {
+								if (!empty($previousOrderMerges['count'])) {
 									$amountAvailableToMerge = 0;
 
-									foreach ($previousInvoiceMerges['data'] as $previousInvoiceMerge) {
-										$amountAvailableToMerge += $previousInvoiceMerge['amount_merged'];
+									foreach ($previousOrderMerges['data'] as $previousOrderMerge) {
+										$amountAvailableToMerge += $previousOrderMerge['amount_merged'];
 									}
 								}
 
 								$amountAvailableToMerge = min($amountAvailableToMerge, $amountPaid);
-								$paidTime = max(1, time() - strtotime($invoiceMerge['due']));
-								$intervalTime = max(1, strtotime($selectedOrder['invoice']['due']) - strtotime($invoiceMerge['due']));
+								$paidTime = max(1, time() - strtotime($orderMerge['due']));
+								$intervalTime = max(1, strtotime($selectedOrder['invoice']['due']) - strtotime($orderMerge['due']));
 								$remainderPercentage = 1;
 
 								if ($paidTime < $intervalTime) {
 									$remainderPercentage = (round((1 - (max(0, $paidTime / $intervalTime))) * 100) / 100);
 								}
 
-								$amountMerged = $invoiceMerge['amount_merged'] = ($remainderPercentage * $amountAvailableToMerge);
-								$invoiceMergeKey = $selectedOrder['order']['interval_value'] . $selectedOrder['order']['interval_type'] . $selectedOrder['order']['id'] . '_' . $previouslyPaidInvoice['id'];
+								$amountMerged = $orderMerge['amount_merged'] = ($remainderPercentage * $amountAvailableToMerge);
+								$orderMergeKey = $selectedOrder['order']['interval_value'] . $selectedOrder['order']['interval_type'] . $selectedOrder['order']['id'] . '_' . $previouslyPaidInvoice['id'];
 								$mergedData['invoice']['remainder_pending'] -= $amountMerged;
 								$pendingAmountMergedTransactions[] = array(
 									'customer_email' => $parameters['user']['email'],
@@ -401,8 +401,8 @@ class OrdersModel extends TransactionsModel {
 									'user_id' => $parameters['user']['id']
 								);
 
-								if (empty($groupedInvoiceMerges[$invoiceMergeKey])) {
-									$pendingInvoiceMerges[] = $groupedInvoiceMerges[$invoiceMergeKey] = $invoiceMerge;
+								if (empty($groupedOrderMerges[$orderMergeKey])) {
+									$pendingOrderMerges[] = $groupedOrderMerges[$orderMergeKey] = $orderMerge;
 								}
 							}
 						}
@@ -468,8 +468,8 @@ class OrdersModel extends TransactionsModel {
 										}
 									}
 
-									foreach ($pendingInvoiceMerges as $key => $pendingInvoiceMerge) {
-										$pendingInvoiceMerges[$key]['invoice_id'] = $mergedInvoiceId;
+									foreach ($pendingOrderMerges as $key => $pendingOrderMerge) {
+										$pendingOrderMerges[$key]['invoice_id'] = $mergedInvoiceId;
 									}
 
 									foreach ($selectedOrders as $key => $selectedOrder) {
@@ -639,9 +639,9 @@ class OrdersModel extends TransactionsModel {
 
 									if (
 										$this->save('invoices', array_values($pendingInvoices)) &&
-										$this->save('invoice_merges', $pendingInvoiceMerges) &&
 										$this->save('invoice_orders', $pendingInvoiceOrders) &&
 										$this->save('orders', array_values($pendingOrders)) &&
+										$this->save('order_merges', $pendingOrderMerges) &&
 										$this->save('proxies', $pendingProxies) &&
 										$this->save('proxy_groups', $pendingProxyGroups) &&
 										$this->save('transactions', $pendingTransactions)

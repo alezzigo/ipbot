@@ -1110,21 +1110,6 @@ class InvoicesModel extends UsersModel {
 							$cancelledInvoices = $this->find('invoices', $invoiceParameters);
 							$invoiceParameters['conditions']['id'] = $mostRecentPayableInvoice['id'];
 							$revertedInvoice = $this->find('invoices', $invoiceParameters);
-							$amountMergedInvoices = $this->find('order_merges', array(
-								'conditions' => array(
-									'invoice_id' => $invoiceIds
-								),
-								'fields' => array(
-									'amount_merged',
-									'id',
-									'initial_invoice_id',
-									'invoice_id'
-								),
-								'sort' => array(
-									'field' => 'created',
-									'order' => 'DESC'
-								)
-							));
 							$transactionParameters = array(
 								'conditions' => array(
 									'invoice_id' => $invoiceIds,

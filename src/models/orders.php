@@ -81,6 +81,45 @@ class OrdersModel extends TransactionsModel {
 	}
 
 /**
+ * Retrieve order IDs
+ *
+ * @param array $orderIds
+ *
+ * @return array $response
+ */
+	protected function _retrieveOrderIds($orderIds) {
+		$response = array_unique(array_filter($orderIds));
+		$orderParameters = array(
+			'conditions' => array(
+				'OR' => array(
+					'id' => $orderIds,
+					'merged_order_id' => $orderIds
+				)
+			),
+			'fields' => array(
+				'id',
+				'merged_order_id'
+			)
+		);
+
+		$orders = $this->find('orders', $orderParameters);
+
+		if (!empty($orders['count'])) {
+			foreach ($orders['data'] as $order) {
+				$orderIds = array_merge($orderIds, array_values($order));
+			}
+		}
+
+		$orderIds = array_unique(array_filter($orderIds));
+
+		if (count($orderIds) > count($response)) {
+			$response = $this->_retrieveOrderIds($orderIds);
+		}
+
+		return $response;
+	}
+
+/**
  * Process order downgrade requests
  *
  * @param string $table
@@ -328,7 +367,9 @@ class OrdersModel extends TransactionsModel {
 								$previousOrderMerges = $this->find('order_merges', array(
 									'conditions' => array(
 										'amount_merged >' => 0,
-										'order_id' => $selectedOrder['order']['id'],
+										'order_id' => $this->_retrieveOrderIds(array(
+											$selectedOrder['order']['id']
+										)),
 										'OR' => array(
 											'initial_invoice_id' => $previouslyPaidInvoiceIds,
 											'invoice_id' => $previouslyPaidInvoiceIds

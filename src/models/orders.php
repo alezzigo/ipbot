@@ -334,7 +334,6 @@ class OrdersModel extends TransactionsModel {
 								$previousOrderMerges = $this->find('order_merges', array(
 									'conditions' => array(
 										'amount_merged >' => 0,
-										'initial_order_id !=' => $selectedOrder['order']['id'],
 										'order_id' => $selectedOrder['order']['id'],
 										'OR' => array(
 											'initial_invoice_id' => $previouslyPaidInvoiceIds,

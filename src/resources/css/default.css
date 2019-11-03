@@ -551,7 +551,7 @@ main {
 		border: 1px solid #dddbf4;
 		padding: 15px !important;
 	}
-		.item-container.item-button .cancel-pending {
+		.item-container.item-button .cancel {
 			display: inline-block;
 			font-size: 13px;
 			position: relative;

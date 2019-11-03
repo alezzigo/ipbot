@@ -130,6 +130,23 @@ var processUser = function() {
 				userData += '<div class="clear"></div>';
 				userData += '<div class="align-left item-container no-margin-bottom"><div class="field-group no-margin"><input class="balance-amount billing-amount" id="balance-amount" max="10000" min="20" name="balance_amount" step="0.01" type="number" value="100.00"><span class="balance-currency-name">' + requestParameters.settings.billing_currency + '</span><a class="add add-to-balance button" disabled href="javascript:void(0);">Add</a></div></div>';
 				userData += '<div class="clear"></div>';
+
+				if (response.user.subscriptions.length) {
+					userData += '<h2>Account Subscriptions</h2>';
+					response.user.subscriptions.map(function(item, index) {
+						userData += '<div class="item-container item-button">';
+						userData += '<div class="item">';
+						userData += '<div class="item-body">';
+						userData += '<p><strong>Subscription #' + item.id + '</strong></p>';
+						userData += '<p>' + item.price + ' ' + requestParameters.settings.billing_currency + ' per ' + item.interval_value + ' ' + item.interval_type + (item.interval_value !== 1 ? 's' : '') + '</p>';
+						userData += '<label class="label ' + item.status + '">' + capitalizeString(item.status) + '</label>' + (item.status !== 'canceled' ? '<a class="cancel cancel-subscription" href="javascript:void(0);" subscription_id="' + item.id + '">Cancel</a>' : '');
+						// ..
+						userData += '</div>';
+						userData += '</div>';
+						userData += '</div>';
+					});
+				}
+
 				userData += '<h2>Remove Account</h2>';
 
 				if (response.user.removed) {

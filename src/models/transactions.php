@@ -1132,7 +1132,8 @@ class TransactionsModel extends InvoicesModel {
 			'interval_value' => $parameters['interval_value'],
 			'plan_id' => $parameters['plan_id'],
 			'price' => $parameters['payment_amount'],
-			'status' => 'canceled'
+			'status' => 'canceled',
+			'user_id' => $parameters['user_id']
 		);
 
 		if (
@@ -1176,7 +1177,8 @@ class TransactionsModel extends InvoicesModel {
 			'interval_value' => $parameters['interval_value'],
 			'plan_id' => $parameters['plan_id'],
 			'price' => $parameters['payment_amount'],
-			'status' => 'active'
+			'status' => 'active',
+			'user_id' => $parameters['user_id']
 		);
 
 		if (
@@ -1220,7 +1222,8 @@ class TransactionsModel extends InvoicesModel {
 			'interval_value' => $parameters['interval_value'],
 			'plan_id' => $parameters['plan_id'],
 			'price' => $parameters['payment_amount'],
-			'status' => 'expired'
+			'status' => 'expired',
+			'user_id' => $parameters['user_id']
 		);
 
 		if (
@@ -1262,7 +1265,8 @@ class TransactionsModel extends InvoicesModel {
 			'interval_type' => $parameters['interval_type'],
 			'interval_value' => $parameters['interval_value'],
 			'plan_id' => $parameters['plan_id'],
-			'price' => $parameters['payment_amount']
+			'price' => $parameters['payment_amount'],
+			'user_id' => $parameters['user_id']
 		);
 		$subscriptionStatus = $this->find('subscriptions', array(
 			'conditions' => array(
@@ -1316,7 +1320,8 @@ class TransactionsModel extends InvoicesModel {
 			'interval_value' => $parameters['interval_value'],
 			'payment_attempts' => ($subscriptionPaymentAttempts['data'][0] + 1),
 			'plan_id' => $parameters['plan_id'],
-			'price' => $parameters['payment_amount']
+			'price' => $parameters['payment_amount'],
+			'user_id' => $parameters['user_id']
 		);
 		$subscriptionPaymentAttempts = $this->find('subscriptions', array(
 			'conditions' => array(

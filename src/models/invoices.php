@@ -763,7 +763,8 @@ class InvoicesModel extends UsersModel {
 				'id',
 				'invoice_id',
 				'modified',
-				'plan_id'
+				'plan_id',
+				'user_id'
 			)
 		));
 

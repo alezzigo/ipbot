@@ -359,6 +359,29 @@ class AppModel extends Config {
 			$response['redirect'] = $parameters['redirect'];
 		}
 
+		if (!empty($userId = $parameters['user']['id'])) {
+			$subscriptions = $this->find('subscriptions', array(
+				'conditions' => array(
+					'user_id' => $userId
+				),
+				'fields' => array(
+					'id',
+					'interval_type',
+					'interval_value',
+					'invoice_id',
+					'payment_attempts',
+					'plan_id',
+					'price',
+					'status',
+					'user_id'
+				)
+			));
+
+			if (!empty($subscriptions['count'])) {
+				$response['user']['subscriptions'] = $subscriptions['data'];
+			}
+		}
+
 		$response = array_merge($response, $this->$action($table, $parameters));
 		return $response;
 	}

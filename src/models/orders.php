@@ -387,9 +387,9 @@ class OrdersModel extends TransactionsModel {
 								}
 
 								$amountAvailableToMerge = min($amountAvailableToMerge, $previouslyPaidInvoice['amount_paid']);
-								$paidTime = max(1, time() - strtotime($orderMerge['due']));
-								$intervalTime = max(1, strtotime($selectedOrder['invoice']['due']) - strtotime($orderMerge['due']));
-								$remainderPercentage = 1;
+								$intervalTime = strtotime($orderMerge['due'] . ' +' . $orderMerge['interval_value'] . ' ' . $orderMerge['interval_type']) - strtotime($orderMerge['due']);
+								$paidTime = max(strtotime($orderMerge['due']), time()) - strtotime($orderMerge['due']);
+								$remainderPercentage = 0;
 
 								if ($paidTime < $intervalTime) {
 									$remainderPercentage = (round((1 - (max(0, $paidTime / $intervalTime))) * 100) / 100);

@@ -33,7 +33,8 @@ class InvoicesModel extends UsersModel {
 			$invoiceDeduction = array(
 				'amount_paid' => $invoiceData['amount_paid'],
 				'amount_deducted' => $amountDeducted,
-				'id' => $invoiceData['id']
+				'id' => $invoiceData['id'],
+				'remainder_pending' => $invoiceData['remainder_pending']
 			);
 
 			if (

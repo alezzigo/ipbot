@@ -34,13 +34,10 @@ class InvoicesModel extends UsersModel {
 				'amount_paid' => $invoiceData['amount_paid'],
 				'amount_deducted' => $amountDeducted,
 				'id' => $invoiceData['id'],
-				'remainder_pending' => $invoiceData['remainder_pending']
+				'remainder_pending' => $invoiceData['remainder_pending'] + ($amountDeducted * -1)
 			);
 
-			if (
-				$amountDeducted < 0 &&
-				($amountDeducted * -1) === $invoiceDeduction['amount_paid']
-			) {
+			if ($amountDeducted < 0) {
 				$invoiceDeduction['status'] = 'unpaid';
 			}
 

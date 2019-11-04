@@ -895,7 +895,7 @@ class TransactionsModel extends InvoicesModel {
 								'amount_paid' => round(($invoiceDeduction['amount_paid'] + $invoiceDeduction['amount_deducted']) * 100) / 100,
 								'id' => $invoiceDeduction['id'],
 								'payable' => true,
-								'remainder_pending' => $invoiceDeduction['remainder_pending'] + ($invoiceDeduction['amount_deducted'] * -1)
+								'remainder_pending' => $invoiceDeduction['remainder_pending']
 							);
 
 							if (!empty($invoiceDeduction['status'])) {
@@ -958,7 +958,7 @@ class TransactionsModel extends InvoicesModel {
 						);
 					}
 
-					if ($invoiceDeduction['status'] === 'unpaid') {
+					if (!empty($invoiceDeduction['id'])) {
 						$unpaidInvoiceIds[] = $invoiceDeduction['id'];
 						$invoiceData[$invoiceDeduction['id']]['warning_level'] = 5;
 						$invoiceOrders = $this->_retrieveInvoiceOrders($invoiceDeduction);

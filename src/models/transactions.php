@@ -804,7 +804,7 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionPaymentRefunded($parameters) {
-		$invoices = $invoiceData = $invoiceDeductions = $processedInvoiceIds = $pendingInvoiceOrders = $transactionData = $unpaidInvoiceIds = $userData = array();
+		$invoices = $invoiceData = $invoiceDeductions = $orderMergeData = $processedInvoiceIds = $pendingInvoiceOrders = $transactionData = $unpaidInvoiceIds = $userData = array();
 
 		if (
 			!empty($parameters['invoice_id']) &&
@@ -893,14 +893,49 @@ class TransactionsModel extends InvoicesModel {
 						if (!empty($invoiceDeduction['id'])) {
 							$invoiceDeductionData = array(
 								'amount_paid' => round(($invoiceDeduction['amount_paid'] + $invoiceDeduction['amount_deducted']) * 100) / 100,
-								'id' => $invoiceDeduction['id']
+								'id' => $invoiceDeduction['id'],
+								'payable' => true,
+								'remainder_pending' => $invoiceDeduction['remainder_pending'] + ($invoiceDeduction['amount_deducted'] * -1)
 							);
 
 							if (!empty($invoiceDeduction['status'])) {
 								$invoiceDeductionData['status'] = $invoiceDeduction['status'];
 							}
 
-							$invoiceData[] = $invoiceDeductionData;
+							$invoiceData[$invoiceDeduction['id']] = $invoiceDeductionData;
+							$orderMergeParameters = array(
+								'conditions' => array(
+									'amount_merged >' => 0,
+									'initial_invoice_id' => $invoiceDeduction['id']
+								),
+								'fields' => array(
+									'amount_merged',
+									'id',
+									'initial_invoice_id'
+								),
+								'sort' => array(
+									'field' => 'created',
+									'order' => 'ASC'
+								)
+							);
+							$orderMerges = $this->find('order_merges', $orderMergeParameters);
+
+							if (!empty($orderMerges['count'])) {
+								$amountDeducted = $invoiceDeduction['amount_deducted'];
+
+								foreach ($orderMerges['data'] as $orderMerge) {
+									if ($amountDeducted === 0) {
+										break;
+									}
+
+									$amountDeductedFromAmountMerged = $amountDeducted + $orderMerge['amount_merged'];
+									$amountDeducted = min(0, $amountDeductedFromAmountMerged);
+									$orderMergeData[] = array(
+										'amount_merged' => max(0, $amountDeductedFromAmountMerged),
+										'id' => $orderMerge['id']
+									);
+								}
+							}
 						}
 
 						$transactionData[] = array(
@@ -925,6 +960,7 @@ class TransactionsModel extends InvoicesModel {
 
 					if ($invoiceDeduction['status'] === 'unpaid') {
 						$unpaidInvoiceIds[] = $invoiceDeduction['id'];
+						$invoiceData[$invoiceDeduction['id']]['warning_level'] = 5;
 						$invoiceOrders = $this->_retrieveInvoiceOrders($invoiceDeduction);
 
 						foreach ($invoiceOrders as $invoiceOrder) {
@@ -956,8 +992,9 @@ class TransactionsModel extends InvoicesModel {
 							'invoice_id' => $unpaidInvoiceIds
 						))
 					) &&
-					$this->save('invoices', $invoiceData) &&
+					$this->save('invoices', array_values($invoiceData)) &&
 					$this->save('orders', array_values($pendingInvoiceOrders)) &&
+					$this->save('order_merges', $orderMergeData) &&
 					$this->save('transactions', $transactionData) &&
 					$this->save('users', $userData)
 				) {

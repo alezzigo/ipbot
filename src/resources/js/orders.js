@@ -187,7 +187,7 @@ var processUpgrade = function(windowName, windowSelector, upgradeValue = 1) {
 			upgradeData += '<p><strong>Shipping</strong><br>' + response.data.merged.invoice.shipping_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</p>';
 			upgradeData += '<p><strong>Tax</strong><br>' + response.data.merged.invoice.tax_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</p>';
 			upgradeData += '<p><strong>Total</strong><br>' + response.data.merged.invoice.total_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</p>';
-			upgradeData += '<p><strong>Amount Paid</strong><br><span class="paid">' + response.data.merged.invoice.amount_paid.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</span></p>';
+			upgradeData += '<p><strong>Amount Paid</strong><br><span' + (response.data.merged.invoice.amount_paid ? ' class="paid"' : '') + '>' + response.data.merged.invoice.amount_paid.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</span>' + (response.data.merged.invoice.amount_paid ? '<br><span class="note">The amount paid will be added to your account balance and won\'t automatically apply to the remaining amount due for the merged order.</span>' : '') + '</p>';
 			upgradeData += '<p><strong>Remaining Amount Due</strong><br>' + response.data.merged.invoice.remainder_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</p>';
 			upgradeData += '</div>';
 			upgradeContainer.innerHTML = upgradeData;

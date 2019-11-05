@@ -189,6 +189,12 @@ main {
 	.merged-order-details p {
 		margin-bottom: 15px;
 	}
+		.merged-order-details p .note {
+			display: block;
+			font-size: 12px;
+			line-height: 19px !important;
+			margin-top: 4px;
+		}
 .field-group {
 	float: left;
 	margin-bottom: 18px;

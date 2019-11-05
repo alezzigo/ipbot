@@ -222,7 +222,7 @@ class OrdersModel extends TransactionsModel {
 					'interval_value_pending' => (integer) $largestInterval[0]
 				);
 				$mergedData['order'] = array_merge($mergedData['order'], $mergedInterval);
-				$mergedData['invoice']['amount_paid'] = $mergedData['order']['quantity'] = $mergedData['order']['quantity_active'] = 0;
+				$mergedData['invoice']['amount_paid'] = $mergedData['order']['price_active'] = $mergedData['order']['quantity'] = $mergedData['order']['quantity_active'] = 0;
 
 				foreach ($selectedOrders as $key => $selectedOrder) {
 					$invoiceIds[] = $invoiceId = $selectedOrder['invoice']['id'];
@@ -245,14 +245,12 @@ class OrdersModel extends TransactionsModel {
 
 					if (!empty($pendingInvoices[$invoiceId]['amount_paid'])) {
 						$amountPaid = min($selectedOrders[$key]['order']['total'], $pendingInvoices[$invoiceId]['amount_paid']);
+						$amountToApplyToBalance += $amountPaid;
 						$mergedData['invoice']['amount_paid'] += $amountPaid;
 						$pendingInvoices[$invoiceId]['amount_paid'] = max(0, round(($pendingInvoices[$invoiceId]['amount_paid'] - $amountPaid) * 100) / 100);
 					}
 
-					if ($selectedOrder['order']['id'] != $mergedData['order']['id']) {
-						$mergedData['order']['price_active'] += $selectedOrder['order']['price_active'];
-					}
-
+					$mergedData['order']['price_active'] += $selectedOrder['order']['price_active'];
 					$mergedData['order']['quantity'] += (!empty($selectedOrder['order']['quantity_pending']) ? $selectedOrder['order']['quantity_pending'] : $selectedOrder['order']['quantity']);
 					$mergedData['order']['quantity_active'] += $selectedOrder['order']['quantity_active'];
 				}
@@ -344,7 +342,6 @@ class OrdersModel extends TransactionsModel {
 						}
 
 						foreach ($selectedOrders as $key => $selectedOrder) {
-							$mergedData['invoice']['remainder_pending'] -= min($selectedOrder['order']['total'], $selectedOrder['invoice']['amount_paid']);
 							$previouslyPaidInvoices = $this->_retrievePreviouslyPaidInvoices($selectedOrder['invoice']);
 
 							foreach ($previouslyPaidInvoices as $previouslyPaidInvoice) {
@@ -367,14 +364,12 @@ class OrdersModel extends TransactionsModel {
 								));
 								$orderMergeParameters['conditions'] = array(
 									'amount_merged >' => 0,
+									'initial_invoice_id' => $previouslyPaidInvoiceIds,
 									'order_id' => $this->_retrieveOrderIds(array(
 										$selectedOrder['order']['id']
-									)),
-									'OR' => array(
-										'initial_invoice_id' => $previouslyPaidInvoiceIds,
-										'invoice_id' => $previouslyPaidInvoiceIds
-									)
+									))
 								);
+
 								$previousOrderMerges = $this->find('order_merges', $orderMergeParameters);
 								$amountAvailableToMerge = $selectedOrder['order']['total'];
 
@@ -530,6 +525,7 @@ class OrdersModel extends TransactionsModel {
 									}
 
 									$pendingInvoices[$mergedData['invoice']['id'] . '_merged'] = array(
+										'amount_paid' => 0,
 										'id' => $mergedInvoiceId
 									);
 									$mergedInvoiceOrder = $this->find('invoice_orders', array(
@@ -609,6 +605,7 @@ class OrdersModel extends TransactionsModel {
 										)))));
 									}
 
+									$amountToApplyToBalanceTransaction = '';
 									$pendingOrderMergeDetails = str_replace(', <a anchor_order_id="' . $orderId, ' and <a anchor_order_id="' . $orderId, rtrim(trim($pendingOrderMergeDetails), ','));
 									$pendingTransaction = array(
 										'customer_email' => $parameters['user']['email'],
@@ -623,18 +620,32 @@ class OrdersModel extends TransactionsModel {
 										'transaction_processed' => true,
 										'user_id' => $parameters['user']['id']
 									);
+									$userData = array(
+										array(
+											'balance' => $parameters['user']['balance'],
+											'id' => $parameters['user']['id']
+										)
+									);
+
+									if (!empty($amountToApplyToBalance)) {
+										$amountToApplyToBalanceTransaction .= '<br>' . number_format($amountToApplyToBalance, 2, '.', '') . ' ' . $mergedData['invoice']['currency'] . ' overpayment added to account balance.';
+										$userData[0]['balance'] += $amountToApplyToBalance;
+									}
 
 									if (count($pendingOrders) !== 1) {
+										$details = ($mergeDetails = 'Merge requested from ' . $pendingOrderMergeDetails . ' to ' . $mergeDetails) . $amountToApplyToBalanceTransaction;
+										$amountToApplyToBalanceTransaction = '';
 										$pendingTransactions[] = array_merge(array(
-											'details' => ($mergeDetails = 'Merge requested from ' . $pendingOrderMergeDetails . ' to ' . $mergeDetails),
+											'details' => $details,
 											'id' => uniqid() . time(),
 											'payment_status_message' => 'Order merge requested.'
 										), $pendingTransaction);
 									}
 
 									if ($action === 'upgrade') {
+										$details = ($upgradeDetails = 'Order upgrade requested for ' . $upgradeDetails) . $amountToApplyToBalanceTransaction;
 										$pendingTransactions[] = array_merge($pendingTransaction, array(
-											'details' => ($upgradeDetails = 'Order upgrade requested for ' . $upgradeDetails),
+											'details' => $details,
 											'id' => uniqid() . time(),
 											'payment_status_message' => 'Order upgrade requested.',
 											'transaction_date' => date('Y-m-d H:i:s', strtotime('+1 second')),
@@ -659,7 +670,8 @@ class OrdersModel extends TransactionsModel {
 										$this->save('order_merges', $pendingOrderMerges) &&
 										$this->save('proxies', $pendingProxies) &&
 										$this->save('proxy_groups', $pendingProxyGroups) &&
-										$this->save('transactions', $pendingTransactions)
+										$this->save('transactions', $pendingTransactions) &&
+										$this->save('users', $userData)
 									) {
 										$response['message'] = array(
 											'status' => 'success',

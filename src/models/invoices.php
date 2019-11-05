@@ -1145,11 +1145,6 @@ class InvoicesModel extends UsersModel {
 											'modified' => true
 										));
 									}
-
-									$pendingInvoices[$cancelledInvoice['id']] = array(
-										'id' => $cancelledInvoice['id'],
-										'merged_invoice_id' => ($mostRecentPayableInvoice['id'] != $cancelledInvoice['id'] ? $mostRecentPayableInvoice['id'] : null)
-									);
 								}
 							}
 
@@ -1176,13 +1171,6 @@ class InvoicesModel extends UsersModel {
 								}
 							}
 
-							$upgradeDifference = max(0, (round(($invoice['data']['invoice']['total_pending'] - $revertedInvoice['invoice']['total']) * 100) / 100));
-							$pendingInvoices[$invoice['data']['invoice']['id']] = array(
-								'amount_paid' => ($amountPaid = max(0, round(($invoice['data']['invoice']['amount_paid'] - $amountPaidForUpgrade) * 100) / 100)),
-								'id' => $invoice['data']['invoice']['id'],
-								'merged_invoice_id' => $invoiceId,
-								'remainder_pending' => max(0, round(($invoice['data']['invoice']['remainder_pending'] - $upgradeDifference) * 100) / 100)
-							);
 							$upgradeCancellationTransaction = array(
 								'customer_email' => $parameters['user']['email'],
 								'details' => 'Order upgrade request cancelled for order <a href="' . $this->settings['base_url'] . 'orders/' . $order['id'] . '">#' . $order['id'] . '</a>.<br>' . $order['quantity_pending'] . ' ' . $order['name'] . ' reverted to ' . $orderData[0]['quantity'] . ' ' . $order['name'] . '<br>' . $order['price_pending'] . ' ' . $order['currency'] . ' for ' . $order['interval_value_pending'] . ' ' . $order['interval_type_pending'] . ($order['interval_value_pending'] !== 1 ? 's' : '') . ' reverted to ' . $orderData[0]['price'] . ' ' . $order['currency'] . ' for ' . $order['interval_value'] . ' ' . $order['interval_type'] . ($order['interval_value'] !== 1 ? 's' : ''),
@@ -1212,6 +1200,13 @@ class InvoicesModel extends UsersModel {
 
 							if (!empty($revertedInvoice['count'])) {
 								$additionalDueInvoices = $this->_retrieveDueInvoices($revertedInvoice['data'][0]);
+								$upgradeDifference = max(0, (round(($invoice['data']['invoice']['total_pending'] - $revertedInvoice['data'][0]['invoice']['total']) * 100) / 100));
+								$pendingInvoices[$invoice['data']['invoice']['id']] = array(
+									'amount_paid' => ($amountPaid = max(0, round(($invoice['data']['invoice']['amount_paid'] - $amountPaidForUpgrade) * 100) / 100)),
+									'id' => $invoice['data']['invoice']['id'],
+									'merged_invoice_id' => $invoiceId,
+									'remainder_pending' => max(0, round(($invoice['data']['invoice']['remainder_pending'] - $upgradeDifference) * 100) / 100)
+								);
 
 								if (!empty($additionalDueInvoices)) {
 									$additionalDueInvoice = array_diff_key($additionalDueInvoices[0], array(

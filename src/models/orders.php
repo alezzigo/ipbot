@@ -629,6 +629,19 @@ class OrdersModel extends TransactionsModel {
 
 									if (!empty($amountToApplyToBalance)) {
 										$amountToApplyToBalanceTransaction .= '<br>' . number_format($amountToApplyToBalance, 2, '.', '') . ' ' . $mergedData['invoice']['currency'] . ' overpayment added to account balance.';
+										$pendingInvoices[] = array(
+											'amount_paid' => $amountToApplyToBalance,
+											'cart_items' => ($balanceTransferInvoiceIdentifier = sha1(uniqid() . $mergedData['invoice']['cart_items'])),
+											'currency' => $mergedData['invoice']['currency'],
+											'due' => null,
+											'payable' => true,
+											'session_id' => $parameters['session'],
+											'status' => 'paid',
+											'subtotal' => $amountToApplyToBalance,
+											'total' => $amountToApplyToBalance,
+											'user_id' => $parameters['user']['id'],
+											'warning_level' => 5
+										);
 										$userData[0]['balance'] += $amountToApplyToBalance;
 									}
 
@@ -679,13 +692,47 @@ class OrdersModel extends TransactionsModel {
 										);
 										$response['redirect'] = $this->settings['base_url'] . 'invoices/' . $mergedInvoiceId;
 
-										foreach ($pendingInvoices as $invoiceId => $pendingInvoice) {
-											if (!empty($invoiceId)) {
+										foreach ($pendingInvoices as $pendingInvoice) {
+											if (!empty($pendingInvoice['id'])) {
 												$this->invoice('invoices', array(
 													'conditions' => array(
-														'id' => $invoiceId
+														'id' => $pendingInvoice['id']
 													)
 												));
+											}
+										}
+
+										if (!empty($balanceTransferInvoiceIdentifier)) {
+											$balanceTransferInvoice = $this->find('invoices', array(
+												'conditions' => array(
+													'cart_items' => $balanceTransferInvoiceIdentifier
+												),
+												'fields' => array(
+													'id'
+												)
+											));
+
+											if (!empty($balanceTransferInvoiceId = $balanceTransferInvoice['data'][0])) {
+												$mergeDetails = array_shift(explode('<br>', $mergeDetails));
+												$balanceTransferTransactions = array(
+													array(
+														'customer_email' => $parameters['user']['email'],
+														'details' => number_format($amountToApplyToBalance, 2, '.', '') . ' ' . $mergedData['invoice']['currency'] . ' overpayment added to account balance.<br> ' . ucwords($action) . 'd' . $mergeDetails,
+														'id' => uniqid() . time(),
+														'initial_invoice_id' => $balanceTransferInvoiceId,
+														'invoice_id' => $balanceTransferInvoiceId,
+														'payment_amount' => 0,
+														'payment_currency' => $this->settings['billing']['currency'],
+														'payment_status' => 'completed',
+														'payment_status_message' => 'Amount added to account balance.',
+														'transaction_charset' => $this->settings['database']['charset'],
+														'transaction_date' => date('Y-m-d H:i:s', strtotime('+1 second')),
+														'transaction_method' => 'Miscellaneous',
+														'transaction_processed' => true,
+														'user_id' => $parameters['user']['id']
+													)
+												);
+												$this->save('transactions', $balanceTransferTransactions);
 											}
 										}
 

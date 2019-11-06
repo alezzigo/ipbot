@@ -10,6 +10,7 @@
 	$message .= 'Recurring Payment Amount: ' . number_format($templateParameters['subscription']['price'], 2, '.', ',') . ' ' . $this->settings['billing']['currency'] . "\n";
 	$message .= 'Recurring Payment Interval: ' . $templateParameters['subscription']['interval_value'] . ' ' . $templateParameters['subscription']['interval_type'] . ($templateParameters['subscription']['interval_value'] !== 1 ? 's' : '') . "\n";
 	$message .= 'Recurring Payment Failed Attempts: ' . $templateParameters['subscription']['payment_attempts'] . "\n";
+	$message .= 'Recurring Payment Method: ' . $templateParameters['subscription']['payment_method_name'] . "\n";
 	$message .= "\n";
 	$message .= 'User Details' . "\n";
 	$message .= '--' . "\n";

@@ -197,6 +197,7 @@ class UsersModel extends AppModel {
 					'invoice_id',
 					'interval_type',
 					'interval_value',
+					'payment_method_id',
 					'plan_id',
 					'price',
 					'status',
@@ -213,34 +214,46 @@ class UsersModel extends AppModel {
 				);
 
 				if ($this->save('subscriptions', $subscriptionData)) {
-					$emails = array(
-						$this->settings['from_email'],
-						$parameters['user']['email']
-					);
-
-					foreach ($emails as $email) {
-						$mailParameters = array(
-							'from' => $this->settings['from_email'],
-							'subject' => 'Cancellation request for subscription #' . $subscription['data'][0]['id'],
-							'template' => array(
-								'name' => 'subscription_request_cancellation',
-								'parameters' => array(
-									'subscription' => $subscription['data'][0],
-									'user' => $parameters['user']
-								)
-							),
-							'to' => $email
-						);
-						$this->_sendMail($mailParameters);
-					}
-
-					$response = array(
-						'data' => $subscription['data'][0],
-						'message' => array(
-							'status' => 'success',
-							'text' => 'A confirmation was emailed to ' . $parameters['user']['email'] . ' and your subscription will be cancelled shortly as requested'
+					$paymentMethod = $this->find('payment_methods', array(
+						'conditions' => array(
+							'id' => $subscription['data'][0]['payment_method_id']
+						),
+						'fields' => array(
+							'name'
 						)
-					);
+					));
+
+					if (!empty($paymentMethod['count'])) {
+						$emails = array(
+							$this->settings['from_email'],
+							$parameters['user']['email']
+						);
+						$subscription['data'][0]['payment_method_name'] = $paymentMethod['data'][0];
+
+						foreach ($emails as $email) {
+							$mailParameters = array(
+								'from' => $this->settings['from_email'],
+								'subject' => 'Cancellation request for subscription #' . $subscription['data'][0]['id'],
+								'template' => array(
+									'name' => 'subscription_request_cancellation',
+									'parameters' => array(
+										'subscription' => $subscription['data'][0],
+										'user' => $parameters['user']
+									)
+								),
+								'to' => $email
+							);
+							$this->_sendMail($mailParameters);
+						}
+
+						$response = array(
+							'data' => $subscription['data'][0],
+							'message' => array(
+								'status' => 'success',
+								'text' => 'A confirmation was emailed to ' . $parameters['user']['email'] . ' and your subscription will be cancelled shortly as requested'
+							)
+						);
+					}
 				}
 			}
 		}

@@ -1167,6 +1167,7 @@ class TransactionsModel extends InvoicesModel {
 			'invoice_id' => $parameters['invoice_id'],
 			'interval_type' => $parameters['interval_type'],
 			'interval_value' => $parameters['interval_value'],
+			'payment_method_id' => $parameters['payment_method_id'],
 			'plan_id' => $parameters['plan_id'],
 			'price' => $parameters['payment_amount'],
 			'status' => 'canceled',
@@ -1179,20 +1180,32 @@ class TransactionsModel extends InvoicesModel {
 				$subscription
 			))
 		) {
-			$mailParameters = array(
-				'from' => $this->settings['from_email'],
-				'subject' => 'New subscription #' . $subscription['id'] . ' canceled',
-				'template' => array(
-					'name' => 'subscription_canceled',
-					'parameters' => array(
-						'subscription' => $subscription,
-						'transaction' => $parameters,
-						'user' => $parameters['user']
-					)
+			$paymentMethod = $this->find('payment_methods', array(
+				'conditions' => array(
+					'id' => $subscription['payment_method_id']
 				),
-				'to' => $parameters['user']['email']
-			);
-			$this->_sendMail($mailParameters);
+				'fields' => array(
+					'name'
+				)
+			));
+
+			if (!empty($paymentMethod['count'])) {
+				$subscription['payment_method_name'] = $paymentMethod['data'][0];
+				$mailParameters = array(
+					'from' => $this->settings['from_email'],
+					'subject' => 'Subscription #' . $subscription['id'] . ' canceled',
+					'template' => array(
+						'name' => 'subscription_canceled',
+						'parameters' => array(
+							'subscription' => $subscription,
+							'transaction' => $parameters,
+							'user' => $parameters['user']
+						)
+					),
+					'to' => $parameters['user']['email']
+				);
+				$this->_sendMail($mailParameters);
+			}
 		}
 
 		return;
@@ -1212,6 +1225,7 @@ class TransactionsModel extends InvoicesModel {
 			'invoice_id' => $parameters['invoice_id'],
 			'interval_type' => $parameters['interval_type'],
 			'interval_value' => $parameters['interval_value'],
+			'payment_method_id' => $parameters['payment_method_id'],
 			'plan_id' => $parameters['plan_id'],
 			'price' => $parameters['payment_amount'],
 			'status' => 'active',
@@ -1224,20 +1238,32 @@ class TransactionsModel extends InvoicesModel {
 				$subscription
 			))
 		) {
-			$mailParameters = array(
-				'from' => $this->settings['from_email'],
-				'subject' => 'New subscription #' . $subscription['id'] . ' created',
-				'template' => array(
-					'name' => 'subscription_created',
-					'parameters' => array(
-						'subscription' => $subscription,
-						'transaction' => $parameters,
-						'user' => $parameters['user']
-					)
+			$paymentMethod = $this->find('payment_methods', array(
+				'conditions' => array(
+					'id' => $subscription['payment_method_id']
 				),
-				'to' => $parameters['user']['email']
-			);
-			$this->_sendMail($mailParameters);
+				'fields' => array(
+					'name'
+				)
+			));
+
+			if (!empty($paymentMethod['count'])) {
+				$subscription['payment_method_name'] = $paymentMethod['data'][0];
+				$mailParameters = array(
+					'from' => $this->settings['from_email'],
+					'subject' => 'New subscription #' . $subscription['id'] . ' created',
+					'template' => array(
+						'name' => 'subscription_created',
+						'parameters' => array(
+							'subscription' => $subscription,
+							'transaction' => $parameters,
+							'user' => $parameters['user']
+						)
+					),
+					'to' => $parameters['user']['email']
+				);
+				$this->_sendMail($mailParameters);
+			}
 		}
 
 		return;
@@ -1257,6 +1283,7 @@ class TransactionsModel extends InvoicesModel {
 			'invoice_id' => $parameters['invoice_id'],
 			'interval_type' => $parameters['interval_type'],
 			'interval_value' => $parameters['interval_value'],
+			'payment_method_id' => $parameters['payment_method_id'],
 			'plan_id' => $parameters['plan_id'],
 			'price' => $parameters['payment_amount'],
 			'status' => 'expired',
@@ -1269,20 +1296,32 @@ class TransactionsModel extends InvoicesModel {
 				$subscription
 			))
 		) {
-			$mailParameters = array(
-				'from' => $this->settings['from_email'],
-				'subject' => 'Subscription #' . $subscription['id'] . ' expired',
-				'template' => array(
-					'name' => 'subscription_expired',
-					'parameters' => array(
-						'subscription' => $subscription,
-						'transaction' => $parameters,
-						'user' => $parameters['user']
-					)
+			$paymentMethod = $this->find('payment_methods', array(
+				'conditions' => array(
+					'id' => $subscription['payment_method_id']
 				),
-				'to' => $parameters['user']['email']
-			);
-			$this->_sendMail($mailParameters);
+				'fields' => array(
+					'name'
+				)
+			));
+
+			if (!empty($paymentMethod['count'])) {
+				$subscription['payment_method_name'] = $paymentMethod['data'][0];
+				$mailParameters = array(
+					'from' => $this->settings['from_email'],
+					'subject' => 'Subscription #' . $subscription['id'] . ' expired',
+					'template' => array(
+						'name' => 'subscription_expired',
+						'parameters' => array(
+							'subscription' => $subscription,
+							'transaction' => $parameters,
+							'user' => $parameters['user']
+						)
+					),
+					'to' => $parameters['user']['email']
+				);
+				$this->_sendMail($mailParameters);
+			}
 		}
 
 		return;
@@ -1301,6 +1340,7 @@ class TransactionsModel extends InvoicesModel {
 			'invoice_id' => $parameters['invoice_id'],
 			'interval_type' => $parameters['interval_type'],
 			'interval_value' => $parameters['interval_value'],
+			'payment_method_id' => $parameters['payment_method_id'],
 			'plan_id' => $parameters['plan_id'],
 			'price' => $parameters['payment_amount'],
 			'user_id' => $parameters['user_id']
@@ -1321,21 +1361,33 @@ class TransactionsModel extends InvoicesModel {
 				array_filter($subscription)
 			))
 		) {
-			$subscription['status'] = $subscriptionStatus['data'][0];
-			$mailParameters = array(
-				'from' => $this->settings['from_email'],
-				'subject' => 'Subscription #' . $subscription['id'] . ' modified',
-				'template' => array(
-					'name' => 'subscription_modified',
-					'parameters' => array(
-						'subscription' => $subscription,
-						'transaction' => $parameters,
-						'user' => $parameters['user']
-					)
+			$paymentMethod = $this->find('payment_methods', array(
+				'conditions' => array(
+					'id' => $subscription['payment_method_id']
 				),
-				'to' => $parameters['user']['email']
-			);
-			$this->_sendMail($mailParameters);
+				'fields' => array(
+					'name'
+				)
+			));
+
+			if (!empty($paymentMethod['count'])) {
+				$subscription['payment_method_name'] = $paymentMethod['data'][0];
+				$subscription['status'] = $subscriptionStatus['data'][0];
+				$mailParameters = array(
+					'from' => $this->settings['from_email'],
+					'subject' => 'Subscription #' . $subscription['id'] . ' modified',
+					'template' => array(
+						'name' => 'subscription_modified',
+						'parameters' => array(
+							'subscription' => $subscription,
+							'transaction' => $parameters,
+							'user' => $parameters['user']
+						)
+					),
+					'to' => $parameters['user']['email']
+				);
+				$this->_sendMail($mailParameters);
+			}
 		}
 
 		return;
@@ -1356,6 +1408,7 @@ class TransactionsModel extends InvoicesModel {
 			'interval_type' => $parameters['interval_type'],
 			'interval_value' => $parameters['interval_value'],
 			'payment_attempts' => ($subscriptionPaymentAttempts['data'][0] + 1),
+			'payment_method_id' => $parameters['payment_method_id'],
 			'plan_id' => $parameters['plan_id'],
 			'price' => $parameters['payment_amount'],
 			'user_id' => $parameters['user_id']
@@ -1378,20 +1431,32 @@ class TransactionsModel extends InvoicesModel {
 			if ($this->save('subscriptions', array(
 				$subscription
 			))) {
-				$mailParameters = array(
-					'from' => $this->settings['from_email'],
-					'subject' => 'Subscription #' . $subscription['id'] . ' payment failed',
-					'template' => array(
-						'name' => 'subscription_failed',
-						'parameters' => array(
-							'subscription' => $subscription,
-							'transaction' => $parameters,
-							'user' => $parameters['user']
-						)
+				$paymentMethod = $this->find('payment_methods', array(
+					'conditions' => array(
+						'id' => $subscription['payment_method_id']
 					),
-					'to' => $parameters['user']['email']
-				);
-				$this->_sendMail($mailParameters);
+					'fields' => array(
+						'name'
+					)
+				));
+
+				if (!empty($paymentMethod['count'])) {
+					$subscription['payment_method_name'] = $paymentMethod['data'][0];
+					$mailParameters = array(
+						'from' => $this->settings['from_email'],
+						'subject' => 'Subscription #' . $subscription['id'] . ' payment failed',
+						'template' => array(
+							'name' => 'subscription_failed',
+							'parameters' => array(
+								'subscription' => $subscription,
+								'transaction' => $parameters,
+								'user' => $parameters['user']
+							)
+						),
+						'to' => $parameters['user']['email']
+					);
+					$this->_sendMail($mailParameters);
+				}
 			}
 		}
 

@@ -170,66 +170,6 @@ class UsersModel extends AppModel {
 	}
 
 /**
- * Request user account removal
- *
- * @param string $table
- * @param array $parameters
- *
- * @return array $response
- */
-	public function remove($table, $parameters = array()) {
-		$response = array(
-			'message' => array(
-				'status' => 'error',
-				'text' => ($defaultMessage = 'Error processing your user account removal request, please try again.')
-			)
-		);
-
-		if (!empty($parameters['user'])) {
-			$response['message']['text'] = 'Your account is already pending removal.';
-
-			if (empty($parameters['user']['removed'])) {
-				$response['message']['text'] = $defaultMessage;
-
-				if ($this->save('users', array(
-					array(
-						'removed' => true,
-						'id' => $parameters['user']['id']
-					)
-				))) {
-					$response = array(
-						'message' => array(
-							'status' => 'success',
-							'text' => 'Your account removal request was sent successfully and your account will be removed shortly.'
-						)
-					);
-					$emails = array_filter(array(
-						$parameters['user']['email'],
-						$this->settings['from_email']
-					));
-
-					foreach ($emails as $email) {
-						$mailParameters = array(
-							'from' => $this->settings['from_email'],
-							'subject' => 'User account removal requested successfully',
-							'template' => array(
-								'name' => 'user_request_removal',
-								'parameters' => array(
-									'user' => $parameters['user']
-								)
-							),
-							'to' => $email
-						);
-						$this->_sendMail($mailParameters);
-					}
-				}
-			}
-		}
-
-		return $response;
-	}
-
-/**
  * Request email address change
  *
  * @param string $table
@@ -622,6 +562,66 @@ class UsersModel extends AppModel {
 								return $this->login($table, $parameters);
 							}
 						}
+					}
+				}
+			}
+		}
+
+		return $response;
+	}
+
+/**
+ * Request user account removal
+ *
+ * @param string $table
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	public function remove($table, $parameters = array()) {
+		$response = array(
+			'message' => array(
+				'status' => 'error',
+				'text' => ($defaultMessage = 'Error processing your user account removal request, please try again.')
+			)
+		);
+
+		if (!empty($parameters['user'])) {
+			$response['message']['text'] = 'Your account is already pending removal.';
+
+			if (empty($parameters['user']['removed'])) {
+				$response['message']['text'] = $defaultMessage;
+
+				if ($this->save('users', array(
+					array(
+						'removed' => true,
+						'id' => $parameters['user']['id']
+					)
+				))) {
+					$response = array(
+						'message' => array(
+							'status' => 'success',
+							'text' => 'Your account removal request was sent successfully and your account will be removed shortly.'
+						)
+					);
+					$emails = array_filter(array(
+						$parameters['user']['email'],
+						$this->settings['from_email']
+					));
+
+					foreach ($emails as $email) {
+						$mailParameters = array(
+							'from' => $this->settings['from_email'],
+							'subject' => 'User account removal requested successfully',
+							'template' => array(
+								'name' => 'user_request_removal',
+								'parameters' => array(
+									'user' => $parameters['user']
+								)
+							),
+							'to' => $email
+						);
+						$this->_sendMail($mailParameters);
 					}
 				}
 			}

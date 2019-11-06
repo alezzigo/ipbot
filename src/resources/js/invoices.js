@@ -42,7 +42,7 @@ var processInvoice = function() {
 			}
 
 			billingAmountField.value = amountDue.toLocaleString(false, {minimumFractionDigits: 2}).replace(',', '');
-			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + capitalizeString(response.data.invoice.status) + '</label> Invoice #' + response.data.invoice.id;
+			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + response.data.invoice.status + '</label> Invoice #' + response.data.invoice.id;
 			document.querySelector('.billing-currency').innerHTML = response.data.invoice.currency;
 			document.querySelector('.billing-view-details').addEventListener('click', function(element) {
 				closeWindows(defaultTable);
@@ -83,7 +83,7 @@ var processInvoice = function() {
 					invoiceData += '<p class="no-margin-bottom">' + order.price.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + order.currency + ' for ' + interval + (pendingOrderChange ? ' to <span class="success">' + order.price_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + order.currency + ' for ' + order.interval_value_pending + ' ' + order.interval_type_pending + (order.interval_value_pending !== 1 ? 's' : '') + '</span>' : '') + '</p>';
 
 					if (pendingOrderChange) {
-						invoiceData += '<label class="label">Pending Order ' + capitalizeString(pendingChangeType) + '</label><a class="cancel cancel-pending" href="javascript:void(0);" order_id="' + order.id + '">Cancel</a>';
+						invoiceData += '<label class="label">Pending Order ' + pendingChangeType + '</label><a class="cancel cancel-pending" href="javascript:void(0);" order_id="' + order.id + '">Cancel</a>';
 					}
 
 					invoiceData += '<div class="item-link-container"><a class="item-link" href="/orders/' + order.id + '"></a></div>';
@@ -116,7 +116,7 @@ var processInvoice = function() {
 			if (response.data.transactions.length) {
 				response.data.transactions.map(function(transaction) {
 					if (transaction.payment_status_message) {
-						invoiceData += '<label class="label ' + (typeof transaction.payment_amount === 'number' ? (Math.sign(transaction.payment_amount) >= 0 ? 'payment' : 'refund') : '') + '">' + capitalizeString(transaction.payment_status_message) + '</label>';
+						invoiceData += '<label class="label ' + (typeof transaction.payment_amount === 'number' ? (Math.sign(transaction.payment_amount) >= 0 ? 'payment' : 'refund') : '') + '">' + transaction.payment_status_message + '</label>';
 						invoiceData += '<div class="transaction">';
 						invoiceData += '<p>';
 						invoiceData += '<strong>' + transaction.transaction_date + '</strong><br>';
@@ -264,7 +264,7 @@ var processInvoices = function() {
 				invoiceData += '<div class="item">';
 				invoiceData += '<div class="item-body">';
 				invoiceData += '<p><strong>Invoice #' + item.id + '</strong></p>';
-				invoiceData += '<label class="label ' + item.status + '">' + capitalizeString(item.status) + '</label>' + (item.remainder_pending && item.quantity_pending !== item.quantity ? '<label class="label">Pending Order Change</label>' : '');
+				invoiceData += '<label class="label ' + item.status + '">' + item.status + '</label>' + (item.remainder_pending && item.quantity_pending !== item.quantity ? '<label class="label">Pending Order Change</label>' : '');
 				invoiceData += '</div>';
 				invoiceData += '</div>';
 				invoiceData += '<div class="item-link-container"><a class="item-link" href="/invoices/' + item.id + '"></a></div>';

@@ -138,7 +138,19 @@ var processCartItems = function(response) {
 			quantityValues.map(function(quantityValue, index) {
 				quantitySelectValues += '<option ' + (quantityValue == cartItem[1].quantity ? 'selected ' : '') + 'value="' + quantityValue + '">' + quantityValue + '</option>';
 			});
-			cartItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem[1].id + '"><span checked="' + +(typeof cartItemGrid['cartItem' + cartItem[1].id] !== 'undefined') + '" class="checkbox" index="' + index + '" cart_item_id="' + cartItem[1].id + '"></span><p><a href="' + requestParameters.settings.base_url + cartItem[1].uri + '">' + cartItem[1].name + '</a></p><div class="field-group"><span>Quantity:</span><select class="quantity" name="quantity">' + quantitySelectValues + '</select></div><div class="field-group no-margin"><span>Price:</span><span class="display">' + cartItem[1].price + ' ' + requestParameters.settings.billing_currency + '</span><span>for</span><select class="interval-value" name="interval_value">' + intervalSelectValues + '</select><select class="interval-type" name="interval_type">' + intervalSelectTypes + '</select></div><div class="clear"></div></div>';
+			cartItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem[1].id + '">';
+			cartItems += '<span checked="' + +(typeof cartItemGrid['cartItem' + cartItem[1].id] !== 'undefined') + '" class="checkbox" index="' + index + '" cart_item_id="' + cartItem[1].id + '"></span>';
+			cartItems += '<p><a href="' + requestParameters.settings.base_url + cartItem[1].uri + '">' + cartItem[1].name + '</a></p>';
+			cartItems += '<div class="field-group">';
+			cartItems += '<span>Quantity:</span><select class="quantity" name="quantity">' + quantitySelectValues + '</select>';
+			cartItems += '</div>';
+			cartItems += '<div class="field-group no-margin">';
+			cartItems += '<span>Price:</span><span class="display">' + cartItem[1].price + ' ' + requestParameters.settings.billing_currency + '</span><span>for</span>';
+			cartItems += '<select class="interval-value" name="interval_value">' + intervalSelectValues + '</select>';
+			cartItems += '<select class="interval-type" name="interval_type">' + intervalSelectTypes + '</select>';
+			cartItems += '</div>';
+			cartItems += '<div class="clear"></div>';
+			cartItems += '</div>';
 			cartSubtotal += parseFloat(cartItem[1].price);
 		});
 		cartItemContainer.innerHTML = cartItems;

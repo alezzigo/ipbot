@@ -237,6 +237,9 @@ class Config {
 				'balance' => array(
 					'fields' => $defaultFields['users']
 				),
+				'cancel' => array(
+					'fields' => $defaultFields['users']
+				),
 				'email' => array(
 					'fields' => $defaultFields['users']
 				),

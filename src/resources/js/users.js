@@ -134,13 +134,16 @@ var processUser = function() {
 				if (response.user.subscriptions.length) {
 					userData += '<h2>Account Subscriptions</h2>';
 					response.user.subscriptions.map(function(item, index) {
-						userData += '<div class="item-container item-button">';
+						userData += '<div class="item-container item-button" subscription_id="' + item.id + '">';
 						userData += '<div class="item">';
 						userData += '<div class="item-body">';
 						userData += '<p><strong>Subscription #' + item.id + '</strong></p>';
 						userData += '<p>' + item.price + ' ' + requestParameters.settings.billing_currency + ' per ' + item.interval_value + ' ' + item.interval_type + (item.interval_value !== 1 ? 's' : '') + '</p>';
-						userData += '<label class="label ' + item.status + '">' + capitalizeString(item.status) + '</label>' + (item.status !== 'canceled' ? '<a class="cancel cancel-subscription" href="javascript:void(0);" subscription_id="' + item.id + '">Cancel</a>' : '');
-						// ..
+						userData += '<span class="label-container">'
+						userData += '<label class="label ' + item.status + '">' + item.status.replace('_', ' ') + '</label>';
+						userData += '</span>';
+						userData += (item.status.indexOf('cancel') < 0 ? '<a class="cancel cancel-subscription" href="javascript:void(0);" subscription_id="' + item.id + '">Request Cancellation</a>' : '');
+						userData += '<div class="hidden message-container no-margin-bottom"></div>';
 						userData += '</div>';
 						userData += '</div>';
 						userData += '</div>';
@@ -157,6 +160,39 @@ var processUser = function() {
 			}
 
 			userContainer.innerHTML = userData;
+
+			if (response.user.subscriptions.length) {
+				response.user.subscriptions.map(function(item, index) {
+					var cancelSubscriptionButton = document.querySelector('.item-button[subscription_id="' + item.id + '"] .cancel-subscription');
+					var cancelSubscription = function(subscriptionId) {
+						requestParameters.action = 'cancel';
+						requestParameters.data.subscription_id = subscriptionId;
+						sendRequest(function(response) {
+							if (typeof response.message.text !== 'undefined') {
+								var subscriptionContainerSelector = '.item-button[subscription_id="' + subscriptionId + '"]';
+								elements.addClass('.item-button[subscription_id] .message-container', 'hidden');
+								elements.html('.item-button[subscription_id] .message-container', '');
+								elements.html(subscriptionContainerSelector + ' .message-container', '<p class="message ' + response.message.status + ' no-margin-bottom">' + response.message.text + '</p>');
+								elements.removeClass(subscriptionContainerSelector + ' .message-container', 'hidden');
+
+								if (response.message.status === 'success') {
+									elements.addClass(subscriptionContainerSelector + ' .cancel-subscription', 'hidden');
+									elements.html(subscriptionContainerSelector + ' .label-container', '<label class="label">Pending Cancellation</label>');
+								}
+							}
+						});
+					};
+
+					if (cancelSubscriptionButton) {
+						cancelSubscriptionButton.clickListener = function() {
+							cancelSubscriptionButton.removeEventListener('click', cancelSubscriptionButton.clickListener);
+							cancelSubscription(cancelSubscriptionButton.getAttribute('subscription_id'));
+						};
+						cancelSubscriptionButton.addEventListener('click', cancelSubscriptionButton.clickListener);
+					}
+				});
+			}
+
 			userAddBalanceButton = userContainer.querySelector('.button.add-to-balance');
 
 			if (userAddBalanceButton) {

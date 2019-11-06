@@ -170,6 +170,85 @@ class UsersModel extends AppModel {
 	}
 
 /**
+ * Request subscription cancellation
+ *
+ * @param string $table
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	public function cancel($table, $parameters) {
+		$response = array(
+			'data' => array(),
+			'message' => array(
+				'status' => 'error',
+				'text' => ($defaultMessage = 'Error processing your subscription cancellation request, please try again.')
+			)
+		);
+
+		if (!empty($parameters['data']['subscription_id'])) {
+			$subscription = $this->find('subscriptions', array(
+				'conditions' => array(
+					'id' => $parameters['data']['subscription_id']
+				),
+				'fields' => array(
+					'created',
+					'id',
+					'invoice_id',
+					'interval_type',
+					'interval_value',
+					'plan_id',
+					'price',
+					'status',
+					'user_id'
+				)
+			));
+
+			if (!empty($subscription['count'])) {
+				$subscriptionData = array(
+					array(
+						'id' => $subscription['data'][0]['id'],
+						'status' => 'pending_cancellation'
+					)
+				);
+
+				if ($this->save('subscriptions', $subscriptionData)) {
+					$emails = array(
+						$this->settings['from_email'],
+						$parameters['user']['email']
+					);
+
+					foreach ($emails as $email) {
+						$mailParameters = array(
+							'from' => $this->settings['from_email'],
+							'subject' => 'Cancellation request for subscription #' . $subscription['data'][0]['id'],
+							'template' => array(
+								'name' => 'subscription_request_cancellation',
+								'parameters' => array(
+									'subscription' => $subscription['data'][0],
+									'user' => $parameters['user']
+								)
+							),
+							'to' => $email
+						);
+						$this->_sendMail($mailParameters);
+					}
+
+					$response = array(
+						'data' => $subscription['data'][0],
+						'message' => array(
+							'status' => 'success',
+							'text' => 'A confirmation was emailed to ' . $parameters['user']['email'] . ' and your subscription will be cancelled shortly as requested'
+						)
+					);
+				}
+			}
+		}
+
+		return $response;
+	}
+
+/**
  * Request email address change
  *
  * @param string $table

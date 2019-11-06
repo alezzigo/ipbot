@@ -583,6 +583,7 @@ main {
 		.item-container.item-button .item .label {
 			margin-bottom: 0;
 			margin-top: 2px;
+			text-transform: capitalize;
 		}
 		.item-container.item-button .field-group {
 			margin: 0 0 8px 0;
@@ -591,7 +592,7 @@ main {
 			border-color: #7773e3;
 		}
 		.item-container.item-button p {
-			line-height: 13px;
+			line-height: 16px;
 			margin-bottom: 8px;
 		}
 	.item-container.item-button-selectable {

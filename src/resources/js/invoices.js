@@ -73,6 +73,7 @@ var processInvoice = function() {
 						order.quantity_pending !== order.quantity
 					);
 					invoiceData += '<div class="item-container item-button">';
+					invoiceData += '<div class="item">';
 					invoiceData += '<p><strong>Order #' + order.id + '</strong></p>';
 
 					if (pendingOrderChange) {
@@ -80,13 +81,14 @@ var processInvoice = function() {
 					}
 
 					invoiceData += '<p>' + order.quantity + ' ' + order.name + (pendingOrderChange ? ' to <span class="success">' + order.quantity_pending + ' ' + order.name + '</span>' : '') + '</p>';
-					invoiceData += '<p class="no-margin-bottom">' + order.price.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + order.currency + ' for ' + interval + (pendingOrderChange ? ' to <span class="success">' + order.price_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + order.currency + ' for ' + order.interval_value_pending + ' ' + order.interval_type_pending + (order.interval_value_pending !== 1 ? 's' : '') + '</span>' : '') + '</p>';
+					invoiceData += '<p' + (!pendingOrderChange ? ' class="no-margin-bottom"' : '' ) + '>' + order.price.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + order.currency + ' for ' + interval + (pendingOrderChange ? ' to <span class="success">' + order.price_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + order.currency + ' for ' + order.interval_value_pending + ' ' + order.interval_type_pending + (order.interval_value_pending !== 1 ? 's' : '') + '</span>' : '') + '</p>';
 
 					if (pendingOrderChange) {
 						invoiceData += '<label class="label">Pending Order ' + pendingChangeType + '</label><a class="cancel cancel-pending" href="javascript:void(0);" order_id="' + order.id + '">Cancel</a>';
 					}
 
 					invoiceData += '<div class="item-link-container"><a class="item-link" href="/orders/' + order.id + '"></a></div>';
+					invoiceData += '</div>';
 					invoiceData += '</div>';
 				});
 			} else {
@@ -292,7 +294,7 @@ var processPayment = function(windowName, windowSelector) {
 		var messageContainer = document.querySelector(windowSelector + ' .message-container');
 
 		if (messageContainer) {
-			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message payment-message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
 
 		processInvoice();

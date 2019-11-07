@@ -667,6 +667,9 @@ main {
 			.message a:hover {
 				border: none;
 			}
+	.payment-message {
+		margin-top: 18px;
+	}
 	.icon {
 		color: #fff !important;
 		cursor: pointer;

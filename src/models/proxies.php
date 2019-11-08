@@ -222,6 +222,69 @@ class ProxiesModel extends AppModel {
 	}
 
 /**
+ * Process order downgrade requests
+ *
+ * @param string $table
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	public function downgrade($table, $parameters) {
+		$response = array(
+			'data' => array(),
+			'message' => array(
+				'status' => 'error',
+				'text' => ($defaultMessage = 'Error processing your order downgrade request, please try again.')
+			)
+		);
+
+		if (
+			!empty($parameters['items'][$table]['count']) &&
+			!empty($itemIds = array_values($parameters['items'][$table]['data'])) &&
+			!empty($orderId = $parameters['conditions']['order_id'])
+		) {
+			$order = $this->find('orders', array(
+				'conditions' => array(
+					'id' => $orderId,
+					'user_id' => $parameters['user']['id']
+				),
+				'fields' => array(
+					'created',
+					'currency',
+					'id',
+					'interval_type',
+					'interval_type_pending',
+					'interval_value',
+					'interval_value_pending',
+					'name',
+					'price',
+					'price_active',
+					'price_pending',
+					'product_id',
+					'quantity',
+					'quantity_active',
+					'quantity_pending',
+					'session_id',
+					'shipping',
+					'shipping_pending',
+					'status',
+					'tax',
+					'tax_pending',
+					'type',
+					'user_id'
+				),
+				'limit' => 1
+			));
+
+			if (!empty($order['count'])) {
+				// ..
+			}
+		}
+
+		return $response;
+	}
+
+/**
  * Process group requests
  *
  * @param string $table

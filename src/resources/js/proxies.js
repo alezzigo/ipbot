@@ -41,6 +41,15 @@ var processCopy = function(windowName, windowSelector) {
 	itemsCopy.addEventListener('click', itemsCopy.clickListener);
 	processCopyFormat();
 };
+var processDowngrade = function() {
+	var downgradeContainer = document.querySelector('.downgrade-container');
+	var pagination = document.querySelector('.item-configuration .pagination');
+	processProxies(false, false, requestParameters.current_page);
+	requestParameters.action = 'downgrade';
+	sendRequest(function(response) {
+		// ..
+	});
+};
 var processGroup = function(windowName, windowSelector) {
 	var groupGrid = {};
 	var groupNameButton = document.querySelector(windowSelector + ' .group-name-button');
@@ -389,6 +398,7 @@ var processProxies = function(windowName, windowSelector, currentPage) {
 	requestParameters.conditions = {
 		order_id: orderId
 	};
+	requestParameters.current_page = currentPage;
 	requestParameters.items[requestParameters.table] = itemGrid;
 	requestParameters.limit = resultsPerPage;
 	requestParameters.offset = ((currentPage * resultsPerPage) - resultsPerPage);

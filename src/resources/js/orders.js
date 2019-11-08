@@ -4,13 +4,6 @@ var orderGrid = {};
 var productIdGrid = {};
 var defaultTable = 'orders';
 var previousAction = 'find';
-var processDowngrade = function() {
-	var downgradeContainer = document.querySelector('.downgrade-container');
-	requestParameters.action = 'downgrade';
-	sendRequest(function(response) {
-		// ..
-	});
-};
 var processOrders = function() {
 	var ordersAllVisible = document.querySelector('.item-container .checkbox[index="all-visible"]');
 	var ordersContainer = document.querySelector('.orders-container');

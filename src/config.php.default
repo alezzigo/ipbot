@@ -150,10 +150,6 @@ class Config {
 				)
 			),
 			'orders' => array(
-				'downgrade' => array(
-					'fields' => $defaultFields['orders'],
-					'group' => 'user'
-				),
 				'find' => array(
 					'fields' => array_merge($defaultFields['orders'], array(
 						'created',
@@ -201,6 +197,10 @@ class Config {
 						'user_id',
 						'username'
 					),
+					'group' => 'user'
+				),
+				'downgrade' => array(
+					'fields' => $defaultFields['orders'],
 					'group' => 'user'
 				),
 				'find' => array(

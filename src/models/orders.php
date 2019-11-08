@@ -120,20 +120,6 @@ class OrdersModel extends TransactionsModel {
 	}
 
 /**
- * Process order downgrade requests
- *
- * @param string $table
- * @param array $parameters
- *
- * @return array $response
- */
-	public function downgrade($table, $parameters) {
-		$response = array();
-		// ..
-		return $response;
-	}
-
-/**
  * List orders
  *
  * @return array

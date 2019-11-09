@@ -47,6 +47,43 @@ var processDowngrade = function() {
 	processProxies(false, false, requestParameters.current_page);
 	requestParameters.action = 'downgrade';
 	sendRequest(function(response) {
+		var downgradeData = '';
+		var messageContainer = document.querySelector('.downgrade-configuration .message-container');
+
+		if (messageContainer) {
+			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		}
+
+		if (
+			typeof response.redirect === 'string' &&
+			response.redirect
+		) {
+			window.location.href = response.redirect;
+			return false;
+		}
+
+		if (response.message.status === 'success') {
+			downgradeData += '<div class="clear"></div>';
+			downgradeData += '<div class="merged-order-details">';
+			downgradeData += '<p class="message success">Your current order for ' + totalResults + ' ' + requestParameters.table + ' will downgrade to the following order and invoice:</p>';
+			downgradeData += '<div class="item-container item-button no-margin-bottom">';
+			downgradeData += '<p><strong>Downgraded Order</strong></p>';
+			downgradeData += '<p>' + response.data.downgraded.order.quantity_pending + ' ' + response.data.downgraded.order.name + '</p>';
+			downgradeData += '<p class="no-margin-bottom">' + response.data.downgraded.order.price_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + ' for ' + response.data.downgraded.order.interval_value + ' ' + response.data.downgraded.order.interval_type + (response.data.downgraded.order.interval_value !== 1 ? 's' : '') + '</p>';
+			downgradeData += '<div class="item-link-container"></div>';
+			downgradeData += '</div>';
+			downgradeData += '<div class="align-left item-container no-margin-top no-padding">';
+			downgradeData += '<h2>Downgraded Invoice Pricing Details</h2>';
+			downgradeData += '<p><strong>Subtotal</strong><br>' + response.data.downgraded.invoice.subtotal_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</p>';
+			downgradeData += '<p><strong>Shipping</strong><br>' + response.data.downgraded.invoice.shipping_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</p>';
+			downgradeData += '<p><strong>Tax</strong><br>' + response.data.downgraded.invoice.tax_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</p>';
+			downgradeData += '<p><strong>Total</strong><br>' + response.data.downgraded.invoice.total_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</p>';
+			downgradeData += '<p><strong>Amount Paid</strong><br><span' + (response.data.downgraded.invoice.amount_paid ? ' class="paid"' : '') + '>' + response.data.downgraded.invoice.amount_paid.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</span>' + (response.data.downgraded.invoice.amount_paid ? '<br><span class="note">The amount paid will be added to your account balance and won\'t automatically apply to the remaining amount due for the merged order.</span>' : '') + '</p>';
+			downgradeData += '</div>';
+			downgradeData += '</div>';
+			downgradeContainer.innerHTML = downgradeData;
+		}
+
 		// ..
 	});
 };

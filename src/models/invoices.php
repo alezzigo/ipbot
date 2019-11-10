@@ -1348,8 +1348,8 @@ class InvoicesModel extends UsersModel {
 		if (!empty($invoiceData['count'])) {
 			$invoiceData = $invoiceData['data'][0];
 
-			if (!empty($invoiceData['merged_invoice_id'])) {
-				$response['redirect'] = $this->settings['base_url'] . 'invoices/' . $invoiceData['merged_invoice_id'];
+			if (is_numeric($invoiceData['merged_invoice_id'])) {
+				$response['redirect'] = $this->settings['base_url'] . 'invoices/' . (!empty($invoiceData['merged_invoice_id']) ? $invoiceData['merged_invoice_id'] : null);
 			} else {
 				$invoiceData['created'] = date('M d Y', strtotime($invoiceData['created'])) . ' at ' . date('g:ia', strtotime($invoiceData['created'])) . ' ' . $this->settings['timezone']['display'];
 				$invoiceItems = $this->_retrieveInvoiceItems($invoiceData);

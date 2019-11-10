@@ -420,6 +420,7 @@ class OrdersModel extends TransactionsModel {
 							);
 							$mergedData['invoice'] = array_merge($mergedData['invoice'], array(
 								'cart_items' => sha1(uniqid() . $mergedData['invoice']['cart_items']),
+								'merged_invoice_id' => 0,
 								'payable' => true
 							));
 							$mergedInvoiceData = array(
@@ -512,7 +513,8 @@ class OrdersModel extends TransactionsModel {
 
 									$pendingInvoices[$mergedData['invoice']['id'] . '_merged'] = array(
 										'amount_paid' => 0,
-										'id' => $mergedInvoiceId
+										'id' => $mergedInvoiceId,
+										'merged_invoice_id' => null
 									);
 									$mergedInvoiceOrder = $this->find('invoice_orders', array(
 										'conditions' => array(

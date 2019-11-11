@@ -405,7 +405,8 @@ class ProxiesModel extends OrdersModel {
 										$downgradedProxyData = array();
 										$downgradedProxyParameters = array(
 											'conditions' => array(
-												'ip' => $itemIds
+												'id' => $itemIds,
+												'order_id' => $orderId
 											),
 											'fields' => array(
 												'id',
@@ -414,8 +415,9 @@ class ProxiesModel extends OrdersModel {
 										);
 										$downgradedProxiesToKeep = $this->find('proxies', $downgradedProxyParameters);
 										$downgradedProxyParameters['conditions'] = array(
+											'order_id' => $orderId,
 											'NOT' => array(
-												'ip' => $itemIds
+												'id' => $itemIds
 											)
 										);
 										$downgradedProxiesToRemove = $this->find('proxies', $downgradedProxyParameters);

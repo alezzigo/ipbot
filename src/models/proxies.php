@@ -354,6 +354,7 @@ class ProxiesModel extends OrdersModel {
 									array_diff_key($downgradedData['invoice'], array(
 										'amount_due' => true,
 										'amount_due_pending' => true,
+										'billing' => true,
 										'created' => true,
 										'due' => true,
 										'id' => true,
@@ -362,7 +363,7 @@ class ProxiesModel extends OrdersModel {
 									))
 								);
 
-								if ($this->save('invoices', $downgradedData)) {
+								if ($this->save('invoices', $downgradedInvoiceData)) {
 									$downgradedInvoice = $this->find('invoices', array(
 										'conditions' => array(
 											'cart_items' => $downgradedData['invoice']['cart_items'],

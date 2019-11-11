@@ -280,6 +280,7 @@ class ProxiesModel extends OrdersModel {
 				!empty($order['count']) &&
 				!empty($productId = $order['data'][0]['product_id'])
 			) {
+				$pendingTransactions = array();
 				$product = $this->find('products', array(
 					'conditions' => array(
 						'id' => $productId
@@ -407,7 +408,17 @@ class ProxiesModel extends OrdersModel {
 											'tax' => $downgradedData['order']['tax_pending'],
 											'tax_pending' => null
 										));
-										$downgradedInvoiceData[0]['merged_invoice_id'] = null;
+										$downgradedInvoiceData[0] = array_merge($downgradedInvoiceData[0], array(
+											'merged_invoice_id' => null,
+											'shipping' => $downgradedInvoiceData[0]['shipping_pending'],
+											'shipping_pending' => null,
+											'subtotal' => $downgradedInvoiceData[0]['subtotal_pending'],
+											'subtotal_pending' => null,
+											'tax' => $downgradedInvoiceData[0]['tax_pending'],
+											'tax_pending' => null,
+											'total' => $downgradedInvoiceData[0]['total_pending'],
+											'total_pending' => null
+										));
 										$downgradedInvoiceOrderData = array(
 											array(
 												'id' => $downgradedInvoiceOrder['data'][0]['id'],
@@ -441,15 +452,18 @@ class ProxiesModel extends OrdersModel {
 											)));
 										}
 
+										// ..
+
 										if (
 											$this->save('invoices', $downgradedInvoiceData) &&
 											$this->save('invoice_orders', $downgradedInvoiceOrderData) &&
 											$this->save('orders', $downgradedData['orders']) &&
-											$this->save('proxies', $downgradedProxyData)
+											$this->save('proxies', $downgradedProxyData) &&
+											$this->save('transactions', $pendingTransactions)
 										) {
 											$mailParameters = array(
 												'from' => $this->settings['from_email'],
-												'subject' => 'Order #' . $downgradedData['order']['quantity'] . ' downgraded to ' . $downgradedData['order']['quantity'] . ' ' . strtolower($downgradedData['order']['name']),
+												'subject' => 'Order #' . $downgradedData['order']['id'] . ' downgraded to ' . $downgradedData['order']['quantity_pending'] . ' ' . strtolower($downgradedData['order']['name']),
 												'template' => array(
 													'name' => 'order_downgraded',
 													'parameters' => array(
@@ -461,7 +475,7 @@ class ProxiesModel extends OrdersModel {
 														'table' => 'proxies'
 													)
 												),
-												'to' => $userEmail
+												'to' => $parameters['user']['email']
 											);
 											$this->_sendMail($mailParameters);
 											// ..

@@ -7,7 +7,7 @@
 	$message .= '--' . "\n";
 	$message .= 'Order ID: #' . $templateParameters['order']['id'] . "\n";
 	$message .= 'Order Name: ' . $templateParameters['order']['quantity'] . ' ' . $templateParameters['order']['name'] . ' downgraded to ' . $templateParameters['order']['quantity_pending'] . ' ' . $templateParameters['order']['name'] . "\n";
-	$message .= 'Order Price: ' . number_format($templateParameters['order']['price'], 2, '.', ',') . ' ' . $this->settings['billing']['currency'] . ($templateParameters['order']['price_pending'] > $templateParameters['order']['price'] ? ' increased to ' . number_format($templateParameters['order']['price_pending'], 2, '.', ',') : '') . ' ' . $this->settings['billing']['currency'] . "\n";
+	$message .= 'Order Price: ' . number_format($templateParameters['order']['price_pending'], 2, '.', ',') . ' ' . $this->settings['billing']['currency'] . "\n";
 	$message .= 'Order Interval: ' . $templateParameters['order']['interval_value'] . ' ' . $templateParameters['order']['interval_type'] . "\n";
 	$message .= 'Order URL: ' . ($domain = 'https://' . $this->settings['base_domain']) . '/orders/' . $templateParameters['order']['id'] . "\n";
 	$message .= "\n";
@@ -21,16 +21,16 @@
 	$message .= '--' . "\n";
 	$message .= 'User Email: ' . $templateParameters['user']['email'] . "\n";
 	$message .= "\n";
-	$message .= 'If you didn\'t request this order downgrade, please reply to this email immediately. The list of proxies to be removed below will remain active for 2 hours before removal.' . "\n";
+	$message .= 'If you didn\'t request this order downgrade, please reply to this email immediately. The list of proxies to be removed below will remain active for about 2 hours before removal.' . "\n";
 	$message .= "\n";
-	$message .= 'List of proxies to be removed ' . $templateParameters['table'] . ':' . "\n";
+	$message .= 'List of ' . $templateParameters['table'] . ' to be removed:' . "\n";
 
 	foreach ($templateParameters['items_to_remove'] as $key => $item) {
 		$message .= $item['ip'] . "\n";
 	}
 
 	$message .= "\n";
-	$message .= 'List of proxies to keep ' . $templateParameters['table'] . ':' . "\n";
+	$message .= 'List of ' . $templateParameters['table'] . ' to keep:' . "\n";
 
 	foreach ($templateParameters['items_to_keep'] as $key => $item) {
 		$message .= $item['ip'] . "\n";

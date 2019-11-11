@@ -412,6 +412,10 @@ var processProxies = function(windowName, windowSelector, currentPage) {
 		processWindowEvents('resize');
 		+elements.html('.total-checked') ? elements.removeClass('.item-configuration span.icon[item-function]', 'hidden') : elements.addClass('.item-configuration span.icon[item-function]', 'hidden');
 		itemGridCount = itemCount;
+
+		if (totalResults === itemCount) {
+			elements.addClass('.item-configuration span.icon[item-function][process="downgrade"]', 'hidden');
+		}
 	};
 	elements.addClass('.item-configuration .item-controls', 'hidden');
 	pagination.querySelector('.next').setAttribute('page', 0);

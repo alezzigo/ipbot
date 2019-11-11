@@ -377,9 +377,80 @@ class ProxiesModel extends OrdersModel {
 											'order' => 'DESC'
 										)
 									));
+									$downgradedInvoiceOrder = $this->find('invoice_orders', array(
+										'conditions' => array(
+											'order_id' => $orderId
+										),
+										'fields' => array(
+											'id',
+											'initial_invoice_id',
+											'invoice_id',
+											'order_id'
+										),
+										'limit' => 1
+									));
 
-									if (!empty($downgradedInvoice['count'])) {
-										// ..
+									if (
+										!empty($downgradedInvoice['count']) &&
+										!empty($downgradedInvoiceOrder['count'])
+									) {
+										$downgradedInvoiceData[0]['merged_invoice_id'] = null;
+										$downgradedInvoiceOrderData = array(
+											array(
+												'id' => $downgradedInvoiceOrder['data'][0]['id'],
+												'invoice_id' => $downgradedInvoice['data'][0]['id']
+											)
+										);
+										$downgradedProxyData = array();
+										$downgradedProxyParameters = array(
+											'conditions' => array(
+												'ip' => $itemIds
+											),
+											'fields' => array(
+												'id',
+												'ip'
+											)
+										);
+										$downgradedProxiesToKeep = $this->find('proxies', $downgradedProxyParameters);
+										$downgradedProxyParameters['conditions'] = array(
+											'NOT' => array(
+												'ip' => $itemIds
+											)
+										);
+										$downgradedProxiesToRemove = $this->find('proxies', $downgradedProxyParameters);
+
+										if (!empty($downgradedProxiesToRemove['count'])) {
+											$downgradedProxyData = array_replace_recursive($downgradedProxiesToRemove['data'], array_fill(0, $downgradedProxiesToRemove['count'], array(
+												'replacement_removal_date' => date('Y-m-d H:i:s', strtotime('+2 hours')),
+												'status' => 'replaced'
+											)));
+										}
+
+										if (
+											$this->save('invoices', $downgradedInvoiceData) &&
+											$this->save('invoice_orders', $downgradedInvoiceOrderData) &&
+											$this->save('orders', $downgradedData['orders']) &&
+											$this->save('proxies', $downgradedProxyData)
+										) {
+											$mailParameters = array(
+												'from' => $this->settings['from_email'],
+												'subject' => 'Order #' . $downgradedData['order']['quantity'] . ' downgraded to ' . $downgradedData['order']['quantity'] . ' ' . strtolower($downgradedData['order']['name']),
+												'template' => array(
+													'name' => 'order_downgraded',
+													'parameters' => array(
+														'invoice' => $downgradedData['invoice'],
+														'items_to_keep' => $downgradedProxiesToKeep['data'],
+														'items_to_remove' => $downgradedProxiesToRemove['data'],
+														'link' => 'https://' . $this->settings['base_domain'] . '/orders/' . $orderId,
+														'order' => $downgradedData['order'],
+														'table' => 'proxies'
+													)
+												),
+												'to' => $userEmail
+											);
+											$this->_sendMail($mailParameters);
+											// ..
+										}
 									}
 								}
 							}

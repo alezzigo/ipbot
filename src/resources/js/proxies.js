@@ -63,6 +63,7 @@ var processDowngrade = function() {
 		}
 
 		if (response.message.status === 'success') {
+			downgradeData += '<input class="hidden" name="confirm_downgrade" type="hidden" value="1">';
 			downgradeData += '<div class="clear"></div>';
 			downgradeData += '<div class="merged-order-details">';
 			downgradeData += '<p class="message success">Your current order for ' + totalResults + ' ' + requestParameters.table + ' will downgrade to the following order and invoice:</p>';

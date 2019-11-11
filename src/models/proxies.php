@@ -395,6 +395,18 @@ class ProxiesModel extends OrdersModel {
 										!empty($downgradedInvoice['count']) &&
 										!empty($downgradedInvoiceOrder['count'])
 									) {
+										$downgradedData['orders'][0] = array_merge($downgradedData['order'], array(
+											'price' => $downgradedData['order']['price_pending'],
+											'price_active' => $downgradedData['order']['price_pending'],
+											'price_pending' => null,
+											'quantity' => $downgradedData['order']['quantity_pending'],
+											'quantity_active' => $downgradedData['order']['quantity_pending'],
+											'quantity_pending' => null,
+											'shipping' => $downgradedData['order']['shipping_pending'],
+											'shipping_pending' => null,
+											'tax' => $downgradedData['order']['tax_pending'],
+											'tax_pending' => null
+										));
 										$downgradedInvoiceData[0]['merged_invoice_id'] = null;
 										$downgradedInvoiceOrderData = array(
 											array(

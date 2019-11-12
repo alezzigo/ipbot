@@ -410,6 +410,11 @@ class ProxiesModel extends OrdersModel {
 													'invoice_id' => $downgradedInvoice['data'][0]['id']
 												)));
 											}
+
+											$pendingInvoices[] = array(
+												'id' => $invoice['data']['invoice']['id'],
+												'merged_invoice_id' => $downgradedInvoice['data'][0]['id']
+											);
 										}
 
 										$downgradedData['orders'][0] = array_merge($downgradedData['order'], array(
@@ -458,6 +463,7 @@ class ProxiesModel extends OrdersModel {
 										}
 
 										$pendingInvoices[] = array_merge($downgradedInvoiceData[0], array(
+											'id' => $downgradedInvoice['data'][0]['id'],
 											'merged_invoice_id' => null,
 											'shipping' => $downgradedInvoiceData[0]['shipping_pending'],
 											'shipping_pending' => null,

@@ -355,7 +355,6 @@ class OrdersModel extends TransactionsModel {
 										$selectedOrder['order']['id']
 									))
 								);
-
 								$previousOrderMerges = $this->find('order_merges', $orderMergeParameters);
 								$amountAvailableToMerge = $selectedOrder['order']['total'];
 

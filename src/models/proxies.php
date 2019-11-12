@@ -280,7 +280,7 @@ class ProxiesModel extends OrdersModel {
 				!empty($order['count']) &&
 				!empty($productId = $order['data'][0]['product_id'])
 			) {
-				$pendingTransactions = array();
+				$pendingInvoices = $pendingInvoiceOrders = $pendingTransactions = array();
 				$product = $this->find('products', array(
 					'conditions' => array(
 						'id' => $productId
@@ -307,6 +307,9 @@ class ProxiesModel extends OrdersModel {
 						'conditions' => array(
 							'id' => $mostRecentOrderInvoice['id']
 						)
+					));
+					$invoiceIds = $this->_retrieveInvoiceIds(array(
+						$invoice['data']['invoice']['id']
 					));
 
 					if (!empty($invoice['data']['invoice'])) {
@@ -379,23 +382,36 @@ class ProxiesModel extends OrdersModel {
 											'order' => 'DESC'
 										)
 									));
-									$downgradedInvoiceOrder = $this->find('invoice_orders', array(
+									$downgradedInvoiceOrders = $this->find('invoice_orders', array(
 										'conditions' => array(
-											'order_id' => $orderId
+											'invoice_id' => $invoiceIds
 										),
 										'fields' => array(
 											'id',
 											'initial_invoice_id',
 											'invoice_id',
 											'order_id'
-										),
-										'limit' => 1
+										)
 									));
 
 									if (
 										!empty($downgradedInvoice['count']) &&
-										!empty($downgradedInvoiceOrder['count'])
+										!empty($downgradedInvoiceOrders['count'])
 									) {
+										foreach ($downgradedInvoiceOrders['data'] as $downgradedInvoiceOrder) {
+											$pendingInvoiceOrders[$downgradedInvoiceOrder['order_id']] = $downgradedInvoiceOrder;
+										}
+
+										if ($downgradedInvoiceOrders['count'] == 1) {
+											$transactions = $this->_retrieveInvoiceTransactions($invoice['data']['invoice']);
+
+											if (!empty($transactions)) {
+												$pendingTransactions[] = array_replace_recursive($transactions, array_fill(0, count($transactions), array(
+													'invoice_id' => $downgradedInvoice['data'][0]['id']
+												)));
+											}
+										}
+
 										$downgradedData['orders'][0] = array_merge($downgradedData['order'], array(
 											'price' => $downgradedData['order']['price_pending'],
 											'price_active' => $downgradedData['order']['price_pending'],
@@ -407,17 +423,6 @@ class ProxiesModel extends OrdersModel {
 											'shipping_pending' => null,
 											'tax' => $downgradedData['order']['tax_pending'],
 											'tax_pending' => null
-										));
-										$downgradedInvoiceData[0] = array_merge($downgradedInvoiceData[0], array(
-											'merged_invoice_id' => null,
-											'shipping' => $downgradedInvoiceData[0]['shipping_pending'],
-											'shipping_pending' => null,
-											'subtotal' => $downgradedInvoiceData[0]['subtotal_pending'],
-											'subtotal_pending' => null,
-											'tax' => $downgradedInvoiceData[0]['tax_pending'],
-											'tax_pending' => null,
-											'total' => $downgradedInvoiceData[0]['total_pending'],
-											'total_pending' => null
 										));
 										$downgradedInvoiceOrderData = array(
 											array(
@@ -452,10 +457,20 @@ class ProxiesModel extends OrdersModel {
 											)));
 										}
 
-										// ..
+										$pendingInvoices[] = array_merge($downgradedInvoiceData[0], array(
+											'merged_invoice_id' => null,
+											'shipping' => $downgradedInvoiceData[0]['shipping_pending'],
+											'shipping_pending' => null,
+											'subtotal' => $downgradedInvoiceData[0]['subtotal_pending'],
+											'subtotal_pending' => null,
+											'tax' => $downgradedInvoiceData[0]['tax_pending'],
+											'tax_pending' => null,
+											'total' => $downgradedInvoiceData[0]['total_pending'],
+											'total_pending' => null
+										));
 
 										if (
-											$this->save('invoices', $downgradedInvoiceData) &&
+											$this->save('invoices', $pendingInvoices) &&
 											$this->save('invoice_orders', $downgradedInvoiceOrderData) &&
 											$this->save('orders', $downgradedData['orders']) &&
 											$this->save('proxies', $downgradedProxyData) &&

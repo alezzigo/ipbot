@@ -49,6 +49,7 @@ var processDowngrade = function() {
 	sendRequest(function(response) {
 		var downgradeData = '';
 		var messageContainer = document.querySelector('.downgrade-configuration .message-container');
+		elements.setAttribute('.button.submit', 'disabled');
 
 		if (messageContainer) {
 			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
@@ -79,12 +80,13 @@ var processDowngrade = function() {
 			downgradeData += '<p><strong>Shipping</strong><br>' + response.data.downgraded.invoice.shipping_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</p>';
 			downgradeData += '<p><strong>Tax</strong><br>' + response.data.downgraded.invoice.tax_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</p>';
 			downgradeData += '<p><strong>Total</strong><br>' + response.data.downgraded.invoice.total_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</p>';
-			downgradeData += '<p><strong>Amount Paid</strong><br><span' + (response.data.downgraded.invoice.amount_paid ? ' class="paid"' : '') + '>' + response.data.downgraded.invoice.amount_paid.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</span>' + (response.data.downgraded.invoice.amount_paid ? '<br><span class="note">The amount paid will be added to your account balance and won\'t automatically apply to the remaining amount due for the merged order.</span>' : '') + '</p>';
+			downgradeData += '<p class="no-margin-bottom"><strong>Amount Paid</strong><br><span' + (response.data.downgraded.invoice.amount_paid ? ' class="paid"' : '') + '>' + response.data.downgraded.invoice.amount_paid.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</span>' + (response.data.downgraded.invoice.amount_paid ? '<br><span class="note">The amount paid will be added to your account balance and won\'t automatically apply to the remaining amount due for the merged order.</span>' : '') + '</p>';
 			downgradeData += '</div>';
 			downgradeData += '</div>';
-			downgradeContainer.innerHTML = downgradeData;
+			elements.removeAttribute('.button.submit', 'disabled');
 		}
 
+		downgradeContainer.innerHTML = downgradeData;
 		// ..
 	});
 };

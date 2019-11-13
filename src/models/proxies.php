@@ -316,190 +316,205 @@ class ProxiesModel extends OrdersModel {
 						if (!empty($invoice['data']['invoice']['remainder_pending'])) {
 							$response['message']['text'] = 'Error processing your order downgrade request, there\'s already a pending order upgrade request for invoice <a href="' . $this->settings['base_url'] . 'invoices/' . $invoice['data']['invoice']['id'] . '">#' . $invoice['data']['invoice']['id'] . '</a>.';
 						} else {
-							$downgradedData = array(
-								'order' => array_merge($order['data'][0], array(
-									'quantity_pending' => $downgradeQuantity
-								)),
-								'invoice' => array_merge($invoice['data']['invoice'], array(
-									'cart_items' => sha1(uniqid() . $invoice['data']['invoice']['cart_items']),
-									'merged_invoice_id' => 0,
-									'payable' => false
-								))
-							);
-							$downgradedData['order']['price'] = $this->_calculateItemPrice($order = array(
-								'interval_type' => $downgradedData['order']['interval_type'],
-								'interval_value' => $downgradedData['order']['interval_value'],
-								'price_per' => $response['data']['product']['price_per'],
-								'quantity' => $downgradedData['order']['quantity'],
-								'volume_discount_divisor' => $response['data']['product']['volume_discount_divisor'],
-								'volume_discount_multiple' => $response['data']['product']['volume_discount_multiple']
+							$downgradedProxiesToRemove = $this->find($table, array(
+								'conditions' => array(
+									'id' => $itemIds,
+									'status !=' => 'replaced'
+								),
+								'fields' => array(
+									'id'
+								)
 							));
-							$downgradedData['order']['price_pending'] = $this->_calculateItemPrice(array_merge($order, array(
-								'quantity' => $downgradedData['order']['quantity_pending']
-							)));
-							$pendingItem = array_merge(array(
-								'price' => $downgradedData['order']['price_pending'],
-								'quantity' => $downgradedData['order']['quantity_pending']
-							), $response['data']['product']);
-							$downgradedData['order'] = array_merge($downgradedData['order'], array(
-								'shipping_pending' => $this->_calculateItemShippingPrice($pendingItem),
-								'tax_pending' => $this->_calculateItemTaxPrice($pendingItem)
-							));
-							$downgradedData['orders'][] = $downgradedData['order'];
-							$downgradedData = array_replace_recursive($downgradedData, $this->_calculateInvoicePaymentDetails($downgradedData, false));
-							$response['data']['downgraded'] = $downgradedData;
-							$response['message'] = array(
-								'status' => 'success',
-								'text' => ''
-							);
 
-							if (!empty($parameters['data']['confirm_downgrade'])) {
-								$downgradedInvoiceData = array(
-									array_diff_key($downgradedData['invoice'], array(
-										'amount_due' => true,
-										'amount_due_pending' => true,
-										'billing' => true,
-										'created' => true,
-										'due' => true,
-										'id' => true,
-										'initial_invoice_id' => true,
-										'modified' => true
+							if (empty($downgradeQuantity = $downgradedProxiesToRemove['count'])) {
+								$response['message']['text'] = 'The selected ' . $table . ' are already replaced and pending removal from a previous order downgrade, please try again.';
+							} else {
+								$itemIds = $downgradedProxiesToRemove['data'];
+								$downgradedData = array(
+									'order' => array_merge($order['data'][0], array(
+										'quantity_pending' => $downgradeQuantity
+									)),
+									'invoice' => array_merge($invoice['data']['invoice'], array(
+										'cart_items' => sha1(uniqid() . $invoice['data']['invoice']['cart_items']),
+										'merged_invoice_id' => 0,
+										'payable' => false
 									))
 								);
+								$downgradedData['order']['price'] = $this->_calculateItemPrice($order = array(
+									'interval_type' => $downgradedData['order']['interval_type'],
+									'interval_value' => $downgradedData['order']['interval_value'],
+									'price_per' => $response['data']['product']['price_per'],
+									'quantity' => $downgradedData['order']['quantity'],
+									'volume_discount_divisor' => $response['data']['product']['volume_discount_divisor'],
+									'volume_discount_multiple' => $response['data']['product']['volume_discount_multiple']
+								));
+								$downgradedData['order']['price_pending'] = $this->_calculateItemPrice(array_merge($order, array(
+									'quantity' => $downgradedData['order']['quantity_pending']
+								)));
+								$pendingItem = array_merge(array(
+									'price' => $downgradedData['order']['price_pending'],
+									'quantity' => $downgradedData['order']['quantity_pending']
+								), $response['data']['product']);
+								$downgradedData['order'] = array_merge($downgradedData['order'], array(
+									'shipping_pending' => $this->_calculateItemShippingPrice($pendingItem),
+									'tax_pending' => $this->_calculateItemTaxPrice($pendingItem)
+								));
+								$downgradedData['orders'][] = $downgradedData['order'];
+								$downgradedData = array_replace_recursive($downgradedData, $this->_calculateInvoicePaymentDetails($downgradedData, false));
+								$response['data']['downgraded'] = $downgradedData;
+								$response['message'] = array(
+									'status' => 'success',
+									'text' => ''
+								);
 
-								if ($this->save('invoices', $downgradedInvoiceData)) {
-									$downgradedInvoice = $this->find('invoices', array(
-										'conditions' => array(
-											'cart_items' => $downgradedData['invoice']['cart_items'],
-											'user_id' => $downgradedData['invoice']['user_id']
-										),
-										'fields' => array_merge(array_keys($downgradedInvoiceData[0]), array(
-											'id'
-										)),
-										'limit' => 1,
-										'sort' => array(
-											'field' => 'created',
-											'order' => 'DESC'
-										)
-									));
-									$downgradedInvoiceOrders = $this->find('invoice_orders', array(
-										'conditions' => array(
-											'invoice_id' => $invoiceIds
-										),
-										'fields' => array(
-											'id',
-											'initial_invoice_id',
-											'invoice_id',
-											'order_id'
-										)
-									));
+								if (!empty($parameters['data']['confirm_downgrade'])) {
+									$downgradedInvoiceData = array(
+										array_diff_key($downgradedData['invoice'], array(
+											'amount_due' => true,
+											'amount_due_pending' => true,
+											'billing' => true,
+											'created' => true,
+											'due' => true,
+											'id' => true,
+											'initial_invoice_id' => true,
+											'modified' => true
+										))
+									);
 
-									if (
-										!empty($downgradedInvoice['count']) &&
-										!empty($downgradedInvoiceOrders['count'])
-									) {
-										foreach ($downgradedInvoiceOrders['data'] as $downgradedInvoiceOrder) {
-											$pendingInvoiceOrders[$downgradedInvoiceOrder['order_id']] = $downgradedInvoiceOrder;
-										}
-
-										if ($downgradedInvoiceOrders['count'] == 1) {
-											$transactions = $this->_retrieveInvoiceTransactions($invoice['data']['invoice']);
-
-											if (!empty($transactions)) {
-												$pendingTransactions[] = array_replace_recursive($transactions, array_fill(0, count($transactions), array(
-													'invoice_id' => $downgradedInvoice['data'][0]['id']
-												)));
-											}
-
-											$pendingInvoices[] = array(
-												'id' => $invoice['data']['invoice']['id'],
-												'merged_invoice_id' => $downgradedInvoice['data'][0]['id']
-											);
-										}
-
-										$downgradedData['orders'][0] = array_merge($downgradedData['order'], array(
-											'price' => $downgradedData['order']['price_pending'],
-											'price_active' => $downgradedData['order']['price_pending'],
-											'price_pending' => null,
-											'quantity' => $downgradedData['order']['quantity_pending'],
-											'quantity_active' => $downgradedData['order']['quantity_pending'],
-											'quantity_pending' => null,
-											'shipping' => $downgradedData['order']['shipping_pending'],
-											'shipping_pending' => null,
-											'tax' => $downgradedData['order']['tax_pending'],
-											'tax_pending' => null
-										));
-										$downgradedInvoiceOrderData = array(
-											array(
-												'id' => $downgradedInvoiceOrder['data'][0]['id'],
-												'invoice_id' => $downgradedInvoice['data'][0]['id']
-											)
-										);
-										$downgradedProxyData = array();
-										$downgradedProxyParameters = array(
+									if ($this->save('invoices', $downgradedInvoiceData)) {
+										$downgradedInvoice = $this->find('invoices', array(
 											'conditions' => array(
-												'id' => $itemIds,
-												'order_id' => $orderId
+												'cart_items' => $downgradedData['invoice']['cart_items'],
+												'user_id' => $downgradedData['invoice']['user_id']
+											),
+											'fields' => array_merge(array_keys($downgradedInvoiceData[0]), array(
+												'id'
+											)),
+											'limit' => 1,
+											'sort' => array(
+												'field' => 'created',
+												'order' => 'DESC'
+											)
+										));
+										$downgradedInvoiceOrders = $this->find('invoice_orders', array(
+											'conditions' => array(
+												'invoice_id' => $invoiceIds
 											),
 											'fields' => array(
 												'id',
-												'ip'
+												'initial_invoice_id',
+												'invoice_id',
+												'order_id'
 											)
-										);
-										$downgradedProxiesToKeep = $this->find('proxies', $downgradedProxyParameters);
-										$downgradedProxyParameters['conditions'] = array(
-											'order_id' => $orderId,
-											'NOT' => array(
-												'id' => $itemIds
-											)
-										);
-										$downgradedProxiesToRemove = $this->find('proxies', $downgradedProxyParameters);
-
-										if (!empty($downgradedProxiesToRemove['count'])) {
-											$downgradedProxyData = array_replace_recursive($downgradedProxiesToRemove['data'], array_fill(0, $downgradedProxiesToRemove['count'], array(
-												'replacement_removal_date' => date('Y-m-d H:i:s', strtotime('+2 hours')),
-												'status' => 'replaced'
-											)));
-										}
-
-										$pendingInvoices[] = array_merge($downgradedInvoiceData[0], array(
-											'id' => $downgradedInvoice['data'][0]['id'],
-											'merged_invoice_id' => null,
-											'shipping' => $downgradedInvoiceData[0]['shipping_pending'],
-											'shipping_pending' => null,
-											'subtotal' => $downgradedInvoiceData[0]['subtotal_pending'],
-											'subtotal_pending' => null,
-											'tax' => $downgradedInvoiceData[0]['tax_pending'],
-											'tax_pending' => null,
-											'total' => $downgradedInvoiceData[0]['total_pending'],
-											'total_pending' => null
 										));
 
 										if (
-											$this->save('invoices', $pendingInvoices) &&
-											$this->save('invoice_orders', $downgradedInvoiceOrderData) &&
-											$this->save('orders', $downgradedData['orders']) &&
-											$this->save('proxies', $downgradedProxyData) &&
-											$this->save('transactions', $pendingTransactions)
+											!empty($downgradedInvoice['count']) &&
+											!empty($downgradedInvoiceOrders['count'])
 										) {
-											$mailParameters = array(
-												'from' => $this->settings['from_email'],
-												'subject' => 'Order #' . $downgradedData['order']['id'] . ' downgraded to ' . $downgradedData['order']['quantity_pending'] . ' ' . strtolower($downgradedData['order']['name']),
-												'template' => array(
-													'name' => 'order_downgraded',
-													'parameters' => array(
-														'invoice' => $downgradedData['invoice'],
-														'items_to_keep' => $downgradedProxiesToKeep['data'],
-														'items_to_remove' => $downgradedProxiesToRemove['data'],
-														'link' => 'https://' . $this->settings['base_domain'] . '/orders/' . $orderId,
-														'order' => $downgradedData['order'],
-														'table' => 'proxies'
-													)
-												),
-												'to' => $parameters['user']['email']
+											foreach ($downgradedInvoiceOrders['data'] as $downgradedInvoiceOrder) {
+												$pendingInvoiceOrders[$downgradedInvoiceOrder['order_id']] = $downgradedInvoiceOrder;
+											}
+
+											if ($downgradedInvoiceOrders['count'] == 1) {
+												$transactions = $this->_retrieveInvoiceTransactions($invoice['data']['invoice']);
+
+												if (!empty($transactions)) {
+													$pendingTransactions[] = array_replace_recursive($transactions, array_fill(0, count($transactions), array(
+														'invoice_id' => $downgradedInvoice['data'][0]['id']
+													)));
+												}
+
+												$pendingInvoices[] = array(
+													'id' => $invoice['data']['invoice']['id'],
+													'merged_invoice_id' => $downgradedInvoice['data'][0]['id']
+												);
+											}
+
+											$downgradedData['orders'][0] = array_merge($downgradedData['order'], array(
+												'price' => $downgradedData['order']['price_pending'],
+												'price_active' => $downgradedData['order']['price_pending'],
+												'price_pending' => null,
+												'quantity' => $downgradedData['order']['quantity_pending'],
+												'quantity_active' => $downgradedData['order']['quantity_pending'],
+												'quantity_pending' => null,
+												'shipping' => $downgradedData['order']['shipping_pending'],
+												'shipping_pending' => null,
+												'tax' => $downgradedData['order']['tax_pending'],
+												'tax_pending' => null
+											));
+											$downgradedInvoiceOrderData = array(
+												array(
+													'id' => $downgradedInvoiceOrder['data'][0]['id'],
+													'invoice_id' => $downgradedInvoice['data'][0]['id']
+												)
 											);
-											$this->_sendMail($mailParameters);
-											// ..
+											$downgradedProxyData = array();
+											$downgradedProxyParameters = array(
+												'conditions' => array(
+													'id' => $itemIds,
+													'order_id' => $orderId
+												),
+												'fields' => array(
+													'id',
+													'ip'
+												)
+											);
+											$downgradedProxiesToKeep = $this->find('proxies', $downgradedProxyParameters);
+											$downgradedProxyParameters['conditions'] = array(
+												'order_id' => $orderId,
+												'NOT' => array(
+													'id' => $itemIds
+												)
+											);
+											$downgradedProxiesToRemove = $this->find('proxies', $downgradedProxyParameters);
+
+											if (!empty($downgradedProxiesToRemove['count'])) {
+												$downgradedProxyData = array_replace_recursive($downgradedProxiesToRemove['data'], array_fill(0, $downgradedProxiesToRemove['count'], array(
+													'replacement_removal_date' => date('Y-m-d H:i:s', strtotime('+2 hours')),
+													'status' => 'replaced'
+												)));
+											}
+
+											$pendingInvoices[] = array_merge($downgradedInvoiceData[0], array(
+												'id' => $downgradedInvoice['data'][0]['id'],
+												'merged_invoice_id' => null,
+												'shipping' => $downgradedInvoiceData[0]['shipping_pending'],
+												'shipping_pending' => null,
+												'subtotal' => $downgradedInvoiceData[0]['subtotal_pending'],
+												'subtotal_pending' => null,
+												'tax' => $downgradedInvoiceData[0]['tax_pending'],
+												'tax_pending' => null,
+												'total' => $downgradedInvoiceData[0]['total_pending'],
+												'total_pending' => null
+											));
+
+											if (
+												$this->save('invoices', $pendingInvoices) &&
+												$this->save('invoice_orders', $downgradedInvoiceOrderData) &&
+												$this->save('orders', $downgradedData['orders']) &&
+												$this->save('proxies', $downgradedProxyData) &&
+												$this->save('transactions', $pendingTransactions)
+											) {
+												$mailParameters = array(
+													'from' => $this->settings['from_email'],
+													'subject' => 'Order #' . $downgradedData['order']['id'] . ' downgraded to ' . $downgradedData['order']['quantity_pending'] . ' ' . strtolower($downgradedData['order']['name']),
+													'template' => array(
+														'name' => 'order_downgraded',
+														'parameters' => array(
+															'invoice' => $downgradedData['invoice'],
+															'items_to_keep' => $downgradedProxiesToKeep['data'],
+															'items_to_remove' => $downgradedProxiesToRemove['data'],
+															'link' => 'https://' . $this->settings['base_domain'] . '/orders/' . $orderId,
+															'order' => $downgradedData['order'],
+															'table' => 'proxies'
+														)
+													),
+													'to' => $parameters['user']['email']
+												);
+												$this->_sendMail($mailParameters);
+												// ..
+											}
 										}
 									}
 								}

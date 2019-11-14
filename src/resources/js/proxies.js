@@ -44,7 +44,6 @@ var processCopy = function(windowName, windowSelector) {
 var processDowngrade = function() {
 	var downgradeContainer = document.querySelector('.downgrade-container');
 	var pagination = document.querySelector('.item-configuration .pagination');
-	processProxies(false, false, requestParameters.current_page);
 	requestParameters.action = 'downgrade';
 	sendRequest(function(response) {
 		var downgradeData = '';
@@ -419,6 +418,8 @@ var processProxies = function(windowName, windowSelector, currentPage) {
 		if (totalResults === itemCount) {
 			elements.addClass('.item-configuration span.icon[item-function][process="downgrade"]', 'hidden');
 		}
+
+		requestParameters.items[requestParameters.table] = itemGrid;
 	};
 	elements.addClass('.item-configuration .item-controls', 'hidden');
 	pagination.querySelector('.next').setAttribute('page', 0);

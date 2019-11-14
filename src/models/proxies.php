@@ -569,7 +569,6 @@ class ProxiesModel extends OrdersModel {
 													'to' => $parameters['user']['email']
 												);
 												$this->_sendMail($mailParameters);
-												// ..
 											}
 										}
 									}

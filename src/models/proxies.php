@@ -480,6 +480,7 @@ class ProxiesModel extends OrdersModel {
 											}
 
 											$intervalDetails = $downgradedData['order']['interval_value'] . ' ' . $downgradedData['order']['interval_type'] . ($downgradedData['order']['interval_value'] !== 1 ? 's' : '');
+											$mostRecentPayableInvoice = $this->_retrieveMostRecentPayableInvoice($invoice['data']['invoice']['id']);
 											$pendingInvoices[] = array_merge($downgradedInvoiceData[0], array(
 												'id' => $downgradedInvoiceId,
 												'due' => date('Y-m-d H:i:s', strtotime($invoice['data']['invoice']['due'])),

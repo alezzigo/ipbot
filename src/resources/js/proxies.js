@@ -90,6 +90,7 @@ var processDowngrade = function() {
 			document.querySelector('.order-name').innerHTML = response.data.downgraded.order.quantity_pending + ' ' + response.data.downgraded.order.name;
 			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 			requestParameters.action = 'find';
+			delete requestParameters.data.confirm_downgrade;
 		}
 
 		downgradeContainer.innerHTML = downgradeData;

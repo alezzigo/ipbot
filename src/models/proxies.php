@@ -499,7 +499,7 @@ class ProxiesModel extends OrdersModel {
 											$intervalDetails = $downgradedData['order']['interval_value'] . ' ' . $downgradedData['order']['interval_type'] . ($downgradedData['order']['interval_value'] !== 1 ? 's' : '');
 											$pendingDowngradeTransaction = array(
 												'customer_email' => $parameters['user']['email'],
-												'details' => 'Order downgrade requested for order <a href="' . $this->settings['base_url'] . 'orders/' . $downgradedInvoiceId . '">#' . $downgradedInvoiceId . '</a><br>' . $downgradedData['order']['quantity_active'] . ' ' . $downgradedData['order']['name'] . ' to ' . $downgradedData['order']['quantity_pending'] . ' ' . $downgradedData['order']['name'] . '<br>' . $downgradedData['order']['price'] . ' for ' . $intervalDetails . ' to ' . $downgradedData['order']['price_pending'] . ' for ' . $intervalDetails,
+												'details' => 'Order downgrade requested for order <a href="' . $this->settings['base_url'] . 'orders/' . $orderId . '">#' . $orderId . '</a><br>' . $downgradedData['order']['quantity_active'] . ' ' . $downgradedData['order']['name'] . ' to ' . $downgradedData['order']['quantity_pending'] . ' ' . $downgradedData['order']['name'] . '<br>' . $downgradedData['order']['price'] . ' for ' . $intervalDetails . ' to ' . $downgradedData['order']['price_pending'] . ' for ' . $intervalDetails,
 												'id' => uniqid() . time(),
 												'initial_invoice_id' => $mostRecentPayableInvoiceId,
 												'invoice_id' => $mostRecentPayableInvoiceId,

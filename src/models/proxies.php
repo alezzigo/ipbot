@@ -413,6 +413,8 @@ class ProxiesModel extends OrdersModel {
 											!empty($downgradedInvoiceOrders['count'])
 										) {
 											$downgradedInvoiceId = $downgradedInvoice['data'][0]['id'];
+											$mostRecentPayableInvoice = $this->_retrieveMostRecentPayableInvoice($invoice['data']['invoice']['id']);
+											$mostRecentPayableInvoiceId = $mostRecentPayableInvoice['id'];
 
 											foreach ($downgradedInvoiceOrders['data'] as $downgradedInvoiceOrder) {
 												$pendingInvoiceOrders[$downgradedInvoiceOrder['order_id']] = $downgradedInvoiceOrder;
@@ -479,12 +481,12 @@ class ProxiesModel extends OrdersModel {
 												)));
 											}
 
-											$intervalDetails = $downgradedData['order']['interval_value'] . ' ' . $downgradedData['order']['interval_type'] . ($downgradedData['order']['interval_value'] !== 1 ? 's' : '');
-											$mostRecentPayableInvoice = $this->_retrieveMostRecentPayableInvoice($invoice['data']['invoice']['id']);
-											$pendingInvoices[] = array_merge($downgradedInvoiceData[0], array(
-												'id' => $downgradedInvoiceId,
+											$amountToApplyToBalanceTransaction = '';
+											$downgradedInvoice = array_merge($downgradedInvoiceData[0], array(
 												'due' => date('Y-m-d H:i:s', strtotime($invoice['data']['invoice']['due'])),
+												'id' => $downgradedInvoiceId,
 												'merged_invoice_id' => null,
+												'payable' => $invoice['data']['invoice']['payable'],
 												'shipping' => $downgradedInvoiceData[0]['shipping_pending'],
 												'shipping_pending' => null,
 												'subtotal' => $downgradedInvoiceData[0]['subtotal_pending'],
@@ -494,12 +496,13 @@ class ProxiesModel extends OrdersModel {
 												'total' => $downgradedInvoiceData[0]['total_pending'],
 												'total_pending' => null
 											));
+											$intervalDetails = $downgradedData['order']['interval_value'] . ' ' . $downgradedData['order']['interval_type'] . ($downgradedData['order']['interval_value'] !== 1 ? 's' : '');
 											$pendingDowngradeTransaction = array(
 												'customer_email' => $parameters['user']['email'],
 												'details' => 'Order downgrade requested for order <a href="' . $this->settings['base_url'] . 'orders/' . $downgradedInvoiceId . '">#' . $downgradedInvoiceId . '</a><br>' . $downgradedData['order']['quantity_active'] . ' ' . $downgradedData['order']['name'] . ' to ' . $downgradedData['order']['quantity_pending'] . ' ' . $downgradedData['order']['name'] . '<br>' . $downgradedData['order']['price'] . ' for ' . $intervalDetails . ' to ' . $downgradedData['order']['price_pending'] . ' for ' . $intervalDetails,
 												'id' => uniqid() . time(),
-												'initial_invoice_id' => $mostRecentPayableInvoice['id'],
-												'invoice_id' => $mostRecentPayableInvoice['id'],
+												'initial_invoice_id' => $mostRecentPayableInvoiceId,
+												'invoice_id' => $mostRecentPayableInvoiceId,
 												'payment_amount' => null,
 												'payment_currency' => $this->settings['billing']['currency'],
 												'payment_status' => 'completed',
@@ -510,9 +513,30 @@ class ProxiesModel extends OrdersModel {
 												'transaction_processed' => true,
 												'user_id' => $parameters['user']['id']
 											);
+											$userData = array(
+												array(
+													'balance' => $parameters['user']['balance'],
+													'id' => $parameters['user']['id']
+												)
+											);
+
+											if (
+												$mostRecentPayableInvoice['status'] !== 'paid' &&
+												!empty($mostRecentPayableInvoice['amount_paid'])
+											) {
+												$amountToApplyToBalanceTransaction = '<br>' . number_format($mostRecentPayableInvoice['amount_paid'], 2, '.', '') . ' ' . $downgradedData['invoice']['currency'] . ' overpayment added to account balance.';
+												$downgradedInvoice['amount_paid'] = 0;
+												$userData[0]['balance'] += $mostRecentPayableInvoice['amount_paid'];
+												$pendingDowngradeTransaction = array_merge($pendingDowngradeTransaction, array(
+													'initial_invoice_id' => $downgradedInvoiceId,
+													'invoice_id' => $downgradedInvoiceId
+												));
+											}
+
+											$pendingInvoices[] = $downgradedInvoice;
 											$pendingTransactions[] = $pendingDowngradeTransaction;
 											$pendingDowngradeTransaction = array_merge($pendingDowngradeTransaction, array(
-												'details' => str_replace('requested', 'successful', $pendingDowngradeTransaction['details']),
+												'details' => str_replace('requested', 'successful', $pendingDowngradeTransaction['details']) . $amountToApplyToBalanceTransaction,
 												'id' => uniqid() . time(),
 												'payment_amount' => 0,
 												'payment_status_message' => 'Order downgrade successful.',
@@ -525,7 +549,8 @@ class ProxiesModel extends OrdersModel {
 												$this->save('invoice_orders', $downgradedInvoiceOrderData) &&
 												$this->save('orders', $downgradedData['orders']) &&
 												$this->save('proxies', $downgradedProxyData) &&
-												$this->save('transactions', $pendingTransactions)
+												$this->save('transactions', $pendingTransactions) &&
+												$this->save('users', $userData)
 											) {
 												$mailParameters = array(
 													'from' => $this->settings['from_email'],

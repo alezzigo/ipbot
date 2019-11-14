@@ -482,6 +482,7 @@ class ProxiesModel extends OrdersModel {
 											$intervalDetails = $downgradedData['order']['interval_value'] . ' ' . $downgradedData['order']['interval_type'] . ($downgradedData['order']['interval_value'] !== 1 ? 's' : '');
 											$pendingInvoices[] = array_merge($downgradedInvoiceData[0], array(
 												'id' => $downgradedInvoiceId,
+												'due' => date('Y-m-d H:i:s', strtotime($invoice['data']['invoice']['due'])),
 												'merged_invoice_id' => null,
 												'shipping' => $downgradedInvoiceData[0]['shipping_pending'],
 												'shipping_pending' => null,

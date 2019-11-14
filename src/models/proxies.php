@@ -428,11 +428,8 @@ class ProxiesModel extends OrdersModel {
 												}
 
 												$pendingInvoices[] = array(
-													'due' => $invoice['data']['invoice']['due'],
 													'id' => $invoice['data']['invoice']['id'],
-													'merged_invoice_id' => $downgradedInvoiceId,
-													'payable' => $invoice['data']['invoice']['payable'],
-													'warning_level' => $invoice['data']['invoice']['warning_level']
+													'merged_invoice_id' => $downgradedInvoiceId
 												);
 											}
 

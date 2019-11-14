@@ -3,7 +3,7 @@
 var defaultTable = 'proxies';
 var defaultUrl = '/api/proxies';
 var itemGrid = [];
-var itemGridCount = 0;
+var itemGridCount = totalResults = 0;
 var messageContainer = document.querySelector('main .message-container');
 var previousAction = 'find';
 var processCopy = function(windowName, windowSelector) {
@@ -47,11 +47,11 @@ var processDowngrade = function() {
 	requestParameters.action = 'downgrade';
 	sendRequest(function(response) {
 		var downgradeData = '';
-		var messageContainer = document.querySelector('.downgrade-configuration .message-container');
+		var downgradeMessageContainer = document.querySelector('.downgrade-configuration .message-container');
 		elements.setAttribute('.button.submit', 'disabled');
 
-		if (messageContainer) {
-			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		if (downgradeMessageContainer) {
+			downgradeMessageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
 
 		if (
@@ -83,10 +83,16 @@ var processDowngrade = function() {
 			downgradeData += '</div>';
 			downgradeData += '</div>';
 			elements.removeAttribute('.button.submit', 'disabled');
+
+			if (requestParameters.data.confirm_downgrade) {
+				closeWindows(defaultTable);
+				requestParameters.action = 'find';
+				messageContainer.innerHTML = '<p class="message success">Order downgrade requested successfully.</p>';
+				document.querySelector('.order-name').innerHTML = response.data.downgraded.order.quantity_pending + ' ' + response.data.downgraded.order.name;
+			}
 		}
 
 		downgradeContainer.innerHTML = downgradeData;
-		// ..
 	});
 };
 var processGroup = function(windowName, windowSelector) {
@@ -304,17 +310,17 @@ var processProxies = function(windowName, windowSelector, currentPage) {
 		processItemGrid(window.event.shiftKey ? range(items.getAttribute('previous_checked'), item.getAttribute('index')) : [item.getAttribute('index')], window.event.shiftKey ? +document.querySelector('.item-configuration .checkbox[index="' + items.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +item.getAttribute('checked') === 0);
 		items.setAttribute('previous_checked', item.getAttribute('index'));
 	};
-	var itemAllVisible = document.querySelector('.item-configuration .checkbox[index="all-visible"]'),
-		itemToggleAllVisible = function(item) {
-			items.setAttribute('current_checked', 0);
-			items.setAttribute('previous_checked', 0);
-			processItemGrid(range(0, selectAllElements('.item-configuration tr .checkbox').length - 1), +item.getAttribute('checked') === 0);
-		};
+	var itemAllVisible = document.querySelector('.item-configuration .checkbox[index="all-visible"]');
+	var itemToggleAllVisible = function(item) {
+		items.setAttribute('current_checked', 0);
+		items.setAttribute('previous_checked', 0);
+		processItemGrid(range(0, selectAllElements('.item-configuration tr .checkbox').length - 1), +item.getAttribute('checked') === 0);
+	};
 	var processItemGrid = function(itemIndexes, itemState) {
+		totalResults = +elements.html('.item-configuration .total-results');
 		var itemCount = 0;
-			itemGridLineSizeMaximum = +('1' + repeat(Math.min(elements.html('.item-configuration .total-results').length, 4), '0')),
-			pageResultCount = (+elements.html('.item-configuration .last-result') - +elements.html('.item-configuration .first-result') + 1),
-			totalResults = +elements.html('.item-configuration .total-results');
+		var itemGridLineSizeMaximum = +('1' + repeat(Math.min(elements.html('.item-configuration .total-results').length, 4), '0'));
+		var pageResultCount = (+elements.html('.item-configuration .last-result') - +elements.html('.item-configuration .first-result') + 1);
 		var itemGridLineSize = function(key) {
 			return Math.min(itemGridLineSizeMaximum, totalResults - (key * itemGridLineSizeMaximum)).toString();
 		};

@@ -322,7 +322,9 @@ class ProxiesModel extends OrdersModel {
 								$downgradedProxiesToRemove = $this->find($table, array(
 									'conditions' => array(
 										'id' => $itemIds,
-										'status !=' => 'replaced'
+										'NOT' => array(
+											'status' => 'replaced'
+										)
 									),
 									'fields' => array(
 										'id'
@@ -397,9 +399,9 @@ class ProxiesModel extends OrdersModel {
 										$downgradedProxiesToKeep = $this->find('proxies', $downgradedProxyParameters);
 										$downgradedProxyParameters['conditions'] = array(
 											'order_id' => $orderId,
-											'status !=' => 'replaced',
 											'NOT' => array(
-												'id' => $itemIds
+												'id' => $itemIds,
+												'status' => 'replaced'
 											)
 										);
 										$downgradedProxiesToRemove = $this->find('proxies', $downgradedProxyParameters);
@@ -1088,7 +1090,9 @@ class ProxiesModel extends OrdersModel {
 		$proxyParameters = array(
 			'conditions' => array(
 				'automatic_replacement_interval_value >' => 0,
-				'status !=' => 'replaced'
+				'NOT' => array(
+					'status' => 'replaced'
+				)
 			),
 			'fields' => array(
 				'automatic_replacement_interval_type',

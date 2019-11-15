@@ -171,8 +171,10 @@ class AppModel extends Config {
 
 				$conditions[$key] = '(' . implode(' ' . (strpos($key, '!=') !== false ? 'AND' : $condition) . ' ', $value) . ')';
 			} else {
-				$conditions[$key] = ($key === 'NOT' ? 'NOT' : null) . '(' . implode(' ' . $condition . ' ', $this->_formatConditions($value, $condition)) . ')';
+				$conditions[$key] = '(' . implode(' ' . $condition . ' ', $this->_formatConditions($value, $condition)) . ')';
 			}
+
+			$conditions[$key] = ($key === 'NOT' ? 'NOT' : null) . $conditions[$key];
 		}
 
 		$response = $conditions;

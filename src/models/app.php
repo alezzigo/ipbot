@@ -169,7 +169,7 @@ class AppModel extends Config {
 					$value = array((is_null($value) ? $key . ' IS NULL' : trim(in_array($operator = trim(substr($key, strpos($key, ' '))), $operators) ? $key : $key . ' =') . ' ' . $this->_prepareValue($value)));
 				}
 
-				$conditions[$key] = '(' . implode(' ' . $condition . ' ', $value) . ')';
+				$conditions[$key] = '(' . implode(' ' . (strpos($key, '!=') !== false ? 'AND' : $condition) . ' ', $value) . ')';
 			} else {
 				$conditions[$key] = ($key === 'NOT' ? 'NOT' : null) . '(' . implode(' ' . $condition . ' ', $this->_formatConditions($value, $condition)) . ')';
 			}

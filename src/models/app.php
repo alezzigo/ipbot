@@ -1000,7 +1000,6 @@ class AppModel extends Config {
 			'limit' => !empty($parameters['limit']) && $parameters['limit'] < $count ? $parameters['limit'] : $count,
 			'offset' => !empty($parameters['offset']) ? $parameters['offset'] : 0
 		));
-
 		$query = 'SELECT ' . (!empty($parameters['fields']) && is_array($parameters['fields']) ? implode(',', $parameters['fields']) : '*') . $query;
 		$query .= ' LIMIT ' . $this->_prepareValue($parameters['limit']) . ' OFFSET ' . $this->_prepareValue($parameters['offset']);
 		$data = $this->_query($query, $parameters);

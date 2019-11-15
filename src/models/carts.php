@@ -42,7 +42,7 @@ class CartsModel extends AppModel {
 			$this->save('carts', array(
 				$cartParameters['conditions']
 			));
-			$cartData = $this->find('carts', $cartParameters);
+			$cartData = $this->fetch('carts', $cartParameters);
 
 			if (!empty($cartData['count'])) {
 				$response = $cartData['data'][0];
@@ -62,7 +62,7 @@ class CartsModel extends AppModel {
  */
 	protected function _retrieveCartItems($cartData, $cartProducts) {
 		$response = false;
-		$cartItems = $this->find('cart_items', array(
+		$cartItems = $this->fetch('cart_items', array(
 			'conditions' => array(
 				'cart_id' => $cartData['id']
 			),
@@ -107,7 +107,7 @@ class CartsModel extends AppModel {
  */
 	protected function _retrieveProducts($cartData) {
 		$response = false;
-		$cartItemProductIds = $this->find('cart_items', array(
+		$cartItemProductIds = $this->fetch('cart_items', array(
 			'conditions' => array(
 				'cart_id' => $cartData['id']
 			),
@@ -140,11 +140,11 @@ class CartsModel extends AppModel {
 					'order' => 'DESC'
 				)
 			);
-			$cartProducts = $this->find('products', $cartProductParameters);
+			$cartProducts = $this->fetch('products', $cartProductParameters);
 			$cartProductParameters['fields'] = array(
 				'id'
 			);
-			$cartProductIds = $this->find('products', $cartProductParameters);
+			$cartProductIds = $this->fetch('products', $cartProductParameters);
 
 			if (
 				!empty($cartProducts['count']) &&
@@ -219,7 +219,7 @@ class CartsModel extends AppModel {
 								is_numeric($cartItemData['quantity'])
 							) {
 								$response['message']['text'] = 'Invalid product ID, please try again.';
-								$cartProduct = $this->find('products', array(
+								$cartProduct = $this->fetch('products', array(
 									'conditions' => array(
 										'id' => $cartItemData['product_id']
 									),
@@ -272,7 +272,7 @@ class CartsModel extends AppModel {
 							count($cartItemData) === 1 &&
 							$cartItemIds = array_values($cartItemData['id'])
 						) {
-							$cartItemIds = $this->find('cart_items', array(
+							$cartItemIds = $this->fetch('cart_items', array(
 								'fields' => array(
 									'id'
 								),
@@ -424,7 +424,7 @@ class CartsModel extends AppModel {
 					if ($this->save('invoices', array(
 						$invoiceConditions
 					))) {
-						$invoice = $this->find('invoices', array(
+						$invoice = $this->fetch('invoices', array(
 							'conditions' => $invoiceConditions,
 							'fields' => array(
 								'created',
@@ -442,7 +442,7 @@ class CartsModel extends AppModel {
 								'order' => 'DESC'
 							)
 						));
-						$orderIds = $this->find('orders', array(
+						$orderIds = $this->fetch('orders', array(
 							'conditions' => array_merge($orderConditions, array(
 								'cart_item_id' => $cartItemIds
 							)),

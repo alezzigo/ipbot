@@ -25,7 +25,7 @@ class AppModel extends Config {
 			!empty($parameters['keys']['users']) &&
 			$this->_verifyKeys()
 		) {
-			$existingToken = $this->find('tokens', array(
+			$existingToken = $this->fetch('tokens', array(
 				'conditions' => array(
 					'foreign_key' => 'id',
 					'foreign_table' => $table,
@@ -45,7 +45,7 @@ class AppModel extends Config {
 			));
 
 			if (!empty($existingToken['count'])) {
-				$existingData = $this->find($table, array(
+				$existingData = $this->fetch($table, array(
 					'conditions' => array(
 						$existingToken['data'][0]['foreign_key'] => $existingToken['data'][0]['foreign_value']
 					),
@@ -120,7 +120,7 @@ class AppModel extends Config {
 		);
 
 		if (!empty($parameters['conditions'])) {
-			$response[] = $this->find($table, array(
+			$response[] = $this->fetch($table, array(
 				'conditions' => $parameters['conditions'],
 				'fields' => array(
 					'id'
@@ -207,7 +207,7 @@ class AppModel extends Config {
 			),
 			'limit' => 1
 		);
-		$existingToken = $this->find('tokens', $tokenParameters);
+		$existingToken = $this->fetch('tokens', $tokenParameters);
 
 		if (!empty($existingToken['count'])) {
 			$tokenParameters['conditions']['id'] = $existingToken['data'][0];
@@ -230,7 +230,7 @@ class AppModel extends Config {
 			'foreign_value',
 			'string'
 		);
-		$response = $this->find('tokens', $tokenParameters);
+		$response = $this->fetch('tokens', $tokenParameters);
 		return !empty($response['data'][0]) ? $response['data'][0] : array();
 	}
 
@@ -344,12 +344,12 @@ class AppModel extends Config {
 		) {
 			if (
 				$serialize &&
-				!in_array($action, array('find',  'search'))
+				!in_array($action, array('fetch',  'search'))
 			) {
 				$parameters['items'] = $this->_retrieveItems($parameters);
 			}
 		} else {
-			$action = 'find';
+			$action = 'fetch';
 			$response['items'] = $clearItems;
 			$response['message'] = array(
 				'status' => 'error',
@@ -362,7 +362,7 @@ class AppModel extends Config {
 		}
 
 		if (!empty($userId = $parameters['user']['id'])) {
-			$subscriptions = $this->find('subscriptions', array(
+			$subscriptions = $this->fetch('subscriptions', array(
 				'conditions' => array(
 					'user_id' => $userId
 				),
@@ -487,7 +487,7 @@ class AppModel extends Config {
 				$response['message']['text'] = 'Invalid request table, please try again.';
 			} else {
 				if (
-					($parameters['action'] = $action = (!empty($parameters['action']) ? $parameters['action'] : 'find')) &&
+					($parameters['action'] = $action = (!empty($parameters['action']) ? $parameters['action'] : 'fetch')) &&
 					(
 						empty($this->permissions[$table][$action]) ||
 						!method_exists($this, $action)
@@ -581,7 +581,7 @@ class AppModel extends Config {
 											!empty($id = $parameters['conditions']['id'])
 										)
 									) {
-										$userData = $this->find($table, array(
+										$userData = $this->fetch($table, array(
 											'conditions' => array(
 												'id' => $id
 											),
@@ -663,7 +663,7 @@ class AppModel extends Config {
 						continue;
 					}
 
-					$ids = $this->find($table, array_merge($parameters, array(
+					$ids = $this->fetch($table, array_merge($parameters, array(
 						'fields' => array(
 							'id'
 						),
@@ -687,7 +687,7 @@ class AppModel extends Config {
 						);
 					}
 
-					$response[$table] = $this->find($table, array(
+					$response[$table] = $this->fetch($table, array(
 						'conditions' => $conditions,
 						'fields' => array(
 							'id'
@@ -872,7 +872,7 @@ class AppModel extends Config {
 			!empty($this->keys['stop'])
 		) {
 			$keys = sha1(json_encode($this->keys['start'] . $this->keys['stop']));
-			$existingKeys = $this->find('settings', array(
+			$existingKeys = $this->fetch('settings', array(
 				'conditions' => array(
 					'id' => 'keys'
 				),
@@ -898,7 +898,7 @@ class AppModel extends Config {
 				)
 			) {
 				$response = false;
-				$users = $this->find('users', array(
+				$users = $this->fetch('users', array(
 					'fields' => array(
 						'id',
 						'password',
@@ -980,7 +980,7 @@ class AppModel extends Config {
  *
  * @return mixed [array/boolean] $response Return associative array if it exists, otherwise return boolean ($execute)
  */
-	public function find($table, $parameters = array()) {
+	public function fetch($table, $parameters = array()) {
 		$query = ' FROM ' . $table;
 
 		if (

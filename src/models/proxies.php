@@ -95,7 +95,7 @@ class ProxiesModel extends OrdersModel {
 						($usernames = array()) &&
 						!empty($parameters['data']['username'])
 					) {
-						$existingUsernames = $this->find('proxies', array(
+						$existingUsernames = $this->fetch('proxies', array(
 							'conditions' => array(
 								'NOT' => array(
 									'username' => ''
@@ -149,7 +149,7 @@ class ProxiesModel extends OrdersModel {
 			$response['items'][$table] = array();
 		}
 
-		$response = array_merge($this->find($table, $parameters), $response);
+		$response = array_merge($this->fetch($table, $parameters), $response);
 		return $response;
 	}
 
@@ -163,7 +163,7 @@ class ProxiesModel extends OrdersModel {
  */
 	public function copy($table, $parameters) {
 		$items = array();
-		$response = $this->find($table, array(
+		$response = $this->fetch($table, array(
 			'conditions' => array(
 				'id' => $parameters['items'][$table]['data']
 			),
@@ -245,7 +245,7 @@ class ProxiesModel extends OrdersModel {
 			!empty($itemIds = array_values($parameters['items'][$table]['data'])) &&
 			!empty($orderId = $parameters['conditions']['order_id'])
 		) {
-			$order = $this->find('orders', array(
+			$order = $this->fetch('orders', array(
 				'conditions' => array(
 					'id' => $orderId,
 					'user_id' => $parameters['user']['id']
@@ -286,7 +286,7 @@ class ProxiesModel extends OrdersModel {
 					$response['message']['text'] = 'Error processing your order downgrade request, please select less than ' . $order['data'][0]['quantity_active'] . ' active ' . $table . ' and try again.';
 				} else {
 					$pendingInvoices = $pendingInvoiceOrders = $pendingTransactions = array();
-					$product = $this->find('products', array(
+					$product = $this->fetch('products', array(
 						'conditions' => array(
 							'id' => $productId
 						),
@@ -321,7 +321,7 @@ class ProxiesModel extends OrdersModel {
 							if (!empty($invoice['data']['invoice']['remainder_pending'])) {
 								$response['message']['text'] = 'Error processing your order downgrade request, there\'s already a pending order upgrade request for invoice <a href="' . $this->settings['base_url'] . 'invoices/' . $invoice['data']['invoice']['id'] . '">#' . $invoice['data']['invoice']['id'] . '</a>.';
 							} else {
-								$downgradedProxiesToRemove = $this->find($table, array(
+								$downgradedProxiesToRemove = $this->fetch($table, array(
 									'conditions' => array(
 										'id' => $itemIds,
 										'NOT' => array(
@@ -398,7 +398,7 @@ class ProxiesModel extends OrdersModel {
 												'ip'
 											)
 										);
-										$downgradedProxiesToKeep = $this->find('proxies', $downgradedProxyParameters);
+										$downgradedProxiesToKeep = $this->fetch('proxies', $downgradedProxyParameters);
 										$downgradedProxyParameters['conditions'] = array(
 											'order_id' => $orderId,
 											'NOT' => array(
@@ -406,7 +406,7 @@ class ProxiesModel extends OrdersModel {
 												'status' => 'replaced'
 											)
 										);
-										$downgradedProxiesToRemove = $this->find('proxies', $downgradedProxyParameters);
+										$downgradedProxiesToRemove = $this->fetch('proxies', $downgradedProxyParameters);
 
 										if (empty($downgradedProxiesToRemove['count'])) {
 											$response['message'] = array(
@@ -420,7 +420,7 @@ class ProxiesModel extends OrdersModel {
 											)));
 
 											if ($this->save('invoices', $downgradedInvoiceData)) {
-												$downgradedInvoice = $this->find('invoices', array(
+												$downgradedInvoice = $this->fetch('invoices', array(
 													'conditions' => array(
 														'cart_items' => $downgradedData['invoice']['cart_items'],
 														'user_id' => $downgradedData['invoice']['user_id']
@@ -434,7 +434,7 @@ class ProxiesModel extends OrdersModel {
 														'order' => 'DESC'
 													)
 												));
-												$downgradedInvoiceOrders = $this->find('invoice_orders', array(
+												$downgradedInvoiceOrders = $this->fetch('invoice_orders', array(
 													'conditions' => array(
 														'invoice_id' => $invoiceIds
 													),
@@ -646,14 +646,14 @@ class ProxiesModel extends OrdersModel {
 			) {
 				$response['message']['text'] = 'Group "' . $groupName . '" already exists for this order.';
 				unset($groupParameters['conditions']['id']);
-				$existingGroup = $this->find('proxy_groups', $groupParameters);
+				$existingGroup = $this->fetch('proxy_groups', $groupParameters);
 
 				if (empty($existingGroup['count'])) {
 					$response['message']['text'] = 'Error creating new group, please try again.';
 					$this->save('proxy_groups', array(
 						$groupData
 					));
-					$groupData = $this->find('proxy_groups', $groupParameters);
+					$groupData = $this->fetch('proxy_groups', $groupParameters);
 
 					if (!empty($groupData['count'])) {
 						$response['message'] = array(
@@ -669,7 +669,7 @@ class ProxiesModel extends OrdersModel {
 				!isset($groupData['name'])
 			) {
 				$response['message']['text'] = 'Error deleting group, please try again.';
-				$existingGroup = $this->find('proxy_groups', $groupParameters);
+				$existingGroup = $this->fetch('proxy_groups', $groupParameters);
 
 				if (
 					!empty($existingGroup['count']) &&
@@ -693,7 +693,7 @@ class ProxiesModel extends OrdersModel {
 			) {
 				$groups = array();
 				$proxyIds = array();
-				$existingProxyGroupProxies = $this->find('proxy_group_proxies', array(
+				$existingProxyGroupProxies = $this->fetch('proxy_group_proxies', array(
 					'conditions' => array(
 						'proxy_id' => $parameters['items']['proxies']['data'],
 						'proxy_group_id' => array_values($parameters['items']['proxy_groups']['data'])
@@ -738,8 +738,8 @@ class ProxiesModel extends OrdersModel {
 			unset($parameters['offset']);
 		}
 
-		$parameters['fields'] = $this->permissions[$table]['find']['fields'];
-		$response = array_merge($this->find($table, $parameters), $response);
+		$parameters['fields'] = $this->permissions[$table]['fetch']['fields'];
+		$response = array_merge($this->fetch($table, $parameters), $response);
 		return $response;
 	}
 
@@ -816,7 +816,7 @@ class ProxiesModel extends OrdersModel {
 						'status' => 'online',
 						'user_id' => $parameters['user']['id']
 					);
-					$processingNodes = $this->find('nodes', array(
+					$processingNodes = $this->fetch('nodes', array(
 						'conditions' => array(
 							'AND' => array(
 								'allocated' => false,
@@ -866,7 +866,7 @@ class ProxiesModel extends OrdersModel {
 
 							if ($parameters['tokens'][$table] === $this->_getToken($table, $parameters, 'order_id', $orderId)) {
 								if (!empty($parameters['data']['transfer_authentication'])) {
-									$oldItemAuthentication = $this->find($table, array(
+									$oldItemAuthentication = $this->fetch($table, array(
 										'conditions' => array(
 											'id' => $parameters['items'][$table]['data']
 										),
@@ -889,7 +889,7 @@ class ProxiesModel extends OrdersModel {
 								}
 
 								$oldItemData = array_replace_recursive(array_fill(0, $parameters['items'][$table]['count'], $oldItemData), $oldItemIds);
-								$oldItems = $this->find($table, array(
+								$oldItems = $this->fetch($table, array(
 									'conditions' => array(
 										'id' => $parameters['items'][$table]['data']
 									),
@@ -938,7 +938,7 @@ class ProxiesModel extends OrdersModel {
 			$response['items'][$table] = array();
 		}
 
-		$response = array_merge($this->find($table, $parameters), $response);
+		$response = array_merge($this->fetch($table, $parameters), $response);
 		return $response;
 	}
 
@@ -989,7 +989,7 @@ class ProxiesModel extends OrdersModel {
 
 		if (!empty($parameters['data']['groups'])) {
 			$conditions['id'] = false;
-			$groupProxies = $this->find('proxy_group_proxies', array(
+			$groupProxies = $this->fetch('proxy_group_proxies', array(
 				'conditions' => array(
 					'proxy_group_id' => array_values($parameters['data']['groups'])
 				),
@@ -1007,7 +1007,7 @@ class ProxiesModel extends OrdersModel {
 		}
 
 		$parameters['conditions'] = array_merge($conditions, $parameters['conditions']);
-		$response = array_merge($response = $this->find($table, $parameters), array(
+		$response = array_merge($response = $this->fetch($table, $parameters), array(
 			'message' => array(
 				'status' => 'success',
 				'text' => $response['count'] . ' search result' . ($response['count'] !== 1 ? 's' : '')  . ' found. <a class="clear" href="javascript:void(0);">Clear search filter</a>.'
@@ -1028,7 +1028,7 @@ class ProxiesModel extends OrdersModel {
 				'text' => 'There aren\'t any new replaced proxies to remove, please try again later.'
 			)
 		);
-		$proxies = $this->find('proxies', array(
+		$proxies = $this->fetch('proxies', array(
 			'conditions' => array(
 				'replacement_removal_date <' => date('Y-m-d H:i:s', time()),
 				'status' => 'replaced'
@@ -1123,7 +1123,7 @@ class ProxiesModel extends OrdersModel {
 			}
 		}
 
-		$proxies = $this->find('proxies', $proxyParameters);
+		$proxies = $this->fetch('proxies', $proxyParameters);
 
 		if (!empty($proxies['count'])) {
 			$users = array();
@@ -1136,7 +1136,7 @@ class ProxiesModel extends OrdersModel {
 			}
 
 			foreach ($users as $userId => $userProxies) {
-				$userEmail = $this->find('users', array(
+				$userEmail = $this->fetch('users', array(
 					'conditions' => array(
 						'id' => $userId
 					),
@@ -1147,7 +1147,7 @@ class ProxiesModel extends OrdersModel {
 
 				if (!empty($userEmail['count'])) {
 					$userEmail = $userEmail['data'][0];
-					$processingNodes = $this->find('nodes', array(
+					$processingNodes = $this->fetch('nodes', array(
 						'conditions' => array(
 							'AND' => array(
 								'allocated' => false,

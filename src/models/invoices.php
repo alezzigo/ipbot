@@ -45,7 +45,7 @@ class InvoicesModel extends UsersModel {
 			$invoiceDeductions['remainder'] = $remainder;
 
 			if ($remainder < 0) {
-				$additionalInvoice = $this->find('invoices', array(
+				$additionalInvoice = $this->fetch('invoices', array(
 					'conditions' => array(
 						'created >' => date('Y-m-d H:i:s', strtotime($invoiceData['created'])),
 						'OR' => array(
@@ -202,7 +202,7 @@ class InvoicesModel extends UsersModel {
  */
 	protected function _processInvoicesFirstPastDueWarning() {
 		$response = 0;
-		$invoices = $this->find('invoices', array(
+		$invoices = $this->fetch('invoices', array(
 			'conditions' => array(
 				'due <' => date('Y-m-d H:i:s', strtotime('-1 day')),
 				'merged_invoice_id' => null,
@@ -258,7 +258,7 @@ class InvoicesModel extends UsersModel {
  */
 	protected function _processInvoicesFirstUpcomingPaymentDueWarning() {
 		$response = 0;
-		$invoices = $this->find('invoices', array(
+		$invoices = $this->fetch('invoices', array(
 			'conditions' => array(
 				'due <' => date('Y-m-d H:i:s', strtotime('+5 days')),
 				'merged_invoice_id' => null,
@@ -317,7 +317,7 @@ class InvoicesModel extends UsersModel {
  */
 	protected function _processInvoicesPayable() {
 		$response = 0;
-		$invoices = $this->find('invoices', array(
+		$invoices = $this->fetch('invoices', array(
 			'conditions' => array(
 				'due <' => date('Y-m-d H:i:s', strtotime('+10 days')),
 				'merged_invoice_id' => null,
@@ -351,7 +351,7 @@ class InvoicesModel extends UsersModel {
  */
 	protected function _processInvoicesOverduePayment() {
 		$response = 0;
-		$invoices = $this->find('invoices', array(
+		$invoices = $this->fetch('invoices', array(
 			'conditions' => array(
 				'due <' => date('Y-m-d H:i:s', strtotime('-6 days')),
 				'merged_invoice_id' => null,
@@ -401,11 +401,11 @@ class InvoicesModel extends UsersModel {
 										'node_id'
 									)
 								);
-								$nodeIds = $this->find('proxies', $proxyParameters);
+								$nodeIds = $this->fetch('proxies', $proxyParameters);
 								$proxyParameters['fields'] = array(
 									'id'
 								);
-								$proxyIds = $this->find('proxies', $proxyParameters);
+								$proxyIds = $this->fetch('proxies', $proxyParameters);
 
 								if (
 									!empty($nodeIds['count']) &&
@@ -456,7 +456,7 @@ class InvoicesModel extends UsersModel {
  */
 	protected function _processInvoicesSecondPastDueWarning() {
 		$response = 0;
-		$invoices = $this->find('invoices', array(
+		$invoices = $this->fetch('invoices', array(
 			'conditions' => array(
 				'due <' => date('Y-m-d H:i:s', strtotime('-1 day')),
 				'merged_invoice_id' => null,
@@ -512,7 +512,7 @@ class InvoicesModel extends UsersModel {
  */
 	protected function _processInvoicesSecondUpcomingPaymentDueWarning() {
 		$response = 0;
-		$invoices = $this->find('invoices', array(
+		$invoices = $this->fetch('invoices', array(
 			'conditions' => array(
 				'due <' => date('Y-m-d H:i:s', strtotime('+1 day')),
 				'merged_invoice_id' => null,
@@ -570,7 +570,7 @@ class InvoicesModel extends UsersModel {
  */
 	protected function _retrieveDueInvoices($invoiceData) {
 		$response = array();
-		$dueInvoices = $this->find('invoices', array(
+		$dueInvoices = $this->fetch('invoices', array(
 			'conditions' => array(
 				'due >' => date('Y-m-d H:i:s', strtotime($invoiceData['due'])),
 				'initial_invoice_id' => array_filter(array(
@@ -626,7 +626,7 @@ class InvoicesModel extends UsersModel {
 			)
 		);
 
-		$invoices = $this->find('invoices', $invoiceParameters);
+		$invoices = $this->fetch('invoices', $invoiceParameters);
 
 		if (!empty($invoices['count'])) {
 			foreach ($invoices['data'] as $invoice) {
@@ -654,7 +654,7 @@ class InvoicesModel extends UsersModel {
 		$response = array();
 
 		if ($invoiceData['status'] === 'paid') {
-			$invoiceItems = $this->find('invoice_items', array(
+			$invoiceItems = $this->fetch('invoice_items', array(
 				'conditions' => array(
 					'invoice_id' => $invoiceData['id']
 				),
@@ -696,7 +696,7 @@ class InvoicesModel extends UsersModel {
 			$invoiceData['initial_invoice_id'],
 			$invoiceData['merged_invoice_id']
 		));
-		$invoiceOrders = $this->find('invoice_orders', array(
+		$invoiceOrders = $this->fetch('invoice_orders', array(
 			'conditions' => array(
 				'invoice_id' => $invoiceIds
 			),
@@ -706,7 +706,7 @@ class InvoicesModel extends UsersModel {
 		));
 
 		if (!empty($invoiceOrders['count'])) {
-			$orders = $this->find('orders', array(
+			$orders = $this->fetch('orders', array(
 				'conditions' => array(
 					'id' => $invoiceOrders['data'],
 					'NOT' => array(
@@ -758,7 +758,7 @@ class InvoicesModel extends UsersModel {
  */
 	protected function _retrieveInvoiceSubscriptions($invoiceData) {
 		$response = array();
-		$invoiceSubscriptions = $this->find('subscriptions', array(
+		$invoiceSubscriptions = $this->fetch('subscriptions', array(
 			'conditions' => array(
 				'invoice_id' => (!empty($invoiceData['initial_invoice_id']) ? $invoiceData['initial_invoice_id'] : $invoiceData['id'])
 			),
@@ -788,7 +788,7 @@ class InvoicesModel extends UsersModel {
  */
 	protected function _retrieveInvoiceTransactions($invoiceData) {
 		$response = array();
-		$invoiceTransactions = $this->find('transactions', array(
+		$invoiceTransactions = $this->fetch('transactions', array(
 			'conditions' => array(
 				'invoice_id' => $invoiceData['id'],
 				'transaction_processed' => true,
@@ -849,7 +849,7 @@ class InvoicesModel extends UsersModel {
 				'order' => 'ASC'
 			)
 		));
-		$paymentMethods = $this->find('payment_methods', array(
+		$paymentMethods = $this->fetch('payment_methods', array(
 			'fields' => array(
 				'id',
 				'name'
@@ -892,7 +892,7 @@ class InvoicesModel extends UsersModel {
 		$invoiceIds = $this->_retrieveInvoiceIds(array(
 			$invoiceId
 		));
-		$invoice = $this->find('invoices', array(
+		$invoice = $this->fetch('invoices', array(
 			'conditions' => array(
 				'merged_invoice_id' => null,
 				'payable' => true,
@@ -952,7 +952,7 @@ class InvoicesModel extends UsersModel {
 		$invoiceIds = $this->_retrieveInvoiceIds(array(
 			$invoiceData['id']
 		));
-		$orderMerges = $this->find('order_merges', array(
+		$orderMerges = $this->fetch('order_merges', array(
 			'conditions' => array(
 				'amount_merged >' => 0,
 				'invoice_id' => $invoiceIds,
@@ -1002,7 +1002,7 @@ class InvoicesModel extends UsersModel {
 				'order' => 'DESC'
 			)
 		);
-		$previousInvoices = $this->find('invoices', $previousInvoiceParameters);
+		$previousInvoices = $this->fetch('invoices', $previousInvoiceParameters);
 
 		if (!empty($previousInvoices['count'])) {
 			$response = $previousInvoices['data'];
@@ -1050,7 +1050,7 @@ class InvoicesModel extends UsersModel {
 						$orderData['quantity'] = $orderData['quantity_active'];
 					}
 
-					$invoiceOrders = $this->find('invoice_orders', array(
+					$invoiceOrders = $this->fetch('invoice_orders', array(
 						'conditions' => array(
 							'order_id' => $orderData['id']
 						),
@@ -1117,9 +1117,9 @@ class InvoicesModel extends UsersModel {
 									'user_id'
 								)
 							);
-							$cancelledInvoices = $this->find('invoices', $invoiceParameters);
+							$cancelledInvoices = $this->fetch('invoices', $invoiceParameters);
 							$invoiceParameters['conditions']['id'] = $mostRecentPayableInvoice['id'];
-							$revertedInvoice = $this->find('invoices', $invoiceParameters);
+							$revertedInvoice = $this->fetch('invoices', $invoiceParameters);
 							$transactionParameters = array(
 								'conditions' => array(
 									'invoice_id' => $invoiceIds,
@@ -1133,7 +1133,7 @@ class InvoicesModel extends UsersModel {
 									'payment_amount'
 								)
 							);
-							$amountMergedTransactions = $this->find('transactions', $transactionParameters);
+							$amountMergedTransactions = $this->fetch('transactions', $transactionParameters);
 							$transactionParameters['conditions'] = array(
 								'initial_invoice_id' => $invoiceIds,
 								'OR' => array(
@@ -1143,7 +1143,7 @@ class InvoicesModel extends UsersModel {
 									)
 								)
 							);
-							$upgradeTransactions = $this->find('transactions', $transactionParameters);
+							$upgradeTransactions = $this->fetch('transactions', $transactionParameters);
 
 							if (!empty($cancelledInvoices['count'])) {
 								foreach ($cancelledInvoices['data'] as $cancelledInvoice) {
@@ -1268,7 +1268,7 @@ class InvoicesModel extends UsersModel {
 									$invoiceParameters['conditions'] = array(
 										'cart_items' => $additionalDueInvoiceIdentifier
 									);
-									$additionalDueInvoice = $this->find('invoices', $invoiceParameters);
+									$additionalDueInvoice = $this->fetch('invoices', $invoiceParameters);
 
 									if (!empty($additionalDueInvoice['count'])) {
 										$initialInvoiceIds[] = $additionalDueInvoice['data'][0]['id'];
@@ -1357,7 +1357,7 @@ class InvoicesModel extends UsersModel {
 			);
 		}
 
-		$invoiceData = $this->find($table, $invoiceParameters);
+		$invoiceData = $this->fetch($table, $invoiceParameters);
 
 		if (!empty($invoiceData['count'])) {
 			$invoiceData = $invoiceData['data'][0];

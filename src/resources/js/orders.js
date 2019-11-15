@@ -3,7 +3,7 @@
 var orderGrid = {};
 var productIdGrid = {};
 var defaultTable = 'orders';
-var previousAction = 'find';
+var previousAction = 'fetch';
 var processOrders = function() {
 	var ordersAllVisible = document.querySelector('.item-container .checkbox[index="all-visible"]');
 	var ordersContainer = document.querySelector('.orders-container');

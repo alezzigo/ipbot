@@ -48,7 +48,7 @@ class TransactionsModel extends InvoicesModel {
 		if ($this->save('transactions', array(
 			$transaction
 		))) {
-			$user = $this->find('users', array(
+			$user = $this->fetch('users', array(
 				'conditions' => array(
 					'id' => $transaction['user_id']
 				),
@@ -175,7 +175,7 @@ class TransactionsModel extends InvoicesModel {
 			strlen($parameters['transaction_method']) > 1 &&
 			method_exists($this, ($method = '_processTransaction' . $parameters['transaction_method']))
 		) {
-			$user = $this->find('users', array(
+			$user = $this->fetch('users', array(
 				'conditions' => array(
 					'id' => $parameters['user_id']
 				),
@@ -209,7 +209,7 @@ class TransactionsModel extends InvoicesModel {
 				'text' => 'There aren\'t any new transactions to process, please try again later.'
 			)
 		);
-		$transactionsToProcess = $this->find('transactions', array(
+		$transactionsToProcess = $this->fetch('transactions', array(
 			'conditions' => array(
 				'AND' => array(
 					'transaction_processed' => false,
@@ -329,7 +329,7 @@ class TransactionsModel extends InvoicesModel {
 		$invoiceTotalPaid = false;
 
 		if (!empty($parameters['subscription_id'])) {
-			$existingSubscription = $this->find('subscriptions', array(
+			$existingSubscription = $this->fetch('subscriptions', array(
 				'conditions' => array(
 					'id' => $parameters['subscription_id']
 				),
@@ -429,7 +429,7 @@ class TransactionsModel extends InvoicesModel {
 								($quantity = $order['quantity'])
 							)
 						) {
-							$processingNodes = $this->find('nodes', array(
+							$processingNodes = $this->fetch('nodes', array(
 								'conditions' => array(
 									'AND' => array(
 										'allocated' => false,
@@ -572,7 +572,7 @@ class TransactionsModel extends InvoicesModel {
 						}
 					}
 
-					$invoiceOrders = $this->find('invoice_orders', array(
+					$invoiceOrders = $this->fetch('invoice_orders', array(
 						'conditions' => array(
 							'invoice_id' => array_unique(array_filter(array(
 								$invoice['data']['invoice']['id'],
@@ -837,7 +837,7 @@ class TransactionsModel extends InvoicesModel {
 					);
 
 					if ($amountToRefundExceedingBalance < 0) {
-						$balanceTransactions = $this->find('transactions', array(
+						$balanceTransactions = $this->fetch('transactions', array(
 							'conditions' => array(
 								'payment_method_id' => 'balance',
 								'transaction_method' => 'PaymentCompleted',
@@ -918,7 +918,7 @@ class TransactionsModel extends InvoicesModel {
 									'order' => 'ASC'
 								)
 							);
-							$orderMerges = $this->find('order_merges', $orderMergeParameters);
+							$orderMerges = $this->fetch('order_merges', $orderMergeParameters);
 
 							if (!empty($orderMerges['count'])) {
 								$amountDeducted = $invoiceDeduction['amount_deducted'];
@@ -1025,11 +1025,11 @@ class TransactionsModel extends InvoicesModel {
 									'node_id'
 								)
 							);
-							$nodeIds = $this->find('proxies', $proxyParameters);
+							$nodeIds = $this->fetch('proxies', $proxyParameters);
 							$proxyParameters['fields'] = array(
 								'id'
 							);
-							$proxyIds = $this->find('proxies', $proxyParameters);
+							$proxyIds = $this->fetch('proxies', $proxyParameters);
 
 							if (
 								!empty($nodeIds['count']) &&
@@ -1180,7 +1180,7 @@ class TransactionsModel extends InvoicesModel {
 				$subscription
 			))
 		) {
-			$paymentMethod = $this->find('payment_methods', array(
+			$paymentMethod = $this->fetch('payment_methods', array(
 				'conditions' => array(
 					'id' => $subscription['payment_method_id']
 				),
@@ -1238,7 +1238,7 @@ class TransactionsModel extends InvoicesModel {
 				$subscription
 			))
 		) {
-			$paymentMethod = $this->find('payment_methods', array(
+			$paymentMethod = $this->fetch('payment_methods', array(
 				'conditions' => array(
 					'id' => $subscription['payment_method_id']
 				),
@@ -1296,7 +1296,7 @@ class TransactionsModel extends InvoicesModel {
 				$subscription
 			))
 		) {
-			$paymentMethod = $this->find('payment_methods', array(
+			$paymentMethod = $this->fetch('payment_methods', array(
 				'conditions' => array(
 					'id' => $subscription['payment_method_id']
 				),
@@ -1345,7 +1345,7 @@ class TransactionsModel extends InvoicesModel {
 			'price' => $parameters['payment_amount'],
 			'user_id' => $parameters['user_id']
 		);
-		$subscriptionStatus = $this->find('subscriptions', array(
+		$subscriptionStatus = $this->fetch('subscriptions', array(
 			'conditions' => array(
 				'id' => $parameters['subscription_id']
 			),
@@ -1361,7 +1361,7 @@ class TransactionsModel extends InvoicesModel {
 				array_filter($subscription)
 			))
 		) {
-			$paymentMethod = $this->find('payment_methods', array(
+			$paymentMethod = $this->fetch('payment_methods', array(
 				'conditions' => array(
 					'id' => $subscription['payment_method_id']
 				),
@@ -1413,7 +1413,7 @@ class TransactionsModel extends InvoicesModel {
 			'price' => $parameters['payment_amount'],
 			'user_id' => $parameters['user_id']
 		);
-		$subscriptionPaymentAttempts = $this->find('subscriptions', array(
+		$subscriptionPaymentAttempts = $this->fetch('subscriptions', array(
 			'conditions' => array(
 				'id' => $parameters['subscription_id']
 			),
@@ -1431,7 +1431,7 @@ class TransactionsModel extends InvoicesModel {
 			if ($this->save('subscriptions', array(
 				$subscription
 			))) {
-				$paymentMethod = $this->find('payment_methods', array(
+				$paymentMethod = $this->fetch('payment_methods', array(
 					'conditions' => array(
 						'id' => $subscription['payment_method_id']
 					),
@@ -1616,7 +1616,7 @@ class TransactionsModel extends InvoicesModel {
  */
 	protected function _retrieveTransactionInvoiceId($parameters) {
 		$response = $parameters['invoice_id'];
-		$latestInvoiceId = $this->find('invoices', array(
+		$latestInvoiceId = $this->fetch('invoices', array(
 			'conditions' => array(
 				'OR' => array(
 					'id' => $parameters['invoice_id'],
@@ -1651,7 +1651,7 @@ class TransactionsModel extends InvoicesModel {
 					'order' => 'DESC'
 				)
 			);
-			$transaction = $this->find('transactions', $transactionParameters);
+			$transaction = $this->fetch('transactions', $transactionParameters);
 
 			if (!empty($transaction['count'])) {
 				$response = $transaction['data'][0];
@@ -1670,7 +1670,7 @@ class TransactionsModel extends InvoicesModel {
  */
 	protected function _retrieveTransactionPaymentMethod($paymentMethodId) {
 		$response = '';
-		$paymentMethod = $this->find('payment_methods', array(
+		$paymentMethod = $this->fetch('payment_methods', array(
 			'conditions' => array(
 				'id' => $paymentMethodId
 			),
@@ -1822,7 +1822,7 @@ class TransactionsModel extends InvoicesModel {
 
 			$transaction = array_merge($transaction, $this->_retrievePayPalTransactionMethod($parameters));
 			$transaction['invoice_id'] = $this->_retrieveTransactionInvoiceId($transaction);
-			$existingTransaction = $this->find('transactions', array(
+			$existingTransaction = $this->fetch('transactions', array(
 				'conditions' => array(
 					'id' => $parameters['txn_id']
 				),
@@ -2092,7 +2092,7 @@ class TransactionsModel extends InvoicesModel {
 										'invoice_id' => $parameters['data']['invoice']['id'],
 										'price' => $parameters['data']['billing_amount']
 									);
-									$existingPlan = $this->find('plans', array(
+									$existingPlan = $this->fetch('plans', array(
 										'conditions' => $planData,
 										'fields' => array(
 											'id'
@@ -2106,7 +2106,7 @@ class TransactionsModel extends InvoicesModel {
 											$planData
 										))
 									) {
-										$plan = $this->find('plans', array(
+										$plan = $this->fetch('plans', array(
 											'conditions' => $planData,
 											'fields' => array(
 												'cart_items',

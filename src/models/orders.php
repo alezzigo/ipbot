@@ -21,7 +21,7 @@ class OrdersModel extends TransactionsModel {
  */
 	protected function _retrieveMostRecentOrderInvoice($orderData) {
 		$response = array();
-		$mostRecentOrderInvoice = $this->find('invoice_orders', array(
+		$mostRecentOrderInvoice = $this->fetch('invoice_orders', array(
 			'conditions' => array(
 				'order_id' => $orderData['id']
 			),
@@ -33,7 +33,7 @@ class OrdersModel extends TransactionsModel {
 
 		if (!empty($mostRecentOrderInvoice['count'])) {
 			$invoiceIds = $this->_retrieveInvoiceIds($mostRecentOrderInvoice['data']);
-			$invoice = $this->find('invoices', array(
+			$invoice = $this->fetch('invoices', array(
 				'conditions' => array(
 					'merged_invoice_id' => null,
 					'OR' => array(
@@ -102,7 +102,7 @@ class OrdersModel extends TransactionsModel {
 			)
 		);
 
-		$orders = $this->find('orders', $orderParameters);
+		$orders = $this->fetch('orders', $orderParameters);
 
 		if (!empty($orders['count'])) {
 			foreach ($orders['data'] as $order) {
@@ -146,7 +146,7 @@ class OrdersModel extends TransactionsModel {
 		);
 
 		if (!empty($orderIds = array_values($parameters['data']['orders']))) {
-			$orders = $this->find('orders', array(
+			$orders = $this->fetch('orders', array(
 				'conditions' => array(
 					'id' => $orderIds,
 					'user_id' => $parameters['user']['id']
@@ -252,7 +252,7 @@ class OrdersModel extends TransactionsModel {
 					count($productIds) === 1 &&
 					($productId = key($productIds))
 				) {
-					$product = $this->find('products', array(
+					$product = $this->fetch('products', array(
 						'conditions' => array(
 							'id' => $productId
 						),
@@ -319,7 +319,7 @@ class OrdersModel extends TransactionsModel {
 								'order' => 'DESC'
 							)
 						);
-						$orderMerges = $this->find('order_merges', $orderMergeParameters);
+						$orderMerges = $this->fetch('order_merges', $orderMergeParameters);
 
 						if (!empty($orderMerges['count'])) {
 							foreach ($orderMerges['data'] as $orderMerge) {
@@ -355,7 +355,7 @@ class OrdersModel extends TransactionsModel {
 										$selectedOrder['order']['id']
 									))
 								);
-								$previousOrderMerges = $this->find('order_merges', $orderMergeParameters);
+								$previousOrderMerges = $this->fetch('order_merges', $orderMergeParameters);
 								$amountAvailableToMerge = $selectedOrder['order']['total'];
 
 								if (!empty($previousOrderMerges['count'])) {
@@ -435,7 +435,7 @@ class OrdersModel extends TransactionsModel {
 							);
 
 							if ($this->save('invoices', $mergedInvoiceData)) {
-								$mergedInvoice = $this->find('invoices', array(
+								$mergedInvoice = $this->fetch('invoices', array(
 									'conditions' => array(
 										'cart_items' => $mergedData['invoice']['cart_items'],
 										'user_id' => $mergedData['invoice']['user_id']
@@ -515,7 +515,7 @@ class OrdersModel extends TransactionsModel {
 										'id' => $mergedInvoiceId,
 										'merged_invoice_id' => null
 									);
-									$mergedInvoiceOrder = $this->find('invoice_orders', array(
+									$mergedInvoiceOrder = $this->fetch('invoice_orders', array(
 										'conditions' => array(
 											'order_id' => $mergedData['order']['id']
 										),
@@ -550,7 +550,7 @@ class OrdersModel extends TransactionsModel {
 											'order_id'
 										)
 									);
-									$proxies = $this->find('proxies', $proxyParameters);
+									$proxies = $this->fetch('proxies', $proxyParameters);
 
 									if (!empty($proxies['count'])) {
 										foreach ($proxies['data'] as $key => $proxy) {
@@ -560,7 +560,7 @@ class OrdersModel extends TransactionsModel {
 										$pendingProxies = array_values($proxies['data']);
 									}
 
-									$proxyGroups = $this->find('proxy_groups', $proxyParameters);
+									$proxyGroups = $this->fetch('proxy_groups', $proxyParameters);
 
 									if (!empty($proxyGroups['count'])) {
 										foreach ($proxyGroups['data'] as $key => $proxyGroup) {
@@ -570,7 +570,7 @@ class OrdersModel extends TransactionsModel {
 										$pendingProxyGroups = array_values($proxyGroups['data']);
 									}
 
-									$transactions = $this->find('transactions', array(
+									$transactions = $this->fetch('transactions', array(
 										'conditions' => array(
 											'invoice_id' => array_values($pendingInvoiceIds)
 										),
@@ -690,7 +690,7 @@ class OrdersModel extends TransactionsModel {
 										}
 
 										if (!empty($balanceTransferInvoiceIdentifier)) {
-											$balanceTransferInvoice = $this->find('invoices', array(
+											$balanceTransferInvoice = $this->fetch('invoices', array(
 												'conditions' => array(
 													'cart_items' => $balanceTransferInvoiceIdentifier
 												),
@@ -753,7 +753,7 @@ class OrdersModel extends TransactionsModel {
 			$this->redirect($this->settings['base_url'] . 'orders');
 		}
 
-		$order = $this->find('orders', array(
+		$order = $this->fetch('orders', array(
 			'conditions' => array(
 				'id' => $orderId
 			),

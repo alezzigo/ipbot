@@ -5,7 +5,7 @@ var defaultUrl = '/api/proxies';
 var itemGrid = [];
 var itemGridCount = 0;
 var messageContainer = document.querySelector('main .message-container');
-var previousAction = 'find';
+var previousAction = 'fetch';
 var processCopy = function(windowName, windowSelector) {
 	previousAction = requestParameters.action;
 	var processCopyFormat = function() {
@@ -89,7 +89,7 @@ var processDowngrade = function() {
 			closeWindows(defaultTable);
 			document.querySelector('.order-name').innerHTML = response.data.downgraded.order.quantity_pending + ' ' + response.data.downgraded.order.name;
 			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
-			requestParameters.action = 'find';
+			requestParameters.action = 'fetch';
 			delete requestParameters.data.confirm_downgrade;
 		}
 
@@ -251,7 +251,7 @@ var processGroup = function(windowName, windowSelector) {
 	groupNameField.addEventListener('keydown', groupNameField.keydownListener);
 	groupNameButton.addEventListener('click', groupNameButton.clickListener);
 	groupTable.innerHTML = '<p class="message no-margin-bottom">Loading ...</p>';
-	requestParameters.action = 'find';
+	requestParameters.action = 'fetch';
 	requestParameters.sort.field = 'created';
 	requestParameters.table = 'proxy_groups';
 	var limit = requestParameters.limit;
@@ -441,7 +441,7 @@ var processProxies = function(windowName, windowSelector, currentPage) {
 
 		if (
 			requestParameters.action == 'search' &&
-			previousAction == 'find'
+			previousAction == 'fetch'
 		) {
 			currentPage = 1;
 		}
@@ -469,7 +469,7 @@ var processProxies = function(windowName, windowSelector, currentPage) {
 				var itemsClear = document.querySelector('.item-configuration a.clear');
 				itemsClear.removeEventListener('click', itemsClear.clickListener);
 				itemsClear.clickListener = function() {
-					previousAction = 'find';
+					previousAction = 'fetch';
 					requestParameters.data = {};
 					closeWindows(defaultTable);
 					itemGrid = [];
@@ -524,7 +524,7 @@ var processProxies = function(windowName, windowSelector, currentPage) {
 		processItemGrid(range(0, response.data.length - 1));
 	});
 };
-requestParameters.action = 'find';
+requestParameters.action = 'fetch';
 requestParameters.sort = {
 	field: 'modified',
 	order: 'DESC'

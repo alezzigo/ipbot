@@ -1,7 +1,7 @@
 'use_strict';
 
 var defaultTable = 'invoices';
-var previousAction = 'find';
+var previousAction = 'fetch';
 var processInvoice = function() {
 	requestParameters.action = 'invoice';
 	requestParameters.table = 'invoices';
@@ -224,7 +224,7 @@ var processInvoice = function() {
 	});
 };
 var processInvoices = function() {
-	requestParameters.action = 'find';
+	requestParameters.action = 'fetch';
 	requestParameters.conditions = {
 		merged_invoice_id: null,
 		payable: true

@@ -156,7 +156,7 @@ class ServersModel extends AppModel {
 				'text' => ($defaultMessage = 'Access denied from ' . ($serverIp = $_SERVER['REMOTE_ADDR']) . ', please try again.')
 			)
 		);
-		$server = $this->find('servers', array(
+		$server = $this->fetch('servers', array(
 			'conditions' => array(
 				'ip' => $serverIp,
 				'status' => 'online'
@@ -177,7 +177,7 @@ class ServersModel extends AppModel {
 
 			if ($server['count'] === 1) {
 				$response['message']['status'] = 'No active nodes available on gateway server.';
-				$nodeIds = $this->find('nodes', array(
+				$nodeIds = $this->fetch('nodes', array(
 					'conditions' => array(
 						'allocated' => true,
 						'server_id' => $server['data'][0]['id']
@@ -189,7 +189,7 @@ class ServersModel extends AppModel {
 
 				if (!empty($nodeIds['count'])) {
 					$response['message']['status'] = 'No active proxies available on gateway server.';
-					$proxies = $this->find('proxies', array(
+					$proxies = $this->fetch('proxies', array(
 						'conditions' => array(
 							'node_id' => $nodeIds['data'],
 							'NOT' => array(

@@ -26,7 +26,7 @@ class UsersModel extends AppModel {
 		if (!empty($this->defaultFields)) {
 			foreach ($this->defaultFields as $defaultFieldTable => $defaultFields) {
 				if (in_array('session_id', $defaultFields)) {
-					$sessionData = $this->find($defaultFieldTable, array(
+					$sessionData = $this->fetch($defaultFieldTable, array(
 						'conditions' => array(
 							'session_id' => $parameters['session'],
 							'user_id' => null
@@ -64,7 +64,7 @@ class UsersModel extends AppModel {
 			!empty($id = $parameters['user_id']) ||
 			!empty($id = $parameters['id'])
 		) {
-			$user = $this->find('users', array(
+			$user = $this->fetch('users', array(
 				'conditions' => array(
 					'id' => $id
 				),
@@ -106,7 +106,7 @@ class UsersModel extends AppModel {
 			!empty($balance = $parameters['data']['balance'])
 		) {
 			$response['message']['text'] = 'Invalid account balance amount, please try again.';
-			$balanceData = $this->find('products', array(
+			$balanceData = $this->fetch('products', array(
 				'conditions' => array(
 					'type' => 'balance'
 				),
@@ -145,7 +145,7 @@ class UsersModel extends AppModel {
 					if ($this->save('invoices', array(
 						$invoiceConditions
 					))) {
-						$invoice = $this->find('invoices', array(
+						$invoice = $this->fetch('invoices', array(
 							'conditions' => $invoiceConditions,
 							'fields' => array(
 								'id'
@@ -187,7 +187,7 @@ class UsersModel extends AppModel {
 		);
 
 		if (!empty($parameters['data']['subscription_id'])) {
-			$subscription = $this->find('subscriptions', array(
+			$subscription = $this->fetch('subscriptions', array(
 				'conditions' => array(
 					'id' => $parameters['data']['subscription_id']
 				),
@@ -214,7 +214,7 @@ class UsersModel extends AppModel {
 				);
 
 				if ($this->save('subscriptions', $subscriptionData)) {
-					$paymentMethod = $this->find('payment_methods', array(
+					$paymentMethod = $this->fetch('payment_methods', array(
 						'conditions' => array(
 							'id' => $subscription['data'][0]['payment_method_id']
 						),
@@ -282,7 +282,7 @@ class UsersModel extends AppModel {
 			!empty($parameters['data']['token']) &&
 			is_string($parameters['data']['token'])
 		) {
-			$token = $this->find('tokens', array(
+			$token = $this->fetch('tokens', array(
 				'conditions' => array(
 					'foreign_key' => 'change_email',
 					'foreign_table' => $table,
@@ -371,7 +371,7 @@ class UsersModel extends AppModel {
 								'text' => 'Please check your inbox at <strong>' . $newEmail . '</strong> for instructions (if this email address doesn\'t exist in another user account).'
 							)
 						);
-						$existingUser = $this->find($table, array(
+						$existingUser = $this->fetch($table, array(
 							'conditions' => array(
 								'email' => $newEmail
 							),
@@ -433,7 +433,7 @@ class UsersModel extends AppModel {
 
 		if (!empty($parameters['data']['email'])) {
 			$response['message']['text'] = 'Password reset is required, please check your inbox for instructions.';
-			$existingUser = $this->find($table, array(
+			$existingUser = $this->fetch($table, array(
 				'conditions' => array(
 					'email' => $email = $this->_validateEmailFormat($parameters['data']['email'])
 				),
@@ -493,7 +493,7 @@ class UsersModel extends AppModel {
 
 		if (!empty($parameters['data']['email'])) {
 			$response['message']['text'] = 'Invalid email or password, please try again.';
-			$existingUser = $this->find($table, array(
+			$existingUser = $this->fetch($table, array(
 				'conditions' => array(
 					'email' => $email = $this->_validateEmailFormat($parameters['data']['email'])
 				),
@@ -557,7 +557,7 @@ class UsersModel extends AppModel {
 				'text' => 'Error logging out, please try again.'
 			)
 		);
-		$tokens = $this->find('tokens', array(
+		$tokens = $this->fetch('tokens', array(
 			'fields' => array(
 				'id'
 			),
@@ -601,7 +601,7 @@ class UsersModel extends AppModel {
 
 		if (!empty($parameters['data']['email'])) {
 			$response['message']['text'] = 'Invalid email or password, please try again.';
-			$existingUser = $this->find($table, array(
+			$existingUser = $this->fetch($table, array(
 				'conditions' => array(
 					'email' => $email = $this->_validateEmailFormat($parameters['data']['email'])
 				),
@@ -746,7 +746,7 @@ class UsersModel extends AppModel {
 				is_string($parameters['data']['token'])
 			) {
 				$response['message']['text'] = 'Invalid password reset token, please <a href="' . $this->settings['base_url'] . '?#forgot">request a password reset</a> and try again.';
-				$token = $this->find('tokens', array(
+				$token = $this->fetch('tokens', array(
 					'conditions' => array(
 						'foreign_key' => 'password_reset',
 						'foreign_table' => $table,
@@ -776,7 +776,7 @@ class UsersModel extends AppModel {
 						(boolean) strtotime($passwordModified)
 					) {
 						$response['message']['text'] = 'Password was already reset with another token, please <a href="' . $this->settings['base_url'] . '?#forgot">request a new password reset</a> and try again.';
-						$user = $this->find('users', array(
+						$user = $this->fetch('users', array(
 							'conditions' => array(
 								'id' => $userId,
 								'password_modified' => $passwordModified

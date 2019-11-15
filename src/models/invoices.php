@@ -261,10 +261,12 @@ class InvoicesModel extends UsersModel {
 		$invoices = $this->find('invoices', array(
 			'conditions' => array(
 				'due <' => date('Y-m-d H:i:s', strtotime('+5 days')),
-				'initial_invoice_id !=' => null,
 				'merged_invoice_id' => null,
 				'status' => 'unpaid',
-				'warning_level' => 0
+				'warning_level' => 0,
+				'NOT' => array(
+					'initial_invoice_id' => null
+				)
 			),
 			'fields' => array(
 				'id'
@@ -571,14 +573,16 @@ class InvoicesModel extends UsersModel {
 		$dueInvoices = $this->find('invoices', array(
 			'conditions' => array(
 				'due >' => date('Y-m-d H:i:s', strtotime($invoiceData['due'])),
-				'id !=' => $invoiceData['id'],
 				'initial_invoice_id' => array_filter(array(
 					$invoiceData['id'],
 					$invoiceData['initial_invoice_id']
 				)),
 				'merged_invoice_id' => null,
 				'status' => 'unpaid',
-				'user_id' => $invoiceData['user_id']
+				'user_id' => $invoiceData['user_id'],
+				'NOT' => array(
+					'id' => $invoiceData['id']
+				)
 			),
 			'fields' => array(
 				'due',
@@ -705,7 +709,9 @@ class InvoicesModel extends UsersModel {
 			$orders = $this->find('orders', array(
 				'conditions' => array(
 					'id' => $invoiceOrders['data'],
-					'status !=' => 'merged'
+					'NOT' => array(
+						'status' => 'merged'
+					)
 				),
 				'fields' => array(
 					'created',
@@ -784,10 +790,12 @@ class InvoicesModel extends UsersModel {
 		$response = array();
 		$invoiceTransactions = $this->find('transactions', array(
 			'conditions' => array(
-				'transaction_method !=' => 'PaymentRefunded',
 				'invoice_id' => $invoiceData['id'],
 				'transaction_processed' => true,
-				'transaction_processing' => false
+				'transaction_processing' => false,
+				'NOT' => array(
+					'transaction_method' => 'PaymentRefunded'
+				)
 			),
 			'fields' => array(
 				'billing_address_1',
@@ -947,8 +955,10 @@ class InvoicesModel extends UsersModel {
 		$orderMerges = $this->find('order_merges', array(
 			'conditions' => array(
 				'amount_merged >' => 0,
-				'initial_invoice_id !=' => $invoiceIds,
-				'invoice_id' => $invoiceIds
+				'invoice_id' => $invoiceIds,
+				'NOT' => array(
+					'initial_invoice_id' => $invoiceIds
+				)
 			),
 			'fields' => array(
 				'initial_invoice_id'
@@ -966,12 +976,14 @@ class InvoicesModel extends UsersModel {
 		$previousInvoiceParameters = array(
 			'conditions' => array(
 				'id' => $invoiceIds,
-				'id !=' => $invoiceData['id'],
 				'created <' => date('Y-m-d H:i:s', strtotime($invoiceData['created'])),
 				'due <' => date('Y-m-d H:i:s', strtotime($invoiceData['due'])),
 				'OR' => array(
 					'amount_paid >' => 0,
 					'status' => 'paid'
+				),
+				'NOT' => array(
+					'id' => $invoiceData['id']
 				)
 			),
 			'fields' => array(
@@ -1126,7 +1138,9 @@ class InvoicesModel extends UsersModel {
 								'initial_invoice_id' => $invoiceIds,
 								'OR' => array(
 									'payment_amount' => null,
-									'transaction_method !=' => 'Miscellaneous'
+									'NOT' => array(
+										'transaction_method' => 'Miscellaneous'
+									)
 								)
 							);
 							$upgradeTransactions = $this->find('transactions', $transactionParameters);

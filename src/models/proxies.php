@@ -97,7 +97,9 @@ class ProxiesModel extends OrdersModel {
 					) {
 						$existingUsernames = $this->find('proxies', array(
 							'conditions' => array(
-								'username !=' => ''
+								'NOT' => array(
+									'username' => ''
+								)
 							),
 							'fields' => array(
 								'username'

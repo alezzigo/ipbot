@@ -192,7 +192,9 @@ class ServersModel extends AppModel {
 					$proxies = $this->find('proxies', array(
 						'conditions' => array(
 							'node_id' => $nodeIds['data'],
-							'status !=' => 'offline'
+							'NOT' => array(
+								'status' => 'offline'
+							)
 						),
 						'fields' => array(
 							'asn',

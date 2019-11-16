@@ -72,9 +72,7 @@ class AppModel extends Config {
  * @return float $response
  */
 	protected function _calculateItemPrice($item) {
-		$interval = $item['interval_value'] * ($item['interval_type'] == 'year' ? 12 : 1);
-		$response = number_format(($item['price_per'] * $item['quantity'] * $interval) - (($item['price_per'] * $item['quantity']) * ((min(1000 + ($item['quantity'] / 10), $item['quantity']) / $item['volume_discount_divisor']) * $item['volume_discount_multiple'] * $item['interval_value'])), 2, '.', '');
-		// ..
+		$response = number_format((((100 - ($item['interval_value'] * ($item['interval_type'] == 'year' ? 12 : 1))) + 1) / 100) * ($item['quantity'] * $item['price_per']) , 2, '.', '');
 		return $response;
 	}
 

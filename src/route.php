@@ -112,7 +112,7 @@
 			'file' => $config->settings['base_path'] . '/views/users/view.php',
 			'title' => 'Manage Account',
 			'url' => '/account'
-		),
+		)
 	);
 
 	foreach ($routes as $key => $route) {

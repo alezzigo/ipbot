@@ -262,9 +262,7 @@ class OrdersModel extends TransactionsModel {
 							'minimum_quantity',
 							'name',
 							'price_per',
-							'type',
-							'volume_discount_divisor',
-							'volume_discount_multiple'
+							'type'
 						)
 					));
 
@@ -276,9 +274,7 @@ class OrdersModel extends TransactionsModel {
 							'interval_type' => $mergedData['order']['interval_type'],
 							'interval_value' => $mergedData['order']['interval_value'],
 							'price_per' => $response['data']['product']['price_per'],
-							'quantity' => $mergedData['order']['quantity'],
-							'volume_discount_divisor' => $response['data']['product']['volume_discount_divisor'],
-							'volume_discount_multiple' => $response['data']['product']['volume_discount_multiple']
+							'quantity' => $mergedData['order']['quantity']
 						));
 						$mergedData['order']['price_pending'] = $this->_calculateItemPrice(array_merge($order, array(
 							'interval_type' => $mergedInterval['interval_type_pending'],

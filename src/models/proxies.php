@@ -296,9 +296,7 @@ class ProxiesModel extends OrdersModel {
 							'minimum_quantity',
 							'name',
 							'price_per',
-							'type',
-							'volume_discount_divisor',
-							'volume_discount_multiple'
+							'type'
 						)
 					));
 
@@ -351,9 +349,7 @@ class ProxiesModel extends OrdersModel {
 										'interval_type' => $downgradedData['order']['interval_type'],
 										'interval_value' => $downgradedData['order']['interval_value'],
 										'price_per' => $response['data']['product']['price_per'],
-										'quantity' => $downgradedData['order']['quantity'],
-										'volume_discount_divisor' => $response['data']['product']['volume_discount_divisor'],
-										'volume_discount_multiple' => $response['data']['product']['volume_discount_multiple']
+										'quantity' => $downgradedData['order']['quantity']
 									));
 									$downgradedData['order']['price_pending'] = $this->_calculateItemPrice(array_merge($order, array(
 										'quantity' => $downgradedData['order']['quantity_pending']

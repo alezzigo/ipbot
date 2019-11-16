@@ -131,9 +131,7 @@ class CartsModel extends AppModel {
 					'modified',
 					'price_per',
 					'type',
-					'uri',
-					'volume_discount_divisor',
-					'volume_discount_multiple'
+					'uri'
 				),
 				'sort' => array(
 					'field' => 'created',
@@ -233,9 +231,7 @@ class CartsModel extends AppModel {
 										'modified',
 										'price_per',
 										'type',
-										'uri',
-										'volume_discount_divisor',
-										'volume_discount_multiple'
+										'uri'
 									),
 									'sort' => array(
 										'field' => 'modified',

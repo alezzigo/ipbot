@@ -1402,9 +1402,12 @@ class InvoicesModel extends UsersModel {
 /**
  * List invoices
  *
+ * @param string $table
+ * @param array $parameters
+ *
  * @return array
  */
-	public function list() {
+	public function list($table, $parameters = array()) {
 		return array();
 	}
 

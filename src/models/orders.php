@@ -122,9 +122,12 @@ class OrdersModel extends TransactionsModel {
 /**
  * List orders
  *
+ * @param string $table
+ * @param array $parameters
+ *
  * @return array
  */
-	public function list() {
+	public function list($table, $parameters = array()) {
 		return array();
 	}
 

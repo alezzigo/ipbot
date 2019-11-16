@@ -724,6 +724,9 @@ main {
 				cursor: default;
 				margin-top: 0;
 			}
+		.icon[window="api"] {
+			background: url('../images/icons/icon-api.png') center no-repeat;
+		}
 		.icon[window="authenticate"] {
 			background: url('../images/icons/icon-authenticate.png') center no-repeat;
 		}
@@ -750,6 +753,7 @@ main {
 		.icon.edit,
 		.icon.next,
 		.icon.previous,
+		.icon[window="api"],
 		.icon[window="authenticate"],
 		.icon[window="copy"],
 		.icon[window="downgrade"],

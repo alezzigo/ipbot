@@ -8,7 +8,10 @@
 						<h1>Proxy API Configuration</h1>
 					</div>
 					<div class="item-body">
-						<!-- .. -->
+						<div class="checkbox-container">
+							<span checked="0" class="checkbox" id="enable-api" name="enable_api"></span>
+							<label class="custom-checkbox-label" for="enable-api" name="enable_api">Enable proxy API</label>
+						</div>
 						<div class="clear"></div>
 					</div>
 					<div class="item-footer">

@@ -2,7 +2,7 @@
 	<div class="container small">
 		<div class="align-left navigation primary-navigation">
 			<div class="align-left">
-				<p>Product of <a href="https://eightomic.com" target="_blank">Eightomic</a>. Copyright <?php echo date('Y'); ?> <a href="https://parsonsbots.com" target="_blank">Will Parsons</a>.</p>
+				<p>Product of <a href="https://eightomic.com" target="_blank">Eightomic</a>. Copyright <?php echo date('Y'); ?> <a href="https://parsonsbots.com" target="_blank">Will S. Parsons</a>.</p>
 			</div>
 		</div>
 	</div>

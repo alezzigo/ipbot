@@ -37,6 +37,25 @@ class ProxiesModel extends OrdersModel {
 	}
 
 /**
+ * List proxies
+ *
+ * @param string $table
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	public function list($table, $parameters = array()) {
+		$response = array(
+			'message' => array(
+				'status' => 'error',
+				'text' => ($defaultMessage = 'Error processing your list ' . $table . ' request, please try again.')
+			)
+		);
+		// ..
+		return $response;
+	}
+
+/**
  * Process authenticate requests
  *
  * @param string $table
@@ -48,7 +67,7 @@ class ProxiesModel extends OrdersModel {
 		$response = array(
 			'message' => array(
 				'status' => 'error',
-				'text' => ($defaultMessage = 'Error authenticating proxies, please try again.')
+				'text' => ($defaultMessage = 'Error authenticating ' . $table . ', please try again.')
 			)
 		);
 

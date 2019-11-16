@@ -22,7 +22,7 @@
 		<div class="container small">
 			<div class="item">
 				<h2>Static Proxies</h2>
-				<p>Buy elite (high-anonymous) proxies with clean dedicated IPs, private authenticated access, HTTP and SOCKS support, fast speeds and unmetered data transfer.</p>
+				<p>Buy elite (high-anonymous) proxies with clean dedicated IPs, private authenticated access, HTTP and HTTPS support, fast speeds and unmetered data transfer.</p>
 				<a href="<?php echo $config->settings['base_url']; ?>static-proxies">Buy Static Proxies</a>
 			</div>
 		</div>

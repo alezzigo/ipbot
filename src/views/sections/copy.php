@@ -66,7 +66,6 @@
 							<div class="field-group no-margin-top proxy-list-type">
 								<select class="proxy-list-type" name="proxy_list_type">
 									<option selected value="http">HTTP / HTTPS</option>
-									<option value="socks">SOCKS 5</option>
 								</select>
 							</div>
 						</div>

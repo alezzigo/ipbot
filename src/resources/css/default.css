@@ -497,7 +497,7 @@ main {
 	width: 100%;
 }
 	.container.small {
-		max-width: 450px;
+		max-width: 492px;
 	}
 .feature-container {
 	margin-bottom: 88px;
@@ -798,7 +798,7 @@ main {
 		z-index: 1;
 	}
 		.window-container .window {
-			max-width: 450px;
+			max-width: 492px;
 			z-index: 3;
 		}
 			.window-container .item-container {
@@ -954,7 +954,7 @@ main {
 	height: 36px;
 	position: absolute;
 	right: 0;
-	width: 93px;
+	width: 135px;
 	z-index: 1;
 }
 .field-group .change-quantity-button {

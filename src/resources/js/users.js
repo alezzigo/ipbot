@@ -131,7 +131,7 @@ var processUser = function() {
 				userData += '<div class="align-left item-container no-margin-bottom"><div class="field-group no-margin"><input class="balance-amount billing-amount" id="balance-amount" max="10000" min="20" name="balance_amount" step="0.01" type="number" value="100.00"><span class="balance-currency-name">' + requestParameters.settings.billing_currency + '</span><a class="add add-to-balance button" disabled href="javascript:void(0);">Add</a></div></div>';
 				userData += '<div class="clear"></div>';
 
-				if (response.user.subscriptions.length) {
+				if (response.user.subscriptions) {
 					userData += '<h2>Account Subscriptions</h2>';
 					response.user.subscriptions.map(function(item, index) {
 						userData += '<div class="item-container item-button" subscription_id="' + item.id + '">';

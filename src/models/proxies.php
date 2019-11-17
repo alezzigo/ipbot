@@ -780,7 +780,7 @@ class ProxiesModel extends OrdersModel {
 					)
 				);
 
-				if (!empty($parameters['data']['api_enable'])) {
+				if (isset($parameters['data']['api_enable'])) {
 					$orderData = array(
 						array(
 							'api_enable' => $parameters['data']['api_enable'],
@@ -790,6 +790,8 @@ class ProxiesModel extends OrdersModel {
 							'id' => $response['data']['id']
 						)
 					);
+
+					// ..
 
 					if ($this->save('orders', $orderData)) {
 						$response['message'] = array(

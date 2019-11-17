@@ -112,8 +112,8 @@ onLoad(function() {
 
 		if (document.querySelector(frameSelector)) {
 			closeFrames(defaultTable);
-			openFrame(frameName, frameSelector);
 			frameMethod = 'process' + capitalizeString(frameName);
+			openFrame(frameName, frameSelector);
 
 			if (typeof window[frameMethod] === 'function') {
 				method = frameMethod;

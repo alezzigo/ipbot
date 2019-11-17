@@ -25,7 +25,7 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button close main-button submit" frame="api" process="proxies">Apply Configuration</button>
+						<button class="button close main-button submit" frame="api" process="api">Apply Configuration</button>
 					</div>
 				</div>
 			</div>

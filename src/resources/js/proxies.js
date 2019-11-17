@@ -12,6 +12,19 @@ var processApi = function(windowName, windowSelector) {
 	sendRequest(function(response) {
 		if (response.data) {
 			if (response.data.api_enable) {
+				var apiEnableCheckboxInput = document.querySelector('.api-enable');
+				var apiEnableCheckboxLabel = document.querySelector('label[for="api-enable"]');
+				apiEnableCheckboxInput.removeEventListener('click', apiEnableCheckboxInput.clickListener);
+				apiEnableCheckboxLabel.removeEventListener('click', apiEnableCheckboxLabel.clickListener);
+				apiEnableCheckboxInput.clickListener = apiEnableCheckboxLabel.clickListener = function() {
+					if (+apiEnableCheckboxInput.getAttribute('checked')) {
+						elements.removeClass('.api-enabled-container', 'hidden');
+					} else {
+						elements.addClass('.api-enabled-container', 'hidden');
+					}
+				};
+				apiEnableCheckboxInput.addEventListener('click', apiEnableCheckboxInput.clickListener);
+				apiEnableCheckboxLabel.addEventListener('click', apiEnableCheckboxLabel.clickListener);
 				elements.removeClass('.api-enabled-container', 'hidden');
 				elements.setAttribute('.api-enable', 'checked', +response.data.api_enable);
 				elements.setAttribute('.api-username', 'value', response.data.api_username);
@@ -19,9 +32,7 @@ var processApi = function(windowName, windowSelector) {
 				elements.html('.api-whitelisted-ips', response.data.api_whitelisted_ips);
 			}
 		}
-		// ..
 	});
-	// ..
 };
 var processCopy = function(windowName, windowSelector) {
 	previousAction = requestParameters.action;

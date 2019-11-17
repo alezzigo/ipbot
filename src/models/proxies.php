@@ -51,7 +51,58 @@ class ProxiesModel extends OrdersModel {
 				'text' => ($defaultMessage = 'Error processing your list ' . $table . ' request, please try again.')
 			)
 		);
-		// ..
+
+		if (!empty($orderId = $parameters['data']['order_id'])) {
+			$order = $this->fetch('orders', array(
+				'conditions' => array(
+					'id' => $orderId,
+					'user_id' => $parameters['user']['id']
+				),
+				'fields' => array(
+					'api_enable',
+					'api_password',
+					'api_username',
+					'api_whitelisted_ips',
+					'id'
+				),
+				'limit' => 1
+			));
+
+			if (!empty($order['count'])) {
+				$response = array(
+					'data' => $order['data'][0],
+					'message'=> array(
+						'status' => 'success',
+						'text' => ''
+					)
+				);
+
+				if (!empty($parameters['data']['api_enable'])) {
+					$orderData = array(
+						array(
+							'api_enable' => $parameters['data']['api_enable'],
+							'api_password' => $parameters['data']['api_password'],
+							'api_username' => $parameters['data']['api_username'],
+							'api_whitelisted_ips' => $parameters['data']['api_whitelisted_ips'],
+							'id' => $response['data']['id']
+						)
+					);
+
+					if ($this->save('orders', $orderData)) {
+						$response['message'] = array(
+							'status' => 'success',
+							'text' => 'Order API settings applied successfully.'
+						);
+					} else {
+						$response['message'] = array(
+							'status' => 'error',
+							'text' => $defaultMessage
+						);
+					}
+				}
+			}
+		}
+
 		return $response;
 	}
 

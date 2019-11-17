@@ -45,7 +45,7 @@ var processInvoice = function() {
 			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + response.data.invoice.status + '</label> Invoice #' + response.data.invoice.id;
 			document.querySelector('.billing-currency').innerHTML = response.data.invoice.currency;
 			document.querySelector('.billing-view-details').addEventListener('click', function(element) {
-				closeWindows(defaultTable);
+				closeFrames(defaultTable);
 			});
 
 			if (response.data.items.length) {
@@ -192,7 +192,7 @@ var processInvoice = function() {
 			}
 
 			if (!amountDue) {
-				elements.addClass('.button[window="payment"]', 'hidden');
+				elements.addClass('.button[frame="payment"]', 'hidden');
 			}
 		}
 
@@ -284,14 +284,14 @@ var processLoginVerification = function(response) {
 		document.querySelector('.account-details').innerHTML = '<p class="message">You\'re currently logged in as ' + response.user.email + '.</p>';
 	}
 };
-var processPayment = function(windowName, windowSelector) {
+var processPayment = function(frameName, frameSelector) {
 	requestParameters.action = 'payment';
 	requestParameters.data.invoice_id = document.querySelector('input[name="invoice_id"]').value;
 	requestParameters.table = 'transactions';
 	requestParameters.url = '/api/transactions';
 	delete requestParameters.conditions;
 	sendRequest(function(response) {
-		var messageContainer = document.querySelector(windowSelector + ' .message-container');
+		var messageContainer = document.querySelector(frameSelector + ' .message-container');
 
 		if (messageContainer) {
 			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message payment-message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');

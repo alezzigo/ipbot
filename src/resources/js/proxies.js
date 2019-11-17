@@ -10,6 +10,8 @@ var processApi = function(frameName, frameSelector) {
 	requestParameters.action = 'list';
 	requestParameters.data.order_id = document.querySelector('input[name="order_id"]').value;
 	sendRequest(function(response) {
+		//..
+
 		if (response.data) {
 			var apiEnableCheckboxInput = document.querySelector('.api-enable');
 			var apiEnableCheckboxLabel = document.querySelector('label[for="api-enable"]');

@@ -110,7 +110,7 @@ var processOrders = function() {
 		processWindowEvents('resize');
 	});
 };
-var processUpgrade = function(windowName, windowSelector, upgradeValue = 1) {
+var processUpgrade = function(frameName, frameSelector, upgradeValue = 1) {
 	if (!document.querySelector('.orders-container .checkbox[index="0"]')) {
 		processOrders();
 	}

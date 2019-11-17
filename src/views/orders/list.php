@@ -4,13 +4,13 @@
 	);
 	require_once($config->settings['base_path'] . '/controllers/orders.php');
 	require_once($config->settings['base_path'] . '/views/sections/header.php');
-	$windows = array(
+	$frames = array(
 		'downgrade',
 		'upgrade'
 	);
 
-	foreach ($windows as $window) {
-		if (file_exists($file = $config->settings['base_path'] . '/views/sections/' . $window . '.php')) {
+	foreach ($frames as $frame) {
+		if (file_exists($file = $config->settings['base_path'] . '/views/sections/' . $frame . '.php')) {
 			require_once($file);
 		}
 	}
@@ -26,8 +26,7 @@
 							<div class="item-header">
 								<div class="hidden item-controls">
 									<span checked="0" class="align-left checkbox no-margin-left" index="all-visible"></span>
-									<span class="button icon upgrade hidden tooltip tooltip-bottom window-button" data-title="Request upgrade and/or merge for selected orders" item-function process="upgrade" window="upgrade"></span>
-									<!--<span class="button icon downgrade hidden tooltip tooltip-bottom window-button" data-title="Request downgrade for selected orders" item-function process="downgrade" window="downgrade"></span>-->
+									<span class="button frame-button hidden icon tooltip tooltip-bottom upgrade" data-title="Request upgrade and/or merge for selected orders" frame="upgrade" item-function process="upgrade"></span>
 								</div>
 								<div class="clear"></div>
 								<p class="hidden item-controls no-margin-bottom">

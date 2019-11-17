@@ -4,7 +4,7 @@
 	);
 	require_once($config->settings['base_path'] . '/controllers/orders.php');
 	require_once($config->settings['base_path'] . '/views/sections/header.php');
-	$windows = array(
+	$frames = array(
 		'api',
 		'authenticate',
 		'copy',
@@ -14,8 +14,8 @@
 		'search'
 	);
 
-	foreach ($windows as $window) {
-		if (file_exists($file = $config->settings['base_path'] . '/views/sections/' . $window . '.php')) {
+	foreach ($frames as $frame) {
+		if (file_exists($file = $config->settings['base_path'] . '/views/sections/' . $frame . '.php')) {
 			require_once($file);
 		}
 	}
@@ -40,14 +40,14 @@
 								</div>
 								<div class="align-left hidden item-controls">
 									<span checked="0" class="align-left checkbox no-margin-left" index="all-visible"></span>
-									<a class="button icon upgrade tooltip tooltip-bottom" data-title="Add more proxies to current order" href="<?php echo $config->settings['base_url'] . 'orders?' . $data['order_id'] . '#upgrade'; ?>" window="upgrade"></a>
-									<span class="button icon tooltip tooltip-bottom window-button" data-title="Downgrade current order to selected proxies" item-function process="downgrade" window="downgrade"></span>
-									<span class="button icon tooltip tooltip-bottom window-button" data-title="Configure proxy API settings" process="api" window="api"></span>
-									<span class="button icon tooltip tooltip-bottom window-button" data-title="Proxy search and filter" window="search"></span>
-									<span class="button icon tooltip tooltip-bottom window-button" data-title="Manage proxy groups" process="group" window="group"></span>
-									<span class="button icon hidden tooltip tooltip-bottom window-button" data-title="Configure proxy replacement settings" item-function window="replace"></span>
-									<span class="button icon hidden tooltip tooltip-bottom window-button" data-title="Configure authentication settings" item-function window="authenticate"></span>
-									<span class="button icon hidden tooltip tooltip-bottom window-button" data-title="Copy selected proxies to clipboard" item-function process="copy" window="copy"></span>
+									<a class="button icon upgrade tooltip tooltip-bottom" data-title="Add more proxies to current order" href="<?php echo $config->settings['base_url'] . 'orders?' . $data['order_id'] . '#upgrade'; ?>" frame="upgrade"></a>
+									<span class="button frame-button icon tooltip tooltip-bottom" data-title="Downgrade current order to selected proxies" frame="downgrade" item-function process="downgrade"></span>
+									<span class="button frame-button icon tooltip tooltip-bottom" data-title="Configure proxy API settings" frame="api" process="api"></span>
+									<span class="button frame-button icon tooltip tooltip-bottom" data-title="Proxy search and filter" frame="search"></span>
+									<span class="button frame-button icon tooltip tooltip-bottom" data-title="Manage proxy groups" frame="group" process="group"></span>
+									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Configure proxy replacement settings" frame="replace" item-function></span>
+									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Configure authentication settings" frame="authenticate" item-function></span>
+									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Copy selected proxies to clipboard" frame="copy" item-function process="copy"></span>
 								</div>
 								<div class="clear"></div>
 								<p class="hidden item-controls no-margin-bottom"><span class="checked-container"><span class="total-checked">0</span> of <span class="total-results"></span> selected.</span> <a class="item-action hidden" href="javascript:void(0);" index="all" status="1"><span class="action">Select</span> all results</a><span class="clear"></span></p>

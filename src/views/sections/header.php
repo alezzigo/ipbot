@@ -48,17 +48,17 @@
 	if (!empty($config->permissions[$data['table']][$data['action']]['group'])) {
 		$primaryNavigationItems = array(
 			array(
-				'class' => 'button hidden guest window-button',
+				'class' => 'button frame-button hidden guest',
 				'href' => $config->settings['base_url'] . '?#login',
 				'text' => 'Log In'
 			),
 			array(
-				'class' => 'button hidden guest window-button',
+				'class' => 'button frame-button hidden guest',
 				'href' => $config->settings['base_url'] . '?#register',
 				'text' => 'Register'
 			),
 			array(
-				'class' => 'button user window-button',
+				'class' => 'button frame-button user',
 				'process' => 'logout',
 				'text' => 'Log Out'
 			)
@@ -98,8 +98,8 @@
 								$class = (!empty($navigationItem['class']) ? $navigationItem['class'] : 'button') . ($config->settings['base_url'] . $config->parameters['route']['parts'][1] === $navigationItem['href'] ? ' active' : false);
 								$href = !empty($navigationItem['href']) ? $navigationItem['href'] : 'javascript:void(0);';
 								$process = !empty($navigationItem['process']) ? $navigationItem['process'] : '';
-								$window = !empty($navigationItem['window']) ? $navigationItem['window'] : '';
-								echo '<li><a class="' . $class . '" href="' . $href . '"' . (!empty($process) ? ' process="' . $process . '"' : '') . (!empty($window) ? ' window="' . $window . '"' : '') . '>' . $navigationItem['text'] . '</a></li>';
+								$frame = !empty($navigationItem['frame']) ? $navigationItem['frame'] : '';
+								echo '<li><a class="' . $class . '" href="' . $href . '"' . (!empty($process) ? ' process="' . $process . '"' : '') . (!empty($frame) ? ' frame="' . $frame . '"' : '') . '>' . $navigationItem['text'] . '</a></li>';
 							}
 						}
 
@@ -119,8 +119,8 @@
 									$class = (!empty($navigationItem['class']) ? $navigationItem['class'] : 'button') . ($config->settings['base_url'] . $config->parameters['route']['parts'][1] === $navigationItem['href'] ? ' active' : false);
 									$href = !empty($navigationItem['href']) ? $navigationItem['href'] : 'javascript:void(0);';
 									$process = !empty($navigationItem['process']) ? $navigationItem['process'] : '';
-									$window = !empty($navigationItem['window']) ? $navigationItem['window'] : '';
-									echo '<li><a class="' . $class . '" href="' . $href . '"' . (!empty($process) ? ' process="' . $process . '"' : '') . (!empty($window) ? ' window="' . $window . '"' : '') . '>' . $navigationItem['text'] . '</a></li>';
+									$frame = !empty($navigationItem['frame']) ? $navigationItem['frame'] : '';
+									echo '<li><a class="' . $class . '" href="' . $href . '"' . (!empty($process) ? ' process="' . $process . '"' : '') . (!empty($frame) ? ' frame="' . $frame . '"' : '') . '>' . $navigationItem['text'] . '</a></li>';
 								}
 							}
 						?>
@@ -133,15 +133,15 @@
 </header>
 <body>
 <?php
-	$windows = array(
+	$frames = array(
 		'forgot',
 		'login',
 		'register',
 		'reset'
 	);
 
-	foreach ($windows as $window) {
-		if (file_exists($file = $config->settings['base_path'] . '/views/sections/' . $window . '.php')) {
+	foreach ($frames as $frame) {
+		if (file_exists($file = $config->settings['base_path'] . '/views/sections/' . $frame . '.php')) {
 			require_once($file);
 		}
 	}

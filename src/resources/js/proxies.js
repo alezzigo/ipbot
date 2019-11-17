@@ -6,25 +6,26 @@ var itemGrid = [];
 var itemGridCount = 0;
 var messageContainer = document.querySelector('main .message-container');
 var previousAction = 'fetch';
-var processApi = function(windowName, windowSelector) {
+var processApi = function(frameName, frameSelector) {
 	requestParameters.action = 'list';
 	requestParameters.data.order_id = document.querySelector('input[name="order_id"]').value;
 	sendRequest(function(response) {
 		if (response.data) {
+			var apiEnableCheckboxInput = document.querySelector('.api-enable');
+			var apiEnableCheckboxLabel = document.querySelector('label[for="api-enable"]');
+			apiEnableCheckboxInput.removeEventListener('click', apiEnableCheckboxInput.clickListener);
+			apiEnableCheckboxLabel.removeEventListener('click', apiEnableCheckboxLabel.clickListener);
+			apiEnableCheckboxInput.clickListener = apiEnableCheckboxLabel.clickListener = function() {
+				if (+apiEnableCheckboxInput.getAttribute('checked')) {
+					elements.removeClass('.api-enabled-container', 'hidden');
+				} else {
+					elements.addClass('.api-enabled-container', 'hidden');
+				}
+			};
+			apiEnableCheckboxInput.addEventListener('click', apiEnableCheckboxInput.clickListener);
+			apiEnableCheckboxLabel.addEventListener('click', apiEnableCheckboxLabel.clickListener);
+
 			if (response.data.api_enable) {
-				var apiEnableCheckboxInput = document.querySelector('.api-enable');
-				var apiEnableCheckboxLabel = document.querySelector('label[for="api-enable"]');
-				apiEnableCheckboxInput.removeEventListener('click', apiEnableCheckboxInput.clickListener);
-				apiEnableCheckboxLabel.removeEventListener('click', apiEnableCheckboxLabel.clickListener);
-				apiEnableCheckboxInput.clickListener = apiEnableCheckboxLabel.clickListener = function() {
-					if (+apiEnableCheckboxInput.getAttribute('checked')) {
-						elements.removeClass('.api-enabled-container', 'hidden');
-					} else {
-						elements.addClass('.api-enabled-container', 'hidden');
-					}
-				};
-				apiEnableCheckboxInput.addEventListener('click', apiEnableCheckboxInput.clickListener);
-				apiEnableCheckboxLabel.addEventListener('click', apiEnableCheckboxLabel.clickListener);
 				elements.removeClass('.api-enabled-container', 'hidden');
 				elements.setAttribute('.api-enable', 'checked', +response.data.api_enable);
 				elements.setAttribute('.api-username', 'value', response.data.api_username);
@@ -34,37 +35,37 @@ var processApi = function(windowName, windowSelector) {
 		}
 	});
 };
-var processCopy = function(windowName, windowSelector) {
+var processCopy = function(frameName, frameSelector) {
 	previousAction = requestParameters.action;
 	var processCopyFormat = function() {
-		requestParameters.action = windowName;
-		elements.addClass(windowSelector + ' .copy', 'hidden');
-		elements.removeClass(windowSelector + ' .loading', 'hidden');
-		elements.setAttribute(windowSelector + ' .list-format select', 'disabled', 'disabled');
-		elements.loop(windowSelector + ' input, ' + windowSelector + ' select, ' + windowSelector + ' textarea', function(index, element) {
+		requestParameters.action = frameName;
+		elements.addClass(frameSelector + ' .copy', 'hidden');
+		elements.removeClass(frameSelector + ' .loading', 'hidden');
+		elements.setAttribute(frameSelector + ' .list-format select', 'disabled', 'disabled');
+		elements.loop(frameSelector + ' input, ' + frameSelector + ' select, ' + frameSelector + ' textarea', function(index, element) {
 			requestParameters.data[element.getAttribute('name')] = element.value;
 		});
 		requestParameters.items[requestParameters.table] = itemGrid;
 		sendRequest(function(response) {
-			document.querySelector(windowSelector + ' textarea[name="' + windowName + '"]').value = response.data;
-			elements.addClass(windowSelector + ' .loading', 'hidden');
-			elements.removeClass(windowSelector + ' .copy', 'hidden');
-			elements.removeAttribute(windowSelector + ' .list-format select', 'disabled');
+			document.querySelector(frameSelector + ' textarea[name="' + frameName + '"]').value = response.data;
+			elements.addClass(frameSelector + ' .loading', 'hidden');
+			elements.removeClass(frameSelector + ' .copy', 'hidden');
+			elements.removeAttribute(frameSelector + ' .list-format select', 'disabled');
 			requestParameters.action = previousAction;
 		});
 	};
-	elements.loop(windowSelector + ' select', function(index, element) {
+	elements.loop(frameSelector + ' select', function(index, element) {
 		element.removeEventListener('change', element.changeListener);
 		element.changeListener = function() {
 			processCopyFormat();
 		};
 		element.addEventListener('change', element.changeListener);
 	});
-	var itemsCopy = document.querySelector(windowSelector + ' .button.' + windowName);
+	var itemsCopy = document.querySelector(frameSelector + ' .button.' + frameName);
 	itemsCopy.removeEventListener('click', itemsCopy.clickListener);
 	itemsCopy.clickListener = function() {
 		document.querySelector('[name="copy"]').select();
-		document.execCommand(windowName);
+		document.execCommand(frameName);
 	};
 	itemsCopy.addEventListener('click', itemsCopy.clickListener);
 	processCopyFormat();
@@ -114,7 +115,7 @@ var processDowngrade = function() {
 		}
 
 		if (requestParameters.data.confirm_downgrade) {
-			closeWindows(defaultTable);
+			closeFrames(defaultTable);
 			document.querySelector('.order-name').innerHTML = response.data.downgraded.order.quantity_pending + ' ' + response.data.downgraded.order.name;
 			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 			requestParameters.action = 'fetch';
@@ -124,14 +125,14 @@ var processDowngrade = function() {
 		downgradeContainer.innerHTML = downgradeData;
 	});
 };
-var processGroup = function(windowName, windowSelector) {
+var processGroup = function(frameName, frameSelector) {
 	var groupGrid = {};
-	var groupNameButton = document.querySelector(windowSelector + ' .group-name-button');
-	var groupNameField = document.querySelector(windowSelector + ' .group-name-field');
-	var groupTable = document.querySelector(windowSelector + ' .group-table');
+	var groupNameButton = document.querySelector(frameSelector + ' .group-name-button');
+	var groupNameField = document.querySelector(frameSelector + ' .group-name-field');
+	var groupTable = document.querySelector(frameSelector + ' .group-table');
 	var orderId = document.querySelector('input[name="order_id"]').value;
 	var groupAdd = function(groupName) {
-		requestParameters.action = windowName;
+		requestParameters.action = frameName;
 		requestParameters.data.name = groupName;
 		requestParameters.data.order_id = orderId;
 		delete requestParameters.data.id;
@@ -141,17 +142,17 @@ var processGroup = function(windowName, windowSelector) {
 	};
 	var groupDelete = function(button, row) {
 		var groupId = row.getAttribute('group_id');
-		requestParameters.action = windowName;
+		requestParameters.action = frameName;
 		requestParameters.data.id = [groupId];
 		delete requestParameters.data.name;
 		sendRequest(function(response) {
-			delete groupGrid[windowName + groupId];
+			delete groupGrid[frameName + groupId];
 			processGroupTable(response);
 		});
 	};
 	var groupEdit = function(button, row) {
 		var processGroupEdit = function(row) {
-			requestParameters.action = windowName;
+			requestParameters.action = frameName;
 			requestParameters.data.id = row.getAttribute('group_id');
 			requestParameters.data.order_id = orderId;
 			requestParameters.data.name = row.querySelector('.group-name-edit-field').value;
@@ -161,7 +162,7 @@ var processGroup = function(windowName, windowSelector) {
 		};
 		var originalRow = row.querySelector('.table-text').innerHTML;
 		row.querySelector('.table-text').innerHTML = '<div class="field-group no-margin"><input class="group-name-edit-field no-margin" id="group-name-edit" name="group_name" type="text" value="' + row.querySelector('.view').innerText + '"><button class="button group-name-save-edit-button">Save</button><button class="button group-name-cancel-edit-button">Cancel</button></div>';
-		row = document.querySelector(windowSelector + ' tbody tr[group_id="' + row.getAttribute('group_id') + '"]');
+		row = document.querySelector(frameSelector + ' tbody tr[group_id="' + row.getAttribute('group_id') + '"]');
 		var groupNameCancelEditButton = row.querySelector('.group-name-cancel-edit-button');
 		var groupNameEditField = row.querySelector('.group-name-edit-field');
 		var groupNameSaveEditButton = row.querySelector('.group-name-save-edit-button');
@@ -185,7 +186,7 @@ var processGroup = function(windowName, windowSelector) {
 	};
 	var groupToggle = function(button) {
 		groupTable.setAttribute('current_checked', button.getAttribute('index'));
-		processGroupGrid(window.event.shiftKey ? range(groupTable.getAttribute('previous_checked'), button.getAttribute('index')) : [button.getAttribute('index')], window.event.shiftKey ? +document.querySelector(windowSelector + ' .checkbox[index="' + groupTable.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +button.getAttribute('checked') === 0);
+		processGroupGrid(window.event.shiftKey ? range(groupTable.getAttribute('previous_checked'), button.getAttribute('index')) : [button.getAttribute('index')], window.event.shiftKey ? +document.querySelector(frameSelector + ' .checkbox[index="' + groupTable.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +button.getAttribute('checked') === 0);
 		groupTable.setAttribute('previous_checked', button.getAttribute('index'));
 	};
 	var groupView = function(button, row) {
@@ -194,7 +195,7 @@ var processGroup = function(windowName, windowSelector) {
 		}
 
 		elements.addClass('.item-configuration .item-controls', 'hidden');
-		closeWindows(defaultTable);
+		closeFrames(defaultTable);
 		requestParameters.action = 'search';
 		requestParameters.data.groups = [button.getAttribute('group_id')];
 		requestParameters.table = 'proxies';
@@ -206,13 +207,13 @@ var processGroup = function(windowName, windowSelector) {
 	};
 	var processGroupGrid = function(groupIndexes, groupState) {
 		groupIndexes.map(function(groupIndex) {
-			var group = document.querySelector(windowSelector + ' .checkbox[index="' + groupIndex + '"]');
+			var group = document.querySelector(frameSelector + ' .checkbox[index="' + groupIndex + '"]');
 			var groupId = group.getAttribute('group_id');
 			group.setAttribute('checked', +groupState);
-			groupGrid[windowName + groupId] = groupId;
+			groupGrid[frameName + groupId] = groupId;
 
 			if (!+groupState) {
-				delete groupGrid[windowName + groupId];
+				delete groupGrid[frameName + groupId];
 			}
 		});
 		requestParameters.items[requestParameters.table] = groupGrid;
@@ -233,7 +234,7 @@ var processGroup = function(windowName, windowSelector) {
 		response.data.map(function(group, index) {
 			groupTable.querySelector('table tbody').innerHTML += '<tr group_id="' + group.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" group_id="' + group.id + '"></span></td><td><span class="table-text"><a class="view" group_id="' + group.id + '" href="javascript:void(0);">' + group.name + '</a></span><span class="table-actions"><span class="button edit icon" group_id="' + group.id + '"></span><span class="button delete icon" group_id="' + group.id + '"></span></span></td>';
 		});
-		elements.loop(windowSelector + ' tbody tr', function(index, row) {
+		elements.loop(frameSelector + ' tbody tr', function(index, row) {
 			var groupDeleteButton = row.querySelector('.delete'),
 				groupEditButton = row.querySelector('.edit'),
 				groupToggleButton = row.querySelector('.checkbox'),
@@ -261,11 +262,11 @@ var processGroup = function(windowName, windowSelector) {
 		});
 		groupNameField.value = '';
 		Object.entries(groupGrid).map(function(groupId) {
-			var group = document.querySelector(windowSelector + ' .checkbox[group_id="' + groupId[1] + '"]');
+			var group = document.querySelector(frameSelector + ' .checkbox[group_id="' + groupId[1] + '"]');
 			processGroupGrid([group.getAttribute('index')], true);
 		});
 	};
-	+elements.html('.total-checked') ? elements.removeClass(windowSelector + ' .submit', 'hidden') : elements.addClass(windowSelector + ' .submit', 'hidden');
+	+elements.html('.total-checked') ? elements.removeClass(frameSelector + ' .submit', 'hidden') : elements.addClass(frameSelector + ' .submit', 'hidden');
 	groupNameField.removeEventListener('keydown', groupNameField.keydownListener);
 	groupNameButton.removeEventListener('click', groupNameButton.clickListener);
 	groupNameField.keydownListener = function(event) {
@@ -328,7 +329,7 @@ var processOrder = function() {
 		}
 	});
 };
-var processProxies = function(windowName, windowSelector, currentPage) {
+var processProxies = function(frameName, frameSelector, currentPage) {
 	var currentPage = currentPage || 1;
 	var items = document.querySelector('.item-configuration .item-table');
 	var orderId = document.querySelector('input[name="order_id"]').value;
@@ -499,7 +500,7 @@ var processProxies = function(windowName, windowSelector, currentPage) {
 				itemsClear.clickListener = function() {
 					previousAction = 'fetch';
 					requestParameters.data = {};
-					closeWindows(defaultTable);
+					closeFrames(defaultTable);
 					itemGrid = [];
 					itemGridCount = 0;
 					processProxies(false, false, 1);

@@ -1,5 +1,5 @@
-<div class="hidden window-container" window="replace">
-	<div class="section window">
+<div class="hidden frame-container" frame="replace">
+	<div class="section frame">
 		<div class="item-container">
 			<div class="item">
 				<div class="replace-configuration">
@@ -58,11 +58,11 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button close main-button submit" process="proxies" window="replace">Apply Configuration</button>
+						<button class="button close main-button submit" frame="replace" process="proxies">Apply Configuration</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="window-overlay"></div>
+	<div class="frame-overlay"></div>
 </div>

@@ -4,13 +4,13 @@
 	);
 	require_once($config->settings['base_path'] . '/controllers/users.php');
 	require_once($config->settings['base_path'] . '/views/sections/header.php');
-	$windows = array(
+	$frames = array(
 		'email',
 		'remove'
 	);
 
-	foreach ($windows as $window) {
-		if (file_exists($file = $config->settings['base_path'] . '/views/sections/' . $window . '.php')) {
+	foreach ($frames as $frame) {
+		if (file_exists($file = $config->settings['base_path'] . '/views/sections/' . $frame . '.php')) {
 			require_once($file);
 		}
 	}

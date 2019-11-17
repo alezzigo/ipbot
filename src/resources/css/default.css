@@ -724,28 +724,28 @@ main {
 				cursor: default;
 				margin-top: 0;
 			}
-		.icon[window="api"] {
+		.icon[frame="api"] {
 			background: url('../images/icons/icon-api.png') center no-repeat;
 		}
-		.icon[window="authenticate"] {
+		.icon[frame="authenticate"] {
 			background: url('../images/icons/icon-authenticate.png') center no-repeat;
 		}
-		.icon[window="copy"] {
+		.icon[frame="copy"] {
 			background: url('../images/icons/icon-copy.png') center no-repeat;
 		}
-		.icon[window="downgrade"] {
+		.icon[frame="downgrade"] {
 			background: url('../images/icons/icon-downgrade.png') center no-repeat;
 		}
-		.icon[window="group"] {
+		.icon[frame="group"] {
 			background: url('../images/icons/icon-group.png') center no-repeat;
 		}
-		.icon[window="replace"] {
+		.icon[frame="replace"] {
 			background: url('../images/icons/icon-replace.png') center no-repeat;
 		}
-		.icon[window="search"] {
+		.icon[frame="search"] {
 			background: url('../images/icons/icon-search.png') center no-repeat;
 		}
-		.icon[window="upgrade"] {
+		.icon[frame="upgrade"] {
 			background: url('../images/icons/icon-upgrade.png') center no-repeat;
 		}
 		.icon.close,
@@ -753,18 +753,18 @@ main {
 		.icon.edit,
 		.icon.next,
 		.icon.previous,
-		.icon[window="api"],
-		.icon[window="authenticate"],
-		.icon[window="copy"],
-		.icon[window="downgrade"],
-		.icon[window="group"],
-		.icon[window="replace"],
-		.icon[window="search"],
-		.icon[window="upgrade"] {
+		.icon[frame="api"],
+		.icon[frame="authenticate"],
+		.icon[frame="copy"],
+		.icon[frame="downgrade"],
+		.icon[frame="group"],
+		.icon[frame="replace"],
+		.icon[frame="search"],
+		.icon[frame="upgrade"] {
 			background-size: 100% !important;
 		}
-		.icon[window="downgrade"],
-		.icon[window="upgrade"] {
+		.icon[frame="downgrade"],
+		.icon[frame="upgrade"] {
 			background-size: auto 100% !important;
 			width: 14px;
 		}
@@ -788,9 +788,9 @@ main {
 		background-size: 100% !important;
 		border-color: #7773e3;
 	}
-.window-container,
-.window-container .window,
-.window-container .window-overlay {
+.frame-container,
+.frame-container .frame,
+.frame-container .frame-overlay {
 	bottom: 0;
 	left: 0;
 	margin: auto;
@@ -798,26 +798,26 @@ main {
 	right: 0;
 	top: 0;
 }
-	.window-container {
+	.frame-container {
 		z-index: 1;
 	}
-		.window-container .window {
+		.frame-container .frame {
 			max-width: 492px;
 			z-index: 3;
 		}
-			.window-container .item-container {
+			.frame-container .item-container {
 				padding: 47px 0 88px;
 			}
-			.window-container .window .checkbox-container {
+			.frame-container .frame .checkbox-container {
 				float: left;
 				margin-bottom: 10px;
 				margin-top: 5px;
 			}
-				.window-container .window .checkbox-container .checkbox {
+				.frame-container .frame .checkbox-container .checkbox {
 					float: left;
 					margin-top: 3px;
 				}
-				.window-container .window .checkbox-container .custom-checkbox-label {
+				.frame-container .frame .checkbox-container .custom-checkbox-label {
 					box-sizing: border-box;
 					cursor: pointer;
 					float: none;
@@ -826,38 +826,38 @@ main {
 					line-height: 23px;
 					padding-left: 31px;
 				}
-					.window-container .window .checkbox-container .custom-checkbox-label:hover {
+					.frame-container .frame .checkbox-container .custom-checkbox-label:hover {
 						color: #7773e3;
 					}
-			.window-container .window .checkbox-option-container {
+			.frame-container .frame .checkbox-option-container {
 				margin-bottom: 18px;
 				padding-left: 32px;
 			}
-		.window-container .window-overlay {
+		.frame-container .frame-overlay {
 			z-index: 2;
 		}
-			.window-container .window .item-header {
+			.frame-container .frame .item-header {
 				border-top: none;
 				padding-top: 26px;
 				position: relative;
 			}
-				.window-container .window .item-header .icon-close {
+				.frame-container .frame .item-header .icon-close {
 					position: absolute;
 					right: 0;
 					top: 40px;
 					width: 32px;
 				}
-				.window-container .window .item-header h1 {
+				.frame-container .frame .item-header h1 {
 					margin: 4px 28px 8px 0;
 				}
-			.window-container .window .item-body {
+			.frame-container .frame .item-body {
 				padding: 30px 0;
 			}
-				.window-container .window .item-body .window-button {
+				.frame-container .frame .item-body .frame-button {
 					display: block;
 					width: 100%;
 				}
-			.window-container .window .item-footer {
+			.frame-container .frame .item-footer {
 				border-top: 1px solid #dddbf4;
 				padding-top: 34px;
 				position: relative;

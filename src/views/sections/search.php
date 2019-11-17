@@ -1,5 +1,5 @@
-<div class="hidden window-container" window="search">
-	<div class="section window">
+<div class="hidden frame-container" frame="search">
+	<div class="section frame">
 		<div class="item-container">
 			<div class="item">
 				<div class="search-configuration">
@@ -24,11 +24,11 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button close main-button submit" process="proxies" window="search">Search</button>
+						<button class="button close main-button submit" frame="search" process="proxies">Search</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="window-overlay"></div>
+	<div class="frame-overlay"></div>
 </div>

@@ -34,12 +34,12 @@ onLoad(function() {
 		});
 	}
 
-	selectAllElements('.window .button.close').map(function(element) {
+	selectAllElements('.frame .button.close').map(function(element) {
 		element[1].addEventListener('click', function(element) {
-			closeWindows(defaultTable);
+			closeFrames(defaultTable);
 		});
 	});
-	selectAllElements('.window .checkbox, .window label.custom-checkbox-label').map(function(element) {
+	selectAllElements('.frame .checkbox, .frame label.custom-checkbox-label').map(function(element) {
 		element[1].addEventListener('click', function(element) {
 			var hiddenField = document.querySelector('div[field="' + element.target.getAttribute('name') + '"]');
 			var item = document.querySelector('.checkbox[name="' + element.target.getAttribute('name') + '"]');
@@ -56,38 +56,38 @@ onLoad(function() {
 			}
 		});
 	});
-	selectAllElements('.button.window-button, .window .button.submit').map(function(element) {
+	selectAllElements('.button.frame-button, .frame .button.submit').map(function(element) {
 		element[1].addEventListener('click', function(element) {
+			var frameName = element.target.hasAttribute('frame') ? element.target.getAttribute('frame') : '';
+			var frameSelector = '.frame-container[frame="' + frameName + '"]';
 			var processName = element.target.hasAttribute('process') ? element.target.getAttribute('process') : '';
-			var windowName = element.target.hasAttribute('window') ? element.target.getAttribute('window') : '';
-			var windowSelector = '.window-container[window="' + windowName + '"]';
 
 			if (element.target.classList.contains('submit')) {
-				elements.loop(windowSelector + ' input, ' + windowSelector + ' select, ' + windowSelector + ' textarea', function(index, element) {
+				elements.loop(frameSelector + ' input, ' + frameSelector + ' select, ' + frameSelector + ' textarea', function(index, element) {
 					requestParameters.data[element.getAttribute('name')] = element.value;
 				});
-				elements.loop(windowSelector + ' .checkbox', function(index, element) {
+				elements.loop(frameSelector + ' .checkbox', function(index, element) {
 					requestParameters.data[element.getAttribute('name')] = +element.getAttribute('checked');
 				});
-				elements.loop(windowSelector + ' input[type="radio"]:checked', function(index, element) {
+				elements.loop(frameSelector + ' input[type="radio"]:checked', function(index, element) {
 					requestParameters.data[element.getAttribute('name')] = element.value;
 				});
 				previousAction = requestParameters.action;
-				requestParameters.action = windowName;
+				requestParameters.action = frameName;
 
-				if (windowName == 'search') {
+				if (frameName == 'search') {
 					itemGrid = [];
 					itemGridCount = 0;
 				}
-			} else if (windowName) {
-				closeWindows(defaultTable);
-				openWindow(windowName, windowSelector);
+			} else if (frameName) {
+				closeFrames(defaultTable);
+				openFrame(frameName, frameSelector);
 			}
 
 			var method = 'process' + capitalizeString(processName);
 
 			if (typeof window[method] === 'function') {
-				window[method](windowName, windowSelector);
+				window[method](frameName, frameSelector);
 			}
 
 			processWindowEvents('resize');
@@ -106,17 +106,17 @@ onLoad(function() {
 	}
 
 	if (window.location.hash) {
-		var windowMethod;
-		var windowName = replaceCharacter(window.location.hash, 0, '').toLowerCase();
-		var windowSelector = '.window-container[window="' + windowName + '"]';
+		var frameMethod;
+		var frameName = replaceCharacter(window.location.hash, 0, '').toLowerCase();
+		var frameSelector = '.frame-container[frame="' + frameName + '"]';
 
-		if (document.querySelector(windowSelector)) {
-			closeWindows(defaultTable);
-			openWindow(windowName, windowSelector);
-			windowMethod = 'process' + capitalizeString(windowName);
+		if (document.querySelector(frameSelector)) {
+			closeFrames(defaultTable);
+			openFrame(frameName, frameSelector);
+			frameMethod = 'process' + capitalizeString(frameName);
 
-			if (typeof window[windowMethod] === 'function') {
-				method = windowMethod;
+			if (typeof window[frameMethod] === 'function') {
+				method = frameMethod;
 			}
 		}
 	}

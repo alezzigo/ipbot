@@ -1,5 +1,5 @@
-<div class="hidden window-container" window="authenticate">
-	<div class="section window">
+<div class="hidden frame-container" frame="authenticate">
+	<div class="section frame">
 		<div class="item-container">
 			<div class="item">
 				<div class="authentication-configuration">
@@ -23,11 +23,11 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button close main-button submit" process="proxies" window="authenticate">Apply Configuration</button>
+						<button class="button close main-button submit" frame="authenticate" process="proxies">Apply Configuration</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="window-overlay"></div>
+	<div class="frame-overlay"></div>
 </div>

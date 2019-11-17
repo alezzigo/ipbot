@@ -1,5 +1,5 @@
-<div class="hidden window-container" window="group">
-	<div class="section window">
+<div class="hidden frame-container" frame="group">
+	<div class="section frame">
 		<div class="item-container">
 			<div class="item">
 				<div class="group-configuration">
@@ -19,11 +19,11 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button close hidden main-button submit" process="proxies" window="group">Add to Selected Groups</button>
+						<button class="button close hidden main-button submit" frame="group" process="proxies">Add to Selected Groups</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="window-overlay"></div>
+	<div class="frame-overlay"></div>
 </div>

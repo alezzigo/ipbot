@@ -1,5 +1,5 @@
-<div class="hidden window-container" window="downgrade">
-	<div class="section window">
+<div class="hidden frame-container" frame="downgrade">
+	<div class="section frame">
 		<div class="item-container">
 			<div class="item">
 				<div class="downgrade-configuration">
@@ -14,11 +14,11 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button main-button submit" process="downgrade" window="downgrade">Request Downgrade</button>
+						<button class="button main-button submit" process="downgrade" frame="downgrade">Confirm Order</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="window-overlay"></div>
+	<div class="frame-overlay"></div>
 </div>

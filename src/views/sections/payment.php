@@ -16,8 +16,8 @@
 		$yearSelectValues .= '<option value="' . $year . '">' . $year . '</option>';
 	}
 ?>
-<div class="hidden window-container" window="payment">
-	<div class="section window">
+<div class="hidden frame-container" frame="payment">
+	<div class="section frame">
 		<div class="item-container">
 			<div class="item">
 				<div class="search-configuration">
@@ -59,7 +59,7 @@
 							<div class="field-group">
 								<span>Month</span><select class="billing-cc-month" name="billing_cc_month"><?php echo $monthSelectValues; ?></select>
 								<span>Year</span><select class="billing-cc-year" name="billing_cc_year"><?php echo $yearSelectValues; ?></select>
-								<span>CVV Code</span><input class="billing-cc-code" name="billing_cc_code" type="number" placeholder="123">
+								<span>CVV Code</span><input class="billing-cc-code" name="billing_cc_code" type="number" placeholder="777">
 							</div>
 							<label for="billing-name">Billing Name</label>
 							<input class="billing-name" id="billing-name" name="billing_name" placeholder="Enter your full name" type="text">
@@ -90,12 +90,11 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<!--<button class="button main-button submit" process="payment" window="payment">Complete Payment</button>-->
-						<button class="button main-button submit" disabled process="payment" window="payment">Payment Disabled</button>
+						<button class="button main-button submit" frame="payment" process="payment">Complete Payment</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="window-overlay"></div>
+	<div class="frame-overlay"></div>
 </div>

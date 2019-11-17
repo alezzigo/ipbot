@@ -38,9 +38,9 @@ var browserDetails = function() {
 var capitalizeString = function(string) {
 	return string.charAt(0).toUpperCase() + string.substr(1);
 };
-var closeWindows = function(defaultTable) {
-	elements.addClass('.window-container', 'hidden');
-	elements.html('.window .message-container', '');
+var closeFrames = function(defaultTable) {
+	elements.addClass('.frame-container', 'hidden');
+	elements.html('.frame .message-container', '');
 	elements.removeClass('footer, header, main', 'hidden');
 	requestParameters.action = previousAction;
 	requestParameters.table = defaultTable;
@@ -83,9 +83,9 @@ var elements = {
 var onLoad = function(callback) {
 	document.readyState != 'complete' ? setTimeout('onLoad(' + callback + ')', 10) : callback();
 };
-var openWindow = function(windowName, windowSelector) {
+var openFrame = function(frameName, frameSelector) {
 	elements.addClass('footer, header, main', 'hidden');
-	elements.removeClass(windowSelector, 'hidden');
+	elements.removeClass(frameSelector, 'hidden');
 	window.scroll(0, 0);
 };
 var processWindowEvents = function(event) {

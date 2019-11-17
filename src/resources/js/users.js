@@ -222,11 +222,11 @@ var processUser = function() {
 		}
 	});
 };
-var processUsers = function(windowName, windowSelector) {
-	requestParameters.action = windowName;
+var processUsers = function(frameName, frameSelector) {
+	requestParameters.action = frameName;
 	requestParameters.table = 'users';
 	sendRequest(function(response) {
-		var messageContainer = document.querySelector('.' + windowName + ' .message-container');
+		var messageContainer = document.querySelector('.' + frameName + ' .message-container');
 
 		if (messageContainer) {
 			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');

@@ -4,12 +4,12 @@
 	);
 	require_once($config->settings['base_path'] . '/controllers/invoices.php');
 	require_once($config->settings['base_path'] . '/views/sections/invoice_header.php');
-	$windows = array(
+	$frames = array(
 		'payment'
 	);
 
-	foreach ($windows as $window) {
-		if (file_exists($file = $config->settings['base_path'] . '/views/sections/' . $window . '.php')) {
+	foreach ($frames as $frame) {
+		if (file_exists($file = $config->settings['base_path'] . '/views/sections/' . $frame . '.php')) {
 			require_once($file);
 		}
 	}
@@ -24,7 +24,7 @@
 						<div class="controls-container item-controls-container scrollable">
 							<div class="item-header">
 								<div class="hidden item-controls">
-									<a class="button main-button window-button" href="javascript:void(0);" window="payment">Pay Invoice</a>
+									<a class="button frame-button main-button" frame="payment" href="javascript:void(0);">Pay Invoice</a>
 									<a class="alternate-button button" href="<?php echo $config->settings['base_url']; ?>invoices">Back to Invoices</a>
 								</div>
 								<div class="clear"></div>

@@ -1,5 +1,5 @@
-<div class="hidden window-container" window="api">
-	<div class="section window">
+<div class="hidden frame-container" frame="api">
+	<div class="section frame">
 		<div class="item-container">
 			<div class="item">
 				<div class="api-configuration">
@@ -25,11 +25,11 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button close main-button submit" process="proxies" window="api">Apply Configuration</button>
+						<button class="button close main-button submit" frame="api" process="proxies">Apply Configuration</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="window-overlay"></div>
+	<div class="frame-overlay"></div>
 </div>

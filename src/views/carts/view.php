@@ -17,7 +17,7 @@
 								<div class="hidden item-controls">
 									<a class="button main-button checkout" href="/checkout">Checkout</a>
 									<span checked="0" class="align-left checkbox no-margin-left" index="all-visible"></span>
-									<span class="button icon delete hidden tooltip tooltip-bottom window-button" data-title="Delete item from cart" item-function process="delete"></span>
+									<span class="button icon delete frame-button hidden tooltip tooltip-bottom" data-title="Delete item from cart" item-function process="delete"></span>
 								</div>
 								<div class="clear"></div>
 								<p class="hidden item-controls no-margin-bottom">

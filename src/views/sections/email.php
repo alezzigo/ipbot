@@ -1,5 +1,5 @@
-<div class="hidden window-container" window="email">
-	<div class="section window">
+<div class="hidden frame-container" frame="email">
+	<div class="section frame">
 		<div class="item-container">
 			<div class="item">
 				<div class="change-email">
@@ -19,12 +19,12 @@
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
 						<span class="form-item">
-							<button class="button main-button submit" process="email" window="email">Confirm</button>
+							<button class="button main-button submit" frame="email" process="email">Confirm</button>
 						</span>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="window-overlay"></div>
+	<div class="frame-overlay"></div>
 </div>

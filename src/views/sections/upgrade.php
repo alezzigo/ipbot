@@ -1,5 +1,5 @@
-<div class="hidden window-container" window="upgrade">
-	<div class="section window">
+<div class="hidden frame-container" frame="upgrade">
+	<div class="section frame">
 		<div class="item-container">
 			<div class="item">
 				<div class="upgrade-configuration">
@@ -14,11 +14,11 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button main-button submit" process="upgrade" window="upgrade">Confirm Order</button>
+						<button class="button main-button submit" frame="upgrade" process="upgrade">Confirm Order</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="window-overlay"></div>
+	<div class="frame-overlay"></div>
 </div>

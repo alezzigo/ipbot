@@ -1,5 +1,5 @@
-<div class="hidden window-container" window="request-removal">
-	<div class="section window">
+<div class="hidden frame-container" frame="request-removal">
+	<div class="section frame">
 		<div class="item-container">
 			<div class="item">
 				<div class="request-removal">
@@ -17,12 +17,12 @@
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
 						<span class="form-item">
-							<button class="button main-button submit" process="remove" window="remove">Remove my account</button>
+							<button class="button main-button submit" frame="remove" process="remove">Remove my account</button>
 						</span>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="window-overlay"></div>
+	<div class="frame-overlay"></div>
 </div>

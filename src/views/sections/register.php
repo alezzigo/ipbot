@@ -1,5 +1,5 @@
-<div class="hidden window-container" window="register">
-	<div class="section window">
+<div class="hidden frame-container" frame="register">
+	<div class="section frame">
 		<div class="item-container">
 			<div class="item">
 				<div class="register">
@@ -15,15 +15,15 @@
 						<input class="password" id="register-password" name="password" type="password">
 						<label for="confirm_password">Confirm Password</label>
 						<input class="confirm-password" id="register-confirm-password" name="confirm_password" type="password">
-						<a class="button window-button" href="javascript:void(0);" window="login">Already have an account?</a>
+						<a class="button frame-button" frame="login" href="javascript:void(0);">Already have an account?</a>
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button main-button submit" disabled process="users" window="register">Registration Disabled</button>
+						<button class="button main-button submit" disabled process="users" frame="register">Registration Disabled</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="window-overlay"></div>
+	<div class="frame-overlay"></div>
 </div>

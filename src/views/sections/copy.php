@@ -1,5 +1,5 @@
-<div class="hidden window-container" window="copy">
-	<div class="section window">
+<div class="hidden frame-container" frame="copy">
+	<div class="section frame">
 		<div class="item-container">
 			<div class="item">
 				<div class="copy-configuration">
@@ -99,5 +99,5 @@
 			</div>
 		</div>
 	</div>
-	<div class="window-overlay"></div>
+	<div class="frame-overlay"></div>
 </div>

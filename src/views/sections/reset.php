@@ -1,5 +1,5 @@
-<div class="hidden window-container" window="reset">
-	<div class="section window">
+<div class="hidden frame-container" frame="reset">
+	<div class="section frame">
 		<div class="item-container">
 			<div class="item">
 				<div class="reset">
@@ -19,11 +19,11 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button main-button submit" process="reset" window="reset">Reset Password</button>
+						<button class="button main-button submit" frame="reset" process="reset">Reset Password</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="window-overlay"></div>
+	<div class="frame-overlay"></div>
 </div>

@@ -6,6 +6,23 @@ var itemGrid = [];
 var itemGridCount = 0;
 var messageContainer = document.querySelector('main .message-container');
 var previousAction = 'fetch';
+var processApi = function(windowName, windowSelector) {
+	requestParameters.action = 'list';
+	requestParameters.data.order_id = document.querySelector('input[name="order_id"]').value;
+	sendRequest(function(response) {
+		if (response.data) {
+			if (response.data.api_enable) {
+				elements.removeClass('.api-enabled-container', 'hidden');
+				elements.setAttribute('.api-enable', 'checked', +response.data.api_enable);
+				elements.setAttribute('.api-username', 'value', response.data.api_username);
+				elements.setAttribute('.api-password', 'value', response.data.api_password);
+				elements.html('.api-whitelisted-ips', response.data.api_whitelisted_ips);
+			}
+		}
+		// ..
+	});
+	// ..
+};
 var processCopy = function(windowName, windowSelector) {
 	previousAction = requestParameters.action;
 	var processCopyFormat = function() {

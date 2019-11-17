@@ -85,7 +85,6 @@ class AppModel extends Config {
  */
 	protected function _calculateItemShippingPrice($item) {
 		$response = 0.00;
-		// ..
 		return $response;
 	}
 
@@ -98,7 +97,6 @@ class AppModel extends Config {
  */
 	protected function _calculateItemTaxPrice($item) {
 		$response = 0.00;
-		// ..
 		return $response;
 	}
 

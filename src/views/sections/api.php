@@ -9,8 +9,17 @@
 					</div>
 					<div class="item-body">
 						<div class="checkbox-container">
-							<span checked="0" class="checkbox" id="enable-api" name="enable_api"></span>
-							<label class="custom-checkbox-label" for="enable-api" name="enable_api">Enable proxy API</label>
+							<span checked="0" class="api-enable checkbox" id="api-enable" name="api_enable"></span>
+							<label class="custom-checkbox-label" for="api-enable" name="api_enable">Enable proxy API</label>
+						</div>
+						<div class="api-enabled-container hidden">
+							<input class="hidden" name="confirm_api_settings" type="hidden" value="1">
+							<label for="api-username">Proxy Username</label>
+							<input class="api-username" id="api-username" name="api_username" placeholder="Between 4 and 15 characters" type="text">
+							<label for="api-password">Proxy Password</label>
+							<input class="api-password" id="api-password" name="api_password" placeholder="Between 4 and 15 characters" type="text">
+							<label for="api-whitelisted-ips">Whitelisted IPv4 Addresses</label>
+							<textarea class="api-whitelisted-ips" id="api-whitelisted-ips" name="api_whitelisted_ips" placeholder="<?php echo "127.0.0.1\n127.0.0.2\netc..." ?>" type="text"></textarea>
 						</div>
 						<div class="clear"></div>
 					</div>

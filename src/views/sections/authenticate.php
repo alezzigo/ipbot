@@ -15,7 +15,7 @@
 						<input class="password" id="password" name="password" placeholder="Between 4 and 15 characters" type="text">
 						<div class="checkbox-container">
 							<span checked="0" class="checkbox" id="generate-unique" name="generate_unique"></span>
-							<label class="custom-checkbox-label" for="generate-unique" name="generate_unique">Generate random unique usernames and passwords</label>
+							<label class="custom-checkbox-label" for="generate-unique" name="generate_unique">Generate Random Unique Usernames and Passwords</label>
 						</div>
 						<label for="whitelisted_ips">Whitelisted IPv4 Addresses</label>
 						<textarea class="whitelisted-ips" id="whitelisted-ips" name="whitelisted_ips" placeholder="<?php echo "127.0.0.1\n127.0.0.2\netc..." ?>" type="text"></textarea>

@@ -14,11 +14,11 @@
 						<textarea class="granular-search" id="granular-search" name="granular_search" placeholder="<?php echo "Enter list of specific proxy IPs to filter within your order\n127.0.0.1\n127.0.0.2\netc..."; ?>"></textarea>
 						<div class="checkbox-container">
 							<span checked="0" class="checkbox" id="exclude-search" name="exclude_search"></span>
-							<label class="custom-checkbox-label" for="exclude-search" name="exclude_search">Exclude proxies matching terms and filter</label>
+							<label class="custom-checkbox-label" for="exclude-search" name="exclude_search">Exclude Proxies Matching Terms and Filter</label>
 						</div>
 						<div class="checkbox-container no-margin-top">
 							<span checked="0" class="checkbox" id="match-all-search" name="match_all_search"></span>
-							<label class="custom-checkbox-label" for="match-all-search" name="match_all_search">Require all search terms to match proxy results</label>
+							<label class="custom-checkbox-label" for="match-all-search" name="match_all_search">Require All Search Terms to Match Proxy Results</label>
 						</div>
 						<div class="clear"></div>
 					</div>

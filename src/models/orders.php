@@ -160,27 +160,43 @@ class OrdersModel extends TransactionsModel {
 					)
 				);
 
-				if (isset($parameters['data']['api_enable'])) {
-					$orderData = array(
-						array(
-							'id' => $response['data']['id'],
-							'endpoint_enable' => $parameters['data']['endpoint_enable'],
-							'endpoint_password' => $parameters['data']['endpoint_password'],
-							'endpoint_username' => $parameters['data']['endpoint_username'],
-							'endpoint_whitelisted_ips' => $parameters['data']['endpoint_whitelisted_ips']
+				if (isset($parameters['data']['endpoint_enable'])) {
+					if (
+						(
+							!empty($parameters['data']['endpoint_username']) ||
+							!empty($parameters['data']['endpoint_password'])
+						) &&
+						(
+							empty($parameters['data']['endpoint_username']) ||
+							empty($parameters['data']['endpoint_password'])
 						)
-					);
-
-					if ($this->save('orders', $orderData)) {
-						$response['message'] = array(
-							'status' => 'success',
-							'text' => 'Order API endpoint settings applied successfully.'
-						);
-					} else {
+					) {
 						$response['message'] = array(
 							'status' => 'error',
-							'text' => $defaultMessage
+							'text' => 'Both username and password must be either set or empty.'
 						);
+					} else {
+						$orderData = array(
+							array(
+								'id' => $response['data']['id'],
+								'endpoint_enable' => $parameters['data']['endpoint_enable'],
+								'endpoint_password' => $parameters['data']['endpoint_password'],
+								'endpoint_username' => $parameters['data']['endpoint_username'],
+								'endpoint_whitelisted_ips' => $parameters['data']['endpoint_whitelisted_ips']
+							)
+						);
+
+						if ($this->save('orders', $orderData)) {
+							$response['message'] = array(
+								'status' => 'success',
+								'text' => 'Order API endpoint settings applied successfully.'
+							);
+						} else {
+							$response['message'] = array(
+								'status' => 'error',
+								'text' => $defaultMessage
+							);
+						}
 					}
 				}
 			}

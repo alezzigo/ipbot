@@ -149,6 +149,9 @@ class Config {
 				)
 			),
 			'orders' => array(
+				'endpoint' => array(
+					'fields' => $defaultFields['orders']
+				),
 				'fetch' => array(
 					'fields' => array_merge($defaultFields['orders'], array(
 						'created',
@@ -217,15 +220,6 @@ class Config {
 						'user_id'
 					),
 					'group' => 'user'
-				),
-				'list' => array(
-					'fields' => array_merge($defaultFields['proxies'], array(
-						'created',
-						'modified',
-						'next_replacement_available',
-						'replacement_removal_date',
-						'status'
-					))
 				),
 				'replace' => array(
 					'fields' => $defaultFields['proxies'],

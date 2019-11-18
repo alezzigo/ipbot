@@ -724,9 +724,6 @@ main {
 				cursor: default;
 				margin-top: 0;
 			}
-		.icon[frame="api"] {
-			background: url('../images/icons/icon-api.png') center no-repeat;
-		}
 		.icon[frame="authenticate"] {
 			background: url('../images/icons/icon-authenticate.png') center no-repeat;
 		}
@@ -735,6 +732,9 @@ main {
 		}
 		.icon[frame="downgrade"] {
 			background: url('../images/icons/icon-downgrade.png') center no-repeat;
+		}
+		.icon[frame="endpoint"] {
+			background: url('../images/icons/icon-endpoint.png') center no-repeat;
 		}
 		.icon[frame="group"] {
 			background: url('../images/icons/icon-group.png') center no-repeat;
@@ -753,10 +753,10 @@ main {
 		.icon.edit,
 		.icon.next,
 		.icon.previous,
-		.icon[frame="api"],
 		.icon[frame="authenticate"],
 		.icon[frame="copy"],
 		.icon[frame="downgrade"],
+		.icon[frame="endpoint"],
 		.icon[frame="group"],
 		.icon[frame="replace"],
 		.icon[frame="search"],

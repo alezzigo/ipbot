@@ -120,6 +120,76 @@ class OrdersModel extends TransactionsModel {
 	}
 
 /**
+ * Process API endpoint settings
+ *
+ * @param string $table
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	public function endpoint($table, $parameters = array()) {
+		$response = array(
+			'message' => array(
+				'status' => 'error',
+				'text' => ($defaultMessage = 'Error processing your API endpoint settings request, please try again.')
+			)
+		);
+
+		if (!empty($orderId = $parameters['data']['order_id'])) {
+			$order = $this->fetch('orders', array(
+				'conditions' => array(
+					'id' => $orderId,
+					'user_id' => $parameters['user']['id']
+				),
+				'fields' => array(
+					'id',
+					'endpoint_enable',
+					'endpoint_password',
+					'endpoint_username',
+					'endpoint_whitelisted_ips'
+				),
+				'limit' => 1
+			));
+
+			if (!empty($order['count'])) {
+				$response = array(
+					'data' => $order['data'][0],
+					'message'=> array(
+						'status' => 'success',
+						'text' => ''
+					)
+				);
+
+				if (isset($parameters['data']['api_enable'])) {
+					$orderData = array(
+						array(
+							'id' => $response['data']['id'],
+							'endpoint_enable' => $parameters['data']['endpoint_enable'],
+							'endpoint_password' => $parameters['data']['endpoint_password'],
+							'endpoint_username' => $parameters['data']['endpoint_username'],
+							'endpoint_whitelisted_ips' => $parameters['data']['endpoint_whitelisted_ips']
+						)
+					);
+
+					if ($this->save('orders', $orderData)) {
+						$response['message'] = array(
+							'status' => 'success',
+							'text' => 'Order API endpoint settings applied successfully.'
+						);
+					} else {
+						$response['message'] = array(
+							'status' => 'error',
+							'text' => $defaultMessage
+						);
+					}
+				}
+			}
+		}
+
+		return $response;
+	}
+
+/**
  * List orders
  *
  * @param string $table

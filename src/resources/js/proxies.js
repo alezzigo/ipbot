@@ -6,9 +6,11 @@ var itemGrid = [];
 var itemGridCount = 0;
 var messageContainer = document.querySelector('main .message-container');
 var previousAction = 'fetch';
-var processApi = function(frameName, frameSelector) {
-	requestParameters.action = 'list';
+var processEndpoint = function(frameName, frameSelector) {
+	requestParameters.action = 'endpoint';
 	requestParameters.data.order_id = document.querySelector('input[name="order_id"]').value;
+	requestParameters.table = 'orders';
+	requestParameters.url = '/api/orders';
 	sendRequest(function(response) {
 		if (messageContainer) {
 			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
@@ -16,28 +18,31 @@ var processApi = function(frameName, frameSelector) {
 		}
 
 		if (response.data) {
-			var apiEnableCheckboxInput = document.querySelector('.api-enable');
-			var apiEnableCheckboxLabel = document.querySelector('label[for="api-enable"]');
-			apiEnableCheckboxInput.removeEventListener('click', apiEnableCheckboxInput.clickListener);
-			apiEnableCheckboxLabel.removeEventListener('click', apiEnableCheckboxLabel.clickListener);
-			apiEnableCheckboxInput.clickListener = apiEnableCheckboxLabel.clickListener = function() {
-				if (+apiEnableCheckboxInput.getAttribute('checked')) {
-					elements.removeClass('.api-enabled-container', 'hidden');
+			var endpointEnableCheckboxInput = document.querySelector('.endpoint-enable');
+			var endpointEnableCheckboxLabel = document.querySelector('label[for="endpoint-enable"]');
+			endpointEnableCheckboxInput.removeEventListener('click', endpointEnableCheckboxInput.clickListener);
+			endpointEnableCheckboxLabel.removeEventListener('click', endpointEnableCheckboxLabel.clickListener);
+			endpointEnableCheckboxInput.clickListener = endpointEnableCheckboxLabel.clickListener = function() {
+				if (+endpointEnableCheckboxInput.getAttribute('checked')) {
+					elements.removeClass('.endpoint-enabled-container', 'hidden');
 				} else {
-					elements.addClass('.api-enabled-container', 'hidden');
+					elements.addClass('.endpoint-enabled-container', 'hidden');
 				}
 			};
-			apiEnableCheckboxInput.addEventListener('click', apiEnableCheckboxInput.clickListener);
-			apiEnableCheckboxLabel.addEventListener('click', apiEnableCheckboxLabel.clickListener);
+			endpointEnableCheckboxInput.addEventListener('click', endpointEnableCheckboxInput.clickListener);
+			endpointEnableCheckboxLabel.addEventListener('click', endpointEnableCheckboxLabel.clickListener);
 
 			if (response.data.api_enable) {
-				elements.removeClass('.api-enabled-container', 'hidden');
-				elements.setAttribute('.api-enable', 'checked', +response.data.api_enable);
-				elements.setAttribute('.api-username', 'value', response.data.api_username);
-				elements.setAttribute('.api-password', 'value', response.data.api_password);
-				elements.html('.api-whitelisted-ips', response.data.api_whitelisted_ips);
+				elements.removeClass('.endpoint-enabled-container', 'hidden');
+				elements.setAttribute('.endpoint-enable', 'checked', +response.data.api_enable);
+				elements.setAttribute('.endpoint-username', 'value', response.data.api_username);
+				elements.setAttribute('.endpoint-password', 'value', response.data.api_password);
+				elements.html('.endpoint-whitelisted-ips', response.data.api_whitelisted_ips);
 			}
 		}
+
+		requestParameters.table = defaultTable;
+		requestParameters.url = defaultUrl;
 	});
 };
 var processCopy = function(frameName, frameSelector) {

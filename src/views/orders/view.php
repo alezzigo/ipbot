@@ -5,10 +5,10 @@
 	require_once($config->settings['base_path'] . '/controllers/orders.php');
 	require_once($config->settings['base_path'] . '/views/sections/header.php');
 	$frames = array(
-		'api',
 		'authenticate',
 		'copy',
 		'downgrade',
+		'endpoint',
 		'group',
 		'replace',
 		'search'
@@ -42,11 +42,11 @@
 									<span checked="0" class="align-left checkbox no-margin-left" index="all-visible"></span>
 									<a class="button icon upgrade tooltip tooltip-bottom" data-title="Add more proxies to current order" href="<?php echo $config->settings['base_url'] . 'orders?' . $data['order_id'] . '#upgrade'; ?>" frame="upgrade"></a>
 									<span class="button frame-button icon tooltip tooltip-bottom" data-title="Downgrade current order to selected proxies" frame="downgrade" item-function process="downgrade"></span>
-									<span class="button frame-button icon tooltip tooltip-bottom" data-title="Configure proxy API settings" frame="api" process="api"></span>
+									<span class="button frame-button icon tooltip tooltip-bottom" data-title="Configure proxy API endpoint settings" frame="endpoint" process="endpoint"></span>
 									<span class="button frame-button icon tooltip tooltip-bottom" data-title="Proxy search and filter" frame="search"></span>
 									<span class="button frame-button icon tooltip tooltip-bottom" data-title="Manage proxy groups" frame="group" process="group"></span>
 									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Configure proxy replacement settings" frame="replace" item-function></span>
-									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Configure authentication settings" frame="authenticate" item-function></span>
+									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Configure proxy authentication settings" frame="authenticate" item-function></span>
 									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Copy selected proxies to clipboard" frame="copy" item-function process="copy"></span>
 								</div>
 								<div class="clear"></div>

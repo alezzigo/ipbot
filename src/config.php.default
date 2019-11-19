@@ -221,6 +221,9 @@ class Config {
 					),
 					'group' => 'user'
 				),
+				'list' => array(
+					'fields' => array()
+				),
 				'replace' => array(
 					'fields' => $defaultFields['proxies'],
 					'group' => 'user'

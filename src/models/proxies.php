@@ -740,6 +740,33 @@ class ProxiesModel extends OrdersModel {
 	}
 
 /**
+ * Process list requests
+ *
+ * @param string $table
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	public function list($table, $parameters = array()) {
+		$response = array(
+			'message' => array(
+				'status' => 'error',
+				'text' => ($defaultMessage = 'Error processing your API request, please try again.')
+			)
+		);
+
+		if (!empty($orderId = $parameters['data']['order_id'])) {
+			$response = $this->_authenticateEndpoint('orders', $parameters, array(
+				'id' => $orderId
+			));
+			// ..
+		}
+
+		// ..
+		return $response;
+	}
+
+/**
  * Process replace requests
  *
  * @param string $table

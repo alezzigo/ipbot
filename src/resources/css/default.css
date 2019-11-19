@@ -409,6 +409,7 @@ main {
 							box-sizing: border-box;
 							color: #fff;
 							line-height: 14px;
+							float: none;
 							font-size: 12px;
 							margin: 2px 0;
 							max-height: 101px;

@@ -13,17 +13,9 @@
 .no-padding-right { padding-right: 0 !important; }
 .no-padding-top { padding-top: 0 !important; }
 
-pre {
-	background: #f3f3fd;
-	border-left: 2px solid #dddbf4;
-	color: #8986ae;
-	font-size: 12px;
-	font-weight: 600;
-	padding: 8px 11px 7px;
-	white-space: initial;
-}
 body,
-html {
+html,
+pre {
 	background: #fff;
 	color: #8986ae;
 	font-family: helvetica, serif !important;
@@ -31,6 +23,23 @@ html {
 	line-height: 27px;
 	text-rendering: optimizeSpeed !important;
 }
+pre {
+	background: #f3f3fd;
+	border-left: 2px solid #dddbf4;
+	color: #8986ae;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 18px;
+	margin: 4px 0 13px 0;
+	padding: 8px 11px 7px;
+	white-space: pre;
+}
+	pre .highlight {
+		background: #fff;
+		display: block;
+		font-weight: 400;
+		width: 100%;
+	}
 a,
 body,
 button,
@@ -992,6 +1001,9 @@ main {
 }
 .field-group.proxy-list-type {
 	margin-right: 18px;
+}
+.endpoint-documentation {
+	padding-top: 7px;
 }
 @media (max-width: 480px) {
 	.field-group .billing-cc-code {

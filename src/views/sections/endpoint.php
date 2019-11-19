@@ -14,9 +14,9 @@
 						</div>
 						<div class="endpoint-enabled-container hidden">
 							<input class="hidden" name="confirm_endpoint_settings" type="hidden" value="1">
-							<label for="endpoint-username">Proxy Username</label>
+							<label for="endpoint-username">API Endpoint Username</label>
 							<input class="endpoint-username" id="endpoint-username" name="endpoint_username" placeholder="Between 4 and 15 characters" type="text">
-							<label for="endpoint-password">Proxy Password</label>
+							<label for="endpoint-password">API Endpoint Password</label>
 							<input class="endpoint-password" id="endpoint-password" name="endpoint_password" placeholder="Between 4 and 15 characters" type="text">
 							<label for="endpoint-whitelisted-ips">Whitelisted IPv4 Addresses</label>
 							<textarea class="endpoint-whitelisted-ips" id="endpoint-whitelisted-ips" name="endpoint_whitelisted_ips" placeholder="<?php echo "127.0.0.1\n127.0.0.2\netc..." ?>" type="text"></textarea>
@@ -32,9 +32,57 @@
 						<div class="clear"></div>
 						<a class="endpoint-show-documentation" href="javascript:void(0);">Show API documentation</a>
 						<div class="endpoint-documentation hidden">
+							<p>API endpoint URL:</p>
+							<pre>https://<?php echo $config->settings['base_domain'] . $config->settings['base_url'] . 'api/proxies'; ?></pre>
+							<p>POST JSON request object for proxy retrieval:</p>
 							<pre>
-								// ..
-							</pre>
+{
+	action: "list",
+	data: {
+		order_id: <?php echo $data['order_id']; ?>,
+		password: "YOUR_PASSWORD",
+		username: "YOUR_USERNAME"
+	},
+	table: "proxies"
+}</pre>
+							<p>JSON response:</p>
+							<pre>
+{
+	data: {
+		proxies: {
+			count: 100,
+			data: [
+				{
+					asn: "AS88888 ISP Communications",
+					automatic_replacement_interval_type: "month",
+					automatic_replacement_interval_value: 1,
+					city: "California",
+					country_code: "US",
+					country_name: "United States",
+					disable_http: 0,
+					http_port: 80,
+					id: 886,
+					ip: "10.3.3.7",
+					isp: "ISP Communications",
+					last_replacement_date: <?php echo date('Y-m-d H:i:s', time()); ?>,
+					next_replacement_available: <?php echo date('Y-m-d H:i:s', strtotime('+1 week')); ?>,
+					node_id: 189,
+					order_id: <?php echo $data['order_id']; ?>,
+					password: "YOUR_PROXY_PASSWORD",
+					region: "New York",
+					replacement_removal_date: null,
+					require_authentication: 1,
+					status: "online",
+					transfer_authentication: 0,
+					user_id: 1,
+					username: "YOUR_PROXY_USERNAME",
+					whitelisted_ips: "127.0.0.1, 127.0.0.2"
+				},
+				// ..
+			]
+		}
+	}
+}</pre>
 						</div>
 					</div>
 					<div class="item-footer">

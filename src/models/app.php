@@ -366,9 +366,13 @@ class AppModel extends Config {
  * @return array $response
  */
 	protected function _parseIps($ips = array(), $subnets = false) {
+		if (!is_array($ips)) {
+			$ips = array_filter(preg_split("/[](\r\n|\n|\r) <>()~{}|`\"'=?!*&@#$+,[;:_-]/", $ips));
+		}
+
 		$ips = implode("\n", array_map(function($ip) {
 			return trim($ip, '.');
-		}, array_filter(preg_split("/[](\r\n|\n|\r) <>()~{}|`\"'=?!*&@#$+,[;:_-]/", $ips))));
+		}, $ips));
 		$ips = $this->_validateIps($ips, $subnets);
 		$response = explode("\n", $ips);
 		return $response;

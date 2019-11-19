@@ -24,7 +24,7 @@
 								<span checked="1" class="endpoint-require-authentication checkbox" id="endpoint-require-authentication" name="endpoint_require_authentication"></span>
 								<label class="custom-checkbox-label" for="endpoint-require-authentication" name="endpoint_require_authentication">Require Authentication</label>
 							</div>
-							<div class="checkbox-container">
+							<div class="checkbox-container no-margin-top">
 								<span checked="0" class="endpoint-require-match checkbox" id="endpoint-require-match" name="endpoint_require_match"></span>
 								<label class="custom-checkbox-label" for="endpoint-require-match" name="endpoint_require_match">Require Both Username/Password and Whitelisted IPs to Match</label>
 							</div>

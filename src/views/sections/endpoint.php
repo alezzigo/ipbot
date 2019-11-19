@@ -32,7 +32,9 @@
 						<div class="clear"></div>
 						<a class="endpoint-show-documentation" href="javascript:void(0);">Show API documentation</a>
 						<div class="endpoint-documentation hidden">
-							// ..
+							<pre>
+								// ..
+							</pre>
 						</div>
 					</div>
 					<div class="item-footer">

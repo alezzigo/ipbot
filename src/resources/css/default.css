@@ -13,6 +13,15 @@
 .no-padding-right { padding-right: 0 !important; }
 .no-padding-top { padding-top: 0 !important; }
 
+pre {
+	background: #f3f3fd;
+	border-left: 2px solid #dddbf4;
+	color: #8986ae;
+	font-size: 12px;
+	font-weight: 600;
+	padding: 8px 11px 7px;
+	white-space: initial;
+}
 body,
 html {
 	background: #fff;

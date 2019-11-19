@@ -30,6 +30,10 @@
 							</div>
 						</div>
 						<div class="clear"></div>
+						<a class="endpoint-show-documentation" href="javascript:void(0);">Show API documentation</a>
+						<div class="endpoint-documentation hidden">
+							// ..
+						</div>
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>

@@ -65,6 +65,88 @@ class AppModel extends Config {
 	}
 
 /**
+ * Authenticate public API endpoint requests
+ *
+ * @param string $table
+ * @param array $parameters
+ * @param array $conditions
+ *
+ * @return array $response
+ */
+	protected function _authenticateEndpoint($table, $parameters, $conditions = array()) {
+		$response = array(
+			'message' => array(
+				'status' => 'error',
+				'text' => ($defaultMessage = 'Error authenticating your API request, please try again.')
+			)
+		);
+
+		if (!empty($conditions)) {
+			$endpointSettings = $this->fetch($table, array(
+				'conditions' => $conditions,
+				'fields' => array(
+					'id',
+					'endpoint_enable',
+					'endpoint_password',
+					'endpoint_require_authentication',
+					'endpoint_require_match',
+					'endpoint_username',
+					'endpoint_whitelisted_ips'
+				),
+				'limit' => 1
+			));
+
+			if (!empty($endpointSettings['count'])) {
+				if (empty($endpointSettings['data'][0]['endpoint_enable'])) {
+					$response['message']['text'] = 'API endpoint is deactivated.';
+				} else {
+					$response['message']['status'] = 'success';
+
+					if (!empty($endpointSettings['data'][0]['endpoint_require_authentication'])) {
+						$response['message'] = array(
+							'status' => 'error',
+							'text' => 'API endpoint authentication required, please try again.'
+						);
+
+						if (
+							(
+								!empty($parameters['data']['authentication']['username']) &&
+								!empty($parameters['data']['authentication']['password'])
+							) &&
+							(
+								$parameters['data']['authentication']['username'] === $endpointSettings['data'][0]['endpoint_username'] &&
+								$parameters['data']['authentication']['password'] === $endpointSettings['data'][0]['endpoint_password']
+							)
+						) {
+							$response['message']['status'] = 'success';
+						}
+
+						if (
+							$response['message']['status'] === 'error' ||
+							$endpointSettings['data'][0]['endpoint_require_match']
+						) {
+							$whitelistedIps = explode("\n", $endpointSettings['data'][0]['endpoint_whitelisted_ips']);
+
+							if (!in_array($_SERVER['REMOTE_ADDR'], $whitelistedIps)) {
+								$response['message'] = array(
+									'status' => 'error',
+									'text' => ($endpointSettings['data'][0]['endpoint_require_match'] ? 'Both username/password and ' : '') . 'IP address ' . $_SERVER['REMOTE_ADDR'] . ' must be authenticated. Please check your API endpoint settings and try again.'
+								);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if ($response['message']['status'] === 'success') {
+			$response['message']['text'] = 'API endpoint authenticated successfully.';
+		}
+
+		return $response;
+	}
+
+/**
  * Calculate item price
  *
  * @param array $item

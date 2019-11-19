@@ -52,8 +52,43 @@ class ProxiesModel extends OrdersModel {
 			)
 		);
 
-		if (empty($parameters['items'][$table]['count'])) {
-			$response['message']['text'] = 'There are no ' . $table . ' selected to authenticate.';
+		if (
+			!is_array($parameters['items'][$table]['data']) ||
+			empty($parameters['items'][$table]['data'])
+		) {
+			$response['message']['text'] = 'There are no ' . $table . ' selected to ' . $parameters['action'] . '.';
+
+			if (
+				!empty($orderId = $parameters['data']['order_id']) &&
+				!empty($parameters['data']['items'])
+			) {
+				$response = $this->_authenticateEndpoint('orders', $parameters, array(
+					'id' => $orderId
+				));
+
+				if ($response['message']['status'] === 'success') {
+					$response['message'] = array(
+						'status' => 'error',
+						'text' => 'There aren\'t any ' . $table . ' available to ' . $parameters['action'] . ', please log in and check your order at ' . $this->settings['base_domain'] . $this->settings['base_url'] . 'orders/' . $orderId . '.'
+					);
+					$proxyConditions = array(
+						'id' => $parameters['data']['items'],
+						'order_id' => $orderId
+					);
+					$proxies = $this->fetch('proxies', array(
+						'conditions' => $proxyConditions,
+						'fields' => array(
+							'id'
+						)
+					));
+
+					if (!empty($proxies['count'])) {
+						$parameters['conditions'] = $proxyConditions;
+						$parameters['items'][$table]['data'] = $proxies['data'];
+						$response = $this->authenticate($table, $parameters);
+					}
+				}
+			}
 		} else {
 			$proxies = $parameters['items'][$table]['data'];
 
@@ -139,7 +174,7 @@ class ProxiesModel extends OrdersModel {
 						if ($this->save('proxies', $proxies)) {
 							$response['message'] = array(
 								'status' => 'success',
-								'text' => 'Authentication saved successfully'
+								'text' => 'Authentication saved successfully.'
 							);
 						}
 					}
@@ -763,7 +798,7 @@ class ProxiesModel extends OrdersModel {
 			if ($response['message']['status'] === 'success') {
 				$response['message'] = array(
 					'status' => 'error',
-					'text' => 'There aren\'t any proxies available to retrieve, please log in and check your order at ' . $this->settings['base_domain'] . $this->settings['base_url'] . 'orders/' . $orderId . '.'
+					'text' => 'There aren\'t any ' . $table . ' available to ' . $parameters['action'] . ', please log in and check your order at ' . $this->settings['base_domain'] . $this->settings['base_url'] . 'orders/' . $orderId . '.'
 				);
 				$proxies = $this->fetch('proxies', array(
 					'conditions' => array(
@@ -1096,7 +1131,7 @@ class ProxiesModel extends OrdersModel {
 		$response = array(
 			'message' => array(
 				'status' => 'error',
-				'text' => 'There aren\'t any new replaced proxies to remove, please try again later.'
+				'text' => 'There aren\'t any new replaced ' . $table . ' to remove, please try again later.'
 			)
 		);
 		$proxies = $this->fetch('proxies', array(
@@ -1152,7 +1187,7 @@ class ProxiesModel extends OrdersModel {
 		$response = array(
 			'message' => array(
 				'status' => 'error',
-				'text' => 'There aren\'t any new scheduled proxies to replace, please try again later.'
+				'text' => 'There aren\'t any new scheduled ' . $table . ' to replace, please try again later.'
 			)
 		);
 		$intervalTypes = array(

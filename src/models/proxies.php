@@ -759,10 +759,58 @@ class ProxiesModel extends OrdersModel {
 			$response = $this->_authenticateEndpoint('orders', $parameters, array(
 				'id' => $orderId
 			));
-			// ..
+
+			if ($response['message']['status'] === 'success') {
+				$response['message'] = array(
+					'status' => 'error',
+					'text' => 'There aren\'t any proxies available to retrieve, please log in and check your order at ' . $this->settings['base_domain'] . $this->settings['base_url'] . 'orders/' . $orderId . '.'
+				);
+				$proxies = $this->fetch('proxies', array(
+					'conditions' => array(
+						'order_id' => $orderId
+					),
+					'fields' => array(
+						'asn',
+						'automatic_replacement_interval_type',
+						'automatic_replacement_interval_value',
+						'city',
+						'country_code',
+						'country_name',
+						'disable_http',
+						'http_port',
+						'id',
+						'ip',
+						'isp',
+						'last_replacement_date',
+						'next_replacement_available',
+						'node_id',
+						'order_id',
+						'password',
+						'region',
+						'replacement_removal_date',
+						'require_authentication',
+						'status',
+						'transfer_authentication',
+						'user_id',
+						'username',
+						'whitelisted_ips'
+					)
+				));
+
+				if (!empty($proxies['count'])) {
+					$response = array(
+						'data' => array(
+							$table => $proxies
+						),
+						'message' => array(
+							'status' => 'success',
+							'text' => $proxies['count'] . ' ' . $table  . ' retrieved successfully.'
+						)
+					);
+				}
+			}
 		}
 
-		// ..
 		return $response;
 	}
 

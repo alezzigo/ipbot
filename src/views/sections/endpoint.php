@@ -34,18 +34,20 @@
 						<div class="endpoint-documentation hidden">
 							<p>API endpoint URL:</p>
 							<pre>https://<?php echo $config->settings['base_domain'] . $config->settings['base_url'] . 'api/proxies'; ?></pre>
-							<p>POST JSON request object for proxy retrieval:</p>
-							<pre>
+							<p>Request JSON object for retrieving proxies:</p>
+							<pre>POST
 {
 	action: "list",
 	data: {
-		order_id: <?php echo $data['order_id']; ?>,
-		password: "YOUR_PASSWORD",
-		username: "YOUR_USERNAME"
+		authentication: {
+			password: "API_PASSWORD",
+			username: "API_USERNAME"
+		},
+		order_id: <?php echo $data['order_id']; ?>
 	},
 	table: "proxies"
 }</pre>
-							<p>JSON response:</p>
+							<p>Response JSON object:</p>
 							<pre>
 {
 	data: {
@@ -56,7 +58,7 @@
 					asn: "AS88888 ISP Communications",
 					automatic_replacement_interval_type: "month",
 					automatic_replacement_interval_value: 1,
-					city: "California",
+					city: "Ventura",
 					country_code: "US",
 					country_name: "United States",
 					disable_http: 0,
@@ -68,21 +70,137 @@
 					next_replacement_available: <?php echo date('Y-m-d H:i:s', strtotime('+1 week')); ?>,
 					node_id: 189,
 					order_id: <?php echo $data['order_id']; ?>,
-					password: "YOUR_PROXY_PASSWORD",
-					region: "New York",
+					password: "PROXY_PASSWORD",
+					region: "California",
 					replacement_removal_date: null,
 					require_authentication: 1,
 					status: "online",
 					transfer_authentication: 0,
 					user_id: 1,
-					username: "YOUR_PROXY_USERNAME",
-					whitelisted_ips: "127.0.0.1, 127.0.0.2"
+					username: "PROXY_USERNAME",
+					whitelisted_ips: "127.0.0.1
+127.0.0.2"
 				},
 				// ..
 			]
 		}
 	}
 }</pre>
+							<p>Request JSON object for configuring proxy authentication settings:</p>
+							<pre>POST
+{
+	action: "authenticate",
+	data: {
+		authentication: {
+			password: "API_PASSWORD",
+			username: "API_USERNAME"
+		},
+		generate_unique: false,
+		items: [
+			100,
+			101,
+			// List of proxy IDs
+		],
+		order_id: <?php echo $data['order_id']; ?>,
+		password: "NEW_PROXY_PASSWORD",
+		username: "NEW_PROXY_USERNAME",
+		whitelisted_ips: [
+			"127.0.0.1",
+			// ..
+		]
+	},
+	table: "proxies"
+}</pre>
+							<p>Response JSON object:</p>
+							<pre>
+{
+	data: {
+		proxies: {
+			count: 10,
+			data: [
+				{
+					asn: "AS88888 ISP Communications",
+					city: "Ventura",
+					country_code: "US",
+					country_name: "United States",
+					disable_http: 0,
+					http_port: 80,
+					id: 886,
+					ip: "10.3.3.7",
+					isp: "ISP Communications",
+					order_id: <?php echo $data['order_id']; ?>,
+					password: "NEW_PROXY_PASSWORD",
+					region: "California",
+					status: "online",
+					transfer_authentication: 0,
+					user_id: 1,
+					username: "NEW_PROXY_USERNAME",
+					whitelisted_ips: "127.0.0.1
+127.0.0.2"
+				},
+				// ..
+			]
+		}
+	}
+}
+</pre>
+							<p>Request JSON object for configuring proxy replacement settings:</p>
+							<pre>POST
+{
+	action: "replace",
+	data: {
+		authentication: {
+			password: "API_PASSWORD",
+			username: "API_USERNAME"
+		},
+		automatic_replacement_interval_type: "week", // week|month
+		automatic_replacement_interval_value: 1,
+		enable_automatic_replacements: false,
+		instant_replacement: true,
+		items: [
+			100,
+			101,
+			// List of proxy IDs
+		],
+		order_id: <?php echo $data['order_id']; ?>,
+		transfer_authentication: true
+	},
+	table: "proxies"
+}
+</pre>
+							<p>Response JSON object:</p>
+							<pre>
+{
+	data: {
+		proxies: {
+			count: 7,
+			data: [
+				{
+					asn: "AS88888 ISP Communications",
+					city: "Ventura",
+					country_code: "US",
+					country_name: "United States",
+					disable_http: 0,
+					http_port: 80,
+					id: 886,
+					ip: "10.3.3.7",
+					isp: "ISP Communications",
+					order_id: <?php echo $data['order_id']; ?>,
+					password: "PROXY_PASSWORD",
+					region: "California",
+					status: "replaced",
+					transfer_authentication: 0,
+					user_id: 1,
+					username: "PROXY_USERNAME",
+					whitelisted_ips: "127.0.0.1
+127.0.0.2"
+				},
+				// ..
+			]
+		}
+	}
+}
+</pre>
 						</div>
 					</div>
 					<div class="item-footer">

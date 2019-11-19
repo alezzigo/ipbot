@@ -83,6 +83,7 @@ class ProxiesModel extends OrdersModel {
 								'conditions' => $response['conditions'],
 								'items' => array(
 									$table => array(
+										'count' => count($response['items']),
 										'data' => $response['items']
 									)
 								)
@@ -857,10 +858,11 @@ class ProxiesModel extends OrdersModel {
  *
  * @param string $table
  * @param array $parameters
+ * @param boolean $endpoint
  *
  * @return array $response
  */
-	public function replace($table, $parameters) {
+	public function replace($table, $parameters, $endpoint = false) {
 		$response = array(
 			'message' => array(
 				'status' => 'error',
@@ -899,11 +901,12 @@ class ProxiesModel extends OrdersModel {
 								'conditions' => $response['conditions'],
 								'items' => array(
 									$table => array(
+										'count' => count($response['items']),
 										'data' => $response['items']
 									)
 								)
 							));
-							$response = $this->$action($table, $parameters);
+							$response = $this->$action($table, $parameters, true);
 						}
 					}
 				}
@@ -1010,7 +1013,10 @@ class ProxiesModel extends OrdersModel {
 								unset($processingNodes['data'][$key]['processing']);
 							}
 
-							if ($parameters['tokens'][$table] === $this->_getToken($table, $parameters, 'order_id', $orderId)) {
+							if (
+								$endpoint ||
+								$parameters['tokens'][$table] === $this->_getToken($table, $parameters, 'order_id', $orderId)
+							) {
 								if (!empty($parameters['data']['transfer_authentication'])) {
 									$oldItemAuthentication = $this->fetch($table, array(
 										'conditions' => array(

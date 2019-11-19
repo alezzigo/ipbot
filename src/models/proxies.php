@@ -67,25 +67,28 @@ class ProxiesModel extends OrdersModel {
 				));
 
 				if ($response['message']['status'] === 'success') {
-					$response['message'] = array(
-						'status' => 'error',
-						'text' => 'There aren\'t any ' . $table . ' available to ' . $parameters['action'] . ', please log in and check your order at ' . $this->settings['base_domain'] . $this->settings['base_url'] . 'orders/' . $orderId . '.'
-					);
-					$proxyConditions = array(
+					$response = $this->_processEndpointRequest($table, $parameters, array(
 						'id' => $parameters['data']['items'],
 						'order_id' => $orderId
-					);
-					$proxies = $this->fetch('proxies', array(
-						'conditions' => $proxyConditions,
-						'fields' => array(
-							'id'
-						)
 					));
 
-					if (!empty($proxies['count'])) {
-						$parameters['conditions'] = $proxyConditions;
-						$parameters['items'][$table]['data'] = $proxies['data'];
-						$response = $this->authenticate($table, $parameters);
+					if ($response['message']['status'] === 'success') {
+						$response['message'] = array(
+							'status' => 'error',
+							'text' => 'Invalid API endpoint request action "' . $action . '", please try again.'
+						);
+
+						if (method_exists($this, ($action = $parameters['action']))) {
+							$parameters = array_merge($parameters, array(
+								'conditions' => $response['conditions'],
+								'items' => array(
+									$table => array(
+										'data' => $response['items']
+									)
+								)
+							));
+							$response = $this->$action($table, $parameters);
+						}
 					}
 				}
 			}
@@ -866,9 +869,46 @@ class ProxiesModel extends OrdersModel {
 		);
 
 		if (
-			!empty($parameters['items'][$table]['count']) &&
-			is_array($parameters['items'][$table]['data'])
+			!is_array($parameters['items'][$table]['data']) ||
+			empty($parameters['items'][$table]['data'])
 		) {
+			$response['message']['text'] = 'There are no ' . $table . ' selected to ' . $parameters['action'] . '.';
+
+			if (
+				!empty($orderId = $parameters['data']['order_id']) &&
+				!empty($parameters['data']['items'])
+			) {
+				$response = $this->_authenticateEndpoint('orders', $parameters, array(
+					'id' => $orderId
+				));
+
+				if ($response['message']['status'] === 'success') {
+					$response = $this->_processEndpointRequest($table, $parameters, array(
+						'id' => $parameters['data']['items'],
+						'order_id' => $orderId
+					));
+
+					if ($response['message']['status'] === 'success') {
+						$response['message'] = array(
+							'status' => 'error',
+							'text' => 'Invalid API endpoint request action "' . $action . '", please try again.'
+						);
+
+						if (method_exists($this, ($action = $parameters['action']))) {
+							$parameters = array_merge($parameters, array(
+								'conditions' => $response['conditions'],
+								'items' => array(
+									$table => array(
+										'data' => $response['items']
+									)
+								)
+							));
+							$response = $this->$action($table, $parameters);
+						}
+					}
+				}
+			}
+		} else {
 			$response['message']['text'] = 'There was an error applying the replacement settings to your ' . $table . ', please try again.';
 			$newItemData = $oldItemData = array(
 				'automatic_replacement_interval_value' => 0,

@@ -121,8 +121,13 @@ var processEndpoint = function(frameName, frameSelector) {
 			};
 			endpointEnableCheckboxInput.addEventListener('click', endpointEnableCheckboxInput.clickListener);
 			endpointEnableCheckboxLabel.addEventListener('click', endpointEnableCheckboxLabel.clickListener);
+			elements.addClass('.endpoint-enabled-container', 'hidden');
 
-			if (response.data.endpoint_enable) {
+			if (typeof response.data.endpoint_enable !== 'undefined') {
+				if (response.data.endpoint_enable) {
+					elements.removeClass('.endpoint-enabled-container', 'hidden');
+				}
+
 				var endpointShowDocumentation = document.querySelector('.endpoint-show-documentation');
 				endpointShowDocumentation.removeEventListener('click', endpointShowDocumentation.clickListener);
 				endpointShowDocumentation.clickListener = function() {
@@ -132,7 +137,6 @@ var processEndpoint = function(frameName, frameSelector) {
 					}
 				};
 				endpointShowDocumentation.addEventListener('click', endpointShowDocumentation.clickListener);
-				elements.removeClass('.endpoint-enabled-container', 'hidden');
 				elements.setAttribute('.endpoint-enable', 'checked', +response.data.endpoint_enable);
 				elements.setAttribute('.endpoint-password', 'value', response.data.endpoint_password);
 				elements.setAttribute('.endpoint-require-authentication', 'checked', +response.data.endpoint_require_authentication);

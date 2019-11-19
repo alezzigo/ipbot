@@ -34,12 +34,6 @@ pre {
 	padding: 8px 11px 7px;
 	white-space: pre;
 }
-	pre .highlight {
-		background: #fff;
-		display: block;
-		font-weight: 400;
-		width: 100%;
-	}
 a,
 body,
 button,

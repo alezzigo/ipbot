@@ -52,6 +52,11 @@ var elements = {
 			element[1].classList.add(className);
 		});
 	},
+	hasClass: function(selector, className) {
+		return !selectAllElements(selector).map(function(element) {
+			return element[1].classList.contains(className) ? '' : 1;
+		}).join('');
+	},
 	html: function(selector, value) {
 		return selectAllElements(selector).map(function(element) {
 			return typeof value !== 'undefined' ? element[1].innerHTML = value : element[1].innerHTML;

@@ -472,6 +472,46 @@ class AppModel extends Config {
 	}
 
 /**
+ * Process public API endpoint requests
+ *
+ * @param string $table
+ * @param array $parameters
+ * @param array $conditions
+ *
+ * @return array $response
+ */
+	protected function _processEndpointRequest($table, $parameters, $conditions = array()) {
+		$response = array(
+			'message' => array(
+				'status' => 'error',
+				'text' => 'There aren\'t any ' . $table . ' available to ' . $parameters['action'] . ', please log in and check your order at ' . $this->settings['base_domain'] . $this->settings['base_url'] . 'orders/' . $orderId . '.'
+			)
+		);
+
+		if (!empty($conditions)) {
+			$items = $this->fetch($table, array(
+				'conditions' => $conditions,
+				'fields' => array(
+					'id'
+				)
+			));
+
+			if (!empty($items['count'])) {
+				$response = array(
+					'conditions' => $conditions,
+					'message' => array(
+						'status' => 'success',
+						'text' => 'API endpoint items retrieved successfully.'
+					),
+					'items' => $items['data']
+				);
+			}
+		}
+
+		return $response;
+	}
+
+/**
  * Construct and execute database queries
  *
  * @param string $query

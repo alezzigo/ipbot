@@ -20,6 +20,10 @@
 							<input class="endpoint-password" id="endpoint-password" name="endpoint_password" placeholder="Between 4 and 15 characters" type="text">
 							<label for="endpoint-whitelisted-ips">Whitelisted IPv4 Addresses</label>
 							<textarea class="endpoint-whitelisted-ips" id="endpoint-whitelisted-ips" name="endpoint_whitelisted_ips" placeholder="<?php echo "127.0.0.1\n127.0.0.2\netc..." ?>" type="text"></textarea>
+							<div class="checkbox-container">
+								<span checked="0" class="endpoint-require-match checkbox" id="endpoint-require-match" name="endpoint_require_match"></span>
+								<label class="custom-checkbox-label" for="endpoint-require-match" name="endpoint_require_match">Require Both Username/Password and Whitelisted IPs to Match</label>
+							</div>
 						</div>
 						<div class="clear"></div>
 					</div>

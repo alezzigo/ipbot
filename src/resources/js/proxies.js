@@ -125,8 +125,10 @@ var processEndpoint = function(frameName, frameSelector) {
 			if (response.data.endpoint_enable) {
 				elements.removeClass('.endpoint-enabled-container', 'hidden');
 				elements.setAttribute('.endpoint-enable', 'checked', +response.data.endpoint_enable);
-				elements.setAttribute('.endpoint-username', 'value', response.data.endpoint_username);
 				elements.setAttribute('.endpoint-password', 'value', response.data.endpoint_password);
+				elements.setAttribute('.endpoint-require-authentication', 'checked', +response.data.endpoint_require_authentication);
+				elements.setAttribute('.endpoint-require-match', 'checked', +response.data.endpoint_require_match);
+				elements.setAttribute('.endpoint-username', 'value', response.data.endpoint_username);
 				elements.html('.endpoint-whitelisted-ips', response.data.endpoint_whitelisted_ips);
 			}
 		}

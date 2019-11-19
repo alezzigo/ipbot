@@ -145,6 +145,8 @@ class OrdersModel extends TransactionsModel {
 					'id',
 					'endpoint_enable',
 					'endpoint_password',
+					'endpoint_require_authentication',
+					'endpoint_require_match',
 					'endpoint_username',
 					'endpoint_whitelisted_ips'
 				),
@@ -181,6 +183,7 @@ class OrdersModel extends TransactionsModel {
 								'id' => $response['data']['id'],
 								'endpoint_enable' => $parameters['data']['endpoint_enable'],
 								'endpoint_password' => $parameters['data']['endpoint_password'],
+								'endpoint_require_authentication' => $parameters['data']['endpoint_require_authentication'],
 								'endpoint_require_match' => $parameters['data']['endpoint_require_match'],
 								'endpoint_username' => $parameters['data']['endpoint_username'],
 								'endpoint_whitelisted_ips' => $parameters['data']['endpoint_whitelisted_ips']

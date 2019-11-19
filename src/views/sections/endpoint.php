@@ -37,51 +37,51 @@
 							<p>Request JSON object for retrieving proxies:</p>
 							<pre>POST
 {
-	action: "list",
+	action: <span>"list"</span>,
 	data: {
 		authentication: {
-			password: "API_PASSWORD",
-			username: "API_USERNAME"
+			password: <span>"API_PASSWORD"</span>,
+			username: <span>"API_USERNAME"</span>
 		},
-		order_id: <?php echo $data['order_id']; ?>
+		order_id: <span><?php echo $data['order_id']; ?></span>
 	},
-	table: "proxies"
+	table: <span>"proxies"</span>
 }</pre>
 							<p>Response JSON object:</p>
 							<pre>
 {
 	data: {
 		proxies: {
-			count: 100,
+			count: <span>100</span>,
 			data: [
 				{
-					asn: "AS88888 ISP Communications",
-					automatic_replacement_interval_type: "month",
-					automatic_replacement_interval_value: 1,
-					city: "Ventura",
-					country_code: "US",
-					country_name: "United States",
-					disable_http: false,
-					http_port: 80,
-					id: 886,
-					ip: "10.3.3.7",
-					isp: "ISP Communications",
-					last_replacement_date: <?php echo date('Y-m-d H:i:s', time()); ?>,
-					next_replacement_available: <?php echo date('Y-m-d H:i:s', strtotime('+1 week')); ?>,
-					node_id: 189,
-					order_id: <?php echo $data['order_id']; ?>,
-					password: "PROXY_PASSWORD",
-					region: "California",
-					replacement_removal_date: null,
-					require_authentication: true,
-					status: "online",
-					transfer_authentication: false,
-					user_id: 1,
-					username: "PROXY_USERNAME",
-					whitelisted_ips: "127.0.0.1
-127.0.0.2"
+					asn: <span>"AS88888 ISP Communications"</span>,
+					automatic_replacement_interval_type: <span>"month"</span>,
+					automatic_replacement_interval_value: <span>1</span>,
+					city: <span>"Ventura"</span>,
+					country_code: <span>"US"</span>,
+					country_name: <span>"United States"</span>,
+					disable_http: <span>false</span>,
+					http_port: <span>80</span>,
+					id: <span>886</span>,
+					ip: <span>"10.3.3.7"</span>,
+					isp: <span>"ISP Communications"</span>,
+					last_replacement_date: <span><?php echo date('Y-m-d H:i:s', time()); ?></span>,
+					next_replacement_available: <span><?php echo date('Y-m-d H:i:s', strtotime('+1 week')); ?></span>,
+					node_id: <span>189</span>,
+					order_id: <span><?php echo $data['order_id']; ?></span>,
+					password: <span>"PROXY_PASSWORD"</span>,
+					region: <span>"California"</span>,
+					replacement_removal_date: <span>null</span>,
+					require_authentication: <span>true</span>,
+					status: <span>"online"</span>,
+					transfer_authentication: <span>false</span>,
+					user_id: <span>1</span>,
+					username: <span>"PROXY_USERNAME"</span>,
+					whitelisted_ips: <span>"127.0.0.1
+127.0.0.2"</span>
 				},
-				// ..
+				<span>// ..</span>
 			]
 		}
 	}
@@ -89,24 +89,24 @@
 							<p>Request JSON object for configuring proxy authentication settings:</p>
 							<pre>POST
 {
-	action: "authenticate",
+	action: <span>"authenticate"</span>,
 	data: {
 		authentication: {
-			password: "API_PASSWORD",
-			username: "API_USERNAME"
+			password: <span>"API_PASSWORD"</span>,
+			username: <span>"API_USERNAME"</span>
 		},
-		generate_unique: false,
+		generate_unique: <span>false</span>,
 		items: [
-			100,
-			101,
-			// List of proxy IDs
+			<span>100</span>,
+			<span>101</span>,
+			<span>// List of proxy IDs</span>
 		],
-		order_id: <?php echo $data['order_id']; ?>,
-		password: "NEW_PROXY_PASSWORD",
-		username: "NEW_PROXY_USERNAME",
+		order_id: <span><?php echo $data['order_id']; ?></span>,
+		password: <span>"NEW_PROXY_PASSWORD"</span>,
+		username: <span>"NEW_PROXY_USERNAME"</span>,
 		whitelisted_ips: [
-			"127.0.0.1",
-			// ..
+			<span>"127.0.0.1"</span>,
+			<span>// ..</span>
 		]
 	},
 	table: "proxies"
@@ -116,29 +116,29 @@
 {
 	data: {
 		proxies: {
-			count: 10,
+			count: <span>10</span>,
 			data: [
 				{
-					asn: "AS88888 ISP Communications",
-					city: "Ventura",
-					country_code: "US",
-					country_name: "United States",
-					disable_http: false,
-					http_port: 80,
-					id: 886,
-					ip: "10.3.3.7",
-					isp: "ISP Communications",
-					order_id: <?php echo $data['order_id']; ?>,
-					password: "NEW_PROXY_PASSWORD",
-					region: "California",
-					status: "online",
-					transfer_authentication: false,
-					user_id: 1,
-					username: "NEW_PROXY_USERNAME",
-					whitelisted_ips: "127.0.0.1
-127.0.0.2"
+					asn: <span>"AS88888 ISP Communications"</span>,
+					city: <span>"Ventura"</span>,
+					country_code: <span>"US"</span>,
+					country_name: <span>"United States"</span>,
+					disable_http: <span>false</span>,
+					http_port: <span>80</span>,
+					id: <span>886</span>,
+					ip: <span>"10.3.3.7"</span>,
+					isp: <span>"ISP Communications"</span>,
+					order_id: <span><?php echo $data['order_id']; ?></span>,
+					password: <span>"NEW_PROXY_PASSWORD"</span>,
+					region: <span>"California"</span>,
+					status: <span>"online"</span>,
+					transfer_authentication: <span>false</span>,
+					user_id: <span>1</span>,
+					username: <span>"NEW_PROXY_USERNAME"</span>,
+					whitelisted_ips: <span>"127.0.0.1
+127.0.0.2"</span>
 				},
-				// ..
+				<span>// ..</span>
 			]
 		}
 	}
@@ -147,25 +147,25 @@
 							<p>Request JSON object for configuring proxy replacement settings:</p>
 							<pre>POST
 {
-	action: "replace",
+	action: <span>"replace"</span>,
 	data: {
 		authentication: {
-			password: "API_PASSWORD",
-			username: "API_USERNAME"
+			password: <span>"API_PASSWORD"</span>,
+			username: <span>"API_USERNAME"</span>
 		},
-		automatic_replacement_interval_type: "week", // week|month
-		automatic_replacement_interval_value: 1,
-		enable_automatic_replacements: false,
-		instant_replacement: true,
+		automatic_replacement_interval_type: <span>"week"</span>, <span>// week|month</span>
+		automatic_replacement_interval_value: <span>1</span>,
+		enable_automatic_replacements: <span>false</span>,
+		instant_replacement: <span>true</span>,
 		items: [
-			100,
-			101,
-			// List of proxy IDs
+			<span>100</span>,
+			<span>101</span>,
+			<span>// List of proxy IDs</span>
 		],
-		order_id: <?php echo $data['order_id']; ?>,
-		transfer_authentication: true
+		order_id: <span><?php echo $data['order_id']; ?></span>,
+		transfer_authentication: <span>true</span>
 	},
-	table: "proxies"
+	table: <span>"proxies"</span>
 }
 </pre>
 							<p>Response JSON object:</p>
@@ -173,29 +173,29 @@
 {
 	data: {
 		proxies: {
-			count: 7,
+			count: <span>7</span>,
 			data: [
 				{
-					asn: "AS88888 ISP Communications",
-					city: "Ventura",
-					country_code: "US",
-					country_name: "United States",
-					disable_http: false,
-					http_port: 80,
-					id: 886,
-					ip: "10.3.3.7",
-					isp: "ISP Communications",
-					order_id: <?php echo $data['order_id']; ?>,
-					password: "PROXY_PASSWORD",
-					region: "California",
-					status: "replaced",
-					transfer_authentication: false,
-					user_id: 1,
-					username: "PROXY_USERNAME",
-					whitelisted_ips: "127.0.0.1
-127.0.0.2"
+					asn: <span>"AS88888 ISP Communications"</span>,
+					city: <span>"Ventura"</span>,
+					country_code: <span>"US"</span>,
+					country_name: <span>"United States"</span>,
+					disable_http: <span>false</span>,
+					http_port: <span>80</span>,
+					id: <span>886</span>,
+					ip: <span>"10.3.3.7"</span>,
+					isp: <span>"ISP Communications"</span>,
+					order_id: <span><?php echo $data['order_id']; ?></span>,
+					password: <span>"PROXY_PASSWORD"</span>,
+					region: <span>"California"</span>,
+					status: <span>"replaced"</span>,
+					transfer_authentication: <span>false</span>,
+					user_id: <span>1</span>,
+					username: <span>"PROXY_USERNAME"</span>,
+					whitelisted_ips: <span>"127.0.0.1
+127.0.0.2"</span>
 				},
-				// ..
+				<span>// ..</span>
 			]
 		}
 	}

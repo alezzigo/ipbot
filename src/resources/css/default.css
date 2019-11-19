@@ -34,6 +34,10 @@ pre {
 	padding: 8px 11px 7px;
 	white-space: pre;
 }
+	pre span {
+		font-weight: 400;
+		opacity: 0.77;
+	}
 a,
 body,
 button,

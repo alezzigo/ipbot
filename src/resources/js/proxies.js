@@ -123,6 +123,15 @@ var processEndpoint = function(frameName, frameSelector) {
 			endpointEnableCheckboxLabel.addEventListener('click', endpointEnableCheckboxLabel.clickListener);
 
 			if (response.data.endpoint_enable) {
+				var endpointShowDocumentation = document.querySelector('.endpoint-show-documentation');
+				endpointShowDocumentation.removeEventListener('click', endpointShowDocumentation.clickListener);
+				endpointShowDocumentation.clickListener = function() {
+					if (elements.hasClass('.endpoint-documentation', 'hidden')) {
+						elements.removeClass('.endpoint-documentation', 'hidden');
+						elements.addClass('.endpoint-show-documentation', 'hidden');
+					}
+				};
+				endpointShowDocumentation.addEventListener('click', endpointShowDocumentation.clickListener);
 				elements.removeClass('.endpoint-enabled-container', 'hidden');
 				elements.setAttribute('.endpoint-enable', 'checked', +response.data.endpoint_enable);
 				elements.setAttribute('.endpoint-password', 'value', response.data.endpoint_password);

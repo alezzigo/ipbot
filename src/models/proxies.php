@@ -1024,7 +1024,6 @@ class ProxiesModel extends OrdersModel {
 										),
 										'fields' => array(
 											'disable_http',
-											'disable_socks',
 											'password',
 											'require_authentication',
 											'username',
@@ -1252,7 +1251,6 @@ class ProxiesModel extends OrdersModel {
 				'automatic_replacement_interval_type',
 				'automatic_replacement_interval_value',
 				'disable_http',
-				'disable_socks',
 				'id',
 				'ip',
 				'node_id',
@@ -1353,7 +1351,6 @@ class ProxiesModel extends OrdersModel {
 								if (!empty($userProxies[$key]['transfer_authentication'])) {
 									$processingNodes['data'][$key] += array(
 										'disable_http' => $userProxies[$key]['disable_http'],
-										'disable_socks' => $userProxies[$key]['disable_socks'],
 										'password' => $userProxies[$key]['password'],
 										'transfer_authentication' => true,
 										'username' => $userProxies[$key]['username'],

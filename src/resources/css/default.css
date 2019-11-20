@@ -158,7 +158,7 @@ header {
 		line-height: 42px;
 	}
 	.navigation p {
-		padding: 11px 0;
+		padding: 18px 0;
 	}
 	.navigation nav {
 		margin: 0;
@@ -188,8 +188,17 @@ footer .navigation {
 	margin-bottom: 88px;
 }
 	footer .navigation p {
+		line-height: 14px;
 		margin: 0;
+		padding: 21px 0 11px;
 	}
+	footer .navigation .legal {
+		margin-top: 0;
+		padding-top: 0;
+	}
+		footer .navigation .legal a {
+			margin-right: 7px;
+		}
 header .navigation {
 	border-bottom: 1px solid #dddbf4;
 }

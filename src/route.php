@@ -104,9 +104,19 @@
 			'url' => '/'
 		),
 		array(
+			'file' => $config->settings['base_path'] . '/views/pages/privacy.php',
+			'title' => 'Privacy Policy',
+			'url' => '/privacy'
+		),
+		array(
 			'file' => $config->settings['base_path'] . '/views/pages/static-proxies.php',
 			'title' => 'Static Proxies',
 			'url' => '/static-proxies'
+		),
+		array(
+			'file' => $config->settings['base_path'] . '/views/pages/terms.php',
+			'title' => 'Terms of Service',
+			'url' => '/terms'
 		),
 		array(
 			'file' => $config->settings['base_path'] . '/views/users/view.php',

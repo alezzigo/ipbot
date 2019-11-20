@@ -109,7 +109,7 @@
 			<span>// ..</span>
 		]
 	},
-	table: "proxies"
+	table: <span>"proxies"</span>
 }</pre>
 							<p>Response JSON object:</p>
 							<pre>

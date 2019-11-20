@@ -8,18 +8,36 @@
 	<div class="section">
 		<div class="container small">
 			<h1>Control Panel Features</h1>
-			<h2>Scale Proxy Quantities Seamlessly</h2>
-			<p>Easily upgrade or downgrade proxies from the control panel without waiting for custom invoices or change orders.</p>
 			<h2>Schedule Automatic Proxy Replacements</h2>
-			<p>Set custom proxy replacement frequencies for individual proxies. All proxies can be refreshed up to twice per month.</p>
-			<h2>Retrieve Proxies Programatically Using a Robust Proxy API</h2>
-			<p>Automate existing proxy management functions with a complete API for authentication, replacements and proxy retrieval.</p>
+			<p>Set custom proxy replacement frequencies for individually-selected proxies. All proxies can be refreshed up to twice per month.</p>
+			<div class="feature-screenshot">
+				<img alt="Proxy replacement schedule screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/proxy-replacements.png">
+			</div>
+			<h2>Scale Proxy Quantities Seamlessly</h2>
+			<p>Easily upgrade, downgrade and merge proxy orders from the control panel without waiting for custom invoices or support requests.</p>
+			<div class="feature-screenshot">
+				<img alt="Proxy order upgrade screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/order-upgrade.png">
+			</div>
+			<h2>Manage Proxies Programatically Using a Robust Proxy API</h2>
+			<p>Automate existing control panel functions with a complete API for authentication, replacements and proxy retrieval.</p>
+			<div class="feature-screenshot">
+				<img alt="Proxy JSON API documentation screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/api-endpoint.png">
+			</div>
 			<h2>Authenticate Proxies With Granular Access Controls</h2>
 			<p>Create unique username:password combinations and whitelisted access IPs for private authenticated proxy access.</p>
+			<div class="feature-screenshot">
+				<img alt="Proxy authentication form screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/proxy-authentication.png">
+			</div>
 			<h2>Filter Proxies With Flexible Search Functions</h2>
-			<p>Sort through large proxy lists with powerful search functions by IP address, subnet and/or keyword.</p>
-			<h2>Manage Proxies Using Custom Groups</h2>
-			<p>Save time organizing groups of proxies with custom labeling and grouping for individually-selected proxies.</p>
+			<p>Save time spent sorting through large proxy lists with powerful search functions by IP address, location, ASN, proxy status, subnet and/or keyword.</p>
+			<div class="feature-screenshot">
+				<img alt="Advanced proxy search form screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/proxy-search.png">
+			</div>
+			<h2>Organize Proxies Using Custom Groups</h2>
+			<p>Coordinate specific proxies with custom proxy labeling and grouping features for easy proxy list management.</p>
+			<div class="feature-screenshot">
+				<img alt="Proxy group management screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/proxy-groups.png">
+			</div>
 		</div>
 	</div>
 </main>

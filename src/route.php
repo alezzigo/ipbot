@@ -109,6 +109,11 @@
 			'url' => '/privacy'
 		),
 		array(
+			'file' => $config->settings['base_path'] . '/views/pages/refunds.php',
+			'title' => 'Refund Policy',
+			'url' => '/refunds'
+		),
+		array(
 			'file' => $config->settings['base_path'] . '/views/pages/static-proxies.php',
 			'title' => 'Static Proxies',
 			'url' => '/static-proxies'

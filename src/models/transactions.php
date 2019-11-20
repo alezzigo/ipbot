@@ -252,7 +252,6 @@ class TransactionsModel extends InvoicesModel {
 				'provider_country_code',
 				'provider_email',
 				'provider_id',
-				'sandbox',
 				'subscription_id',
 				'transaction_charset',
 				'transaction_date',

@@ -3,7 +3,7 @@
 		<div class="align-left navigation primary-navigation">
 			<div class="align-left">
 				<p>Product of <a href="https://eightomic.com" target="_blank">Eightomic</a>. Copyright <?php echo date('Y'); ?> <a href="https://parsonsbots.com" target="_blank">Will S. Parsons</a>.</p>
-				<p class="legal"><a href="<?php echo $config->settings['base_url'] . 'terms'; ?>">Terms</a> <a href="<?php echo $config->settings['base_url'] . 'privacy'; ?>">Privacy</a> <a href="<?php echo $config->settings['base_url'] . 'refunds'; ?>">Refunds</a></p>
+				<p class="legal"><a href="<?php echo $config->settings['base_url']; ?>terms">Terms</a> <a href="<?php echo $config->settings['base_url']; ?>privacy">Privacy</a> <a href="<?php echo $config->settings['base_url']; ?>refunds">Refunds</a></p>
 			</div>
 		</div>
 	</div>

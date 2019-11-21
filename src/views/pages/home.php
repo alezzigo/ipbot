@@ -9,7 +9,7 @@
 		<div class="container small">
 			<div class="feature-container">
 				<h1>Premium Proxy Services</h1>
-				<p>Power your web applications through the anonymous Eightomic IP network and open-source <a href="https://github.com/parsonsbots/proxies" target="_blank">proxy control panel</a>.</p>
+				<p>Power your web crawlers and applications through the anonymous <a href="https://eightomic.com" target="_blank">Eightomic</a> IP network and open-source <a href="https://github.com/parsonsbots/proxies" target="_blank">proxy control panel</a>.</p>
 				<a class="button main-button" href="<?php echo $config->settings['base_url']; ?>contact#register">Get Started</a>
 				<a class="button alternate-button" href="<?php echo $config->settings['base_url']; ?>features">See Features</a>
 				<div class="feature-screenshot">

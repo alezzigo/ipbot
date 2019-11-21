@@ -44,8 +44,9 @@
 	<div class="section">
 		<div class="container small">
 			<h1>Premium Static Proxies</h1>
+			<p>Buy performance-oriented HTTP / HTTPS proxies with static IPv4 addresses and powerful <a href="<?php echo $config->settings['base_url']; ?>features">control panel features</a>.</p>
 			<div class="message-container"></div>
-			<div class="table">
+			<div class="pricing-table table">
 				<table>
 					<tbody>
 						<?php foreach ($items as $item): ?>

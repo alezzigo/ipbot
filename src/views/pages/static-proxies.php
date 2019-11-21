@@ -43,7 +43,7 @@
 <main process="cart">
 	<div class="section">
 		<div class="container small">
-			<h1>Premium Static Proxies</h1>
+			<h1>Buy Static Proxies</h1>
 			<p>Buy performance-oriented HTTP / HTTPS proxies with static IPv4 addresses and powerful <a href="<?php echo $config->settings['base_url']; ?>features">control panel features</a>.</p>
 			<div class="message-container"></div>
 			<div class="pricing-table table">
@@ -59,6 +59,16 @@
 					</tbody>
 				</table>
 			</div>
+			<h2>Unmetered bandwidth</h2>
+			<p>Go crazy with unlimited and unmetered data transfer without worrying about bandwidth fees or hidden overage costs.</p>
+			<h2>High thread limits</h2>
+			<p>Eightomic Proxies are configured for virtually unlimited threads and guaranteed to allow enough simultaneous connections for any use case.</p>
+			<h2>Open source control panel</h2>
+			<p>The control panel for managing your list of proxy servers is completely custom-built. You can <a href="<?php echo $config->settings['base_url']; ?>contact" target="_blank">request new features</a> or just <a href="https://github.com/parsonsbots/proxies" target="_blank">build them yourself</a>.</p>
+			<h2>Elite anonymity</h2>
+			<p>Enjoy high-anonymous proxy IPs without revealing your original source IP in HTTP request headers.</p>
+			<h2>Private authentication</h2>
+			<p>Both username:password and whitelisted IP authentication are supported for secure private proxy access.</p>
 		</div>
 	</div>
 </main>

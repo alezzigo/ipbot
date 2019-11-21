@@ -29,7 +29,11 @@
 				<div class="feature-screenshot">
 					<img alt="Proxy authentication form screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/proxy-authentication.png">
 				</div>
-
+				<h2>Track Payments and Invoices Efficiently</h2>
+				<p>Effortlessly manage your account invoices and recurring payments using a custom open source billing system.</p>
+				<div class="feature-screenshot">
+					<img alt="Order invoice screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/order-invoice.png">
+				</div>
 				<h2>Filter Proxies With Flexible Search Functions</h2>
 				<p>Save time spent sorting through large proxy lists with powerful search functions by IP address, location, ASN, proxy status, subnet and/or keyword.</p>
 				<div class="feature-screenshot">

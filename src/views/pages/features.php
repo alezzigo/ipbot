@@ -29,10 +29,16 @@
 				<div class="feature-screenshot">
 					<img alt="Proxy authentication form screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/proxy-authentication.png">
 				</div>
+
 				<h2>Filter Proxies With Flexible Search Functions</h2>
 				<p>Save time spent sorting through large proxy lists with powerful search functions by IP address, location, ASN, proxy status, subnet and/or keyword.</p>
 				<div class="feature-screenshot">
 					<img alt="Advanced proxy search form screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/proxy-search.png">
+				</div>
+				<h2>Format List of Proxies Easily</h2>
+				<p>Copy your proxies and authentication info to the clipboard in multiple formats to accomodate your application.</p>
+				<div class="feature-screenshot">
+					<img alt="Proxy list formatting screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/proxy-list-formatting.png">
 				</div>
 				<h2>Organize Proxies Using Custom Groups</h2>
 				<p>Coordinate specific proxies with custom proxy labeling and grouping features for easy proxy list management.</p>

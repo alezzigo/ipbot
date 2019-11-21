@@ -476,7 +476,7 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 		+elements.html('.total-checked') ? elements.removeClass('.item-configuration span.icon[item-function]', 'hidden') : elements.addClass('.item-configuration span.icon[item-function]', 'hidden');
 		itemGridCount = itemCount;
 
-		if (totalResults === itemCount) {
+		if (totalResults === +elements.html('.total-checked')) {
 			elements.addClass('.item-configuration span.icon[item-function][process="downgrade"]', 'hidden');
 		}
 

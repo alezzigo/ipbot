@@ -8,7 +8,9 @@
 	<div class="section">
 		<div class="container small">
 			<h1>Refund Policy</h1>
-			<p>A full refund will be granted on request within 8 days of the payment transaction date.</p>
+			<div class="section">
+				<p>A full refund will be granted on request within 8 days of the payment transaction date.</p>
+			</div>
 		</div>
 	</div>
 </main>

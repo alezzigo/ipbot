@@ -8,7 +8,9 @@
 	<div class="section">
 		<div class="container small">
 			<h1>Terms of Service</h1>
-			<p>Don't be deceptive.</p>
+			<div class="section">
+				<p>Don't be deceptive.</p>
+			</div>
 		</div>
 	</div>
 </main>

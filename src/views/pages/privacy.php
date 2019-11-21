@@ -8,7 +8,9 @@
 	<div class="section">
 		<div class="container small">
 			<h1>Privacy Policy</h1>
-			<p>Honesty is the best policy.</p>
+			<div class="section">
+				<p>Honesty is the best policy.</p>
+			</div>
 		</div>
 	</div>
 </main>

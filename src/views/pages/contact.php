@@ -8,7 +8,9 @@
 	<div class="section">
 		<div class="container small">
 			<h1>Contact</h1>
-			<p>Please send an email to <a href="mailto:eightomic@gmail.com">eightomic@gmail.com</a> for any pre-sales questions or support inquiries.</p>
+			<div class="section">
+				<p>Please send an email to <a href="mailto:eightomic@gmail.com">eightomic@gmail.com</a> for any pre-sales questions or support inquiries.</p>
+			</div>
 		</div>
 	</div>
 </main>

@@ -8,10 +8,12 @@
 	<div class="section">
 		<div class="container small">
 			<h1>FAQs</h1>
-			<h2>Do your proxies support SOCKS?</h2>
-			<p>Only HTTP / HTTPS is supported.</p>
-			<h2>Do you have a free trial?</h2>
-			<p>No, but there is an 8-day <a href="<?php echo $config->settings['base_url']; ?>refunds">refund policy</a>.</p>
+			<div class="section">
+				<h2>Do your proxies support SOCKS?</h2>
+				<p>Only HTTP / HTTPS is supported.</p>
+				<h2>Do you have a free trial?</h2>
+				<p>No, but there is an 8-day <a href="<?php echo $config->settings['base_url']; ?>refunds">refund policy</a>.</p>
+			</div>
 		</div>
 	</div>
 </main>

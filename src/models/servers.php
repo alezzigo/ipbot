@@ -188,6 +188,14 @@ class ServersModel extends AppModel {
 
 				if (!empty($nodeIds['count'])) {
 					$response['message']['status'] = 'No active proxies available on gateway server.';
+					$dnsIps = $this->fetch('dns_ips', array(
+						'conditions' => array(
+							'node_id' => $nodeIds['data']
+						),
+						'fields' => array(
+							'ip'
+						)
+					));
 					$proxies = $this->fetch('proxies', array(
 						'conditions' => array(
 							'node_id' => $nodeIds['data'],
@@ -219,7 +227,10 @@ class ServersModel extends AppModel {
 						)
 					));
 
-					if (!empty($proxies['count'])) {
+					if (
+						!empty($dnsIps['count']) &&
+						!empty($proxies['count'])
+					) {
 						$response['message']['status'] = 'Invalid server configuration type, please check your configuration file and server options in database.';
 
 						if (
@@ -234,6 +245,7 @@ class ServersModel extends AppModel {
 							) {
 								$response = array(
 									'data' => array(
+										'dns_ips' => array_unique(array_filter($dnsIps['data'])),
 										'server' => $serverConfiguration
 									),
 									'message' => array(

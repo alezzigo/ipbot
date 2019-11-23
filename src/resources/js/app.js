@@ -79,7 +79,7 @@ onLoad(function() {
 
 	selectAllElements('.frame-container').map(function(element) {
 		var frameSelector = '.frame-container[frame="' + element[1].getAttribute('frame') + '"]';
-		selectAllElements(frameSelector + ' input[type="text"], ' + frameSelector + ' input[type="password"], ' + frameSelector + ' textarea').map(function(element) {
+		selectAllElements(frameSelector + ' input[type="password"], ' + frameSelector + ' input[type="number"], ' + frameSelector + ' input[type="text"]').map(function(element) {
 			element[1].removeEventListener('keydown', element[1].keydownListener);
 			element[1].keydownListener = function() {
 				if (event.key == 'Enter') {

@@ -301,7 +301,10 @@ var processPayment = function(frameName, frameSelector) {
 		processLoginVerification(response);
 		window.scroll(0, 0);
 
-		if (response.message.status === 'success') {
+		if (
+			response.message &&
+			response.message.status === 'success'
+		) {
 			if (
 				typeof response.redirect === 'string' &&
 				response.redirect

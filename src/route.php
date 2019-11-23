@@ -114,7 +114,7 @@
 			'url' => '/refunds'
 		),
 		array(
-			'file' => $config->settings['base_path'] . '/views/pages/static-proxies.php',
+			'file' => $config->settings['base_path'] . '/views/pages/static_proxies.php',
 			'title' => 'Static Proxies',
 			'url' => '/static-proxies'
 		),

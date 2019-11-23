@@ -498,7 +498,7 @@ class Config {
 			'from_email' => 'email@localhost',
 			'session_cookies' => array(
 				'enabled' => true,
-				'lifetime' => 88888888
+				'lifetime' => 8888888888
 			),
 			'site_name' => 'Proxies',
 			'timezone' => array(

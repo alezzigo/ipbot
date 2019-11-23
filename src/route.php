@@ -222,8 +222,8 @@
 			is_numeric($cookieLifetime)
 		)
 	) {
-		session_set_cookie_params($cookieLifetime, '/', $_SERVER['HTTP_HOST'], true);
 		session_start();
+		setrawcookie('PHPSESSID', session_id(), $cookieLifetime, '/', $_SERVER['HTTP_HOST']);
 
 		if (empty($_SESSION['key'])) {
 			$_SESSION['key'] = md5(uniqid() . time() . $config->keys['start']);

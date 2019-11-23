@@ -2,23 +2,6 @@
 
 var defaultTable = 'users';
 var previousAction = 'register';
-var processRemove = function() {
-	requestParameters.action = 'remove';
-	requestParameters.table = 'users';
-	sendRequest(function(response) {
-		var messageContainer = document.querySelector('.request-removal .message-container');
-
-		if (messageContainer) {
-			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
-		}
-
-		processUser();
-
-		if (response.message.status === 'success') {
-			elements.addClass('.request-removal .form-item', 'hidden');
-		}
-	});
-};
 var processEmail = function() {
 	processUser();
 	var hash = replaceCharacter(window.location.search, 0, '');
@@ -65,6 +48,23 @@ var processEmail = function() {
 			}
 		});
 	}
+};
+var processRemove = function() {
+	requestParameters.action = 'remove';
+	requestParameters.table = 'users';
+	sendRequest(function(response) {
+		var messageContainer = document.querySelector('.request-removal .message-container');
+
+		if (messageContainer) {
+			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		}
+
+		processUser();
+
+		if (response.message.status === 'success') {
+			elements.addClass('.request-removal .form-item', 'hidden');
+		}
+	});
 };
 var processReset = function() {
 	var hash = replaceCharacter(window.location.search, 0, '');

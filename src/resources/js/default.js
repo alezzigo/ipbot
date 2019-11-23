@@ -36,7 +36,11 @@ var browserDetails = function() {
 	};
 };
 var capitalizeString = function(string) {
-	return string.charAt(0).toUpperCase() + string.substr(1);
+	stringParts = string.split(' ');
+	stringParts.map(function(stringPart, stringPartIndex) {
+		stringParts[stringPartIndex] = stringPart.charAt(0).toUpperCase() + stringPart.substr(1);
+	});
+	return stringParts.join(' ');
 };
 var closeFrames = function(defaultTable) {
 	elements.addClass('.frame-container', 'hidden');

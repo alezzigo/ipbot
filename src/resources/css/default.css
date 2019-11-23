@@ -910,17 +910,14 @@ main {
 .item-configuration-container .item-controls-container .item-header .main-button,
 .item-configuration-container .item-controls-container .item-header .alternate-button {
 	font-size: 11px;
-	margin: 0;
+	margin: 0 0 7px 0;
 	top: 22px;
 }
 .item-configuration-container .item-controls-container .item-header .main-button {
 	padding-top: 11px;
 	padding-bottom: 10px;
-	position: absolute;
-	right: 0;
 }
 .item-configuration-container .item-controls-container .item-header .alternate-button {
-	margin-bottom: 7px;
 	padding-top: 10px;
 	padding-bottom: 9px;
 }

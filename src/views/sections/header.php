@@ -45,7 +45,7 @@
 		)
 	);
 
-	if (!empty($config->permissions[$data['table']][$data['action']]['group'])) {
+	if (isset($config->permissions[$data['table']][$data['action']]['group'])) {
 		$primaryNavigationItems = array(
 			array(
 				'class' => 'button frame-button hidden guest',

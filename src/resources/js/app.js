@@ -1,5 +1,9 @@
 'use_strict';
 
+var frameName;
+var frameMethod;
+var frameSelector;
+var method;
 var processLogout = function() {
 	requestParameters.table = 'users';
 	requestParameters.action = 'logout';
@@ -14,9 +18,48 @@ var processLogout = function() {
 		}
 	});
 };
-onLoad(function() {
-	var method;
+var processMethod = function(method, frameName, frameSelector) {
+	window[method](frameName, frameSelector);
+};
+var processMethodForm = function(element) {
+	var processName = element.hasAttribute('process') ? element.getAttribute('process') : '';
+	frameName = element.hasAttribute('frame') ? element.getAttribute('frame') : '';
+	frameSelector = '.frame-container[frame="' + frameName + '"]';
 
+	if (elements.hasClass('close')) {
+		closeFrames(defaultTable);
+	}
+
+	if (element.classList.contains('submit')) {
+		elements.loop(frameSelector + ' input, ' + frameSelector + ' select, ' + frameSelector + ' textarea', function(index, element) {
+			requestParameters.data[element.getAttribute('name')] = element.value;
+		});
+		elements.loop(frameSelector + ' .checkbox', function(index, element) {
+			requestParameters.data[element.getAttribute('name')] = +element.getAttribute('checked');
+		});
+		elements.loop(frameSelector + ' input[type="radio"]:checked', function(index, element) {
+			requestParameters.data[element.getAttribute('name')] = element.value;
+		});
+		previousAction = requestParameters.action;
+		requestParameters.action = frameName;
+
+		if (frameName == 'search') {
+			itemGrid = [];
+			itemGridCount = 0;
+		}
+	} else if (frameName) {
+		openFrame(frameName, frameSelector);
+	}
+
+	method = 'process' + capitalizeString(processName);
+
+	if (typeof window[method] === 'function') {
+		processMethod(method, frameName, frameSelector);
+	}
+
+	processWindowEvents('resize');
+};
+onLoad(function() {
 	if ((scrollableElements = selectAllElements('.scrollable')).length) {
 		scrollableElements.map(function(element) {
 			var event = function() {
@@ -34,6 +77,22 @@ onLoad(function() {
 		});
 	}
 
+	selectAllElements('.frame-container').map(function(element) {
+		var frameSelector = '.frame-container[frame="' + element[1].getAttribute('frame') + '"]';
+		selectAllElements(frameSelector + ' input[type="text"], ' + frameSelector + ' input[type="password"], ' + frameSelector + ' textarea').map(function(element) {
+			element[1].removeEventListener('keydown', element[1].keydownListener);
+			element[1].keydownListener = function() {
+				if (event.key == 'Enter') {
+					var submitButton = document.querySelector(frameSelector + ' .button.submit');
+
+					if (submitButton) {
+						processMethodForm(submitButton);
+					}
+				}
+			};
+			element[1].addEventListener('keydown', element[1].keydownListener);
+		});
+	});
 	selectAllElements('.frame .button.close').map(function(element) {
 		element[1].addEventListener('click', function(element) {
 			closeFrames(defaultTable);
@@ -58,39 +117,7 @@ onLoad(function() {
 	});
 	selectAllElements('.button.frame-button, .frame .button.submit').map(function(element) {
 		element[1].addEventListener('click', function(element) {
-			var frameName = element.target.hasAttribute('frame') ? element.target.getAttribute('frame') : '';
-			var frameSelector = '.frame-container[frame="' + frameName + '"]';
-			var processName = element.target.hasAttribute('process') ? element.target.getAttribute('process') : '';
-
-			if (element.target.classList.contains('submit')) {
-				elements.loop(frameSelector + ' input, ' + frameSelector + ' select, ' + frameSelector + ' textarea', function(index, element) {
-					requestParameters.data[element.getAttribute('name')] = element.value;
-				});
-				elements.loop(frameSelector + ' .checkbox', function(index, element) {
-					requestParameters.data[element.getAttribute('name')] = +element.getAttribute('checked');
-				});
-				elements.loop(frameSelector + ' input[type="radio"]:checked', function(index, element) {
-					requestParameters.data[element.getAttribute('name')] = element.value;
-				});
-				previousAction = requestParameters.action;
-				requestParameters.action = frameName;
-
-				if (frameName == 'search') {
-					itemGrid = [];
-					itemGridCount = 0;
-				}
-			} else if (frameName) {
-				closeFrames(defaultTable);
-				openFrame(frameName, frameSelector);
-			}
-
-			var method = 'process' + capitalizeString(processName);
-
-			if (typeof window[method] === 'function') {
-				window[method](frameName, frameSelector);
-			}
-
-			processWindowEvents('resize');
+			processMethodForm(element.target);
 		});
 	});
 
@@ -106,9 +133,8 @@ onLoad(function() {
 	}
 
 	if (window.location.hash) {
-		var frameMethod;
-		var frameName = replaceCharacter(window.location.hash, 0, '').toLowerCase();
-		var frameSelector = '.frame-container[frame="' + frameName + '"]';
+		frameName = replaceCharacter(window.location.hash, 0, '').toLowerCase();
+		frameSelector = '.frame-container[frame="' + frameName + '"]';
 
 		if (document.querySelector(frameSelector)) {
 			closeFrames(defaultTable);
@@ -126,7 +152,7 @@ onLoad(function() {
 		typeof window[method] === 'function'
 	) {
 		setTimeout(function() {
-			window[method]();
+			processMethod(method, frameName, frameSelector);
 		}, 100);
 	}
 });

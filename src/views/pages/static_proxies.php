@@ -66,8 +66,14 @@
 				<p>Eightomic Proxies are configured for virtually unlimited threads and guaranteed to allow enough simultaneous connections for any use case.</p>
 				<h2>Open source control panel</h2>
 				<p>The control panel for managing your list of proxy servers is completely custom-built. You can <a href="<?php echo $config->settings['base_url']; ?>contact" target="_blank">request new features</a> or just <a href="https://github.com/parsonsbots/proxies" target="_blank">build them yourself</a>.</p>
+				<h2>Large IPv4 reserve</h2>
+				<p>Extra proxies are kept on standby and factored into the total pricing to supply urgent proxy IP refreshes when needed.</p>
+				<h2>Fast order delivery</h2>
+				<p>Proxies are activated instantly after payment confirmation is received. You can request a <a href="<?php echo $config->settings['base_url']; ?>refund">refund</a> if the automated delivery system is too slow.</p>
 				<h2>Elite anonymity</h2>
 				<p>Enjoy high-anonymous proxy IPs without revealing your original source IP in HTTP request headers.</p>
+				<h2>Non-sequential IP addresses</h2>
+				<p>Ensure proxy IP diversity with random IP address allocation and a range of multiple class-C subnets available.</p>
 				<h2>Private authentication</h2>
 				<p>Both username:password and whitelisted IP authentication are supported for secure private proxy access.</p>
 			</div>

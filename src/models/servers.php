@@ -129,6 +129,7 @@ class ServersModel extends AppModel {
 			'acls' => implode("\n", $formattedAcls),
 			'configuration' => implode("\n", $this->proxyConfigurations['http']['static']['squid']['configuration']),
 			'files' => $formattedFiles,
+			'proxies' => $proxyIps,
 			'users' => $formattedUsers
 		);
 

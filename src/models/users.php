@@ -295,7 +295,7 @@ class UsersModel extends AppModel {
 				),
 				'limit' => 1,
 				'sort' => array(
-					'fields' => 'modified',
+					'field' => 'modified',
 					'order' => 'DESC'
 				)
 			));
@@ -759,7 +759,7 @@ class UsersModel extends AppModel {
 					),
 					'limit' => 1,
 					'sort' => array(
-						'fields' => 'modified',
+						'field' => 'modified',
 						'order' => 'DESC'
 					)
 				));

@@ -10,7 +10,7 @@
 			<div class="feature-container">
 				<h1>Premium Proxy Services</h1>
 				<p>Power your web crawlers and applications through the ultra-premium <a href="https://eightomic.com" target="_blank">Eightomic</a> proxy network and open-source <a href="https://github.com/parsonsbots/proxies" target="_blank">proxy control panel</a>.</p>
-				<a class="button main-button" href="<?php echo $config->settings['base_url']; ?>contact#register">Get Started</a>
+				<a class="button main-button" href="<?php echo $config->settings['base_url']; ?>static-proxies">Get Started</a>
 				<a class="button alternate-button" href="<?php echo $config->settings['base_url']; ?>features">See Features</a>
 				<div class="feature-screenshot">
 					<img alt="Proxy control panel screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/control-panel.png">

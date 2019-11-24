@@ -26,31 +26,31 @@ class TransactionsModel extends InvoicesModel {
 				'text' => 'Error processing payment from account balance, please try again.'
 			)
 		);
-		$transaction = array(
-			'customer_email' => $parameters['user']['email'],
-			'id' => uniqid() . time(),
-			'initial_invoice_id' => $parameters['data']['invoice']['id'],
-			'invoice_id' => $parameters['data']['invoice']['id'],
-			'payment_amount' => $parameters['data']['billing_amount'],
-			'payment_currency' => $this->settings['billing']['currency'],
-			'payment_method_id' => 'balance',
-			'payment_status' => 'completed',
-			'payment_status_message' => 'Payment successful.',
-			'payment_transaction_id' => uniqid() . time(),
-			'plan_id' => $parameters['data']['plan']['id'],
-			'transaction_charset' => $this->settings['database']['charset'],
-			'transaction_date' => date('Y-m-d H:i:s', time()),
-			'transaction_method' => 'PaymentCompleted',
-			'transaction_processed' => true,
-			'user_id' => $parameters['user']['id']
+		$transactionData = array(
+			array(
+				'customer_email' => $parameters['user']['email'],
+				'id' => uniqid() . time(),
+				'initial_invoice_id' => $parameters['data']['invoice']['id'],
+				'invoice_id' => $parameters['data']['invoice']['id'],
+				'payment_amount' => $parameters['data']['billing_amount'],
+				'payment_currency' => $this->settings['billing']['currency'],
+				'payment_method_id' => 'balance',
+				'payment_status' => 'completed',
+				'payment_status_message' => 'Payment successful.',
+				'payment_transaction_id' => uniqid() . time(),
+				'plan_id' => $parameters['data']['plan']['id'],
+				'transaction_charset' => $this->settings['database']['charset'],
+				'transaction_date' => date('Y-m-d H:i:s', time()),
+				'transaction_method' => 'PaymentCompleted',
+				'transaction_processed' => true,
+				'user_id' => $parameters['user']['id']
+			)
 		);
 
-		if ($this->save('transactions', array(
-			$transaction
-		))) {
+		if ($this->save('transactions', $transactionData)) {
 			$user = $this->fetch('users', array(
 				'conditions' => array(
-					'id' => $transaction['user_id']
+					'id' => $transactionData[0]['user_id']
 				),
 				'fields' => array(
 					'balance'
@@ -59,19 +59,19 @@ class TransactionsModel extends InvoicesModel {
 
 			if (!empty($user['count'])) {
 				$userData = array(
-					'id' => $transaction['user_id'],
-					'balance' => (round(($user['data'][0] - $parameters['data']['billing_amount']) * 100) / 100)
+					array(
+						'id' => $transactionData[0]['user_id'],
+						'balance' => (round(($user['data'][0] - $parameters['data']['billing_amount']) * 100) / 100)
+					)
 				);
 
-				if ($this->save('users', array(
-					$userData
-				))) {
-					$this->_processTransaction($transaction);
+				if ($this->save('users', $userData)) {
+					$this->_processTransaction($transactionData[0]);
 					$response = array(
-						'data' => $transaction,
+						'data' => $transactionData[0],
 						'message' => array(
 							'status' => 'success',
-							'text' => 'Payment from account balance successful for <a href="' . $this->settings['base_url'] . 'invoices/' . $transaction['invoice_id'] . '">invoice #' . $transaction['invoice_id'] . '</a>.'
+							'text' => 'Payment from account balance successful for <a href="' . $this->settings['base_url'] . 'invoices/' . $transactionData[0]['invoice_id'] . '">invoice #' . $transactionData[0]['invoice_id'] . '</a>.'
 						)
 					);
 				}
@@ -2087,26 +2087,19 @@ class TransactionsModel extends InvoicesModel {
 										$response['message']['text'] = $defaultMessage;
 										$parameters['data'] = array_merge($parameters['data'], $invoice['data']);
 										$planData = array(
-											'cart_items' => $parameters['data']['invoice']['cart_items'],
-											'invoice_id' => $parameters['data']['invoice']['id'],
-											'price' => $parameters['data']['billing_amount']
+											array(
+												'cart_items' => $parameters['data']['invoice']['cart_items'],
+												'id' => uniqid(),
+												'invoice_id' => $parameters['data']['invoice']['id'],
+												'price' => $parameters['data']['billing_amount']
+											)
 										);
-										$existingPlan = $this->fetch('plans', array(
-											'conditions' => $planData,
-											'fields' => array(
-												'id'
-											),
-											'limit' => 1
-										));
 
-										if (
-											!empty($existingPlan['count']) ||
-											$this->save('plans', array(
-												$planData
-											))
-										) {
+										if ($this->save('plans', $planData)) {
 											$plan = $this->fetch('plans', array(
-												'conditions' => $planData,
+												'conditions' => array(
+													'id' => $planData[0]['id']
+												),
 												'fields' => array(
 													'cart_items',
 													'created',
@@ -2115,7 +2108,6 @@ class TransactionsModel extends InvoicesModel {
 													'modified',
 													'price'
 												),
-												'limit' => 1,
 												'sort' => array(
 													'field' => 'created',
 													'order' => 'DESC'

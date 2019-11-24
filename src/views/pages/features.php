@@ -30,7 +30,7 @@
 					<img alt="Proxy authentication form screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/proxy-authentication.png">
 				</div>
 				<h2>Track Payments and Invoices Efficiently</h2>
-				<p>Effortlessly manage your account invoices and recurring payments using a custom open source billing system.</p>
+				<p>Effortlessly manage your account invoices and recurring payments using a custom open-source billing system.</p>
 				<div class="feature-screenshot">
 					<img alt="Order invoice screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/order-invoice.png">
 				</div>

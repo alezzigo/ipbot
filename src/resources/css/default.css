@@ -530,8 +530,12 @@ main {
 		max-width: 492px;
 	}
 .feature-container {
-	margin-bottom: 88px;
+	margin-bottom: 77px;
 }
+	.feature-container .feature-buttons {
+		margin-bottom: 40px;
+		margin-top: 16px;
+	}
 	.feature-container .feature-screenshot {
 		margin-top: 40px;
 	}

@@ -9,22 +9,19 @@
 		<div class="container small">
 			<div class="feature-container">
 				<h1>Premium Proxy Services</h1>
-				<p>Power your web crawlers and applications through the ultra-premium <a href="https://eightomic.com" target="_blank">Eightomic</a> proxy network and open-source <a href="https://github.com/parsonsbots/proxies" target="_blank">proxy control panel</a>.</p>
-				<a class="button main-button" href="<?php echo $config->settings['base_url']; ?>static-proxies">Get Started</a>
-				<a class="button alternate-button" href="<?php echo $config->settings['base_url']; ?>features">See Features</a>
+				<p>Power your web crawlers and applications through the ultra-premium <a href="https://eightomic.com" target="_blank">Eightomic</a> proxy network and <a href="https://github.com/parsonsbots/proxies" target="_blank">open-source</a> proxy <a href="<?php echo $config->settings['base_url']; ?>features">control panel</a>.</p>
+				<div class="align-left feature-buttons">
+					<a class="button main-button" href="<?php echo $config->settings['base_url']; ?>static-proxies">Get Started</a>
+					<a class="button alternate-button" href="<?php echo $config->settings['base_url']; ?>about">What's a Proxy?</a>
+				</div>
+				<div class="clear"></div>
 				<div class="feature-screenshot">
-					<img alt="Proxy control panel screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/control-panel.png">
+					<img alt="Proxy control panel screenshot" class="no-margin-bottom" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/control-panel.png">
 				</div>
 			</div>
-		</div>
-	</div>
-	<div class="section">
-		<div class="container small">
-			<div class="item">
-				<h2>Static Proxy IPs</h2>
-				<p>Buy elite (high-anonymous) proxies with high-end dedicated proxy IPs, private authenticated access, HTTP and HTTPS support, fast speeds and unmetered data transfer.</p>
-				<a href="<?php echo $config->settings['base_url']; ?>static-proxies">Buy Static Proxies</a>
-			</div>
+			<h2 class="no-margin-top">Static Proxy IPs</h2>
+			<p>Buy elite (high-anonymous) proxies with high-end dedicated proxy IPs, private authenticated access, HTTP and HTTPS support, fast speeds and unmetered data transfer.</p>
+			<a href="<?php echo $config->settings['base_url']; ?>static-proxies">Buy Static Proxies</a>
 		</div>
 	</div>
 </main>

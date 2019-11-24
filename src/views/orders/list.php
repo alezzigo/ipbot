@@ -30,7 +30,7 @@
 								</div>
 								<div class="clear"></div>
 								<p class="hidden item-controls no-margin-bottom">
-									<span class="align-right checked-container"><span class="total-checked">0</span> of <span class="total-results"></span> selected.</span><span class="clear"></span>
+									<span class="align-left checked-container"><span class="total-checked">0</span> of <span class="total-results"></span> selected.</span><span class="clear"></span>
 								</p>
 								<div class="clear"></div>
 								<div class="message-container"><p class="message no-margin-top">Loading...</p></div>

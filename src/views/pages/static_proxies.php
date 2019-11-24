@@ -52,7 +52,7 @@
 						<?php foreach ($items as $item): ?>
 						<tr>
 							<td><strong><?php echo $item['quantity'] . ' ' . $product['name']; ?></strong></td>
-							<td><span class="monthly-price">$<?php echo number_format($item['price'], 2, '.', ''); ?> per <?php echo $product['interval_value'] > 1 ? $product['interval_value'] . ' ' . $product['interval_type'] . 's' : $product['interval_type']; ?></span></td>
+							<td><span class="monthly-price"><?php echo number_format($item['price'], 2, '.', '') . ' ' . $config->settings['billing']['currency']; ?> per <?php echo $product['interval_value'] > 1 ? $product['interval_value'] . ' ' . $product['interval_type'] . 's' : $product['interval_type']; ?></span></td>
 							<td><a class="add-to-cart button main-button" disabled href="javascript:void(0);" interval_type="<?php echo $product['interval_type']; ?>" interval_value="<?php echo $product['interval_value']; ?>" product_id="<?php echo $product['id']; ?>" quantity="<?php echo $item['quantity']; ?>">Add to Cart</a></td>
 						</tr>
 						<?php endforeach; ?>

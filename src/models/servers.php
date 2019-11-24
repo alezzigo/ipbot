@@ -25,7 +25,7 @@ class ServersModel extends AppModel {
 		$formattedAcls = array(
 			'auth_param basic program /usr/lib/squid3/basic_ncsa_auth /etc/squid3/passwords',
 			'auth_param basic children 88888',
-			'auth_param basic realm Authentication Required',
+			'auth_param basic realm ' . $this->settings['site_name'],
 			'auth_param basic credentialsttl 88888 days',
 			'auth_param basic casesensitive on'
 		);

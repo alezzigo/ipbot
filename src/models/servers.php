@@ -129,7 +129,6 @@ class ServersModel extends AppModel {
 			'acls' => implode("\n", $formattedAcls),
 			'configuration' => implode("\n", $this->proxyConfigurations['http']['static']['squid']['configuration']),
 			'files' => $formattedFiles,
-			'proxies' => $proxyIps,
 			'users' => $formattedUsers
 		);
 
@@ -179,7 +178,7 @@ class ServersModel extends AppModel {
 				'server_configuration_type'
 			)
 		));
-		$serverConfiguration = $proxyConfiguration = array();
+		$serverConfiguration = $proxyConfiguration = $proxyIps = array();
 
 		if (!empty($server['count'])) {
 			$response['message']['status'] = 'Duplicate server IPs, please check server options in database.';
@@ -257,9 +256,14 @@ class ServersModel extends AppModel {
 								!empty($this->proxyConfigurations) &&
 								is_array($this->proxyConfigurations)
 							) {
+								foreach ($proxies['data'] as $proxy) {
+									$proxyIps[] = $proxy['ip'];
+								}
+
 								$response = array(
 									'data' => array(
-										'dns_ips' => array_unique(array_filter($dnsIps['data'])),
+										'dns_ips' => ($dnsIps['data'] = array_unique(array_filter($dnsIps['data']))),
+										'proxy_ips' => array_unique(array_filter($proxyIps)),
 										'server' => $serverConfiguration
 									),
 									'message' => array(

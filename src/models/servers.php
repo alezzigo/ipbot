@@ -194,6 +194,10 @@ class ServersModel extends AppModel {
 						),
 						'fields' => array(
 							'ip'
+						),
+						'sort' => array(
+							'field' => 'created',
+							'order' => 'ASC'
 						)
 					));
 					$proxies = $this->fetch('proxies', array(

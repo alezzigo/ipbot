@@ -1130,7 +1130,7 @@ class AppModel extends Config {
 		$data = $this->_query($query, $parameters);
 		$response = array(
 			'count' => $count,
-			'data' => $data
+			'data' => is_array($data) ? $data : array()
 		);
 
 		if (empty($count)) {

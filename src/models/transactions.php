@@ -2007,16 +2007,17 @@ class TransactionsModel extends InvoicesModel {
  * @return array $response
  */
 	public function payment($table, $parameters) {
-		$response = $defaultResponse = array(
-			'message' => array(
-				'status' => 'error',
-				'text' => ($defaultMessage = 'Error processing your payment request, please try again.')
-			)
-		);
+		$response = array();
 
-		if (
-			!empty($parameters['data']['payment_method']) &&
-			(
+		if (!empty($parameters['data']['payment_method'])) {
+			$response = $defaultResponse = array(
+				'message' => array(
+					'status' => 'error',
+					'text' => ($defaultMessage = 'Error processing your payment request, please try again.')
+				)
+			);
+
+			if (
 				!empty($parameters['user']) ||
 				(
 					(
@@ -2030,101 +2031,101 @@ class TransactionsModel extends InvoicesModel {
 						$response['message']['status'] === 'success'
 					)
 				)
-			)
-		) {
-			$parameters['user'] = empty($parameters['user']) ? $response['user'] : $parameters['user'];
-			$response['message'] = $defaultResponse['message'];
-			unset($response['redirect']);
-
-			if (
-				$parameters['data']['payment_method'] === 'balance' ||
-				(
-					!isset($parameters['data']['recurring']) ||
-					!is_bool($parameters['data']['recurring'])
-				)
 			) {
-				$parameters['data']['recurring'] = false;
-			}
+				$parameters['user'] = empty($parameters['user']) ? $response['user'] : $parameters['user'];
+				$response['message'] = $defaultResponse['message'];
+				unset($response['redirect']);
 
-			$response['message']['text'] = 'Invalid payment amount, please try again.';
+				if (
+					$parameters['data']['payment_method'] === 'balance' ||
+					(
+						!isset($parameters['data']['recurring']) ||
+						!is_bool($parameters['data']['recurring'])
+					)
+				) {
+					$parameters['data']['recurring'] = false;
+				}
 
-			if (
-				!empty($amount = $parameters['data']['billing_amount']) &&
-				is_numeric($amount) &&
-				number_format($amount, 2, '.', '') == $amount
-			) {
-				$response['message']['text'] = 'Invalid payment method, please try again.';
-				$method = '_process' . str_replace(' ', '', ucwords(str_replace('_', ' ', $parameters['data']['payment_method'])));
+				$response['message']['text'] = 'Invalid payment amount, please try again.';
 
-				if (method_exists($this, $method)) {
-					if (
-						$parameters['data']['payment_method'] === 'balance' &&
-						$parameters['data']['billing_amount'] > $parameters['user']['balance']
-					) {
-						$response['message']['text'] = 'Payment amount from your account balance exceeds your account balance, please enter an amount less than or equal to ' . $parameters['user']['balance'] . ' ' . $this->settings['billing']['currency'] . '.';
-					} else {
-						$response['message']['text'] = 'Invalid invoice ID, please try again.';
-						$invoice = $this->invoice('invoices', array(
-							'conditions' => array(
-								'id' => $parameters['data']['invoice_id']
-							)
-						));
-						$amountDue = isset($invoice['data']['invoice']['amount_due_pending']) ? $invoice['data']['invoice']['amount_due_pending'] : $invoice['data']['invoice']['amount_due'];
+				if (
+					!empty($amount = $parameters['data']['billing_amount']) &&
+					is_numeric($amount) &&
+					number_format($amount, 2, '.', '') == $amount
+				) {
+					$response['message']['text'] = 'Invalid payment method, please try again.';
+					$method = '_process' . str_replace(' ', '', ucwords(str_replace('_', ' ', $parameters['data']['payment_method'])));
 
+					if (method_exists($this, $method)) {
 						if (
 							$parameters['data']['payment_method'] === 'balance' &&
-							$parameters['data']['billing_amount'] > $amountDue
+							$parameters['data']['billing_amount'] > $parameters['user']['balance']
 						) {
-							$response['message']['text'] = 'Payment amount from your account balance exceeds the amount due' . ($amountDue ? ', please enter an amount less than or equal to ' . $amountDue . ' ' . $this->settings['billing']['currency'] : '') . '.';
+							$response['message']['text'] = 'Payment amount from your account balance exceeds your account balance, please enter an amount less than or equal to ' . $parameters['user']['balance'] . ' ' . $this->settings['billing']['currency'] . '.';
 						} else {
-							if (
-								!empty($invoice['data']) &&
-								$parameters['user']['id'] === $invoice['data']['invoice']['user_id']
-							) {
-								if (empty($invoice['data']['invoice']['payable'])) {
-									$response['message']['text'] = 'Invoice is currently not payable, please try again later.';
-								} else {
-									$response['message']['text'] = $defaultMessage;
-									$parameters['data'] = array_merge($parameters['data'], $invoice['data']);
-									$planData = array(
-										'cart_items' => $parameters['data']['invoice']['cart_items'],
-										'invoice_id' => $parameters['data']['invoice']['id'],
-										'price' => $parameters['data']['billing_amount']
-									);
-									$existingPlan = $this->fetch('plans', array(
-										'conditions' => $planData,
-										'fields' => array(
-											'id'
-										),
-										'limit' => 1
-									));
+							$response['message']['text'] = 'Invalid invoice ID, please try again.';
+							$invoice = $this->invoice('invoices', array(
+								'conditions' => array(
+									'id' => $parameters['data']['invoice_id']
+								)
+							));
+							$amountDue = isset($invoice['data']['invoice']['amount_due_pending']) ? $invoice['data']['invoice']['amount_due_pending'] : $invoice['data']['invoice']['amount_due'];
 
-									if (
-										!empty($existingPlan['count']) ||
-										$this->save('plans', array(
-											$planData
-										))
-									) {
-										$plan = $this->fetch('plans', array(
+							if (
+								$parameters['data']['payment_method'] === 'balance' &&
+								$parameters['data']['billing_amount'] > $amountDue
+							) {
+								$response['message']['text'] = 'Payment amount from your account balance exceeds the amount due' . ($amountDue ? ', please enter an amount less than or equal to ' . $amountDue . ' ' . $this->settings['billing']['currency'] : '') . '.';
+							} else {
+								if (
+									!empty($invoice['data']) &&
+									$parameters['user']['id'] === $invoice['data']['invoice']['user_id']
+								) {
+									if (empty($invoice['data']['invoice']['payable'])) {
+										$response['message']['text'] = 'Invoice is currently not payable, please try again later.';
+									} else {
+										$response['message']['text'] = $defaultMessage;
+										$parameters['data'] = array_merge($parameters['data'], $invoice['data']);
+										$planData = array(
+											'cart_items' => $parameters['data']['invoice']['cart_items'],
+											'invoice_id' => $parameters['data']['invoice']['id'],
+											'price' => $parameters['data']['billing_amount']
+										);
+										$existingPlan = $this->fetch('plans', array(
 											'conditions' => $planData,
 											'fields' => array(
-												'cart_items',
-												'created',
-												'id',
-												'invoice_id',
-												'modified',
-												'price'
+												'id'
 											),
-											'limit' => 1,
-											'sort' => array(
-												'field' => 'created',
-												'order' => 'DESC'
-											)
+											'limit' => 1
 										));
 
-										if (!empty($plan['count'])) {
-											$parameters['data']['plan'] = $plan['data'][0];
-											$response = $this->$method($parameters);
+										if (
+											!empty($existingPlan['count']) ||
+											$this->save('plans', array(
+												$planData
+											))
+										) {
+											$plan = $this->fetch('plans', array(
+												'conditions' => $planData,
+												'fields' => array(
+													'cart_items',
+													'created',
+													'id',
+													'invoice_id',
+													'modified',
+													'price'
+												),
+												'limit' => 1,
+												'sort' => array(
+													'field' => 'created',
+													'order' => 'DESC'
+												)
+											));
+
+											if (!empty($plan['count'])) {
+												$parameters['data']['plan'] = $plan['data'][0];
+												$response = $this->$method($parameters);
+											}
 										}
 									}
 								}

@@ -15,12 +15,20 @@ class ServersModel extends AppModel {
 /**
  * Format Squid access controls for list of proxies
  *
+ * @param array $dnsIps
  * @param array $proxies
  *
  * @return array $response
  */
-	protected function _formatSquidAccessControls($proxies) {
-		$disabledProxies = $formattedAcls = $formattedFiles = $formattedProxies = $formattedUsers = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = $proxyIps = array();
+	protected function _formatSquidAccessControls($dnsIps, $proxies) {
+		$disabledProxies = $formattedFiles = $formattedProxies = $formattedUsers = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = $proxyIps = array();
+		$formattedAcls = array(
+			'auth_param basic program /usr/lib/squid3/basic_ncsa_auth /etc/squid3/passwords',
+			'auth_param basic children 88888',
+			'auth_param basic realm Authentication Required',
+			'auth_param basic credentialsttl 88888 days',
+			'auth_param basic casesensitive on'
+		);
 		$userIndex = 0;
 
 		foreach ($proxies as $key => $proxy) {
@@ -118,13 +126,14 @@ class ServersModel extends AppModel {
 
 		$formattedAcls[] = 'http_access deny all';
 		$response = array(
-			'acls' => implode("\n", $this->proxyConfigurations['http']['static']['squid']['acls']),
+			'acls' => implode("\n", $formattedAcls),
+			'configuration' => implode("\n", $this->proxyConfigurations['http']['static']['squid']['configuration']),
 			'files' => $formattedFiles,
 			'users' => $formattedUsers
 		);
 
-		if (strpos($response['acls'], '[acls]') !== false) {
-			$response['acls'] = str_replace('[acls]', implode("\n", $formattedAcls), $response['acls']);
+		if (strpos($response['configuration'], '[dns_ips]') !== false) {
+			$response['configuration'] = str_replace('[dns_ips]', '127.0.0.1 ' . implode(' ', $dnsIps), $response['configuration']);
 		}
 
 		if (
@@ -262,7 +271,7 @@ class ServersModel extends AppModel {
 									if (
 										!empty($proxyConfiguration = $proxyConfiguration[$server['data'][0]['server_configuration_type']][$proxyConfigurationType = $server['data'][0][$proxyProtocol . '_proxy_configuration']]) &&
 										method_exists($this, ($method = '_format' . ucwords($proxyConfigurationType) . 'AccessControls')) &&
-										!empty($formattedAcls = $this->$method($proxies['data']))
+										!empty($formattedAcls = $this->$method($dnsIps['data'], $proxies['data']))
 									) {
 										$response['data'][$proxyProtocol] = $formattedAcls;
 									}

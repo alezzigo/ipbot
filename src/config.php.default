@@ -278,13 +278,8 @@ class Config {
 				'static' => array(
 					'eightomic' => array(),
 					'squid' => array(
-						'acls' => array(
-							'auth_param basic program /usr/lib/squid3/basic_ncsa_auth /etc/squid3/passwords',
-							'auth_param basic children 88888',
-							'auth_param basic realm Authentication Required',
-							'auth_param basic credentialsttl 88888 days',
-							'auth_param basic casesensitive on',
-							'[acls]',
+						'configuration' => array(
+							'include /etc/squid3/proxy_ip_acl.conf',
 							'[ports]',
 							'forwarded_for off',
 							'request_header_access Cache-Control deny all',
@@ -311,7 +306,7 @@ class Config {
 							'client_lifetime 2 seconds',
 							'client_persistent_connections off',
 							'connect_timeout 2 seconds',
-							'dns_nameservers 127.0.0.1',
+							'dns_nameservers [dns_ips]',
 							'dns_retransmit_interval 2 seconds',
 							'dns_timeout 2 seconds',
 							'dns_v4_first on',

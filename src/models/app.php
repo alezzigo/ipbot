@@ -1115,8 +1115,14 @@ class AppModel extends Config {
 
 		$count = $this->_query('SELECT COUNT(id)' . $query);
 
-		if (!empty($sortField = $parameters['sort']['field'])) {
-			$query .= ' ORDER BY ' . $sortField . ' ' . (!empty($parameters['sort']['order']) ? $parameters['sort']['order'] : 'DESC') . ', ' . implode(' DESC, ', array_diff(array('modified', 'created', 'id'), array($sortField))) . ' DESC';
+		if (!empty($parameters['sort'])) {
+			$query .= ' ORDER BY ';
+
+			if ($parameters['sort'] === 'random') {
+				$query .= 'RAND()';
+			} elseif (!empty($sortField = $parameters['sort']['field'])) {
+				$query .= $sortField . ' ' . (!empty($parameters['sort']['order']) ? $parameters['sort']['order'] : 'DESC') . ', ' . implode(' DESC, ', array_diff(array('modified', 'created', 'id'), array($sortField))) . ' DESC';
+			}
 		}
 
 		$parameters = array_merge($parameters, array(

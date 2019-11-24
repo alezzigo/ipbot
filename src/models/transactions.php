@@ -449,10 +449,7 @@ class TransactionsModel extends InvoicesModel {
 									'region'
 								),
 								'limit' => $quantity,
-								'sort' => array(
-									'field' => 'id',
-									'order' => 'ASC'
-								)
+								'sort' => 'random'
 							));
 
 							if (

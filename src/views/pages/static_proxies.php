@@ -6,31 +6,31 @@
 	$items = array(
 		array(
 			'quantity' => 10,
-			'price' => 18.80
+			'price' => 40.00
 		),
 		array(
-			'quantity' => 30,
-			'price' => 56.40
+			'quantity' => 20,
+			'price' => 80.00
 		),
 		array(
-			'quantity' => 50,
-			'price' => 94.00
+			'quantity' => 40,
+			'price' => 160.00
 		),
 		array(
-			'quantity' => 100,
-			'price' => 188.00
+			'quantity' => 80,
+			'price' => 320.00
 		),
 		array(
-			'quantity' => 300,
-			'price' => 564.00
+			'quantity' => 160,
+			'price' => 640.00
 		),
 		array(
-			'quantity' => 500,
-			'price' => 940.00
+			'quantity' => 320,
+			'price' => 1280.00
 		),
 		array(
-			'quantity' => 1000,
-			'price' => 1880.00
+			'quantity' => 640,
+			'price' => 2560.00
 		)
 	);
 	$product = array(

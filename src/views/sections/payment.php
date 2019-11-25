@@ -41,7 +41,7 @@
 						<h2>Payment Method</h2>
 						<div class="field-group no-margin payment-methods">
 							<label for="paypal" type="radio"><input checked id="paypal" name="payment_method" type="radio" value="paypal"> PayPal</label>
-							<label for="credit-card" type="radio"><input id="credit-card" name="payment_method" type="radio" value="credit_card"> Credit Card</label>
+							<!--<label for="credit-card" type="radio"><input id="credit-card" name="payment_method" type="radio" value="credit_card"> Credit Card</label>-->
 							<label class="hidden" for="balance" type="radio"><input id="balance" name="payment_method" type="radio" value="balance"> Account Balance</label>
 						</div>
 						<div class="clear"></div>

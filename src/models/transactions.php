@@ -1694,20 +1694,13 @@ class TransactionsModel extends InvoicesModel {
 		$response = array();
 
 		if (
-			!empty($parameters) &&
-			is_string($parameters)
-		) {
-			$parameters = json_decode($parameters, true);
-
-			if (array_key_exists('verify_sign', $parameters)) {
-				$this->_savePaypalNotification($parameters);
-			}
-		}
-
-		if (
 			is_array($parameters) &&
 			empty($parameters['json'])
 		) {
+			if (array_key_exists('verify_sign', $parameters)) {
+				$this->_savePaypalNotification($parameters);
+			}
+
 			// ..
 		}
 
@@ -1820,7 +1813,7 @@ class TransactionsModel extends InvoicesModel {
 			$transaction['invoice_id'] = $this->_retrieveTransactionInvoiceId($transaction);
 			$existingTransaction = $this->fetch('transactions', array(
 				'conditions' => array(
-					'id' => $parameters['txn_id']
+					'payment_transaction_id' => $parameters['txn_id']
 				),
 				'fields' => array(
 					'id'

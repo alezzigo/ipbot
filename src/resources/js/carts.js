@@ -216,8 +216,6 @@ var processCartItems = function(response) {
 		checkoutItems += '<h2>Pricing Details</h2>';
 		checkoutItems += '<p class="no-margin-bottom"><label>Subtotal</label></p>';
 		checkoutItems += '<p>' + (Math.round(cartSubtotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + requestParameters.settings.billing_currency + '</p>';
-		checkoutItems += '<p class="hidden no-margin-bottom"><label for="discount-code">Discount Code</label></p>';
-		checkoutItems += '<div class="field-group hidden no-margin-top"><input class="discount-code-field" id="discount-code" name="discount_code" placeholder="Enter discount code" type="text"><button class="button discount-code-button">Apply Discount</button></div>';
 		checkoutItems += '<p class="no-margin-bottom"><label>Cart Total</label></p>';
 		checkoutItems += '<p>' + (Math.round(cartTotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + requestParameters.settings.billing_currency + '</p>';
 		checkoutItems += '<p class="message">Additional fees for shipping and/or tax may apply before submitting final payment.</p>';

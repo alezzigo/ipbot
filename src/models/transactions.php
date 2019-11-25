@@ -1847,7 +1847,7 @@ class TransactionsModel extends InvoicesModel {
 		array_walk($urlParameters, function(&$value, $key) {
 			$value = $key . '=' . rawurlencode($value);
 		});
-		$verifyUrl = 'https://ipnpb.paypal.com/cgi-bin/webscr?cmd=_notify-validate&' . implode('&', $urlParameters);
+		$verifyUrl = 'https://ipnpb' . ($parameters['test_ipn'] ? '.sandbox' : '') . '.paypal.com/cgi-bin/webscr?cmd=_notify-validate&' . implode('&', $urlParameters);
 		exec('curl "' . $verifyUrl . '" 2>&1', $verifyResponse);
 		$validNotification = (
 			(strcasecmp(end($verifyResponse), 'verified') === 0) &&

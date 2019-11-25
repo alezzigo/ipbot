@@ -238,7 +238,12 @@ class AppModel extends Config {
 		foreach ($conditions as $key => $value) {
 			$condition = !empty($key) && (in_array($key, array('AND', 'OR'))) ? $key : $condition;
 
-			if (count($value) == count($value, COUNT_RECURSIVE)) {
+			if (
+				is_array($value) &&
+				count($value) != count($value, COUNT_RECURSIVE)
+			) {
+				$conditions[$key] = '(' . implode(' ' . $condition . ' ', $this->_formatConditions($value, $condition)) . ')';
+			} else {
 				if (is_array($value)) {
 					array_walk($value, function(&$fieldValue, $fieldKey) use ($key, $operators) {
 						$key = (strlen($fieldKey) > 1 && is_string($fieldKey) ? $fieldKey : $key);
@@ -249,8 +254,6 @@ class AppModel extends Config {
 				}
 
 				$conditions[$key] = '(' . implode(' ' . (strpos($key, '!=') !== false ? 'AND' : $condition) . ' ', $value) . ')';
-			} else {
-				$conditions[$key] = '(' . implode(' ' . $condition . ' ', $this->_formatConditions($value, $condition)) . ')';
 			}
 
 			$conditions[$key] = ($key === 'NOT' ? 'NOT' : null) . $conditions[$key];

@@ -361,7 +361,7 @@ class TransactionsModel extends InvoicesModel {
 				$invoiceData = array(
 					array(
 						'amount_paid' => $invoice['data']['invoice']['amount_paid'] + $parameters['payment_amount'],
-						'id' => $parameters['invoice_id']
+						'id' => $invoice['data']['invoice']['id']
 					)
 				);
 				$total = !empty($invoice['data']['invoice']['total_pending']) ? $invoice['data']['invoice']['total_pending'] : $invoice['data']['invoice']['total'];

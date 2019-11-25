@@ -1,5 +1,5 @@
 <?php
-	require_once(str_replace('shell.php', 'config.php', $_SERVER['PWD'] . '/' . $_SERVER['SCRIPT_FILENAME']));
+	require_once(str_replace('shell.php', 'config.php', $_SERVER['SCRIPT_FILENAME']));
 	$output = 'Error processing shell method, please check the parameters and try again.';
 
 	if (

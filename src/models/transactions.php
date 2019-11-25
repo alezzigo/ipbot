@@ -1728,50 +1728,52 @@ class TransactionsModel extends InvoicesModel {
  * @return array $response
  */
 	protected function _savePaypalNotification($parameters) {
-		$response = $transaction = array();
+		$response = $transactionData = array();
 
 		if ($this->_validatePaypalNotification($parameters)) {
 			$itemNumberIds = explode('_', $parameters['item_number']);
-			$transaction = array(
-				'billing_address_1' => $parameters['address_street'],
-				'billing_address_status' => $parameters['address_status'],
-				'billing_city' => $parameters['address_city'],
-				'billing_country_code' => $parameters['address_country_code'],
-				'billing_name' => $parameters['address_country_code'],
-				'billing_region' => $parameters['address_state'],
-				'billing_zip' => $parameters['address_zip'],
-				'customer_email' => $parameters['payer_email'],
-				'customer_first_name' => $parameters['first_name'],
-				'customer_id' => $parameters['payer_id'],
-				'customer_last_name' => $parameters['last_name'],
-				'customer_status' => $parameters['payer_status'],
-				'id' => uniqid() . time(),
-				'initial_invoice_id' => ($invoiceId = (!empty($itemNumberIds[0]) && is_numeric($itemNumberIds[0]) ? $itemNumberIds[0] : 0)),
-				'invoice_id' => $invoiceId,
-				'parent_transaction_id' => (!empty($parameters['parent_txn_id']) ? $parameters['parent_txn_id'] : null),
-				'payment_amount' => (!empty($parameters['mc_gross']) ? $parameters['mc_gross'] : $parameters['amount3']),
-				'payment_currency' => $parameters['mc_currency'],
-				'payment_external_fee' => $parameters['mc_fee'],
-				'payment_method_id' => 'paypal',
-				'payment_shipping_amount' => $parameters['shipping'],
-				'payment_status' => strtolower($parameters['payment_status']),
-				'payment_tax_amount' => $parameters['tax'],
-				'payment_transaction_id' => (!empty($parameters['txn_id']) ? $parameters['txn_id'] : uniqid() . time()),
-				'plan_id' => (!empty($itemNumberIds[1]) && is_numeric($itemNumberIds[1]) ? $itemNumberIds[1] : 0),
-				'provider_country_code' => $parameters['residence_country'],
-				'provider_email' => $parameters['receiver_email'],
-				'provider_id' => $parameters['receiver_id'],
-				'sandbox' => (!empty($parameters['test_ipn']) ? true : false),
-				'subscription_id' => (!empty($parameters['subscr_id']) ? $parameters['subscr_id'] : null),
-				'transaction_charset' => $this->settings['database']['charset'],
-				'transaction_date' => date('Y-m-d H:i:s', strtotime((!empty($parameters['subscr_date']) ? $parameters['subscr_date'] : $parameters['payment_date']))),
-				'transaction_raw' => json_encode($parameters),
-				'transaction_token' => $parameters['verify_sign'],
-				'user_id' => (!empty($itemNumberIds[2]) && is_numeric($itemNumberIds[2]) ? $itemNumberIds[2] : 0)
+			$transactionData = array(
+				array(
+					'billing_address_1' => $parameters['address_street'],
+					'billing_address_status' => $parameters['address_status'],
+					'billing_city' => $parameters['address_city'],
+					'billing_country_code' => $parameters['address_country_code'],
+					'billing_name' => $parameters['address_country_code'],
+					'billing_region' => $parameters['address_state'],
+					'billing_zip' => $parameters['address_zip'],
+					'customer_email' => $parameters['payer_email'],
+					'customer_first_name' => $parameters['first_name'],
+					'customer_id' => $parameters['payer_id'],
+					'customer_last_name' => $parameters['last_name'],
+					'customer_status' => $parameters['payer_status'],
+					'id' => uniqid() . time(),
+					'initial_invoice_id' => ($invoiceId = (!empty($itemNumberIds[0]) && is_numeric($itemNumberIds[0]) ? $itemNumberIds[0] : 0)),
+					'invoice_id' => $invoiceId,
+					'parent_transaction_id' => (!empty($parameters['parent_txn_id']) ? $parameters['parent_txn_id'] : null),
+					'payment_amount' => (!empty($parameters['mc_gross']) ? $parameters['mc_gross'] : $parameters['amount3']),
+					'payment_currency' => $parameters['mc_currency'],
+					'payment_external_fee' => $parameters['mc_fee'],
+					'payment_method_id' => 'paypal',
+					'payment_shipping_amount' => $parameters['shipping'],
+					'payment_status' => strtolower($parameters['payment_status']),
+					'payment_tax_amount' => $parameters['tax'],
+					'payment_transaction_id' => (!empty($parameters['txn_id']) ? $parameters['txn_id'] : uniqid() . time()),
+					'plan_id' => (!empty($itemNumberIds[1]) && is_numeric($itemNumberIds[1]) ? $itemNumberIds[1] : 0),
+					'provider_country_code' => $parameters['residence_country'],
+					'provider_email' => $parameters['receiver_email'],
+					'provider_id' => $parameters['receiver_id'],
+					'sandbox' => (!empty($parameters['test_ipn']) ? true : false),
+					'subscription_id' => (!empty($parameters['subscr_id']) ? $parameters['subscr_id'] : null),
+					'transaction_charset' => $this->settings['database']['charset'],
+					'transaction_date' => date('Y-m-d H:i:s', strtotime((!empty($parameters['subscr_date']) ? $parameters['subscr_date'] : $parameters['payment_date']))),
+					'transaction_raw' => json_encode($parameters),
+					'transaction_token' => $parameters['verify_sign'],
+					'user_id' => (!empty($itemNumberIds[2]) && is_numeric($itemNumberIds[2]) ? $itemNumberIds[2] : 0)
+				)
 			);
 
 			if (!empty($parameters['pending_reason'])) {
-				$transaction['payment_status_code'] = $parameters['pending_reason'];
+				$transactionData[0]['payment_status_code'] = $parameters['pending_reason'];
 			}
 
 			if (!empty($parameters['period3'])) {
@@ -1786,31 +1788,31 @@ class TransactionsModel extends InvoicesModel {
 				) {
 					switch ($subscriptionPeriod[1]) {
 						case 'D':
-							$transaction['interval_type'] = 'day';
+							$transactionData[0]['interval_type'] = 'day';
 							break;
 						case 'M':
-							$transaction['interval_type'] = 'month';
+							$transactionData[0]['interval_type'] = 'month';
 							break;
 						case 'W':
-							$transaction['interval_type'] = 'week';
+							$transactionData[0]['interval_type'] = 'week';
 							break;
 						case 'Y':
-							$transaction['interval_type'] = 'year';
+							$transactionData[0]['interval_type'] = 'year';
 							break;
 					}
 
-					if (!empty($transaction['interval_type'])) {
-						$transaction['interval_value'] = $subscriptionPeriod[0];
+					if (!empty($transactionData[0]['interval_type'])) {
+						$transactionData[0]['interval_value'] = $subscriptionPeriod[0];
 					}
 				}
 			}
 
 			if (!empty($parameters['reason_code'])) {
-				$transaction['payment_status_code'] = $parameters['reason_code'];
+				$transactionData[0]['payment_status_code'] = $parameters['reason_code'];
 			}
 
-			$transaction = array_merge($transaction, $this->_retrievePayPalTransactionMethod($parameters));
-			$transaction['invoice_id'] = $this->_retrieveTransactionInvoiceId($transaction);
+			$transactionData[0] = array_merge($transactionData[0], $this->_retrievePayPalTransactionMethod($parameters));
+			$transactionData[0]['invoice_id'] = $this->_retrieveTransactionInvoiceId($transactionData[0]);
 			$existingTransaction = $this->fetch('transactions', array(
 				'conditions' => array(
 					'payment_transaction_id' => $parameters['txn_id']
@@ -1823,9 +1825,7 @@ class TransactionsModel extends InvoicesModel {
 
 			if (
 				empty($existingTransaction['count']) &&
-				$this->save('transactions', array(
-					$transaction
-				))
+				$this->save('transactions', $transactionData)
 			) {
 				$response = $transaction;
 			}

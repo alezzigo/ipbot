@@ -26,7 +26,10 @@ var processMethodForm = function(element) {
 	frameName = element.hasAttribute('frame') ? element.getAttribute('frame') : '';
 	frameSelector = '.frame-container[frame="' + frameName + '"]';
 
-	if (element.classList.contains('close')) {
+	if (
+		element.classList.contains('close') ||
+		!element.classList.contains('submit')
+	) {
 		closeFrames(defaultTable);
 	}
 

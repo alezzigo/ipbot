@@ -1845,10 +1845,12 @@ class TransactionsModel extends InvoicesModel {
 		$response = false;
 		$urlParameters = $parameters;
 		array_walk($urlParameters, function(&$value, $key) {
-			$value = $key . '=' . $value;
+			$value = $key . '=' . rawurlencode($value);
 		});
+		$verifyUrl = 'https://ipnpb.paypal.com/cgi-bin/webscr?cmd=_notify-validate&' . implode('&', $urlParameters);
+		exec('curl "' . $verifyUrl . '" 2>&1', $verifyResponse);
 		$validNotification = (
-			strtolower(file_get_contents('https://ipnpb.paypal.com/cgi-bin/webscr?cmd=_notify-validate&' . implode('&', $urlParameters))) === 'verified' &&
+			(strcasecmp(end($verifyResponse), 'verified') === 0) &&
 			(
 				!empty($parameters['address_city']) &&
 				is_string($parameters['address_city'])

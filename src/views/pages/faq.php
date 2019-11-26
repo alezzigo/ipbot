@@ -22,7 +22,7 @@
 				<h2>Do you allow proxy IP location targeting?</h2>
 				<p>Due to varying IPv4 geolocation results, the proxies currently aren't guaranteed to be specific to any location.</p>
 				<h2>Do your proxies support SOCKS?</h2>
-				<p>Only HTTP / HTTPS is supported.</p>
+				<p>Only HTTP / HTTPS is supported, SOCKS are usually for bad bots.</p>
 				<h2>Can you provide a discount code?</h2>
 				<p>No, quality is expensive.</p>
 			</div>

@@ -491,6 +491,7 @@ class Config {
 				'username' => 'root'
 			),
 			'from_email' => 'email@localhost',
+			'google_site_verification' => '',
 			'session_cookies' => array(
 				'enabled' => true,
 				'lifetime' => 8888888888

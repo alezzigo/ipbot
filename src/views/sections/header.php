@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="google-site-verification" content="fx1RKCLds-SZfGNrdb3SmiLPg9Or5AZ4vp-1-hw6LBs">
 <meta name="viewport" content="width=506">
 <link rel="shortcut icon" type="image/png" href="/resources/images/icons/favicon.png">
 <title><?php echo $config->parameters['title']; ?></title>

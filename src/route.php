@@ -119,6 +119,14 @@
 			'url' => '/refunds'
 		),
 		array(
+			'file' => $config->settings['base_path'] . '/views/pages/robots.php',
+			'headers' => array(
+				'Content-type: text/plain'
+			),
+			'title' => 'Robots',
+			'url' => '/robots.txt'
+		),
+		array(
 			'file' => $config->settings['base_path'] . '/views/pages/static_proxies.php',
 			'title' => 'Static Proxies',
 			'url' => '/static-proxies'

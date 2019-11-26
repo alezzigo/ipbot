@@ -27,8 +27,11 @@ var processMethodForm = function(element) {
 	frameSelector = '.frame-container[frame="' + frameName + '"]';
 
 	if (
-		element.classList.contains('close') ||
-		!element.classList.contains('submit')
+		typeof defaultTable !== 'undefined' &&
+		(
+			element.classList.contains('close') ||
+			!element.classList.contains('submit')
+		)
 	) {
 		closeFrames(defaultTable);
 	}

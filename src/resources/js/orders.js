@@ -65,46 +65,47 @@ var processOrders = function() {
 			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
 
-		if (
-			ordersContainer &&
-			response.data.length
-		) {
-			elements.removeClass('.item-configuration .item-controls', 'hidden');
-			response.data.map(function(item, index) {
-				var pendingOrderChange = (
-					item.quantity_pending &&
-					item.quantity_pending !== item.quantity
-				);
-				ordersData += '<div class="item-container item-button">';
-				ordersData += '<div class="item">';
-				ordersData += '<span class="checkbox-container">';
-				ordersData += '<span checked="0" class="checkbox" index="' + index + '" order_id="' + item.id + '" product_id="' + item.product_id + '"></span>';
-				ordersData += '</span>';
-				ordersData += '<div class="item-body item-checkbox">';
-				ordersData += '<p><strong>Order #' + item.id + '</strong></p>';
-				ordersData += '<p>' + (item.quantity_active ? item.quantity_active : item.quantity) + ' ' + item.name + '</p>';
-				ordersData += '<label class="label ' + (item.quantity_active ? 'active' : item.status) + '">' + (item.quantity_active ? 'active' : item.status) + '</label>' + (pendingOrderChange ? '<label class="label">Pending Order ' + (item.quantity_pending >= item.quantity ? 'Upgrade' : 'Downgrade') + '</label>' : '');
-				ordersData += '</div>';
-				ordersData += '</div>';
-				ordersData += '<div class="item-link-container"><a class="item-link" href="/orders/' + item.id + '"></a></div>';
-				ordersData += '</div>';
-			});
-			ordersContainer.innerHTML = ordersData;
-			ordersAllVisible.removeEventListener('click', ordersAllVisible.clickListener);
-			ordersAllVisible.clickListener = function() {
-				orderToggleAllVisible(ordersAllVisible);
-			};
-			ordersAllVisible.addEventListener('click', ordersAllVisible.clickListener);
-			elements.loop('.orders-container .item-button', function(index, row) {
-				var orderToggleButton = row.querySelector('.checkbox');
-				var orderId = orderToggleButton.getAttribute('order_id');
-				orderToggleButton.removeEventListener('click', orderToggleButton.clickListener);
-				orderToggleButton.clickListener = function() {
-					orderToggle(orderToggleButton);
+		if (ordersContainer) {
+			if (response.data.length) {
+				elements.removeClass('.item-configuration .item-controls', 'hidden');
+				response.data.map(function(item, index) {
+					var pendingOrderChange = (
+						item.quantity_pending &&
+						item.quantity_pending !== item.quantity
+					);
+					ordersData += '<div class="item-container item-button">';
+					ordersData += '<div class="item">';
+					ordersData += '<span class="checkbox-container">';
+					ordersData += '<span checked="0" class="checkbox" index="' + index + '" order_id="' + item.id + '" product_id="' + item.product_id + '"></span>';
+					ordersData += '</span>';
+					ordersData += '<div class="item-body item-checkbox">';
+					ordersData += '<p><strong>Order #' + item.id + '</strong></p>';
+					ordersData += '<p>' + (item.quantity_active ? item.quantity_active : item.quantity) + ' ' + item.name + '</p>';
+					ordersData += '<label class="label ' + (item.quantity_active ? 'active' : item.status) + '">' + (item.quantity_active ? 'active' : item.status) + '</label>' + (pendingOrderChange ? '<label class="label">Pending Order ' + (item.quantity_pending >= item.quantity ? 'Upgrade' : 'Downgrade') + '</label>' : '');
+					ordersData += '</div>';
+					ordersData += '</div>';
+					ordersData += '<div class="item-link-container"><a class="item-link" href="/orders/' + item.id + '"></a></div>';
+					ordersData += '</div>';
+				});
+				ordersContainer.innerHTML = ordersData;
+				ordersAllVisible.removeEventListener('click', ordersAllVisible.clickListener);
+				ordersAllVisible.clickListener = function() {
+					orderToggleAllVisible(ordersAllVisible);
 				};
-				orderToggleButton.addEventListener('click', orderToggleButton.clickListener);
-			});
-			elements.html('.item-configuration .total-results', response.data.length);
+				ordersAllVisible.addEventListener('click', ordersAllVisible.clickListener);
+				elements.loop('.orders-container .item-button', function(index, row) {
+					var orderToggleButton = row.querySelector('.checkbox');
+					var orderId = orderToggleButton.getAttribute('order_id');
+					orderToggleButton.removeEventListener('click', orderToggleButton.clickListener);
+					orderToggleButton.clickListener = function() {
+						orderToggle(orderToggleButton);
+					};
+					orderToggleButton.addEventListener('click', orderToggleButton.clickListener);
+				});
+				elements.html('.item-configuration .total-results', response.data.length);
+			} else {
+				messageContainer.innerHTML = '<p class="error message">No orders found, please <a href="' + requestParameters.settings.base_url + 'static-proxies">create a new order</a>.</p>';
+			}
 		}
 
 		processWindowEvents('resize');

@@ -986,10 +986,7 @@ class ProxiesModel extends OrdersModel {
 							'region'
 						),
 						'limit' => $parameters['items'][$table]['count'],
-						'sort' => array(
-							'field' => 'id',
-							'order' => 'DESC'
-						)
+						'sort' => 'random'
 					));
 
 					if (count($processingNodes['data']) !== $parameters['items'][$table]['count']) {

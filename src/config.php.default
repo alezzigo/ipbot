@@ -28,6 +28,8 @@ class Config {
 			$rootPath = str_replace('/src/' . (array_shift(array_reverse(explode('/', $_SERVER['SCRIPT_FILENAME'])))), '', (strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['PWD']) === false ? $_SERVER['PWD'] . '/' : '') . $_SERVER['SCRIPT_FILENAME']);
 		}
 
+		$this->rootPath = $rootPath;
+
 		$this->defaultFields = $defaultFields = array(
 			'carts' => array(
 				'id',

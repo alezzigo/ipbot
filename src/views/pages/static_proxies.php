@@ -74,7 +74,7 @@
 				<p>Extra proxies are kept on standby and factored into the total pricing to supply urgent proxy IP refreshes when needed.</p>
 				<h2>Fast Order Delivery</h2>
 				<p>Proxies are activated instantly after payment confirmation is received. You can request a <a href="<?php echo $config->settings['base_url']; ?>refund">refund</a> if the automated delivery system is too slow.</p>
-				<h2>Elite anonymity</h2>
+				<h2>Elite Anonymity</h2>
 				<p>Enjoy high-anonymous proxy IPs without revealing your original source IP in HTTP request headers.</p>
 				<h2>Non-sequential IP Addresses</h2>
 				<p>Ensure proxy IP diversity with random IP address allocation and a range of multiple class-C subnets available.</p>

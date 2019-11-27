@@ -14,7 +14,7 @@
 				<div class="feature-screenshot">
 					<img alt="Proxy replacement schedule screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/proxy-replacements.png">
 				</div>
-				<h2>Scale Proxy Quantities Seamlessly</h2>
+				<h2>Scale Proxy Quantities Dynamically</h2>
 				<p>Easily upgrade, downgrade and merge proxy orders from the control panel without waiting for custom invoices or support requests.</p>
 				<div class="feature-screenshot">
 					<img alt="Proxy order upgrade screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/order-upgrade.png">

@@ -1164,7 +1164,7 @@ class AppModel extends Config {
 			!empty($action = array_shift(array_reverse(explode('/', str_replace('.php', '', $parameters['route']['file']))))) &&
 			method_exists($this, $action)
 		) {
-			$response = array_merge($this->$action($parameters), array(
+			$response = array_merge($this->$action($action, $parameters), array(
 				'action' => $action,
 				'table' => str_replace('/', '', strrchr(dirname($parameters['route']['file']), '/'))
 			));

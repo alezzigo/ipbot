@@ -63,7 +63,8 @@ class OrdersModel extends TransactionsModel {
 					'tax_pending',
 					'total',
 					'total_pending',
-					'user_id'
+					'user_id',
+					'warning_level'
 				),
 				'limit' => 1,
 				'sort' => array(
@@ -830,39 +831,81 @@ class OrdersModel extends TransactionsModel {
 /**
  * View order
  *
+ * @param string $table
  * @param array $parameters
  *
  * @return array $response
  */
-	public function view($parameters) {
-		if (
-			empty($orderId = $parameters['id']) ||
-			!is_numeric($orderId)
-		) {
-			$this->redirect($this->settings['base_url'] . 'orders');
-		}
-
-		$order = $this->fetch('orders', array(
-			'conditions' => array(
-				'id' => $orderId
-			),
-			'fields' => array(
-				'id',
-				'merged_order_id'
-			)
-		));
-
-		if (
-			!empty($order['count']) &&
-			!empty($mergedOrderId = $order['data'][0]['merged_order_id'])
-		) {
-			$this->redirect($this->settings['base_url'] . 'orders/' . $mergedOrderId);
-		}
-
+	public function view($table, $parameters = array()) {
 		$response = array(
-			'order_id' => $orderId,
-			'results_per_page' => 50
+			'message' => array(
+				'status' => 'error',
+				'text' => 'Error processing your order request, please try again.'
+			)
 		);
+
+		if (
+			empty($parameters['id']) ||
+			!is_numeric($parameters['id'])
+		) {
+			if (empty($parameters['conditions'])) {
+				$this->redirect($this->settings['base_url'] . 'orders');
+			}
+
+			$order = $this->fetch('orders', array(
+				'conditions' => $parameters['conditions'],
+				'fields' => array(
+					'id',
+					'name',
+					'quantity',
+					'quantity_active'
+				),
+				'limit' => 1
+			));
+
+			if (!empty($order['count'])) {
+				$response = array(
+					'data' => array(
+						'invoice' => ($invoice = $this->_retrieveMostRecentOrderInvoice($order['data'][0])),
+						'order' => $order['data'][0]
+					),
+					'message' => array(
+						'status' => 'success',
+						'text' => ''
+					)
+				);
+
+				if ($invoice['warning_level'] >= 2) {
+					$response['message'] = array(
+						'status' => 'error',
+						'text' => 'Please pay the <a href="' . $this->settings['base_url'] . 'invoices/' . $invoice['id'] . '">past-due invoice</a> to prevent order deactivation (past-due since ' . date('M d, Y', strtotime($invoice['due'])) . ').'
+					);
+				}
+			}
+		} else {
+			$order = $this->fetch('orders', array(
+				'conditions' => array(
+					'id' => $parameters['id']
+				),
+				'fields' => array(
+					'id',
+					'merged_order_id'
+				)
+			));
+
+			if (
+				!empty($order['count']) &&
+				!empty($order['data'][0]['merged_order_id'])
+			) {
+				$this->redirect($this->settings['base_url'] . 'orders/' . $order['data'][0]['merged_order_id']);
+			}
+
+			$response = array(
+				'order_id' => $parameters['id'],
+				'results_per_page' => 50
+			);
+		}
+
 		return $response;
 	}
 

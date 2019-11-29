@@ -1424,11 +1424,12 @@ class InvoicesModel extends UsersModel {
 /**
  * View invoice
  *
+ * @param string $table
  * @param array $parameters
  *
  * @return array $response
  */
-	public function view($parameters) {
+	public function view($table, $parameters = array()) {
 		if (
 			empty($invoiceId = $parameters['id']) ||
 			!is_numeric($invoiceId)

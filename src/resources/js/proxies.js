@@ -4,8 +4,9 @@ var defaultTable = 'proxies';
 var defaultUrl = '/api/proxies';
 var itemGrid = [];
 var itemGridCount = 0;
-var messageContainer = document.querySelector('main .message-container');
+var orderMessageContainer = document.querySelector('main .message-container.order');
 var previousAction = 'fetch';
+var proxyMessageContainer = document.querySelector('main .message-container.proxies');
 var processCopy = function(frameName, frameSelector) {
 	previousAction = requestParameters.action;
 	var processCopyFormat = function() {
@@ -102,9 +103,9 @@ var processEndpoint = function(frameName, frameSelector) {
 	requestParameters.table = 'orders';
 	requestParameters.url = '/api/orders';
 	sendRequest(function(response) {
-		if (messageContainer) {
-			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		if (proxyMessageContainer) {
 			processWindowEvents('resize');
+			proxyMessageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
 
 		if (response.data) {
@@ -318,14 +319,15 @@ var processGroup = function(frameName, frameSelector) {
 };
 var processOrder = function() {
 	var orderId = document.querySelector('input[name="order_id"]').value;
+	requestParameters.action = 'view';
 	requestParameters.conditions = {
 		id: orderId
 	};
 	requestParameters.table = 'orders';
 	requestParameters.url = '/api/orders';
 	sendRequest(function(response) {
-		if (messageContainer) {
-			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		if (orderMessageContainer) {
+			orderMessageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
 
 		if (
@@ -336,12 +338,13 @@ var processOrder = function() {
 			return false;
 		}
 
-		if (response.count) {
-			document.querySelector('.order-name').innerHTML = (response.data[0].quantity_active ? response.data[0].quantity_active : response.data[0].quantity) + ' ' + response.data[0].name;
+		if (response.data.order) {
+			document.querySelector('.order-name').innerHTML = (response.data.order.quantity_active ? response.data.order.quantity_active : response.data.order.quantity) + ' ' + response.data.order.name;
 			requestParameters.table = defaultTable;
 			requestParameters.url = defaultUrl;
 
 			if (document.querySelector('.pagination')) {
+				requestParameters.action = 'fetch';
 				processProxies();
 				selectAllElements('.pagination .button').map(function(element) {
 					element[1].addEventListener('click', function(element) {
@@ -486,8 +489,8 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 	pagination.querySelector('.next').setAttribute('page', 0);
 	pagination.querySelector('.previous').setAttribute('page', 0);
 
-	if (messageContainer) {
-		messageContainer.innerHTML = '<p class="message no-margin-top">Loading ...</p>';
+	if (proxyMessageContainer) {
+		proxyMessageContainer.innerHTML = '<p class="message no-margin-top">Loading ...</p>';
 	}
 
 	if (!currentPage) {
@@ -510,8 +513,8 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 	requestParameters.offset = ((currentPage * resultsPerPage) - resultsPerPage);
 	requestParameters.sort.field = 'modified';
 	sendRequest(function(response) {
-		if (messageContainer) {
-			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		if (proxyMessageContainer) {
+			proxyMessageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
 
 		if (

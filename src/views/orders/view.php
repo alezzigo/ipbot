@@ -52,7 +52,8 @@
 								<div class="clear"></div>
 								<p class="hidden item-controls no-margin-bottom"><span class="checked-container"><span class="total-checked">0</span> of <span class="total-results"></span> selected.</span> <a class="item-action hidden" href="javascript:void(0);" index="all" status="1"><span class="action">Select</span> all results</a><span class="clear"></span></p>
 								<div class="clear"></div>
-								<div class="message-container"><p class="message no-margin-top">Loading...</p></div>
+								<div class="message-container order"></div>
+								<div class="message-container proxies"><p class="message no-margin-top">Loading...</p></div>
 							</div>
 						</div>
 						<div class="item-body">

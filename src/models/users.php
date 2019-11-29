@@ -867,9 +867,12 @@ class UsersModel extends AppModel {
 /**
  * View user
  *
+ * @param string $table
+ * @param array $parameters
+ *
  * @return array
  */
-	public function view($parameters) {
+	public function view($table, $parameters = array()) {
 		return array();
 	}
 

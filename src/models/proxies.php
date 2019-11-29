@@ -21,15 +21,13 @@ class ProxiesModel extends OrdersModel {
  */
 	protected function _generateRandomAuthentication($proxyData) {
 		$characters = 'bcdfghjklmnpqrstvwxyzbcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ01234567890123456789012345678901234567890123456789012345678901234567890123456789';
-		$proxyData['username'] .= uniqid();
-		$proxyData['password'] .= uniqid();
 
-		for ($i = 0; $i < mt_rand(5, 10); $i++) {
-			$proxyData['username'] .= $characters[mt_rand(0, strlen($characters) - 1)];
+		for ($i = 0; $i < mt_rand(10, 15); $i++) {
+			$proxyData['username'] = substr($proxyData['username'] . $characters[mt_rand(0, strlen($characters) - 1)], 0, 20);
 		}
 
-		for ($i = 0; $i < mt_rand(5, 10); $i++) {
-			$proxyData['password'] .= $characters[mt_rand(0, strlen($characters) - 1)];
+		for ($i = 0; $i < mt_rand(10, 15); $i++) {
+			$proxyData['password'] = substr($proxyData['password'] . $characters[mt_rand(0, strlen($characters) - 1)], 0, 20);
 		}
 
 		$response = $proxyData;

@@ -85,6 +85,11 @@ class CartsModel extends AppModel {
 			foreach ($cartItems['data'] as $key => $cartItem) {
 				if (!empty($cartProductDetails = $cartProducts[$cartItem['product_id']])) {
 					$cartItem = array_merge($cartProductDetails, $cartItem);
+
+					if ($cartItem['quantity'] === 1) {
+						$cartItem['name'] = substr_replace($cartItem['name'], ($consonantPlural = (substr($cartItem['name'], -3) === 'ies')) ? 'y' : '', $consonantPlural ? -3 : -1);
+					}
+
 					$cartItem['price'] = $this->_calculateItemPrice($cartItem);
 					$cartItems[$cartItem['id']] = $cartItem;
 				}

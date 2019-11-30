@@ -656,19 +656,23 @@ class ProxiesModel extends OrdersModel {
 			$table === 'proxy_groups' &&
 			!empty($parameters['data'])
 		) {
-			$groupData = array_intersect_key($parameters['data'], array(
-				'id' => true,
-				'name' => true,
-				'order_id' => true
-			));
+			$groupData = array(
+				array_intersect_key($parameters['data'], array(
+					'id' => true,
+					'name' => true,
+					'order_id' => true
+				))
+			);
 
-			if (!empty($groupData)) {
+			if (!empty($groupData[0])) {
 				if (!empty($parameters['conditions'])) {
-					$groupData = array_merge($groupData, $parameters['conditions']);
+					$groupData = array(
+						array_merge($groupData[0], $parameters['conditions'])
+					);
 				}
 
 				$groupParameters = array(
-					'conditions' => $groupData,
+					'conditions' => $groupData[0],
 					'fields' => array(
 						'created',
 						'id',
@@ -681,41 +685,37 @@ class ProxiesModel extends OrdersModel {
 				);
 
 				if (
-					!empty($groupData['name']) &&
-					!empty($groupData['order_id'])
+					!empty($groupData[0]['name']) &&
+					!empty($groupData[0]['order_id'])
 				) {
-					$response['message']['text'] = 'Group "' . $groupData['name'] . '" already exists for this order.';
+					$response['message']['text'] = 'Group "' . $groupData[0]['name'] . '" already exists for this order.';
 					unset($groupParameters['conditions']['id']);
 					$existingGroup = $this->fetch('proxy_groups', $groupParameters);
 
 					if (empty($existingGroup['count'])) {
 						$response['message']['text'] = 'Error creating new group, please try again.';
-						$this->save('proxy_groups', array(
-							$groupData
-						));
-						$groupData = $this->fetch('proxy_groups', $groupParameters);
 
-						if (!empty($groupData['count'])) {
+						if ($this->save('proxy_groups', $groupData)) {
 							$response['message'] = array(
 								'status' => 'success',
-								'text' => 'Group "' . $groupData['name'] . '" saved successfully.'
+								'text' => 'Group "' . $groupData[0]['name'] . '" saved successfully.'
 							);
 						}
 					}
 				}
 
 				if (
-					!empty($groupData['id']) &&
-					!isset($groupData['name'])
+					!empty($groupData[0]['id']) &&
+					!isset($groupData[0]['name'])
 				) {
 					$response['message']['text'] = 'Error deleting group, please try again.';
 					$existingGroup = $this->fetch('proxy_groups', $groupParameters);
 
 					if (
 						!empty($existingGroup['count']) &&
-						$this->delete('proxy_groups', $groupData) &&
+						$this->delete('proxy_groups', $groupData[0]) &&
 						$this->delete('proxy_group_proxies', array(
-							'proxy_group_id' => $groupData['id']
+							'proxy_group_id' => $groupData[0]['id']
 						))
 					) {
 						$response['message'] = array(

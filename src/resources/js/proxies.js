@@ -89,7 +89,7 @@ var processDowngrade = function() {
 		if (requestParameters.data.confirm_downgrade) {
 			closeFrames(defaultTable);
 			document.querySelector('.order-name').innerHTML = response.data.downgraded.order.quantity_pending + ' ' + response.data.downgraded.order.name;
-			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+			proxyMessageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 			requestParameters.action = 'fetch';
 			delete requestParameters.data.confirm_downgrade;
 		}
@@ -216,8 +216,8 @@ var processGroup = function(frameName, frameSelector) {
 		groupTable.setAttribute('previous_checked', button.getAttribute('index'));
 	};
 	var groupView = function(button, row) {
-		if (messageContainer) {
-			messageContainer.innerHTML = '<p class="message no-margin-top">Loading ...</p>';
+		if (proxyMessageContainer) {
+			proxyMessageContainer.innerHTML = '<p class="message no-margin-top">Loading ...</p>';
 		}
 
 		elements.addClass('.item-configuration .item-controls', 'hidden');

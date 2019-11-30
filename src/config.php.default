@@ -425,7 +425,7 @@ class Config {
 					'net.ipv4.tcp_slow_start_after_idle = 0',
 					'net.ipv4.tcp_syn_retries = 2',
 					'net.ipv4.tcp_synack_retries = 2',
-					'net.ipv4.tcp_syncookies = 0',
+					'net.ipv4.tcp_syncookies = 1',
 					'net.ipv4.tcp_thin_linear_timeouts = 1',
 					'net.ipv4.tcp_timestamps = 1',
 					'net.ipv4.tcp_tw_recycle = 0',

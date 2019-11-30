@@ -87,7 +87,7 @@ class CartsModel extends AppModel {
 					$cartItem = array_merge($cartProductDetails, $cartItem);
 
 					if ($cartItem['quantity'] === 1) {
-						$cartItem['name'] = substr_replace($cartItem['name'], ($consonantPlural = (substr($cartItem['name'], -3) === 'ies')) ? 'y' : '', $consonantPlural ? -3 : -1);
+						$cartItem['name'] = $this->_formatPluralToSingular($cartItem['name']);
 					}
 
 					$cartItem['price'] = $this->_calculateItemPrice($cartItem);

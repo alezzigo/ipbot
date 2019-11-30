@@ -264,6 +264,18 @@ class AppModel extends Config {
 	}
 
 /**
+ * Format plural to singular string
+ *
+ * @param string $string
+ *
+ * @return string $response
+ */
+	protected function _formatPluralToSingular($string) {
+		$response = substr_replace($string, ($consonantPlural = (substr($string, -3) === 'ies')) ? 'y' : '', $consonantPlural ? -3 : -1);
+		return $response;
+	}
+
+/**
  * Save and retrieve database token based on parameters
  *
  * @param string $table
@@ -697,7 +709,7 @@ class AppModel extends Config {
 								)
 							) {
 								if (array_search($parameters['user']['permissions'], $this->groups) > 1) {
-									$foreignId = substr_replace($table, ($consonantPlural = (substr($table, -3) === 'ies')) ? 'y_id' : '_id', $consonantPlural ? -3 : -1);
+									$foreignId = $this->_formatPluralToSingular($table);
 									unset($parameters['conditions']['user_id']);
 
 									if (

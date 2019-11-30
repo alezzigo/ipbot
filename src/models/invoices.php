@@ -223,6 +223,12 @@ class InvoicesModel extends UsersModel {
 				));
 
 				if (!empty($invoice['data'])) {
+					$invoiceData = array(
+						array(
+							'id' => $invoiceId,
+							'warning_level' => 3
+						)
+					);
 					$mailParameters = array(
 						'from' => $this->settings['from_email'],
 						'subject' => 'Payment past-due for invoice #' . $invoiceId,
@@ -235,12 +241,7 @@ class InvoicesModel extends UsersModel {
 
 					if (
 						$this->_sendMail($mailParameters) &&
-						$this->save('invoices', array(
-							array(
-								'id' => $invoiceId,
-								'warning_level' => 3
-							)
-						))
+						$this->save('invoices', $invoiceData)
 					) {
 						$response += 1;
 					}
@@ -282,6 +283,12 @@ class InvoicesModel extends UsersModel {
 				));
 
 				if (!empty($invoice['data'])) {
+					$invoiceData = array(
+						array(
+							'id' => $invoiceId,
+							'warning_level' => 1
+						)
+					);
 					$mailParameters = array(
 						'from' => $this->settings['from_email'],
 						'subject' => 'Upcoming payment' . (count($invoice['data']['subscriptions']) > 1 ? 's' : '') . ' ' . (!empty($invoice['data']['subscriptions']) ? 'scheduled' : 'due') . ' for invoice #' . $invoiceId,
@@ -294,12 +301,7 @@ class InvoicesModel extends UsersModel {
 
 					if (
 						$this->_sendMail($mailParameters) &&
-						$this->save('invoices', array(
-							array(
-								'id' => $invoiceId,
-								'warning_level' => 1
-							)
-						))
+						$this->save('invoices', $invoiceData)
 					) {
 						$response += 1;
 					}
@@ -370,14 +372,15 @@ class InvoicesModel extends UsersModel {
 						'id' => $invoiceId
 					)
 				));
+				$invoiceData = array(
+					array(
+						'id' => $invoiceId,
+						'warning_level' => 5
+					)
+				);
 
 				if (!empty($invoice['data'])) {
-					if ($this->save('invoices', array(
-						array(
-							'id' => $invoiceId,
-							'warning_level' => 5
-						)
-					))) {
+					if ($this->save('invoices', $invoiceData)) {
 						$response += 1;
 					}
 
@@ -477,6 +480,12 @@ class InvoicesModel extends UsersModel {
 				));
 
 				if (!empty($invoice['data'])) {
+					$invoiceData = array(
+						array(
+							'id' => $invoiceId,
+							'warning_level' => 4
+						)
+					);
 					$mailParameters = array(
 						'from' => $this->settings['from_email'],
 						'subject' => 'Payment past-due for invoice #' . $invoiceId,
@@ -489,12 +498,7 @@ class InvoicesModel extends UsersModel {
 
 					if (
 						$this->_sendMail($mailParameters) &&
-						$this->save('invoices', array(
-							array(
-								'id' => $invoiceId,
-								'warning_level' => 4
-							)
-						))
+						$this->save('invoices', $invoiceData)
 					) {
 						$response += 1;
 					}
@@ -531,6 +535,12 @@ class InvoicesModel extends UsersModel {
 						'id' => $invoiceId
 					)
 				));
+				$invoiceData = array(
+					array(
+						'id' => $invoiceId,
+						'warning_level' => 2
+					)
+				);
 
 				if (!empty($invoice['data'])) {
 					$mailParameters = array(
@@ -545,12 +555,7 @@ class InvoicesModel extends UsersModel {
 
 					if (
 						$this->_sendMail($mailParameters) &&
-						$this->save('invoices', array(
-							array(
-								'id' => $invoiceId,
-								'warning_level' => 2
-							)
-						))
+						$this->save('invoices', $invoiceData)
 					) {
 						$response += 1;
 					}
@@ -869,8 +874,8 @@ class InvoicesModel extends UsersModel {
 				$transactionTime = strtotime($invoiceTransaction['transaction_date']);
 				$invoiceTransactions['data'][$key]['transaction_date'] = date('M d Y', $transactionTime) . ' at ' . date('g:ia', $transactionTime) . ' ' . $this->settings['timezone']['display'];
 
-				if (!empty($paymentMethod = $paymentMethods['data'][$invoiceTransaction['payment_method_id']])) {
-					$invoiceTransactions['data'][$key]['payment_method'] = $paymentMethod;
+				if (!empty($paymentMethods['data'][$invoiceTransaction['payment_method_id']])) {
+					$invoiceTransactions['data'][$key]['payment_method'] = $paymentMethods['data'][$invoiceTransaction['payment_method_id']];
 				}
 			}
 
@@ -1041,7 +1046,9 @@ class InvoicesModel extends UsersModel {
 
 				$invoice['data']['orders'] = $invoiceOrders;
 
-				if (!empty($order = $orderData = $invoice['data']['orders'][$order['id']])) {
+				if (!empty($invoice['data']['orders'][$order['id']])) {
+					$order = $orderData = $invoice['data']['orders'][$order['id']];
+
 					if (
 						!empty($orderData['price_active']) &&
 						!empty($orderData['quantity_active'])
@@ -1431,8 +1438,8 @@ class InvoicesModel extends UsersModel {
  */
 	public function view($table, $parameters = array()) {
 		if (
-			empty($invoiceId = $parameters['id']) ||
-			!is_numeric($invoiceId)
+			empty($parameters['id']) ||
+			!is_numeric($parameters['id'])
 		) {
 			$this->redirect($this->settings['base_url'] . 'invoices');
 		}

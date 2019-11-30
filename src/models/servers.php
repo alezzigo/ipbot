@@ -137,10 +137,10 @@ class ServersModel extends AppModel {
 		}
 
 		if (
-			!empty($disabledPorts = $this->proxyConfigurations['http']['static']['squid']['ports']) &&
+			!empty($this->proxyConfigurations['http']['static']['squid']['ports']) &&
 			!empty($disabledProxies)
 		) {
-			$splitDisabledPorts = array_chunk($disabledPorts, '10');
+			$splitDisabledPorts = array_chunk($this->proxyConfigurations['http']['static']['squid']['ports'], '10');
 			$splitDisabledProxies = array_chunk($disabledProxies, '10');
 
 			foreach ($splitDisabledProxies as $proxies) {
@@ -159,10 +159,10 @@ class ServersModel extends AppModel {
  * @return array $response
  */
 	protected function _retrieveServerDetails() {
-		$response = $defaultResponse = array(
+		$response = array(
 			'message' => array(
 				'status' => 'error',
-				'text' => ($defaultMessage = 'Access denied from ' . ($serverIp = $_SERVER['REMOTE_ADDR']) . ', please try again.')
+				'text' => 'Access denied from ' . ($serverIp = $_SERVER['REMOTE_ADDR']) . ', please try again.'
 			)
 		);
 		$server = $this->fetch('servers', array(
@@ -178,7 +178,7 @@ class ServersModel extends AppModel {
 				'server_configuration_type'
 			)
 		));
-		$serverConfiguration = $proxyConfiguration = $proxyIps = array();
+		$proxyConfiguration = $proxyIps = $serverConfiguration = array();
 
 		if (!empty($server['count'])) {
 			$response['message']['status'] = 'Duplicate server IPs, please check server options in database.';
@@ -247,10 +247,13 @@ class ServersModel extends AppModel {
 						$response['message']['status'] = 'Invalid server configuration type, please check your configuration file and server options in database.';
 
 						if (
-							!empty($serverConfiguration = $this->serverConfigurations[$server['data'][0]['server_configuration']]) &&
-							!empty($serverConfiguration = $serverConfiguration[$server['data'][0]['server_configuration_type']])
+							!empty($this->serverConfigurations) &&
+							!empty($server['data'][0]['server_configuration']) &&
+							!empty($server['data'][0]['server_configuration_type']) &&
+							!empty($this->serverConfigurations[$server['data'][0]['server_configuration']][$server['data'][0]['server_configuration_type']])
 						) {
 							$response['message']['status'] = 'Invalid proxy configuration settings, please check your configuration file and server options in database.';
+							$serverConfiguration = $this->serverConfigurations[$server['data'][0]['server_configuration']][$server['data'][0]['server_configuration_type']];
 
 							if (
 								!empty($this->proxyConfigurations) &&
@@ -274,7 +277,8 @@ class ServersModel extends AppModel {
 
 								foreach ($this->proxyConfigurations as $proxyProtocol => $proxyConfiguration) {
 									if (
-										!empty($proxyConfiguration = $proxyConfiguration[$server['data'][0]['server_configuration_type']][$proxyConfigurationType = $server['data'][0][$proxyProtocol . '_proxy_configuration']]) &&
+										!empty($proxyConfiguration) &&
+										!empty($proxyConfiguration[$server['data'][0]['server_configuration_type']][$proxyConfigurationType = $server['data'][0][$proxyProtocol . '_proxy_configuration']]) &&
 										method_exists($this, ($method = '_format' . ucwords($proxyConfigurationType) . 'AccessControls')) &&
 										!empty($formattedAcls = $this->$method($dnsIps['data'], $proxies['data']))
 									) {

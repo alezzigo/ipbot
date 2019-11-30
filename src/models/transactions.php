@@ -338,13 +338,13 @@ class TransactionsModel extends InvoicesModel {
 			));
 
 			if (!empty($existingSubscription['count'])) {
-				$subscription = array(
-					'id' => $parameters['subscription_id'],
-					'payment_attempts' => 0
+				$subscriptionData = array(
+					array(
+						'id' => $parameters['subscription_id'],
+						'payment_attempts' => 0
+					)
 				);
-				$this->save('subscriptions', array(
-					$subscription
-				));
+				$this->save('subscriptions', $subscriptionData);
 			}
 		}
 
@@ -380,12 +380,12 @@ class TransactionsModel extends InvoicesModel {
 					}
 
 					$userData = array(
-						'id' => $parameters['user']['id'],
-						'balance' => ($parameters['user']['balance'] + $amountToApplyToBalance)
+						array(
+							'id' => $parameters['user']['id'],
+							'balance' => ($parameters['user']['balance'] + $amountToApplyToBalance)
+						)
 					);
-					$this->save('users', array(
-						$userData
-					));
+					$this->save('users', $userData);
 				}
 
 				if (
@@ -618,10 +618,11 @@ class TransactionsModel extends InvoicesModel {
 					$this->save('invoice_orders', $invoiceOrderData)
 				) {
 					$invoice['data']['invoice'] = array_merge($invoice['data']['invoice'], $invoiceData[0]);
+					$invoiceData = array();
 
 					if ($invoiceTotalPaid) {
 						$additionalDueInvoices = $this->_retrieveDueInvoices($invoice['data']['invoice']);
-						$invoiceData = array();
+						$intervalType = $invoice['data']['orders'][0]['interval_type'];
 
 						if (!empty($additionalDueInvoices)) {
 							$invoiceData = array_replace_recursive($additionalDueInvoices, array_fill(0, count($additionalDueInvoices), array(
@@ -631,7 +632,6 @@ class TransactionsModel extends InvoicesModel {
 						}
 
 						if (
-							!empty($intervalType = $invoice['data']['orders'][0]['interval_type']) &&
 							in_array($intervalType, array(
 								'day',
 								'month',
@@ -674,7 +674,6 @@ class TransactionsModel extends InvoicesModel {
 						}
 
 						if (!empty($invoiceData)) {
-							// ..
 							$this->save('invoices', $invoiceData);
 						}
 					}
@@ -1157,28 +1156,28 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionSubscriptionCanceled($parameters) {
-		$subscription = array(
-			'created' => $parameters['transaction_date'],
-			'id' => $parameters['subscription_id'],
-			'invoice_id' => $parameters['invoice_id'],
-			'interval_type' => $parameters['interval_type'],
-			'interval_value' => $parameters['interval_value'],
-			'payment_method_id' => $parameters['payment_method_id'],
-			'plan_id' => $parameters['plan_id'],
-			'price' => $parameters['payment_amount'],
-			'status' => 'canceled',
-			'user_id' => $parameters['user_id']
+		$subscriptionData = array(
+			array(
+				'created' => $parameters['transaction_date'],
+				'id' => $parameters['subscription_id'],
+				'invoice_id' => $parameters['invoice_id'],
+				'interval_type' => $parameters['interval_type'],
+				'interval_value' => $parameters['interval_value'],
+				'payment_method_id' => $parameters['payment_method_id'],
+				'plan_id' => $parameters['plan_id'],
+				'price' => $parameters['payment_amount'],
+				'status' => 'canceled',
+				'user_id' => $parameters['user_id']
+			)
 		);
 
 		if (
 			!empty($parameters['user']) &&
-			$this->save('subscriptions', array(
-				$subscription
-			))
+			$this->save('subscriptions', $subscriptionData)
 		) {
 			$paymentMethod = $this->fetch('payment_methods', array(
 				'conditions' => array(
-					'id' => $subscription['payment_method_id']
+					'id' => $subscriptionData[0]['payment_method_id']
 				),
 				'fields' => array(
 					'name'
@@ -1186,14 +1185,14 @@ class TransactionsModel extends InvoicesModel {
 			));
 
 			if (!empty($paymentMethod['count'])) {
-				$subscription['payment_method_name'] = $paymentMethod['data'][0];
+				$subscriptionData[0]['payment_method_name'] = $paymentMethod['data'][0];
 				$mailParameters = array(
 					'from' => $this->settings['from_email'],
-					'subject' => 'Subscription #' . $subscription['id'] . ' canceled',
+					'subject' => 'Subscription #' . $subscriptionData[0]['id'] . ' canceled',
 					'template' => array(
 						'name' => 'subscription_canceled',
 						'parameters' => array(
-							'subscription' => $subscription,
+							'subscription' => $subscriptionData[0],
 							'transaction' => $parameters,
 							'user' => $parameters['user']
 						)
@@ -1215,28 +1214,28 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionSubscriptionCreated($parameters) {
-		$subscription = array(
-			'created' => $parameters['transaction_date'],
-			'id' => $parameters['subscription_id'],
-			'invoice_id' => $parameters['invoice_id'],
-			'interval_type' => $parameters['interval_type'],
-			'interval_value' => $parameters['interval_value'],
-			'payment_method_id' => $parameters['payment_method_id'],
-			'plan_id' => $parameters['plan_id'],
-			'price' => $parameters['payment_amount'],
-			'status' => 'active',
-			'user_id' => $parameters['user_id']
+		$subscriptionData = array(
+			array(
+				'created' => $parameters['transaction_date'],
+				'id' => $parameters['subscription_id'],
+				'invoice_id' => $parameters['invoice_id'],
+				'interval_type' => $parameters['interval_type'],
+				'interval_value' => $parameters['interval_value'],
+				'payment_method_id' => $parameters['payment_method_id'],
+				'plan_id' => $parameters['plan_id'],
+				'price' => $parameters['payment_amount'],
+				'status' => 'active',
+				'user_id' => $parameters['user_id']
+			)
 		);
 
 		if (
 			!empty($parameters['user']) &&
-			$this->save('subscriptions', array(
-				$subscription
-			))
+			$this->save('subscriptions', $subscriptionData)
 		) {
 			$paymentMethod = $this->fetch('payment_methods', array(
 				'conditions' => array(
-					'id' => $subscription['payment_method_id']
+					'id' => $subscriptionData[0]['payment_method_id']
 				),
 				'fields' => array(
 					'name'
@@ -1244,14 +1243,14 @@ class TransactionsModel extends InvoicesModel {
 			));
 
 			if (!empty($paymentMethod['count'])) {
-				$subscription['payment_method_name'] = $paymentMethod['data'][0];
+				$subscriptionData[0]['payment_method_name'] = $paymentMethod['data'][0];
 				$mailParameters = array(
 					'from' => $this->settings['from_email'],
-					'subject' => 'New subscription #' . $subscription['id'] . ' created',
+					'subject' => 'New subscription #' . $subscriptionData[0]['id'] . ' created',
 					'template' => array(
 						'name' => 'subscription_created',
 						'parameters' => array(
-							'subscription' => $subscription,
+							'subscription' => $subscriptionData[0],
 							'transaction' => $parameters,
 							'user' => $parameters['user']
 						)
@@ -1273,28 +1272,28 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionSubscriptionExpired($parameters) {
-		$subscription = array(
-			'created' => $parameters['transaction_date'],
-			'id' => $parameters['subscription_id'],
-			'invoice_id' => $parameters['invoice_id'],
-			'interval_type' => $parameters['interval_type'],
-			'interval_value' => $parameters['interval_value'],
-			'payment_method_id' => $parameters['payment_method_id'],
-			'plan_id' => $parameters['plan_id'],
-			'price' => $parameters['payment_amount'],
-			'status' => 'expired',
-			'user_id' => $parameters['user_id']
+		$subscriptionData = array(
+			array(
+				'created' => $parameters['transaction_date'],
+				'id' => $parameters['subscription_id'],
+				'invoice_id' => $parameters['invoice_id'],
+				'interval_type' => $parameters['interval_type'],
+				'interval_value' => $parameters['interval_value'],
+				'payment_method_id' => $parameters['payment_method_id'],
+				'plan_id' => $parameters['plan_id'],
+				'price' => $parameters['payment_amount'],
+				'status' => 'expired',
+				'user_id' => $parameters['user_id']
+			)
 		);
 
 		if (
 			!empty($parameters['user']) &&
-			$this->save('subscriptions', array(
-				$subscription
-			))
+			$this->save('subscriptions', $subscriptionData)
 		) {
 			$paymentMethod = $this->fetch('payment_methods', array(
 				'conditions' => array(
-					'id' => $subscription['payment_method_id']
+					'id' => $subscriptionData[0]['payment_method_id']
 				),
 				'fields' => array(
 					'name'
@@ -1302,14 +1301,14 @@ class TransactionsModel extends InvoicesModel {
 			));
 
 			if (!empty($paymentMethod['count'])) {
-				$subscription['payment_method_name'] = $paymentMethod['data'][0];
+				$subscriptionData[0]['payment_method_name'] = $paymentMethod['data'][0];
 				$mailParameters = array(
 					'from' => $this->settings['from_email'],
-					'subject' => 'Subscription #' . $subscription['id'] . ' expired',
+					'subject' => 'Subscription #' . $subscriptionData[0]['id'] . ' expired',
 					'template' => array(
 						'name' => 'subscription_expired',
 						'parameters' => array(
-							'subscription' => $subscription,
+							'subscription' => $subscriptionData[0],
 							'transaction' => $parameters,
 							'user' => $parameters['user']
 						)
@@ -1331,15 +1330,17 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionSubscriptionModified($parameters) {
-		$subscription = array(
-			'id' => $parameters['subscription_id'],
-			'invoice_id' => $parameters['invoice_id'],
-			'interval_type' => $parameters['interval_type'],
-			'interval_value' => $parameters['interval_value'],
-			'payment_method_id' => $parameters['payment_method_id'],
-			'plan_id' => $parameters['plan_id'],
-			'price' => $parameters['payment_amount'],
-			'user_id' => $parameters['user_id']
+		$subscriptionData = array(
+			array(
+				'id' => $parameters['subscription_id'],
+				'invoice_id' => $parameters['invoice_id'],
+				'interval_type' => $parameters['interval_type'],
+				'interval_value' => $parameters['interval_value'],
+				'payment_method_id' => $parameters['payment_method_id'],
+				'plan_id' => $parameters['plan_id'],
+				'price' => $parameters['payment_amount'],
+				'user_id' => $parameters['user_id']
+			)
 		);
 		$subscriptionStatus = $this->fetch('subscriptions', array(
 			'conditions' => array(
@@ -1353,13 +1354,11 @@ class TransactionsModel extends InvoicesModel {
 		if (
 			!empty($parameters['user']) &&
 			!empty($subscriptionStatus['count']) &&
-			$this->save('subscriptions', array(
-				array_filter($subscription)
-			))
+			$this->save('subscriptions', $subscriptionData)
 		) {
 			$paymentMethod = $this->fetch('payment_methods', array(
 				'conditions' => array(
-					'id' => $subscription['payment_method_id']
+					'id' => $subscriptionData[0]['payment_method_id']
 				),
 				'fields' => array(
 					'name'
@@ -1367,15 +1366,15 @@ class TransactionsModel extends InvoicesModel {
 			));
 
 			if (!empty($paymentMethod['count'])) {
-				$subscription['payment_method_name'] = $paymentMethod['data'][0];
-				$subscription['status'] = $subscriptionStatus['data'][0];
+				$subscriptionData[0]['payment_method_name'] = $paymentMethod['data'][0];
+				$subscriptionData[0]['status'] = $subscriptionStatus['data'][0];
 				$mailParameters = array(
 					'from' => $this->settings['from_email'],
-					'subject' => 'Subscription #' . $subscription['id'] . ' modified',
+					'subject' => 'Subscription #' . $subscriptionData[0]['id'] . ' modified',
 					'template' => array(
 						'name' => 'subscription_modified',
 						'parameters' => array(
-							'subscription' => $subscription,
+							'subscription' => $subscriptionData[0],
 							'transaction' => $parameters,
 							'user' => $parameters['user']
 						)
@@ -1397,17 +1396,19 @@ class TransactionsModel extends InvoicesModel {
  * @return void
  */
 	protected function _processTransactionSubscriptionFailed($parameters) {
-		$subscription = array(
-			'created' => $parameters['transaction_date'],
-			'id' => $parameters['subscription_id'],
-			'invoice_id' => $parameters['invoice_id'],
-			'interval_type' => $parameters['interval_type'],
-			'interval_value' => $parameters['interval_value'],
-			'payment_attempts' => ($subscriptionPaymentAttempts['data'][0] + 1),
-			'payment_method_id' => $parameters['payment_method_id'],
-			'plan_id' => $parameters['plan_id'],
-			'price' => $parameters['payment_amount'],
-			'user_id' => $parameters['user_id']
+		$subscriptionData = array(
+			array(
+				'created' => $parameters['transaction_date'],
+				'id' => $parameters['subscription_id'],
+				'invoice_id' => $parameters['invoice_id'],
+				'interval_type' => $parameters['interval_type'],
+				'interval_value' => $parameters['interval_value'],
+				'payment_attempts' => ($subscriptionPaymentAttempts['data'][0] + 1),
+				'payment_method_id' => $parameters['payment_method_id'],
+				'plan_id' => $parameters['plan_id'],
+				'price' => $parameters['payment_amount'],
+				'user_id' => $parameters['user_id']
+			)
 		);
 		$subscriptionPaymentAttempts = $this->fetch('subscriptions', array(
 			'conditions' => array(
@@ -1422,14 +1423,12 @@ class TransactionsModel extends InvoicesModel {
 			!empty($parameters['user']) &&
 			!empty($subscriptionPaymentAttempts['count'])
 		) {
-			$subscription['payment_attempts'] = ($subscriptionPaymentAttempts['data'][0] + 1);
+			$subscriptionData[0]['payment_attempts'] = ($subscriptionPaymentAttempts['data'][0] + 1);
 
-			if ($this->save('subscriptions', array(
-				$subscription
-			))) {
+			if ($this->save('subscriptions', $subscriptionData)) {
 				$paymentMethod = $this->fetch('payment_methods', array(
 					'conditions' => array(
-						'id' => $subscription['payment_method_id']
+						'id' => $subscriptionData[0]['payment_method_id']
 					),
 					'fields' => array(
 						'name'
@@ -1437,14 +1436,14 @@ class TransactionsModel extends InvoicesModel {
 				));
 
 				if (!empty($paymentMethod['count'])) {
-					$subscription['payment_method_name'] = $paymentMethod['data'][0];
+					$subscriptionData[0]['payment_method_name'] = $paymentMethod['data'][0];
 					$mailParameters = array(
 						'from' => $this->settings['from_email'],
-						'subject' => 'Subscription #' . $subscription['id'] . ' payment failed',
+						'subject' => 'Subscription #' . $subscriptionData[0]['id'] . ' payment failed',
 						'template' => array(
 							'name' => 'subscription_failed',
 							'parameters' => array(
-								'subscription' => $subscription,
+								'subscription' => $subscriptionData[0],
 								'transaction' => $parameters,
 								'user' => $parameters['user']
 							)
@@ -1633,10 +1632,10 @@ class TransactionsModel extends InvoicesModel {
 			$response = $latestInvoiceId['data'][0];
 		}
 
-		if (!empty($parentTransactionId = $parameters['parent_transaction_id'])) {
+		if (!empty($parameters['parent_transaction_id'])) {
 			$transactionParameters = array(
 				'conditions' => array(
-					'payment_transaction_id' => $parentTransactionId
+					'payment_transaction_id' => $parameters['parent_transaction_id']
 				),
 				'fields' => array(
 					'invoice_id'
@@ -1902,11 +1901,7 @@ class TransactionsModel extends InvoicesModel {
 
 				$response['message']['text'] = 'Invalid payment amount, please try again.';
 
-				if (
-					!empty($amount = $parameters['data']['billing_amount']) &&
-					is_numeric($amount) &&
-					number_format($amount, 2, '.', '') == $amount
-				) {
+				if (number_format($parameters['data']['billing_amount'], 2, '.', '') == $parameters['data']['billing_amount']) {
 					$response['message']['text'] = 'Invalid payment method, please try again.';
 					$method = '_process' . str_replace(' ', '', ucwords(str_replace('_', ' ', $parameters['data']['payment_method'])));
 

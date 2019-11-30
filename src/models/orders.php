@@ -239,7 +239,8 @@ class OrdersModel extends TransactionsModel {
 			)
 		);
 
-		if (!empty($orderIds = array_values($parameters['data']['orders']))) {
+		if (!empty($parameters['data']['orders'])) {
+			$orderIds = array_values($parameters['data']['orders']);
 			$orders = $this->fetch('orders', array(
 				'conditions' => array(
 					'id' => $orderIds,

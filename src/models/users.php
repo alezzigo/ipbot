@@ -61,12 +61,12 @@ class UsersModel extends AppModel {
 		$response = array();
 
 		if (
-			!empty($id = $parameters['user_id']) ||
-			!empty($id = $parameters['id'])
+			$parameters['id'] ||
+			$parameters['user_id']
 		) {
 			$user = $this->fetch('users', array(
 				'conditions' => array(
-					'id' => $id
+					'id' => !empty($parameters['user_id']) ? $parameters['user_id'] : $parameters['id']
 				),
 				'fields' => array(
 					'balance',
@@ -102,8 +102,8 @@ class UsersModel extends AppModel {
 		);
 
 		if (
-			!empty($userId = $parameters['user']['id']) &&
-			!empty($balance = $parameters['data']['balance'])
+			!empty($parameters['data']['balance']) &&
+			!empty($parameters['user']['id'])
 		) {
 			$response['message']['text'] = 'Invalid account balance amount, please try again.';
 			$balanceData = $this->fetch('products', array(
@@ -130,21 +130,22 @@ class UsersModel extends AppModel {
 				$response['message']['text'] = 'Balance amount added must be <strong>less than ' . number_format($balanceData['data'][0]['maximum_quantity'], 2, '.', ',') . ' ' . $this->settings['billing']['currency'] . '</strong> and <strong>greater than ' . number_format($balanceData['data'][0]['minimum_quantity'], 2, '.', ',') . ' ' . $this->settings['billing']['currency'] . '</strong>, please try again.';
 
 				if (
-					$parameters['data']['balance'] > $balanceData['data'][0]['minimum_quantity'] &&
-					$parameters['data']['balance'] < $balanceData['data'][0]['maximum_quantity']
+					$parameters['data']['balance'] < $balanceData['data'][0]['maximum_quantity'] &&
+					$parameters['data']['balance'] > $balanceData['data'][0]['minimum_quantity']
 				) {
 					$response['message']['text'] = $defaultMessage;
 					$invoiceConditions = array(
-						'cart_items' => sha1($balance . uniqid() . time()),
+						'cart_items' => sha1($parameters['data']['balance'] . uniqid() . time()),
 						'status' => 'unpaid',
-						'subtotal' => $balance,
-						'total' => $balance,
-						'user_id' => $userId
+						'subtotal' => $parameters['data']['balance'],
+						'total' => $parameters['data']['balance'],
+						'user_id' => $parameters['user']['id']
+					);
+					$invoiceData = array(
+						$invoiceConditions
 					);
 
-					if ($this->save('invoices', array(
-						$invoiceConditions
-					))) {
+					if ($this->save('invoices', $invoiceData)) {
 						$invoice = $this->fetch('invoices', array(
 							'conditions' => $invoiceConditions,
 							'fields' => array(
@@ -356,10 +357,12 @@ class UsersModel extends AppModel {
 			}
 		} else {
 			if (
-				!empty($oldEmail = $parameters['user']['email']) &&
-				!empty($newEmail = $parameters['data']['email'])
+				!empty($parameters['user']['email']) &&
+				!empty($parameters['data']['email'])
 			) {
 				$response['message']['text'] = 'Invalid email address, please try again.';
+				$oldEmail = $parameters['user']['email'];
+				$newEmail = $parameters['data']['email'];
 
 				if ($this->_validateEmailFormat($newEmail)) {
 					$response['message']['text'] = 'You\'ve entered your current account email address, please enter a different email address.';
@@ -452,9 +455,9 @@ class UsersModel extends AppModel {
 				$tokenParameters = array(
 					'conditions' => $existingUser['data'][0]
 				);
-				$tokenSalt = sha1($email . $this->keys['start'] . time());
+				$token = $this->_getToken('users', $tokenParameters, 'password_reset', $existingUser['data'][0]['id'] . '_' . $existingUser['data'][0]['password_modified'], false, sha1($email . $this->keys['start'] . time()), 10);
 
-				if (!empty($token = $this->_getToken('users', $tokenParameters, 'password_reset', $existingUser['data'][0]['id'] . '_' . $existingUser['data'][0]['password_modified'], false, $tokenSalt, 10))) {
+				if (!empty($token)) {
 					$mailParameters = array(
 						'from' => $this->settings['from_email'],
 						'subject' => 'Password reset request',
@@ -618,8 +621,8 @@ class UsersModel extends AppModel {
 				$response['message']['text'] = 'Password and confirmation are required, please try again.';
 
 				if (
-					!empty($parameters['data']['password']) &&
-					!empty($parameters['data']['confirm_password'])
+					!empty($parameters['data']['confirm_password']) &&
+					!empty($parameters['data']['password'])
 				) {
 					$response['message']['text'] = 'Password must be at least 10 characters, please try again.';
 
@@ -629,23 +632,23 @@ class UsersModel extends AppModel {
 						if ($parameters['data']['password'] == $parameters['data']['confirm_password']) {
 							$response['message']['text'] = $defaultMessage;
 							$password = $this->_hashPassword($parameters['data']['password'], time());
-							$user = array(
-								'email' => $email,
-								'password' => $password['string'],
-								'password_modified' => $password['modified'],
-								'permissions' => 'user'
+							$userData = array(
+								array(
+									'email' => $email,
+									'password' => $password['string'],
+									'password_modified' => $password['modified'],
+									'permissions' => 'user'
+								)
 							);
 
-							if ($this->save($table, array(
-								$user
-							))) {
+							if ($this->save($table, $userData)) {
 								$mailParameters = array(
 									'from' => $this->settings['from_email'],
 									'subject' => 'New account created at ' . $this->settings['site_name'],
 									'template' => array(
 										'name' => 'user_created',
 										'parameters' => array(
-											'user' => $user
+											'user' => $userData
 										)
 									),
 									'to' => $email
@@ -683,13 +686,14 @@ class UsersModel extends AppModel {
 
 			if (empty($parameters['user']['removed'])) {
 				$response['message']['text'] = $defaultMessage;
-
-				if ($this->save('users', array(
+				$userData = array(
 					array(
 						'removed' => true,
 						'id' => $parameters['user']['id']
 					)
-				))) {
+				);
+
+				if ($this->save('users', $userData)) {
 					$response = array(
 						'message' => array(
 							'status' => 'success',
@@ -770,16 +774,15 @@ class UsersModel extends AppModel {
 
 					if (
 						$token['data'][0]['expiration'] > date('Y-m-d H:i:s', time()) &&
-						!empty($userId = $tokenParameters[0]) &&
-						is_numeric($userId) &&
-						!empty($passwordModified = $tokenParameters[1]) &&
-						(boolean) strtotime($passwordModified)
+						is_numeric($tokenParameters[0]) &&
+						!empty($tokenParameters[1]) &&
+						(boolean) strtotime($tokenParameters[1])
 					) {
 						$response['message']['text'] = 'Password was already reset with another token, please <a href="' . $this->settings['base_url'] . '?#forgot">request a new password reset</a> and try again.';
 						$user = $this->fetch('users', array(
 							'conditions' => array(
-								'id' => $userId,
-								'password_modified' => $passwordModified
+								'id' => $tokenParameters[0],
+								'password_modified' => $tokenParameters[1]
 							),
 							'fields' => array(
 								'email',
@@ -798,8 +801,8 @@ class UsersModel extends AppModel {
 
 		if (!empty($existingUser)) {
 			if (
-				!empty($parameters['data']['password']) &&
-				!empty($parameters['data']['confirm_password'])
+				!empty($parameters['data']['confirm_password']) &&
+				!empty($parameters['data']['password'])
 			) {
 				$response['message']['text'] = 'Password must be at least 10 characters, please try again.';
 
@@ -812,9 +815,11 @@ class UsersModel extends AppModel {
 						if ($this->_verifyKeys()) {
 							$password = $this->_hashPassword($parameters['data']['password'], time());
 							$userData = array(
-								'id' => $existingUser['id'],
-								'password' => $password['string'],
-								'password_modified' => $password['modified']
+								array(
+									'id' => $existingUser['id'],
+									'password' => $password['string'],
+									'password_modified' => $password['modified']
+								)
 							);
 
 							if (
@@ -824,9 +829,7 @@ class UsersModel extends AppModel {
 										'foreign_value' => $token['data'][0]['foreign_value']
 									))
 								) &&
-								$this->save($table, array(
-									$userData
-								))
+								$this->save($table, $userData)
 							) {
 								$response = array(
 									'message' => array(

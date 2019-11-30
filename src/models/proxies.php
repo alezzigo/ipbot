@@ -57,17 +57,17 @@ class ProxiesModel extends OrdersModel {
 			$response['message']['text'] = 'There are no ' . $table . ' selected to ' . $parameters['action'] . '.';
 
 			if (
-				!empty($orderId = $parameters['data']['order_id']) &&
-				!empty($parameters['data']['items'])
+				!empty($parameters['data']['items']) &&
+				!empty($parameters['data']['order_id'])
 			) {
 				$response = $this->_authenticateEndpoint('orders', $parameters, array(
-					'id' => $orderId
+					'id' => $parameters['data']['order_id']
 				));
 
 				if ($response['message']['status'] === 'success') {
 					$response = $this->_processEndpointRequest($table, $parameters, array(
 						'id' => $parameters['data']['items'],
-						'order_id' => $orderId
+						'order_id' => $parameters['data']['order_id']
 					));
 
 					if ($response['message']['status'] === 'success') {
@@ -128,10 +128,9 @@ class ProxiesModel extends OrdersModel {
 				) {
 					$response['message']['text'] = 'Both username and password must be between 4 and 15 characters.';
 				} else {
-					if (
-						($usernames = array()) &&
-						!empty($parameters['data']['username'])
-					) {
+					$usernames = array();
+
+					if (!empty($parameters['data']['username'])) {
 						$existingUsernames = $this->fetch('proxies', array(
 							'conditions' => array(
 								'NOT' => array(
@@ -278,10 +277,12 @@ class ProxiesModel extends OrdersModel {
 		);
 
 		if (
-			!empty($downgradeQuantity = $parameters['items'][$table]['count']) &&
-			!empty($itemIds = array_values($parameters['items'][$table]['data'])) &&
-			!empty($orderId = $parameters['conditions']['order_id'])
+			!empty($parameters['items'][$table]['count']) &&
+			!empty($parameters['conditions']['order_id'])
 		) {
+			$downgradeQuantity = $parameters['items'][$table]['count'];
+			$itemIds = array_values($parameters['items'][$table]['data']);
+			$orderId = $parameters['conditions']['order_id'];
 			$order = $this->fetch('orders', array(
 				'conditions' => array(
 					'id' => $orderId,
@@ -317,8 +318,10 @@ class ProxiesModel extends OrdersModel {
 
 			if (
 				!empty($order['count']) &&
-				!empty($productId = $order['data'][0]['product_id'])
+				!empty($order['data'][0]['product_id'])
 			) {
+				$productId = $order['data'][0]['product_id'];
+
 				if ($order['data'][0]['quantity_active'] <= $downgradeQuantity) {
 					$response['message']['text'] = 'Error processing your order downgrade request, please select less than ' . $order['data'][0]['quantity_active'] . ' active ' . $table . ' and try again.';
 				} else {
@@ -367,8 +370,9 @@ class ProxiesModel extends OrdersModel {
 										'id'
 									)
 								));
+								$downgradeQuantity = $downgradedProxiesToRemove['count'];
 
-								if (empty($downgradeQuantity = $downgradedProxiesToRemove['count'])) {
+								if (empty($downgradeQuantity)) {
 									$response['message']['text'] = 'The selected ' . $table . ' are already replaced and pending removal from a previous order downgrade, please try again.';
 								} else {
 									$itemIds = $downgradedProxiesToRemove['data'];
@@ -649,72 +653,76 @@ class ProxiesModel extends OrdersModel {
 		);
 
 		if (
-			$table == 'proxy_groups' &&
-			!empty($groupData = array_intersect_key($parameters['data'], array(
+			$table === 'proxy_groups' &&
+			!empty($parameters['data'])
+		) {
+			$groupData = array_intersect_key($parameters['data'], array(
 				'id' => true,
 				'name' => true,
 				'order_id' => true
-			)
-		))) {
-			if (!empty($parameters['conditions'])) {
-				$groupData = array_merge($groupData, $parameters['conditions']);
-			}
+			));
 
-			$groupParameters = array(
-				'conditions' => $groupData,
-				'fields' => array(
-					'created',
-					'id',
-					'modified',
-					'name',
-					'order_id',
-					'user_id'
-				),
-				'limit' => 1
-			);
-
-			if (
-				!empty($groupName = $groupData['name']) &&
-				!empty($groupData['order_id'])
-			) {
-				$response['message']['text'] = 'Group "' . $groupName . '" already exists for this order.';
-				unset($groupParameters['conditions']['id']);
-				$existingGroup = $this->fetch('proxy_groups', $groupParameters);
-
-				if (empty($existingGroup['count'])) {
-					$response['message']['text'] = 'Error creating new group, please try again.';
-					$this->save('proxy_groups', array(
-						$groupData
-					));
-					$groupData = $this->fetch('proxy_groups', $groupParameters);
-
-					if (!empty($groupData['count'])) {
-						$response['message'] = array(
-							'status' => 'success',
-							'text' => 'Group "' . $groupName . '" saved successfully.'
-						);
-					}
+			if (!empty($groupData)) {
+				if (!empty($parameters['conditions'])) {
+					$groupData = array_merge($groupData, $parameters['conditions']);
 				}
-			}
 
-			if (
-				!empty($groupData['id']) &&
-				!isset($groupData['name'])
-			) {
-				$response['message']['text'] = 'Error deleting group, please try again.';
-				$existingGroup = $this->fetch('proxy_groups', $groupParameters);
+				$groupParameters = array(
+					'conditions' => $groupData,
+					'fields' => array(
+						'created',
+						'id',
+						'modified',
+						'name',
+						'order_id',
+						'user_id'
+					),
+					'limit' => 1
+				);
 
 				if (
-					!empty($existingGroup['count']) &&
-					$this->delete('proxy_groups', $groupData) &&
-					$this->delete('proxy_group_proxies', array(
-						'proxy_group_id' => $groupData['id']
-					))
+					!empty($groupData['name']) &&
+					!empty($groupData['order_id'])
 				) {
-					$response['message'] = array(
-						'status' => 'success',
-						'text' => 'Group deleted successfully.'
-					);
+					$response['message']['text'] = 'Group "' . $groupData['name'] . '" already exists for this order.';
+					unset($groupParameters['conditions']['id']);
+					$existingGroup = $this->fetch('proxy_groups', $groupParameters);
+
+					if (empty($existingGroup['count'])) {
+						$response['message']['text'] = 'Error creating new group, please try again.';
+						$this->save('proxy_groups', array(
+							$groupData
+						));
+						$groupData = $this->fetch('proxy_groups', $groupParameters);
+
+						if (!empty($groupData['count'])) {
+							$response['message'] = array(
+								'status' => 'success',
+								'text' => 'Group "' . $groupData['name'] . '" saved successfully.'
+							);
+						}
+					}
+				}
+
+				if (
+					!empty($groupData['id']) &&
+					!isset($groupData['name'])
+				) {
+					$response['message']['text'] = 'Error deleting group, please try again.';
+					$existingGroup = $this->fetch('proxy_groups', $groupParameters);
+
+					if (
+						!empty($existingGroup['count']) &&
+						$this->delete('proxy_groups', $groupData) &&
+						$this->delete('proxy_group_proxies', array(
+							'proxy_group_id' => $groupData['id']
+						))
+					) {
+						$response['message'] = array(
+							'status' => 'success',
+							'text' => 'Group deleted successfully.'
+						);
+					}
 				}
 			}
 		}
@@ -724,8 +732,7 @@ class ProxiesModel extends OrdersModel {
 				!empty($parameters['items']['proxies']['count']) &&
 				!empty($parameters['items']['proxy_groups']['count'])
 			) {
-				$groups = array();
-				$proxyIds = array();
+				$groups = $proxyIds = array();
 				$existingProxyGroupProxies = $this->fetch('proxy_group_proxies', array(
 					'conditions' => array(
 						'proxy_id' => $parameters['items']['proxies']['data'],
@@ -875,11 +882,11 @@ class ProxiesModel extends OrdersModel {
 			$response['message']['text'] = 'There are no ' . $table . ' selected to ' . $parameters['action'] . '.';
 
 			if (
-				!empty($orderId = $parameters['data']['order_id']) &&
+				!empty($parameters['data']['order_id']) &&
 				!empty($parameters['data']['items'])
 			) {
 				$response = $this->_authenticateEndpoint('orders', $parameters, array(
-					'id' => $orderId
+					'id' => ($orderId = $parameters['data']['order_id'])
 				));
 
 				if ($response['message']['status'] === 'success') {
@@ -1103,14 +1110,14 @@ class ProxiesModel extends OrdersModel {
 		$conditions = array();
 
 		if (
-			!empty($broadSearchFields = $this->permissions[$table]['search']['fields']) &&
-			!empty($broadSearchTerms = array_filter(explode(' ', $parameters['data']['broad_search'])))
+			$broadSearchFields = $this->permissions[$table]['search']['fields'] &&
+			!empty($parameters['data']['broad_search'])
 		) {
 			$conditions = array_map(function($broadSearchTerm) use ($broadSearchFields) {
 				return array(
 					'OR' => array_combine(explode('-', implode(' LIKE' . '-', $broadSearchFields) . ' LIKE'), array_fill(1, count($broadSearchFields), '%' . $broadSearchTerm . '%'))
 				);
-			}, $broadSearchTerms);
+			}, array_filter(explode(' ', $parameters['data']['broad_search'])));
 		}
 
 		if (
@@ -1149,9 +1156,9 @@ class ProxiesModel extends OrdersModel {
 
 			if (
 				!empty($groupProxies['count']) &&
-				!empty($groupProxyIds = array_unique($groupProxies['data']))
+				!empty($groupProxies['data'])
 			) {
-				$conditions['id'] = $groupProxyIds;
+				$conditions['id'] = array_unique($groupProxies['data']);
 			}
 		}
 
@@ -1168,9 +1175,11 @@ class ProxiesModel extends OrdersModel {
 /**
  * Shell method for processing replaced proxy removal
  *
+ * @param string $table
+ *
  * @return array $response
  */
-	public function shellProcessRemoveReplacedProxies() {
+	public function shellProcessRemoveReplacedProxies($table) {
 		$response = array(
 			'message' => array(
 				'status' => 'error',
@@ -1224,9 +1233,11 @@ class ProxiesModel extends OrdersModel {
 /**
  * Shell method for processing scheduled proxy replacements
  *
+ * @param string $table
+ *
  * @return array $response
  */
-	public function shellProcessScheduledProxyReplacements() {
+	public function shellProcessScheduledProxyReplacements($table) {
 		$response = array(
 			'message' => array(
 				'status' => 'error',

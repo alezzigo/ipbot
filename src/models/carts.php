@@ -39,9 +39,10 @@ class CartsModel extends AppModel {
 					'order' => 'DESC'
 				)
 			);
-			$this->save('carts', array(
+			$cartData = array(
 				$cartParameters['conditions']
-			));
+			);
+			$this->save('carts', $cartData);
 			$cartData = $this->fetch('carts', $cartParameters);
 
 			if (!empty($cartData['count'])) {
@@ -83,8 +84,8 @@ class CartsModel extends AppModel {
 
 		if (!empty($cartItems['count'])) {
 			foreach ($cartItems['data'] as $key => $cartItem) {
-				if (!empty($cartProductDetails = $cartProducts[$cartItem['product_id']])) {
-					$cartItem = array_merge($cartProductDetails, $cartItem);
+				if (!empty($cartProducts[$cartItem['product_id']])) {
+					$cartItem = array_merge($cartProducts[$cartItem['product_id']], $cartItem);
 
 					if ($cartItem['quantity'] === 1) {
 						$cartItem['name'] = $this->_formatPluralToSingular($cartItem['name']);
@@ -192,39 +193,44 @@ class CartsModel extends AppModel {
 					$response['message']['text'] = '';
 				}
 
-				if (!empty($cartItemData = array_intersect_key($parameters['data'], array(
-					'id' => true,
-					'interval_type' => true,
-					'interval_value' => true,
-					'product_id' => true,
-					'quantity' => true
-				)))) {
+				$cartItemData = array(
+					array_intersect_key($parameters['data'], array(
+						'id' => true,
+						'interval_type' => true,
+						'interval_value' => true,
+						'product_id' => true,
+						'quantity' => true
+					))
+				);
+
+				if (!empty($cartItemData[0])) {
 					$response['message'] = array(
 						'status' => 'error',
 						'text' => $defaultMessage
 					);
 
-					if (empty($cartItemData['id'])) {
+
+					if (empty($cartItemData[0]['id'])) {
 						$response['message']['text'] = 'Error adding item to your cart, please try again.';
 
-						if (count($cartItemData) === 4) {
+						if (count($cartItemData[0]) === 4) {
 							$response['message']['text'] = 'Invalid cart item parameters, please try again.';
 
 							if (
-								!empty($cartItemData['interval_type']) &&
-								in_array($cartItemData['interval_type'], array('month', 'year')) &&
-								!empty($cartItemData['interval_value']) &&
-								is_numeric($cartItemData['interval_value']) &&
-								in_array($cartItemData['interval_value'], range(1, 12)) &&
-								!empty($cartItemData['product_id']) &&
-								is_numeric($cartItemData['product_id']) &&
-								!empty($cartItemData['quantity']) &&
-								is_numeric($cartItemData['quantity'])
+								!empty($cartItemData[0]['interval_type']) &&
+								in_array($cartItemData[0]['interval_type'], array('month', 'year')) &&
+								!empty($cartItemData[0]['interval_value']) &&
+								is_numeric($cartItemData[0]['interval_value']) &&
+								in_array($cartItemData[0]['interval_value'], range(1, 12)) &&
+								!empty($cartItemData[0]['product_id']) &&
+								is_numeric($cartItemData[0]['product_id']) &&
+								!empty($cartItemData[0]['quantity']) &&
+								is_numeric($cartItemData[0]['quantity'])
 							) {
 								$response['message']['text'] = 'Invalid product ID, please try again.';
 								$cartProduct = $this->fetch('products', array(
 									'conditions' => array(
-										'id' => $cartItemData['product_id']
+										'id' => $cartItemData[0]['product_id']
 									),
 									'fields' => array(
 										'created',
@@ -244,18 +250,17 @@ class CartsModel extends AppModel {
 									)
 								));
 
-								if (!empty($cartProduct = $cartProduct['data'][0])) {
+								if (!empty($cartProduct['data'][0])) {
 									$response['message']['text'] = 'Invalid product quantity, please try again.';
+									$cartProduct = $cartProduct['data'][0];
 
 									if (
-										$cartItemData['quantity'] <= $cartProduct['maximum_quantity'] &&
-										$cartItemData['quantity'] >= $cartProduct['minimum_quantity']
+										$cartItemData[0]['quantity'] <= $cartProduct['maximum_quantity'] &&
+										$cartItemData[0]['quantity'] >= $cartProduct['minimum_quantity']
 									) {
-										$cartItemData['cart_id'] = $parameters['session'];
+										$cartItemData[0]['cart_id'] = $parameters['session'];
 
-										if ($this->save('cart_items', array(
-											$cartItemData
-										))) {
+										if ($this->save('cart_items', $cartItemData)) {
 											$response = array(
 												'message' => array(
 													'status' => 'success',
@@ -270,8 +275,8 @@ class CartsModel extends AppModel {
 						}
 					} else {
 						if (
-							count($cartItemData) === 1 &&
-							$cartItemIds = array_values($cartItemData['id'])
+							count($cartItemData[0]) === 1 &&
+							$cartItemIds = array_values($cartItemData[0]['id'])
 						) {
 							$cartItemIds = $this->fetch('cart_items', array(
 								'fields' => array(
@@ -297,24 +302,24 @@ class CartsModel extends AppModel {
 								);
 							}
 						} elseif (
-							!empty($cartItem = $cartItems[$cartItemData['id']]) &&
-							count($cartItemData) === 4
+							!empty($cartItems[$cartItemData[0]['id']]) &&
+							count($cartItemData[0]) === 4
 						) {
+							$cartItem = $cartItems[$cartItemData[0]['id']];
+
 							if (
-								!empty($cartItemData['interval_type']) &&
-								in_array($cartItemData['interval_type'], array('month', 'year')) &&
-								!empty($cartItemData['interval_value']) &&
-								is_numeric($cartItemData['interval_value']) &&
-								!empty($cartItemData['quantity']) &&
-								is_numeric($cartItemData['quantity']) &&
-								$cartItemData['quantity'] <= $cartItem['maximum_quantity'] &&
-								$cartItemData['quantity'] >= $cartItem['minimum_quantity'] &&
-								$this->save('cart_items', array(
-									$cartItemData
-								))
+								!empty($cartItemData[0]['interval_type']) &&
+								in_array($cartItemData[0]['interval_type'], array('month', 'year')) &&
+								!empty($cartItemData[0]['interval_value']) &&
+								is_numeric($cartItemData[0]['interval_value']) &&
+								!empty($cartItemData[0]['quantity']) &&
+								is_numeric($cartItemData[0]['quantity']) &&
+								$cartItemData[0]['quantity'] <= $cartItem['maximum_quantity'] &&
+								$cartItemData[0]['quantity'] >= $cartItem['minimum_quantity'] &&
+								$this->save('cart_items', $cartItemData)
 							) {
-								$cartItems[$cartItemData['id']] = $cartItem = array_merge($cartItem, $cartItemData);
-								$cartItems[$cartItemData['id']]['price'] = $this->_calculateItemPrice($cartItem);
+								$cartItems[$cartItemData[0]['id']] = $cartItem = array_merge($cartItem, $cartItemData[0]);
+								$cartItems[$cartItemData[0]['id']]['price'] = $this->_calculateItemPrice($cartItem);
 								$response['message']['text'] = '';
 							}
 						}
@@ -386,10 +391,11 @@ class CartsModel extends AppModel {
 			}
 
 			foreach ($cartItems as $cartItem) {
-				if (empty($cartProduct = $cartProducts[$cartItem['product_id']])) {
+				if (empty($cartProducts[$cartItem['product_id']])) {
 					continue;
 				}
 
+				$cartProduct = $cartProducts[$cartItem['product_id']];
 				$invoices[$cartItem['interval_value'] . '_' . $cartItem['interval_type']][] = $cartItem['id'];
 				$order = array_merge($orderConditions, array(
 					'cart_item_id' => $cartItem['id'],
@@ -420,11 +426,12 @@ class CartsModel extends AppModel {
 					$intervalType = $interval[0];
 					$intervalValue = $interval[1];
 					$invoiceConditions['cart_items'] = sha1(json_encode($cartItemIds));
+					$invoiceData = array(
+						$invoiceConditions
+					);
 					$invoiceOrders = array();
 
-					if ($this->save('invoices', array(
-						$invoiceConditions
-					))) {
+					if ($this->save('invoices', $invoiceData)) {
 						$invoice = $this->fetch('invoices', array(
 							'conditions' => $invoiceConditions,
 							'fields' => array(

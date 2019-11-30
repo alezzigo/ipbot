@@ -153,7 +153,9 @@
 		unset($route);
 	}
 
-	if (!is_numeric($route = array_search($pathParts, $routes['parts']))) {
+	$route = array_search($pathParts, $routes['parts']);
+
+	if (!is_numeric($route)) {
 		foreach ($routes['parts'] as $routeKey => $routePathParts) {
 			if (
 				count($routePathParts) !== count($pathParts) ||
@@ -202,8 +204,10 @@
 			'url' => $routes['urls'][$route]
 		)
 	);
+	$headers = $routes['headers'][$route];
+	$routePathParts = $routes['parts'][$route];
 
-	if (!empty($headers = $routes['headers'][$route])) {
+	if (!empty($headers)) {
 		foreach ($headers as $header) {
 			header($header);
 		}
@@ -214,7 +218,7 @@
 		}
 	}
 
-	if (!empty($routePathParts = $routes['parts'][$route])) {
+	if (!empty($routePathParts)) {
 		foreach ($routePathParts as $routePathPartKey => $routePathPart) {
 			if (
 				substr($routePathPart, 0, 1) === '[' &&
@@ -227,16 +231,13 @@
 
 	if (
 		(
-			!empty($cookiesEnabled = $config->settings['session_cookies']['enabled']) &&
-			$cookiesEnabled === true
+			!empty($config->settings['session_cookies']['enabled']) &&
+			$config->settings['session_cookies']['enabled'] === true
 		) &&
-		(
-			!empty($cookieLifetime = $config->settings['session_cookies']['lifetime']) &&
-			is_numeric($cookieLifetime)
-		)
+		!empty($config->settings['session_cookies']['lifetime'])
 	) {
 		session_start();
-		setrawcookie('PHPSESSID', session_id(), $cookieLifetime, '/', $_SERVER['HTTP_HOST']);
+		setrawcookie('PHPSESSID', session_id(), $config->settings['session_cookies']['lifetime'], '/', $_SERVER['HTTP_HOST']);
 
 		if (empty($_SESSION['key'])) {
 			$_SESSION['key'] = md5(uniqid() . time() . $config->keys['start']);

@@ -263,6 +263,26 @@ class ServersModel extends AppModel {
 									$proxyIps[] = $proxy['ip'];
 								}
 
+								$unallocatedNodeIps = $this->fetch('nodes', array(
+									'conditions' => array(
+										'allocated' => false,
+										'server_id' => $server['data'][0]['id']
+									),
+									'fields' => array(
+										'ip'
+									)
+								));
+
+								if (!empty($unallocatedNodeIps['count'])) {
+									foreach ($unallocatedNodeIps['data'] as $unallocatedNodeIp) {
+										$proxies['data'][] = array(
+											'ip' => $unallocatedNodeIp,
+											'require_authentication' => false
+										);
+										$proxyIps[] = $unallocatedNodeIp;
+									}
+								}
+
 								$response = array(
 									'data' => array(
 										'dns_ips' => ($dnsIps['data'] = array_unique(array_filter($dnsIps['data']))),
@@ -280,7 +300,7 @@ class ServersModel extends AppModel {
 										!empty($proxyConfiguration) &&
 										!empty($proxyConfiguration[$server['data'][0]['server_configuration_type']][$proxyConfigurationType = $server['data'][0][$proxyProtocol . '_proxy_configuration']]) &&
 										method_exists($this, ($method = '_format' . ucwords($proxyConfigurationType) . 'AccessControls')) &&
-										!empty($formattedAcls = $this->$method($dnsIps['data'], $proxies['data']))
+										($formattedAcls = $this->$method($dnsIps['data'], $proxies['data']))
 									) {
 										$response['data'][$proxyProtocol] = $formattedAcls;
 									}

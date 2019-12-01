@@ -1795,7 +1795,7 @@ class TransactionsModel extends InvoicesModel {
 					'provider_id' => $parameters['receiver_id'],
 					'sandbox' => (!empty($parameters['test_ipn']) ? true : false),
 					'subscription_id' => (!empty($parameters['subscr_id']) ? $parameters['subscr_id'] : null),
-					'transaction_charset' => $this->settings['database']['charset'],
+					'transaction_charset' => (!empty($parameters['charset']) ? $parameters['charset'] : $this->settings['database']['charset']),
 					'transaction_date' => date('Y-m-d H:i:s', strtotime((!empty($parameters['subscr_date']) ? $parameters['subscr_date'] : $parameters['payment_date']))),
 					'transaction_raw' => $rawParameters,
 					'transaction_token' => $parameters['verify_sign'],

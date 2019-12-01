@@ -80,6 +80,8 @@
 				<p>Ensure proxy IP diversity with random IP address allocation and a range of multiple class-C subnets available.</p>
 				<h2>Private Authentication</h2>
 				<p>Both username:password and whitelisted IP authentication are supported for secure private proxy access.</p>
+				<h2>Sustainable Proxy Hosting</h2>
+				<p>Efficient tuning allows thousands of proxy IPs per dedicated server for a more sustainable global footprint.</p>
 			</div>
 		</div>
 	</div>

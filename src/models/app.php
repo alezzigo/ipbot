@@ -1195,9 +1195,8 @@ class AppModel extends Config {
  * @return boolean $response
  */
 	public function save($table, $rows = array()) {
-		$ids = array();
-		$queries = array();
-		$success = true;
+		$ids = $queries = array();
+		$response = true;
 
 		foreach (array_chunk($rows, 1000) as $rows) {
 			$groupValues = array();
@@ -1245,11 +1244,10 @@ class AppModel extends Config {
 			$connection = $this->_query($query);
 
 			if (empty($connection)) {
-				$success = false;
+				$response = false;
 			}
 		}
 
-		$response = $success;
 		return $response;
 	}
 

@@ -1690,47 +1690,79 @@ class TransactionsModel extends InvoicesModel {
  * @return array $response
  */
 	protected function _saveTransaction($parameters) {
-		$response = array();
+		$response = $transactionData = array();
 
 		if (
 			is_array($parameters) &&
 			empty($parameters['json'])
 		) {
-			if (array_key_exists('verify_sign', $parameters)) {
-				$this->_savePaypalNotification($parameters);
+			if (!empty($parameters['verify_sign'])) {
+				$transactionData = $this->_formatPaypalNotification($parameters);
 			}
 
-			// ..
+			if (!empty($transactionData)) {
+				$existingTransaction = $this->fetch('transactions', array(
+					'conditions' => array(
+						'payment_transaction_id' => $transactionData[0]['payment_transaction_id']
+					),
+					'fields' => array(
+						'id'
+					)
+				));
+
+				if (empty($existingTransaction['count'])) {
+					$response = $this->save('transactions', $transactionData);
+				}
+			}
 		}
 
 		return $response;
 	}
 
 /**
- * Save credit card transaction notifications
+ * Format credit card transaction notification
  *
  * @param array $parameters
  *
  * @return array $response
  */
-	protected function _saveCreditCardNotification($parameters) {
+	protected function _formatCreditCardNotification($parameters) {
 		$response = array();
 		// ..
 		return $response;
 	}
 
 /**
- * Save PayPal transaction notification
+ * Format PayPal transaction notification
  *
  * @param array $parameters
  *
  * @return array $response
  */
-	protected function _savePaypalNotification($parameters) {
-		$response = $transactionData = array();
+	protected function _formatPaypalNotification($parameters) {
+		$parameters = $response = array();
+		$rawParameters = $parameters['input'] = file_get_contents('php://input');
+		$splitRawParameters = explode('&', $rawParameters);
+
+		foreach ($splitRawParameters as $rawParameter) {
+			$splitRawParameter = explode('=', $rawParameter);
+
+			if (!empty($splitRawParameter[1])) {
+				$parameters[$splitRawParameter[0]] = rawurldecode(utf8_encode($splitRawParameter[1]));
+			}
+		}
 
 		if ($this->_validatePaypalNotification($parameters)) {
-			$itemNumberIds = explode('_', $parameters['item_number']);
+			if (
+				!empty($parameters['charset']) &&
+				$parameters['charset'] !== 'UTF-8'
+			) {
+				$parameterKeys = array_keys($parameters);
+				$parameterValues = mb_convert_encoding(implode('&', $parameters), 'UTF-8', $parameters['charset']);
+				$parameters = array_combine($parameterKeys, explode('&', $parameterValues));
+			}
+
+			$foreignIds = explode('_', $parameters['item_number']);
 			$transactionData = array(
 				array(
 					'billing_address_1' => $parameters['address_street'],
@@ -1746,7 +1778,7 @@ class TransactionsModel extends InvoicesModel {
 					'customer_last_name' => $parameters['last_name'],
 					'customer_status' => $parameters['payer_status'],
 					'id' => uniqid() . time(),
-					'initial_invoice_id' => ($invoiceId = (!empty($itemNumberIds[0]) && is_numeric($itemNumberIds[0]) ? $itemNumberIds[0] : 0)),
+					'initial_invoice_id' => ($invoiceId = (!empty($foreignIds[0]) && is_numeric($foreignIds[0]) ? $foreignIds[0] : 0)),
 					'invoice_id' => $invoiceId,
 					'parent_transaction_id' => (!empty($parameters['parent_txn_id']) ? $parameters['parent_txn_id'] : null),
 					'payment_amount' => (!empty($parameters['mc_gross']) ? $parameters['mc_gross'] : $parameters['amount3']),
@@ -1757,7 +1789,7 @@ class TransactionsModel extends InvoicesModel {
 					'payment_status' => strtolower($parameters['payment_status']),
 					'payment_tax_amount' => $parameters['tax'],
 					'payment_transaction_id' => (!empty($parameters['txn_id']) ? $parameters['txn_id'] : uniqid() . time()),
-					'plan_id' => (!empty($itemNumberIds[1]) && is_numeric($itemNumberIds[1]) ? $itemNumberIds[1] : 0),
+					'plan_id' => (!empty($foreignIds[1]) && is_numeric($foreignIds[1]) ? $foreignIds[1] : 0),
 					'provider_country_code' => $parameters['residence_country'],
 					'provider_email' => $parameters['receiver_email'],
 					'provider_id' => $parameters['receiver_id'],
@@ -1765,9 +1797,9 @@ class TransactionsModel extends InvoicesModel {
 					'subscription_id' => (!empty($parameters['subscr_id']) ? $parameters['subscr_id'] : null),
 					'transaction_charset' => $this->settings['database']['charset'],
 					'transaction_date' => date('Y-m-d H:i:s', strtotime((!empty($parameters['subscr_date']) ? $parameters['subscr_date'] : $parameters['payment_date']))),
-					'transaction_raw' => json_encode($parameters),
+					'transaction_raw' => $rawParameters,
 					'transaction_token' => $parameters['verify_sign'],
-					'user_id' => (!empty($itemNumberIds[2]) && is_numeric($itemNumberIds[2]) ? $itemNumberIds[2] : 0)
+					'user_id' => (!empty($foreignIds[2]) && is_numeric($foreignIds[2]) ? $foreignIds[2] : 0)
 				)
 			);
 
@@ -1812,22 +1844,7 @@ class TransactionsModel extends InvoicesModel {
 
 			$transactionData[0] = array_merge($transactionData[0], $this->_retrievePayPalTransactionMethod($parameters));
 			$transactionData[0]['invoice_id'] = $this->_retrieveTransactionInvoiceId($transactionData[0]);
-			$existingTransaction = $this->fetch('transactions', array(
-				'conditions' => array(
-					'payment_transaction_id' => $parameters['txn_id']
-				),
-				'fields' => array(
-					'id'
-				),
-				'limit' => 1
-			));
-
-			if (
-				empty($existingTransaction['count']) &&
-				$this->save('transactions', $transactionData)
-			) {
-				$response = $transaction;
-			}
+			$response = $transactionData;
 		}
 
 		return $response;
@@ -1841,14 +1858,10 @@ class TransactionsModel extends InvoicesModel {
  * @return boolean $response
  */
 	protected function _validatePaypalNotification($parameters) {
-		$response = false;
-		$urlParameters = $parameters;
-		array_walk($urlParameters, function(&$value, $key) {
-			$value = $key . '=' . rawurlencode($value);
-		});
-		$verifyUrl = 'https://ipnpb' . ($parameters['test_ipn'] ? '.sandbox' : '') . '.paypal.com/cgi-bin/webscr?cmd=_notify-validate&' . implode('&', $urlParameters);
+		$verifyUrl = 'https://ipnpb' . ($parameters['test_ipn'] ? '.sandbox' : '') . '.paypal.com/cgi-bin/webscr?cmd=_notify-validate&' . $parameters['input'];
 		exec('curl "' . $verifyUrl . '" 2>&1', $verifyResponse);
-		return (strcasecmp(end($verifyResponse), 'verified') === 0);
+		$response = (strcasecmp(end($verifyResponse), 'verified') === 0);
+		return $response;
 	}
 
 /**

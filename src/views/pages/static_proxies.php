@@ -82,6 +82,8 @@
 				<p>Both username:password and whitelisted IP authentication are supported for secure private proxy access.</p>
 				<h2>Sustainable Proxy Hosting</h2>
 				<p>Efficient tuning allows thousands of proxy IPs per dedicated server for a more sustainable global footprint.</p>
+				<h2>Supporting an Open Internet</h2>
+				<p>All unallocated proxy nodes are open to the public until they're allocated to a paying user.</p>
 			</div>
 		</div>
 	</div>

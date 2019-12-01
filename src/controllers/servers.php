@@ -27,7 +27,7 @@ class ServersController extends ServersModel {
 			$response = $this->_request($_POST);
 		}
 
-		return $response; ;
+		return $response;
 	}
 
 }

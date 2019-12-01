@@ -1859,7 +1859,7 @@ class TransactionsModel extends InvoicesModel {
  */
 	protected function _validatePaypalNotification($parameters) {
 		$verifyUrl = 'https://ipnpb' . ($parameters['test_ipn'] ? '.sandbox' : '') . '.paypal.com/cgi-bin/webscr?cmd=_notify-validate&' . $parameters['input'];
-		exec('curl "' . $verifyUrl . '" 2>&1', $verifyResponse);
+		exec('curl "' . str_replace('"', 0, $verifyUrl) . '" 2>&1', $verifyResponse);
 		$response = (strcasecmp(end($verifyResponse), 'verified') === 0);
 		return $response;
 	}

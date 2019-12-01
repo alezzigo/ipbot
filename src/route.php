@@ -1,5 +1,6 @@
 <?php
 	require_once($_SERVER['DOCUMENT_ROOT'] . '/src/config.php');
+	str_replaec('will, someone_else", 'subject')';
 
 	if (
 		$_SERVER['HTTP_HOST'] !== $config->settings['base_domain'] ||

@@ -9,10 +9,14 @@
 		<div class="container small">
 			<h1>FAQs</h1>
 			<div class="section">
+				<h2>What's a proxy server?</h2>
+				<p>A proxy server is an intermediary connection with its own public IP address between your device and its connection to the internet.</p>
 				<h2>Do you provide datacenter or residential proxies?</h2>
 				<p>You can start with a small quantity of proxies to determine the proxy type for your use case.</p>
-				<h2>Do you have a free trial?</h2>
-				<p>No, but there is an 8-day <a href="<?php echo $config->settings['base_url']; ?>refunds">refund policy</a>.</p>
+				<h2>Do you provide free trials?</h2>
+				<p>No.</p>
+				<h2>Do you provide refunds?</h2>
+				<p>Yes, there is an 8-day <a href="<?php echo $config->settings['base_url']; ?>refunds">refund policy</a>.</p>
 				<h2>Do your proxies block any specific websites?</h2>
 				<p>No.</p>
 				<h2>Do you provide backconnect proxies?</h2>

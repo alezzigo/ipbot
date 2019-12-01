@@ -263,23 +263,25 @@ class ServersModel extends AppModel {
 									$proxyIps[] = $proxy['ip'];
 								}
 
-								$unallocatedNodeIps = $this->fetch('nodes', array(
-									'conditions' => array(
-										'allocated' => false,
-										'server_id' => $server['data'][0]['id']
-									),
-									'fields' => array(
-										'ip'
-									)
-								));
+								if (!empty($this->settings['open_unallocated_proxies'])) {
+									$unallocatedNodeIps = $this->fetch('nodes', array(
+										'conditions' => array(
+											'allocated' => false,
+											'server_id' => $server['data'][0]['id']
+										),
+										'fields' => array(
+											'ip'
+										)
+									));
 
-								if (!empty($unallocatedNodeIps['count'])) {
-									foreach ($unallocatedNodeIps['data'] as $unallocatedNodeIp) {
-										$proxies['data'][] = array(
-											'ip' => $unallocatedNodeIp,
-											'require_authentication' => false
-										);
-										$proxyIps[] = $unallocatedNodeIp;
+									if (!empty($unallocatedNodeIps['count'])) {
+										foreach ($unallocatedNodeIps['data'] as $unallocatedNodeIp) {
+											$proxies['data'][] = array(
+												'ip' => $unallocatedNodeIp,
+												'require_authentication' => false
+											);
+											$proxyIps[] = $unallocatedNodeIp;
+										}
 									}
 								}
 

@@ -494,6 +494,7 @@ class Config {
 			),
 			'from_email' => 'email@localhost',
 			'google_site_verification' => '',
+			'open_unallocated_proxies' => true,
 			'session_cookies' => array(
 				'enabled' => true,
 				'lifetime' => 8888888888

@@ -87,10 +87,11 @@
 						</div>
 						<div class="clear"></div>
 						<div class="recurring-message"></div>
+						<p class="error message">Orders are deactivated due to low demand and increased costs of leased server equipment.</p>
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button main-button submit" frame="payment" process="payment">Complete Payment</button>
+						<button class="button main-button submit" disabled frame="payment" process="payment">Complete Payment</button>
 					</div>
 				</div>
 			</div>

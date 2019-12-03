@@ -286,7 +286,7 @@ class Config {
 							'access_log none',
 							'balance_on_multiple_ip off',
 							'cache deny all',
-							'cache_mem 128 MB',
+							'cache_mem 256 MB',
 							'cache_log /dev/null',
 							'cache_replacement_policy heap LFUDA',
 							'cache_swap_high 2',

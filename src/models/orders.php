@@ -863,6 +863,7 @@ class OrdersModel extends TransactionsModel {
 				),
 				'limit' => 1
 			));
+			// ..
 
 			if (!empty($order['count'])) {
 				$response = array(

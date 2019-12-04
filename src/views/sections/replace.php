@@ -16,12 +16,13 @@
 							<span class="checkbox" id="transfer-authentication" name="transfer_authentication"></span>
 							<label class="custom-checkbox-label" for="transfer-authentication" name="transfer_authentication">Transfer Authentication Settings to Replacement Proxies</label>
 						</div>
-						<div class="checkbox-container no-margin">
+						<div class="checkbox-container no-margin-top">
 							<span class="checkbox" id="enable-automatic-replacements" name="enable_automatic_replacements"></span>
 							<label class="custom-checkbox-label" for="enable-automatic-replacements" name="enable_automatic_replacements">Enable Automatic Replacements</label>
 						</div>
+						<div class="clear"></div>
 						<div class="checkbox-option-container hidden" field="enable_automatic_replacements">
-							<div class="field-group">
+							<div class="field-group no-margin">
 								<span>Every</span>
 								<select class="automatic-replacement-interval-value" name="automatic_replacement_interval_value">
 									<option value="2">2</option>
@@ -53,6 +54,15 @@
 									<option value="month">Months</option>
 								</select>
 							</div>
+						</div>
+						<div class="clear"></div>
+						<div class="checkbox-container no-margin-top">
+							<span class="checkbox" id="replace-with-specific-ip-locations" name="replace_with_specific_ip_locations"></span>
+							<label class="custom-checkbox-label" for="replace-with-specific-ip-locations" name="replace_with_specific_ip_locations">Replace With Specific IP Locations</label>
+						</div>
+						<div class="clear"></div>
+						<div class="checkbox-option-container hidden" field="replace_with_specific_ip_locations">
+							<div class="field-group no-margin-top">Coming soon..</div>
 						</div>
 						<div class="clear"></div>
 					</div>

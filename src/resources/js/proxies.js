@@ -339,6 +339,7 @@ var processOrder = function() {
 		}
 
 		if (response.data.order) {
+			// ..
 			document.querySelector('.order-name').innerHTML = (response.data.order.quantity_active ? response.data.order.quantity_active : response.data.order.quantity) + ' ' + response.data.order.name;
 			requestParameters.table = defaultTable;
 			requestParameters.url = defaultUrl;

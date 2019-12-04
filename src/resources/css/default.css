@@ -864,6 +864,7 @@ main {
 						color: #7773e3;
 					}
 			.frame-container .frame .checkbox-option-container {
+				float: left;
 				margin-bottom: 18px;
 				padding-left: 32px;
 			}

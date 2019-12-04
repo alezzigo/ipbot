@@ -949,6 +949,18 @@ class ProxiesModel extends OrdersModel {
 				$newItemData = $oldItemData = array_merge($newItemData, $intervalData);
 			}
 
+			if (
+				!empty($parameters['data']['node_location']) &&
+				!empty($parameters['data']['replace_with_specific_node_locations'])
+			) {
+				$location = explode('_', $parameters['data']['node_location']);
+				$oldItemData += array(
+					'replacement_city' => $location[0],
+					'replacement_region' => $location[1],
+					'replacement_country_code' => $location[2]
+				);
+			}
+
 			if (($orderId = !empty($parameters['conditions']['order_id']) ? $parameters['conditions']['order_id'] : 0)) {
 				$oldItemData = array_fill(0, $parameters['items'][$table]['count'], $oldItemData);
 
@@ -971,7 +983,7 @@ class ProxiesModel extends OrdersModel {
 						'status' => 'online',
 						'user_id' => $parameters['user']['id']
 					);
-					$processingNodes = $this->fetch('nodes', array(
+					$processingNodeParameters = array(
 						'conditions' => array(
 							'AND' => array(
 								'allocated' => false,
@@ -993,7 +1005,17 @@ class ProxiesModel extends OrdersModel {
 						),
 						'limit' => $parameters['items'][$table]['count'],
 						'sort' => 'random'
-					));
+					);
+
+					if (!empty($location)) {
+						$processingNodeParameters['conditions']['AND'] += array(
+							'city' => $location[0],
+							'region' => $location[1],
+							'country_code' => $location[2]
+						);
+					}
+
+					$processingNodes = $this->fetch('nodes', $processingNodeParameters);
 
 					if (count($processingNodes['data']) !== $parameters['items'][$table]['count']) {
 						$response['message']['text'] = 'There aren\'t enough ' . $table . ' available to replace your ' . $parameters['items'][$table]['count'] . ' selected ' . $table . ', please try again in a few minutes.';
@@ -1272,6 +1294,7 @@ class ProxiesModel extends OrdersModel {
 			),
 			'limit' => 100000
 		);
+		// ..
 
 		foreach ($intervalTypes as $intervalType) {
 			foreach ($intervalValues as $intervalValue) {

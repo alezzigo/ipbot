@@ -13,6 +13,65 @@ require_once($config->settings['base_path'] . '/models/transactions.php');
 class OrdersModel extends TransactionsModel {
 
 /**
+ * Retrieve available server node locations
+ *
+ * @param array $orderData
+ *
+ * @return array $response
+ */
+	protected function _retrieveAvailableServerNodeLocations($orderData) {
+		$response = array();
+		$servers = $this->fetch('servers', array(
+			'conditions' => array(
+				'server_configuration_type' => $orderData['type'],
+				'status' => 'online'
+			),
+			'fields' => array(
+				'city',
+				'country_code',
+				'country_name',
+				'http_proxy_configuration',
+				'id',
+				'ip',
+				'isp',
+				'region',
+				'server_configuration_type',
+				'socks_proxy_configuration',
+				'status'
+			)
+		));
+
+		if (!empty($servers['count'])) {
+			foreach ($servers['data'] as $server) {
+				$availableServerNodeLocation = $this->fetch('nodes', array(
+					'conditions' => array(
+						'allocated' => false,
+						'processing' => false,
+						'server_id' => $server['id']
+					),
+					'fields' => array(
+						'id'
+					),
+					'limit' => 1
+				));
+
+				if ($availableServerNodeLocation['count']) {
+					$key = strtolower($server['city'] . $server['region'] . $server['country_code'] . $server['country_name']);
+					$response[$key] = array(
+						'city' => $server['city'],
+						'count' => (!empty($response[$key]) ? $response[$key] : 0) + $availableServerNodeLocation['count'],
+						'country_code' => $server['country_code'],
+						'country_name' => $server['country_name'],
+						'region' => $server['region'],
+					);
+				}
+			}
+		}
+
+		return array_values($response);
+	}
+
+/**
  * Retrieve most recent order invoice data
  *
  * @param array $orderData
@@ -859,16 +918,17 @@ class OrdersModel extends TransactionsModel {
 					'id',
 					'name',
 					'quantity',
-					'quantity_active'
+					'quantity_active',
+					'type'
 				),
 				'limit' => 1
 			));
-			// ..
 
 			if (!empty($order['count'])) {
 				$response = array(
 					'data' => array(
 						'invoice' => ($invoice = $this->_retrieveMostRecentOrderInvoice($order['data'][0])),
+						'nodeLocations' => $this->_retrieveAvailableServerNodeLocations($order['data'][0]),
 						'order' => $order['data'][0]
 					),
 					'message' => array(

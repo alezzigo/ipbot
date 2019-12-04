@@ -234,6 +234,7 @@ main {
 	.field-group textarea {
 		float: left;
 		margin: 0 0 0 -1px !important;
+		max-width: 100%;
 		position: relative;
 		width: auto;
 	}
@@ -864,8 +865,10 @@ main {
 						color: #7773e3;
 					}
 			.frame-container .frame .checkbox-option-container {
+				box-sizing: border-box;
 				float: left;
 				margin-bottom: 18px;
+				max-width: 100%;
 				padding-left: 32px;
 			}
 		.frame-container .frame-overlay {

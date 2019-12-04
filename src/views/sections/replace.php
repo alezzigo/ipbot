@@ -12,6 +12,17 @@
 							<span class="checkbox" id="instant-replacement" name="instant_replacement"></span>
 							<label class="custom-checkbox-label" for="instant-replacement" name="instant_replacement">Replace Selected Proxies Instantly</label>
 						</div>
+						<div class="clear"></div>
+						<div class="checkbox-container no-margin-top">
+							<span class="checkbox" id="replace-with-specific-node-locations" name="replace_with_specific_node_locations"></span>
+							<label class="custom-checkbox-label" for="replace-with-specific-node-locations" name="replace_with_specific_node_locations">Replace With Specific Proxy Node Locations</label>
+						</div>
+						<div class="clear"></div>
+						<div class="checkbox-option-container hidden" field="replace_with_specific_node_locations">
+							<div class="field-group no-margin">
+								<select class="node-location" name="node_location"></select>
+							</div>
+						</div>
 						<div class="checkbox-container no-margin-top">
 							<span class="checkbox" id="transfer-authentication" name="transfer_authentication"></span>
 							<label class="custom-checkbox-label" for="transfer-authentication" name="transfer_authentication">Transfer Authentication Settings to Replacement Proxies</label>
@@ -54,15 +65,6 @@
 									<option value="month">Months</option>
 								</select>
 							</div>
-						</div>
-						<div class="clear"></div>
-						<div class="checkbox-container no-margin-top">
-							<span class="checkbox" id="replace-with-specific-ip-locations" name="replace_with_specific_ip_locations"></span>
-							<label class="custom-checkbox-label" for="replace-with-specific-ip-locations" name="replace_with_specific_ip_locations">Replace With Specific IP Locations</label>
-						</div>
-						<div class="clear"></div>
-						<div class="checkbox-option-container hidden" field="replace_with_specific_ip_locations">
-							<div class="field-group no-margin-top">Coming soon..</div>
 						</div>
 						<div class="clear"></div>
 					</div>

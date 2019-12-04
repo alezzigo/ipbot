@@ -339,7 +339,6 @@ var processOrder = function() {
 		}
 
 		if (response.data.order) {
-			// ..
 			document.querySelector('.order-name').innerHTML = (response.data.order.quantity_active ? response.data.order.quantity_active : response.data.order.quantity) + ' ' + response.data.order.name;
 			requestParameters.table = defaultTable;
 			requestParameters.url = defaultUrl;
@@ -354,6 +353,23 @@ var processOrder = function() {
 						}
 					});
 				});
+			}
+
+			if (response.data.nodeLocations) {
+				var nodeLocationOptions = '';
+				var nodeLocationSelect = document.querySelector('.checkbox-option-container[field="replace_with_specific_node_locations"] .field-group select');
+
+				if (nodeLocationSelect) {
+					response.data.nodeLocations.map(function(location) {
+						var locationKey = location.city + '_' + location.region + '_' + location.country_code;
+						var locationValue = location.city + ', ' + location.region + ' ' + location.country_code;
+						nodeLocationOptions += '<option value="' + locationKey + '">' + locationValue + '</option>';
+					});
+
+					if (nodeLocationOptions) {
+						nodeLocationSelect.innerHTML = nodeLocationOptions;
+					}
+				}
 			}
 		}
 	});

@@ -541,7 +541,7 @@ class TransactionsModel extends InvoicesModel {
 											));
 											$pendingTransactions[] = $transactionToProcess = array(
 												'customer_email' => $parameters['user']['email'],
-												'details' => 'Order ' . $action . ' successful for order <a href="' . $this->settings['base_url'] . 'orders/' . $order['id'] . '">#' . $order['id'] . '</a>.<br>' . $order['quantity'] . ' ' . $order['name'] . ' to ' . $order['quantity_pending'] . ' ' . $order['name'] . '<br>' . $order['price'] . ' ' . $order['currency'] . ' for ' . $order['interval_value'] . ' ' . $order['interval_type'] . ($order['interval_value'] !== 1 ? 's' : '') . ' to ' . $order['price_pending'] . ' ' . $order['currency'] . ' for ' . $order['interval_value_pending'] . ' ' . $order['interval_type_pending'] . ($order['interval_value_pending'] !== 1 ? 's' : ''),
+												'details' => 'Order ' . $action . ' successful for order <a href="' . $this->settings['base_url'] . 'orders/' . $order['id'] . '">#' . $order['id'] . '</a>.<br>' . $order['quantity'] . ' ' . $order['name'] . ' to ' . $order['quantity_pending'] . ' ' . $order['name'] . '<br>' . number_format($order['price'], 2, '.', '') . ' ' . $order['currency'] . ' for ' . $order['interval_value'] . ' ' . $order['interval_type'] . ($order['interval_value'] !== 1 ? 's' : '') . ' to ' . number_format($order['price_pending'], 2, '.', '') . ' ' . $order['currency'] . ' for ' . $order['interval_value_pending'] . ' ' . $order['interval_type_pending'] . ($order['interval_value_pending'] !== 1 ? 's' : ''),
 												'id' => uniqid() . time(),
 												'initial_invoice_id' => $invoiceData[0]['id'],
 												'invoice_id' => $invoiceData[0]['id'],

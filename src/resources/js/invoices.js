@@ -202,8 +202,6 @@ var processInvoice = function() {
 			requestParameters.action = 'cancel';
 			requestParameters.data.order_id = orderId;
 			sendRequest(function(response) {
-				// ..
-
 				if (
 					typeof response.redirect === 'string' &&
 					response.redirect

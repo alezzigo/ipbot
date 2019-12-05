@@ -871,6 +871,9 @@ main {
 				max-width: 100%;
 				padding-left: 32px;
 			}
+				.frame-container .frame .checkbox-option-container .field-group {
+					margin-bottom: 8px;
+				}
 		.frame-container .frame-overlay {
 			z-index: 2;
 		}

@@ -19,8 +19,17 @@
 						</div>
 						<div class="clear"></div>
 						<div class="checkbox-option-container hidden" field="replace_with_specific_node_locations">
+							<div class="field-group no-margin-top">
+								<span>City</span>
+								<select class="node-city" name="replacement_city"></select>
+							</div>
+							<div class="field-group no-margin-top">
+								<span>Region</span>
+								<select class="node-region" name="replacement_region"></select>
+							</div>
 							<div class="field-group no-margin">
-								<select class="node-location" name="node_location"></select>
+								<span>Country</span>
+								<select class="node-country-code" name="replacement_country_code"></select>
 							</div>
 						</div>
 						<div class="checkbox-container no-margin-top">

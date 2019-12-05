@@ -356,19 +356,25 @@ var processOrder = function() {
 			}
 
 			if (response.data.nodeLocations) {
-				var nodeLocationOptions = '';
-				var nodeLocationSelect = document.querySelector('.checkbox-option-container[field="replace_with_specific_node_locations"] .field-group select');
+				var nodeLocationCityOptions = nodeLocationCountryOptions = nodeLocationRegionOptions = '<option value="">All</option>';
+				var nodeLocationSelector = '.checkbox-option-container[field="replace_with_specific_node_locations"] .field-group';
+				var nodeLocationCitySelect = document.querySelector(nodeLocationSelector + ' select.node-city');
+				var nodeLocationCountrySelect = document.querySelector(nodeLocationSelector + ' select.node-country-code');
+				var nodeLocationRegionSelect = document.querySelector(nodeLocationSelector + ' select.node-region');
 
-				if (nodeLocationSelect) {
+				if (
+					nodeLocationCitySelect &&
+					nodeLocationCountrySelect &&
+					nodeLocationRegionSelect
+				) {
 					response.data.nodeLocations.map(function(location) {
-						var locationKey = location.city + '_' + location.region + '_' + location.country_code;
-						var locationValue = location.city + ', ' + location.region + ' ' + location.country_code;
-						nodeLocationOptions += '<option value="' + locationKey + '">' + locationValue + '</option>';
+						nodeLocationCityOptions += '<option value="' + location.city + '">' + location.city + '</option>';
+						nodeLocationCountryOptions += '<option value="' + location.country_code + '">' + location.country_name + '</option>';
+						nodeLocationRegionOptions += '<option value="' + location.region + '">' + location.region + '</option>';
 					});
-
-					if (nodeLocationOptions) {
-						nodeLocationSelect.innerHTML = nodeLocationOptions;
-					}
+					nodeLocationCitySelect.innerHTML = nodeLocationCityOptions;
+					nodeLocationCountrySelect.innerHTML = nodeLocationCountryOptions;
+					nodeLocationRegionSelect.innerHTML = nodeLocationRegionOptions;
 				}
 			}
 		}

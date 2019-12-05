@@ -949,16 +949,12 @@ class ProxiesModel extends OrdersModel {
 				$newItemData = $oldItemData = array_merge($newItemData, $intervalData);
 			}
 
-			if (
-				!empty($parameters['data']['node_location']) &&
-				!empty($parameters['data']['replace_with_specific_node_locations'])
-			) {
-				$location = explode('_', $parameters['data']['node_location']);
-				$oldItemData += array(
-					'replacement_city' => $location[0],
-					'replacement_country_code' => $location[2],
-					'replacement_region' => $location[1]
-				);
+			if (!empty($parameters['data']['replace_with_specific_node_locations'])) {
+				$oldItemData += ($location = array(
+					'replacement_city' => $parameters['data']['replacement_city'] ? $parameters['data']['replacement_city'] : null,
+					'replacement_country_code' => $parameters['data']['replacement_country_code'] ? $parameters['data']['replacement_country_code'] : null,
+					'replacement_region' => $parameters['data']['replacement_region'] ? $parameters['data']['replacement_region'] : null
+				));
 			}
 
 			if (($orderId = !empty($parameters['conditions']['order_id']) ? $parameters['conditions']['order_id'] : 0)) {
@@ -1008,11 +1004,11 @@ class ProxiesModel extends OrdersModel {
 					);
 
 					if (!empty($location)) {
-						$processingNodeParameters['conditions']['AND'] += array(
-							'city' => $location[0],
-							'country_code' => $location[2],
-							'region' => $location[1]
-						);
+						$processingNodeParameters['conditions']['AND'] += array_combine(array(
+							'city',
+							'country_code',
+							'region'
+						), $location);
 					}
 
 					$processingNodes = $this->fetch('nodes', $processingNodeParameters);

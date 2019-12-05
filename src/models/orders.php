@@ -913,7 +913,7 @@ class OrdersModel extends TransactionsModel {
 				empty($parameters['conditions']) ||
 				empty($parameters['user'])
 			) {
-				$this->redirect($this->settings['base_url'] . 'orders');
+				$response['redirect'] = $this->settings['base_url'] . 'orders';
 			}
 
 			$order = $this->fetch('orders', array(

@@ -13,13 +13,13 @@ require_once($config->settings['base_path'] . '/models/transactions.php');
 class OrdersModel extends TransactionsModel {
 
 /**
- * Retrieve available server node locations
+ * Retrieve available server node details
  *
  * @param array $orderData
  *
  * @return array $response
  */
-	protected function _retrieveAvailableServerNodeLocations($orderData) {
+	protected function _retrieveAvailableServerNodeDetails($orderData) {
 		$response = array();
 		$servers = $this->fetch('servers', array(
 			'conditions' => array(
@@ -30,13 +30,11 @@ class OrdersModel extends TransactionsModel {
 				'city',
 				'country_code',
 				'country_name',
-				'http_proxy_configuration',
 				'id',
 				'ip',
 				'isp',
 				'region',
 				'server_configuration_type',
-				'socks_proxy_configuration',
 				'status'
 			)
 		));
@@ -57,7 +55,7 @@ class OrdersModel extends TransactionsModel {
 
 				if ($availableServerNodeLocation['count']) {
 					$key = strtolower($server['city'] . $server['region'] . $server['country_code'] . $server['country_name']);
-					$response[$key] = array(
+					$response['nodeLocations'][$key] = array(
 						'city' => $server['city'],
 						'count' => (!empty($response[$key]) ? $response[$key] : 0) + $availableServerNodeLocation['count'],
 						'country_code' => $server['country_code'],
@@ -65,10 +63,13 @@ class OrdersModel extends TransactionsModel {
 						'region' => $server['region'],
 					);
 				}
+
+				$response['nodeLocations'] = array_values($response['nodeLocations']);
+				$response['nodeSubnets'] = array(); // TODO
 			}
 		}
 
-		return array_values($response);
+		return $response;
 	}
 
 /**
@@ -926,11 +927,10 @@ class OrdersModel extends TransactionsModel {
 
 			if (!empty($order['count'])) {
 				$response = array(
-					'data' => array(
+					'data' => array_merge(array(
 						'invoice' => ($invoice = $this->_retrieveMostRecentOrderInvoice($order['data'][0])),
-						'nodeLocations' => $this->_retrieveAvailableServerNodeLocations($order['data'][0]),
 						'order' => $order['data'][0]
-					),
+					), $this->_retrieveAvailableServerNodeDetails($order['data'][0])),
 					'message' => array(
 						'status' => 'success',
 						'text' => ''

@@ -32,6 +32,16 @@
 								<select class="node-country-code" name="replacement_country_code"></select>
 							</div>
 						</div>
+						<?php /* ?>
+						<div class="checkbox-container no-margin-top">
+							<span class="checkbox" id="replace-with-specific-node-subnets" name="replace_with_specific_node_subnets"></span>
+							<label class="custom-checkbox-label" for="replace-with-specific-node-subnets" name="replace_with_specific_node_subnets">Replace With Specific Proxy Node Subnets</label>
+							<div class="checkbox-option-container hidden" field="replace_with_specific_node_subnetss">
+								<div class="field-group no-margin-top"></div>
+							</div>
+						</div>
+						<?php */ ?>
+						<div class="clear"></div>
 						<div class="checkbox-container no-margin-top">
 							<span class="checkbox" id="transfer-authentication" name="transfer_authentication"></span>
 							<label class="custom-checkbox-label" for="transfer-authentication" name="transfer_authentication">Transfer Authentication Settings to Replacement Proxies</label>

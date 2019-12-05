@@ -377,6 +377,10 @@ var processOrder = function() {
 					nodeLocationRegionSelect.innerHTML = nodeLocationRegionOptions;
 				}
 			}
+
+			if (response.data.nodeSubnets) {
+				// ..
+			}
 		}
 	});
 };

@@ -163,6 +163,10 @@
 			<span>// List of proxy IDs</span>
 		],
 		order_id: <span><?php echo $data['order_id']; ?></span>,
+		replacement_city: <span>"Ventura"</span>,
+		replacement_country_code: <span>"US"</span>,
+		replacement_region: <span>"California"</span>,
+		replace_with_specific_node_locations: <span>true</span>,
 		transfer_authentication: <span>true</span>
 	},
 	table: <span>"proxies"</span>

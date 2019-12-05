@@ -956,8 +956,8 @@ class ProxiesModel extends OrdersModel {
 				$location = explode('_', $parameters['data']['node_location']);
 				$oldItemData += array(
 					'replacement_city' => $location[0],
-					'replacement_region' => $location[1],
-					'replacement_country_code' => $location[2]
+					'replacement_country_code' => $location[2],
+					'replacement_region' => $location[1]
 				);
 			}
 
@@ -1010,8 +1010,8 @@ class ProxiesModel extends OrdersModel {
 					if (!empty($location)) {
 						$processingNodeParameters['conditions']['AND'] += array(
 							'city' => $location[0],
-							'region' => $location[1],
-							'country_code' => $location[2]
+							'country_code' => $location[2],
+							'region' => $location[1]
 						);
 					}
 
@@ -1273,7 +1273,7 @@ class ProxiesModel extends OrdersModel {
 		$intervalValues = array_keys(array_fill(1, 24, true));
 		$proxyParameters = array(
 			'conditions' => array(
-				'automatic_replacement_interval_value >' => 0,
+				'next_replacement_available <' => date('Y-m-d H:i:s', time()),
 				'NOT' => array(
 					'status' => 'replaced'
 				)
@@ -1286,7 +1286,11 @@ class ProxiesModel extends OrdersModel {
 				'ip',
 				'node_id',
 				'password',
+				'replacement_city',
+				'replacement_country_code',
+				'replacement_region',
 				'require_authentication',
+				'status',
 				'transfer_authentication',
 				'user_id',
 				'username',
@@ -1294,13 +1298,15 @@ class ProxiesModel extends OrdersModel {
 			),
 			'limit' => 100000
 		);
-		// ..
 
 		foreach ($intervalTypes as $intervalType) {
 			foreach ($intervalValues as $intervalValue) {
 				$proxyParameters['conditions']['OR'][] = array(
-					'automatic_replacement_interval_type' => $intervalType,
-					'last_replacement_date <' => date('Y-m-d H:i:s', strtotime('-' . $intervalValue . ' ' . $intervalType))
+					'AND' => array(
+						'automatic_replacement_interval_type' => $intervalType,
+						'automatic_replacement_interval_value' => $intervalValue,
+						'last_replacement_date <' => date('Y-m-d H:i:s', strtotime('-' . $intervalValue . ' ' . $intervalType))
+					)
 				);
 			}
 		}
@@ -1309,111 +1315,148 @@ class ProxiesModel extends OrdersModel {
 
 		if (!empty($proxies['count'])) {
 			$users = array();
+			$proxyData = array(
+				'replacement_removal_date' => date('Y-m-d H:i:s', strtotime('+24 hours')),
+				'status' => 'replaced'
+			);
 
-			foreach ($proxies['data'] as $proxy) {
-				$users[$proxy['user_id']][] = array_merge($proxy, array(
-					'replacement_removal_date' => date('Y-m-d H:i:s', strtotime('+24 hours')),
-					'status' => 'replaced'
-				));
+			foreach ($proxies['data'] as $key => $proxy) {
+				$key = !empty($proxy['replacement_country_code']) ? ($proxy['replacement_city'] . '_' . $proxy['replacement_region'] . '_' . $proxy['replacement_country_code']) : 0;
+				$users[$proxy['user_id']][$key][] = array_merge($proxy, $proxyData);
 			}
 
-			foreach ($users as $userId => $userProxies) {
-				$userEmail = $this->fetch('users', array(
-					'conditions' => array(
-						'id' => $userId
-					),
-					'fields' => array(
-						'email'
-					)
-				));
-
-				if (!empty($userEmail['count'])) {
-					$userEmail = $userEmail['data'][0];
-					$processingNodes = $this->fetch('nodes', array(
+			foreach ($users as $userId => $userProxyGroups) {
+				foreach ($userProxyGroups as $location => $userProxies) {
+					$userEmail = $this->fetch('users', array(
 						'conditions' => array(
-							'AND' => array(
-								'allocated' => false,
-								'OR' => array(
-									'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute')),
-									'processing' => false
-								)
-							)
+							'id' => $userId
 						),
 						'fields' => array(
-							'asn',
-							'city',
-							'country_code',
-							'country_name',
-							'id',
-							'ip',
-							'isp',
-							'region'
-						),
-						'limit' => count($userProxies),
-						'sort' => array(
-							'field' => 'id',
-							'order' => 'DESC'
+							'email'
 						)
 					));
 
-					if (count($processingNodes['data']) === count($userProxies)) {
-						$allocatedNodes = array();
-						$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, count($processingNodes['data']), array(
-							'processing' => true
-						)));
+					if (!empty($userEmail['count'])) {
+						$userEmail = $userEmail['data'][0];
+						$defaultProcessingNodeParameters = $processingNodeParameters = array(
+							'conditions' => array(
+								'AND' => array(
+									'allocated' => false,
+									'OR' => array(
+										'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute')),
+										'processing' => false
+									)
+								)
+							),
+							'fields' => array(
+								'asn',
+								'city',
+								'country_code',
+								'country_name',
+								'id',
+								'ip',
+								'isp',
+								'region'
+							),
+							'limit' => count($userProxies),
+							'sort' => 'random'
+						);
 
-						if ($this->save('nodes', $processingNodes['data'])) {
-							foreach ($processingNodes['data'] as $key => $row) {
-								$allocatedNodes[] = array(
-									'allocated' => true,
-									'id' => ($processingNodes['data'][$key]['node_id'] = $processingNodes['data'][$key]['id']),
-									'processing' => false
-								);
-								$processingNodes['data'][$key] += array(
-									'automatic_replacement_interval_type' => $userProxies[$key]['automatic_replacement_interval_type'],
-									'automatic_replacement_interval_value' => $userProxies[$key]['automatic_replacement_interval_value'],
-									'last_replacement_date' => date('Y-m-d H:i:s', time()),
-									'next_replacement_available' => date('Y-m-d H:i:s', strtotime('+1 week')),
-									'order_id' => $orderId,
-									'status' => 'online',
-									'user_id' => $userId
-								);
-								$processingNodes['data'][$key]['previous_node_id'] = $userProxies[$key]['node_id'];
+						if (!empty($location)) {
+							$location = explode('_', $location);
+							$processingNodeParameters['conditions']['AND'] += ($location = array(
+								'city' => $location[0],
+								'country_code' => $location[2],
+								'region' => $location[1]
+							));
+						}
 
-								if (!empty($userProxies[$key]['transfer_authentication'])) {
-									$processingNodes['data'][$key] += array(
-										'disable_http' => $userProxies[$key]['disable_http'],
-										'password' => $userProxies[$key]['password'],
-										'transfer_authentication' => true,
-										'username' => $userProxies[$key]['username'],
-										'whitelisted_ips' => $userProxies[$key]['whitelisted_ips']
+						$processingNodes = $this->fetch('nodes', $processingNodeParameters);
+						$replacementNodeCount = count($processingNodes['data']);
+						$userProxyCount = count($userProxies);
+
+						if (
+							!empty($location) &&
+							$replacementNodeCount !== $userProxyCount
+						) {
+							$processingNodeParameters = $defaultProcessingNodeParameters;
+							$processingNodeParameters['AND']['NOT'] = $location;
+							$processingNodeParameters['limit'] = $userProxyCount - $replacementNodeCount;
+							$defaultProcessingNodes = $this->fetch('nodes', $processingNodeParameters);
+
+							if (!empty($defaultProcessingNodes['data'])) {
+								$replacementNodeCount += count($defaultProcessingNodes['data']);
+								$processingNodes['data'] += $defaultProcessingNodes['data'];
+							}
+						}
+
+						if ($replacementNodeCount === $userProxyCount) {
+							$allocatedNodes = array();
+							$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, count($processingNodes['data']), array(
+								'processing' => true
+							)));
+
+							if ($this->save('nodes', $processingNodes['data'])) {
+								foreach ($processingNodes['data'] as $key => $row) {
+									$allocatedNodes[] = array(
+										'allocated' => true,
+										'id' => ($processingNodes['data'][$key]['node_id'] = $processingNodes['data'][$key]['id']),
+										'processing' => false
 									);
+									$processingNodes['data'][$key] += array(
+										'automatic_replacement_interval_type' => $userProxies[$key]['automatic_replacement_interval_type'],
+										'automatic_replacement_interval_value' => $userProxies[$key]['automatic_replacement_interval_value'],
+										'last_replacement_date' => date('Y-m-d H:i:s', time()),
+										'next_replacement_available' => date('Y-m-d H:i:s', strtotime('+1 week')),
+										'order_id' => $orderId,
+										'status' => 'online',
+										'user_id' => $userId
+									);
+									$processingNodes['data'][$key]['previous_node_id'] = $userProxies[$key]['node_id'];
+
+									if (!empty($location)) {
+										$processingNodes['data'][$key] += array_combine(array(
+											'replacement_city',
+											'replacement_region',
+											'replacement_country_code'
+										), $location);
+									}
+
+									if (!empty($userProxies[$key]['transfer_authentication'])) {
+										$processingNodes['data'][$key] += array(
+											'disable_http' => $userProxies[$key]['disable_http'],
+											'password' => $userProxies[$key]['password'],
+											'transfer_authentication' => true,
+											'username' => $userProxies[$key]['username'],
+											'whitelisted_ips' => $userProxies[$key]['whitelisted_ips']
+										);
+									}
+
+									unset($processingNodes['data'][$key]['id']);
+									unset($processingNodes['data'][$key]['processing']);
 								}
 
-								unset($processingNodes['data'][$key]['id']);
-								unset($processingNodes['data'][$key]['processing']);
-							}
-
-							if (
-								$this->save('nodes', $allocatedNodes) &&
-								$this->save('proxies', $userProxies) &&
-								$this->save('proxies', $processingNodes['data'])
-							) {
-								$mailParameters = array(
-									'from' => $this->settings['from_email'],
-									'subject' => count($processingNodes['data']) . ' proxies replaced successfully',
-									'template' => array(
-										'name' => 'items_replaced',
-										'parameters' => array(
-											'link' => 'https://' . $this->settings['base_domain'] . '/orders/' . $orderId,
-											'new_items' => $processingNodes['data'],
-											'old_items' => $userProxies,
-											'table' => 'proxies'
-										)
-									),
-									'to' => $userEmail
-								);
-								$this->_sendMail($mailParameters);
+								if (
+									$this->save('nodes', $allocatedNodes) &&
+									$this->save('proxies', $userProxies) &&
+									$this->save('proxies', $processingNodes['data'])
+								) {
+									$mailParameters = array(
+										'from' => $this->settings['from_email'],
+										'subject' => $replacementNodeCount . ' proxies replaced successfully',
+										'template' => array(
+											'name' => 'items_replaced',
+											'parameters' => array(
+												'link' => 'https://' . $this->settings['base_domain'] . '/orders/' . $orderId,
+												'new_items' => $processingNodes['data'],
+												'old_items' => $userProxies,
+												'table' => 'proxies'
+											)
+										),
+										'to' => $userEmail
+									);
+									$this->_sendMail($mailParameters);
+								}
 							}
 						}
 					}

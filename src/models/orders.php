@@ -909,7 +909,10 @@ class OrdersModel extends TransactionsModel {
 			empty($parameters['id']) ||
 			!is_numeric($parameters['id'])
 		) {
-			if (empty($parameters['conditions'])) {
+			if (
+				empty($parameters['conditions']) ||
+				empty($parameters['user'])
+			) {
 				$this->redirect($this->settings['base_url'] . 'orders');
 			}
 

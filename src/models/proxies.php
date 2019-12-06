@@ -870,8 +870,7 @@ class ProxiesModel extends OrdersModel {
 	public function replace($table, $parameters, $endpoint = false) {
 		$response = array(
 			'message' => array(
-				'status' => 'error',
-				'text' => 'Error processing your replacement request, please try again.'
+				'status' => 'error'
 			)
 		);
 
@@ -917,7 +916,7 @@ class ProxiesModel extends OrdersModel {
 				}
 			}
 		} else {
-			$response['message']['text'] = 'There was an error applying the replacement settings to your ' . $table . ', please try again.';
+			$response['message']['text'] = 'Error processing your replacement request, please try again.';
 			$newItemData = $oldItemData = array(
 				'automatic_replacement_interval_value' => 0,
 				'transfer_authentication' => !empty($parameters['data']['transfer_authentication']) ? true : false

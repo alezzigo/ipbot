@@ -424,11 +424,11 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 		}
 
 		itemIndexes.map(function(itemIndex) {
+			var encodeCount = 1;
+			var encodedGridLineItems = [];
 			var index = ((currentPage * resultsPerPage) - resultsPerPage) + +itemIndex;
 			var item = document.querySelector('.item-configuration .checkbox[index="' + itemIndex + '"]');
 			var key = Math.floor(index / itemGridLineSizeMaximum);
-			var serializeCount = 1;
-			var serializedGridLineItems = [];
 
 			if (!itemGrid[key]) {
 				itemGrid[key] = repeat(itemGridLineSize(key), '0');
@@ -451,14 +451,14 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 			itemGrid[key] = itemGrid[key].split("");
 			itemGrid[key].map(function(itemStatus, itemStatusIndex) {
 				if (itemStatus != itemGrid[key][itemStatusIndex + 1]) {
-					serializedGridLineItems.push(itemStatus + serializeCount);
-					serializeCount = 0;
+					encodedGridLineItems.push(itemStatus + encodeCount);
+					encodeCount = 0;
 				}
 
-				serializeCount++;
+				encodeCount++;
 			});
 			item.setAttribute('checked', +itemGrid[key][itemGridLineIndex]);
-			itemGrid[key] = serializedGridLineItems.join('_');
+			itemGrid[key] = encodedGridLineItems.join('_');
 		});
 
 		range(0, pageResultCount - 1).map(function(itemIndex) {
@@ -599,6 +599,8 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 		});
 		elements.removeClass('.item-configuration .item-controls', 'hidden');
 		itemGrid = response.items[requestParameters.table];
+
+		// ..
 
 		if (requestParameters.action != 'search') {
 			requestParameters.action = previousAction;

@@ -322,6 +322,7 @@ class AppModel extends Config {
 			'expiration',
 			'foreign_key',
 			'foreign_value',
+			'id',
 			'string'
 		);
 		$response = $this->fetch('tokens', $tokenParameters);
@@ -414,6 +415,7 @@ class AppModel extends Config {
  * @return array $response
  */
 	protected function _processAction($table, $parameters) {
+		$message = array();
 		$response = array(
 			'user' => $parameters['user']
 		);
@@ -421,9 +423,9 @@ class AppModel extends Config {
 		if (
 			!method_exists($this, $action = $parameters['action']) ||
 			(
-				(!empty($serialize = $this->serialize[$table])) &&
-				(!empty($foreignKey = $serialize['foreign_key'])) &&
-				(!empty($foreignValue = $parameters['conditions'][$foreignKey])) &&
+				($encode = $this->encode[$table]) &&
+				($foreignKey = $encode['foreign_key']) &&
+				($foreignValue = $parameters['conditions'][$foreignKey]) &&
 				($token = $this->_getToken($table, $parameters, $foreignKey, $foreignValue)) === false
 			)
 		) {
@@ -441,10 +443,46 @@ class AppModel extends Config {
 			$parameters['tokens'][$table] === $token
 		) {
 			if (
-				$serialize &&
+				$encode &&
 				!in_array($action, array('fetch',  'search'))
 			) {
-				$parameters['items'] = $this->_retrieveItems($parameters);
+				$itemIndexLineCount = count($parameters['items'][$table]);
+				$items = $this->_retrieveItems($parameters);
+				$parametersToEncode = array_intersect_key($parameters, array(
+					'action' => true,
+					'conditions' => true,
+					'data' => true,
+					'limit' => true,
+					'sort' => true,
+					'table' => true
+				));
+				$requestData = array(
+					array(
+						'encoded_items_to_process' => json_encode($items[$table]['data']),
+						'encoded_parameters' => json_encode($parametersToEncode),
+						'foreign_key' => $foreignKey,
+						'foreign_value' => $foreignValue,
+						'request_chunks' => $itemIndexLineCount,
+						'token_id' => $token['id']
+					)
+				);
+
+				if ($itemIndexLineCount > 1) {
+					$action = 'fetch';
+				} else {
+					$parameters['items'] = $this->_retrieveItems($parameters, true);
+					$requestData[0] = array_merge($requestData[0], array(
+						'request_processed' => true,
+						'request_progress' => 100
+					));
+				}
+
+				if ($this->save('requests', $requestData)) {
+					$response['message'] = array(
+						'status' => 'success',
+						'text' => 'Your request to ' . $action . ' ' . $items[$table]['count'] . ' selected ' . $table . ' is currently processing. You can <a href="' . $this->settings['base_url'] . 'requests">check the progress</a> of all current bulk requests.'
+					);
+				}
 			}
 		} else {
 			$action = 'fetch';
@@ -753,31 +791,28 @@ class AppModel extends Config {
 	}
 
 /**
- * Unserialize indexes and retrieve corresponding item IDs based on parameters
+ * Decode indexes and retrieve corresponding item IDs based on parameters
  *
  * @param array $parameters
+ * @param boolean $decode
  *
  * @return array $response
  */
-	protected function _retrieveItems($parameters) {
+	protected function _retrieveItems($parameters, $decode = false) {
 		$response = array();
 
 		if (!empty($parameters['items'])) {
 			foreach ($parameters['items'] as $table => $items) {
 				$response[$table] = array(
-					'count' => count($items),
 					'data' => $items
 				);
 
-				if (
-					!empty($items) &&
-					is_numeric(array_search(current($items), $items))
-				) {
+				if (!empty($items)) {
 					$itemIndexes = array();
 					$itemIndexLines = $items;
-					$index = 0;
+					$index = $itemCount = 0;
 
-					foreach ($itemIndexLines as $itemIndexLine) {
+					foreach ($itemIndexLines as $offsetIndex => $itemIndexLine) {
 						$itemIndexLineChunks = explode('_', $itemIndexLine);
 
 						foreach ($itemIndexLineChunks as $itemIndexLineChunk) {
@@ -785,52 +820,60 @@ class AppModel extends Config {
 							$itemStatusCount = substr($itemIndexLineChunk, 1);
 
 							if ($itemStatus) {
-								for ($i = 0; $i < $itemStatusCount; $i++) {
-									$itemIndexes[$index + $i] = 1;
+								if ($decode) {
+									for ($i = 0; $i < $itemStatusCount; $i++) {
+										$itemIndexes[$index + $i] = 1;
+									}
 								}
+
+								$itemCount += $itemStatusCount;
 							}
 
 							$index += $itemStatusCount;
 						}
 					}
 
+					$response[$table]['count'] = $itemCount;
+
 					if (
 						empty($itemIndexes) ||
-						!$index
+						!$itemCount
 					) {
 						continue;
 					}
 
-					$ids = $this->fetch($table, array_merge($parameters, array(
-						'fields' => array(
-							'id'
-						),
-						'limit' => $index,
-						'offset' => 0
-					)));
-					$conditions = array(
-						'id' => !empty($ids['data']) ? array_intersect_key($ids['data'], $itemIndexes) : array()
-					);
+					if ($decode) {
+						$itemIds = $this->fetch($table, array_merge($parameters, array(
+							'fields' => array(
+								'id'
+							),
+							'limit' => $index,
+							'offset' => 0
+						)));
+						$conditions = array(
+							'id' => !empty($itemIds['data']) ? array_values(array_intersect_key($itemIds['data'], $itemIndexes)) : array()
+						);
 
-					if (
-						!empty($parameters['data']['instant_replacement']) &&
-						$parameters['action'] == 'replace'
-					) {
-						$conditions[]['NOT']['AND'] = array(
-							'status' => 'replaced'
-						);
-						$conditions[]['OR'] = array(
-							'next_replacement_available' => null,
-							'next_replacement_available <' => date('Y-m-d H:i:s', time())
-						);
+						if (
+							!empty($parameters['data']['instant_replacement']) &&
+							$parameters['action'] == 'replace'
+						) {
+							$conditions[]['NOT']['AND'] = array(
+								'status' => 'replaced'
+							);
+							$conditions[]['OR'] = array(
+								'next_replacement_available' => null,
+								'next_replacement_available <' => date('Y-m-d H:i:s', time())
+							);
+						}
+
+						$response[$table] = $this->fetch($table, array(
+							'conditions' => $conditions,
+							'fields' => array(
+								'id'
+							)
+						));
 					}
-
-					$response[$table] = $this->fetch($table, array(
-						'conditions' => $conditions,
-						'fields' => array(
-							'id'
-						)
-					));
 				}
 			}
 		}

@@ -97,6 +97,12 @@ class Config {
 			)
 		);
 
+		$this->encode = array(
+			'proxies' => array(
+				'foreign_key' => 'order_id'
+			)
+		);
+
 		$this->groups = array(
 			'public',
 			'user',
@@ -335,12 +341,6 @@ class Config {
 			'socks' => array(
 				'dynamic' => array(),
 				'static' => array()
-			)
-		);
-
-		$this->serialize = array(
-			'proxies' => array(
-				'foreign_key' => 'order_id'
 			)
 		);
 

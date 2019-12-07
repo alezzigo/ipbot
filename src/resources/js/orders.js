@@ -52,6 +52,7 @@ var processOrders = function() {
 		field: 'modified',
 		order: 'DESC'
 	};
+	requestParameters.url = requestParameters.settings.base_url + 'api/orders';
 	var ordersData = '';
 	sendRequest(function(response) {
 		var messageContainer = document.querySelector('main .message-container');
@@ -120,6 +121,7 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue = 1) {
 	requestParameters.data.orders = orderGrid;
 	requestParameters.data.products = productIdGrid;
 	requestParameters.data.upgrade_quantity = upgradeValue;
+	requestParameters.url = requestParameters.settings.base_url + 'api/orders';
 	var orderId = parseInt(replaceCharacter(window.location.search, 0, ''));
 	var upgradeContainer = document.querySelector('.upgrade-container');
 	var upgradeData = '';
@@ -237,4 +239,3 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue = 1) {
 	});
 };
 requestParameters.table = defaultTable;
-requestParameters.url = requestParameters.settings.base_url + 'api/orders';

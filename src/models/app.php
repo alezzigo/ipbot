@@ -467,7 +467,8 @@ class AppModel extends Config {
 						'foreign_value' => $foreignValue,
 						'request_chunks' => $itemIndexLineCount,
 						'request_progress' => 0,
-						'token_id' => $token['id']
+						'token_id' => $token['id'],
+						'user_id' => $parameters['user']['id']
 					)
 				);
 

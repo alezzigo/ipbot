@@ -1,7 +1,6 @@
 'use_strict';
 
 var defaultTable = 'proxies';
-var defaultUrl = requestParameters.settings.base_url + 'api/proxies';
 var itemGrid = [];
 var itemGridCount = 0;
 var orderMessageContainer = document.querySelector('main .message-container.order');
@@ -98,6 +97,7 @@ var processDowngrade = function() {
 	});
 };
 var processEndpoint = function(frameName, frameSelector) {
+	var defaultUrl = requestParameters.settings.base_url + 'api/proxies';
 	requestParameters.action = 'endpoint';
 	requestParameters.data.order_id = document.querySelector('input[name="order_id"]').value;
 	requestParameters.table = 'orders';
@@ -157,6 +157,7 @@ var processGroup = function(frameName, frameSelector) {
 	var groupNameField = document.querySelector(frameSelector + ' .group-name-field');
 	var groupTable = document.querySelector(frameSelector + ' .group-table');
 	var orderId = document.querySelector('input[name="order_id"]').value;
+	requestParameters.url = requestParameters.settings.base_url + 'api/proxies';
 	var groupAdd = function(groupName) {
 		requestParameters.action = frameName;
 		requestParameters.data.name = groupName;
@@ -309,6 +310,7 @@ var processGroup = function(frameName, frameSelector) {
 	requestParameters.action = 'fetch';
 	requestParameters.sort.field = 'created';
 	requestParameters.table = 'proxy_groups';
+	requestParameters.url = requestParameters.settings.base_url + 'api/proxies';
 	var limit = requestParameters.limit;
 	var offset = requestParameters.offset;
 	delete requestParameters.limit;
@@ -318,6 +320,7 @@ var processGroup = function(frameName, frameSelector) {
 	});
 };
 var processOrder = function() {
+	var defaultUrl = requestParameters.settings.base_url + 'api/proxies';
 	var orderId = document.querySelector('input[name="order_id"]').value;
 	requestParameters.action = 'view';
 	requestParameters.conditions = {
@@ -386,6 +389,7 @@ var processOrder = function() {
 };
 var processProxies = function(frameName, frameSelector, currentPage) {
 	var currentPage = currentPage || 1;
+	var defaultUrl = requestParameters.settings.base_url + 'api/proxies';
 	var items = document.querySelector('.item-configuration .item-table');
 	var orderId = document.querySelector('input[name="order_id"]').value;
 	var pagination = document.querySelector('.item-configuration .pagination');
@@ -539,6 +543,7 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 	requestParameters.limit = resultsPerPage;
 	requestParameters.offset = ((currentPage * resultsPerPage) - resultsPerPage);
 	requestParameters.sort.field = 'modified';
+	requestParameters.url = defaultUrl;
 	sendRequest(function(response) {
 		if (proxyMessageContainer) {
 			proxyMessageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
@@ -667,4 +672,3 @@ requestParameters.sort = {
 	order: 'DESC'
 };
 requestParameters.table = defaultTable;
-requestParameters.url = defaultUrl;

@@ -16,6 +16,7 @@ var processEmail = function() {
 	) {
 		requestParameters.action = 'email';
 		requestParameters.table = 'users';
+		requestParameters.url = requestParameters.settings.base_url + 'api/users';
 		sendRequest(function(response) {
 			var messageContainer = document.querySelector('.change-email .message-container');
 
@@ -52,6 +53,7 @@ var processEmail = function() {
 var processRemove = function() {
 	requestParameters.action = 'remove';
 	requestParameters.table = 'users';
+	requestParameters.url = requestParameters.settings.base_url + 'api/users';
 	sendRequest(function(response) {
 		var messageContainer = document.querySelector('.request-removal .message-container');
 
@@ -69,8 +71,9 @@ var processRemove = function() {
 var processReset = function() {
 	var hash = replaceCharacter(window.location.search, 0, '');
 	requestParameters.action = 'reset';
-	requestParameters.table = 'users';
 	requestParameters.data['token'] = hash;
+	requestParameters.table = 'users';
+	requestParameters.url = requestParameters.settings.base_url + 'api/users';
 	sendRequest(function(response) {
 		var messageContainer = document.querySelector('.reset .message-container');
 
@@ -99,6 +102,7 @@ var processUser = function() {
 	elements.removeClass('.form-item', 'hidden');
 	requestParameters.action = 'view';
 	requestParameters.table = 'users';
+	requestParameters.url = requestParameters.settings.base_url + 'api/users';
 	var userContainer = document.querySelector('.user-container');
 	var userData = '';
 	sendRequest(function(response) {
@@ -225,6 +229,7 @@ var processUser = function() {
 var processUsers = function(frameName, frameSelector) {
 	requestParameters.action = frameName;
 	requestParameters.table = 'users';
+	requestParameters.url = requestParameters.settings.base_url + 'api/users';
 	sendRequest(function(response) {
 		var messageContainer = document.querySelector('.' + frameName + ' .message-container');
 
@@ -245,4 +250,3 @@ var processUsers = function(frameName, frameSelector) {
 		}
 	});
 };
-requestParameters.url = requestParameters.settings.base_url + 'api/users';

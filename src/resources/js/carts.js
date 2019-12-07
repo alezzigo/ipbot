@@ -5,6 +5,7 @@ var messageContainer = document.querySelector('.item-configuration .message-cont
 var processCart = function() {
 	requestParameters.action = 'cart';
 	requestParameters.table = 'carts';
+	requestParameters.url = requestParameters.settings.base_url + 'api/carts';
 	sendRequest(function(response) {
 		processCartItems(response);
 	});
@@ -12,6 +13,7 @@ var processCart = function() {
 var processConfirm = function() {
 	requestParameters.action = 'complete';
 	requestParameters.table = 'carts';
+	requestParameters.url = requestParameters.settings.base_url + 'api/carts';
 	sendRequest(function(response) {
 		if (
 			typeof response.redirect === 'string' &&
@@ -235,8 +237,8 @@ var processDelete = function() {
 	requestParameters.data = {
 		id: cartItemGrid
 	};
+	requestParameters.url = requestParameters.settings.base_url + 'api/carts';
 	sendRequest(function(response) {
 		processCartItems(response);
 	});
 };
-requestParameters.url = requestParameters.settings.base_url + 'api/carts';

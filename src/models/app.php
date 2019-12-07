@@ -423,8 +423,10 @@ class AppModel extends Config {
 		if (
 			!method_exists($this, $action = $parameters['action']) ||
 			(
+				isset($this->encode[$table]) &&
 				($encode = $this->encode[$table]) &&
 				($foreignKey = $encode['foreign_key']) &&
+				isset($parameters['conditions'][$foreignKey]) &&
 				($foreignValue = $parameters['conditions'][$foreignKey]) &&
 				($token = $this->_getToken($table, $parameters, $foreignKey, $foreignValue)) === false
 			)
@@ -463,6 +465,7 @@ class AppModel extends Config {
 						'foreign_key' => $foreignKey,
 						'foreign_value' => $foreignValue,
 						'request_chunks' => $itemIndexLineCount,
+						'request_progress' => 0,
 						'token_id' => $token['id']
 					)
 				);
@@ -480,7 +483,7 @@ class AppModel extends Config {
 						'status' => 'success',
 						'text' => 'Your request to ' . $action . ' ' . $items[$table]['count'] . ' selected ' . $table . ' is currently processing.'
 					);
-					$response['processing'] = true;
+					$response['processing'] = $requestData[0];
 				}
 
 				if ($itemIndexLineCount > 1) {
@@ -494,6 +497,13 @@ class AppModel extends Config {
 				'status' => 'error',
 				'text' => 'Your ' . $table . ' have been recently modified and your previously-selected results have been deselected automatically.'
 			);
+		}
+
+		if (
+			!empty($foreignValue) &&
+			!isset($response['processing'])
+		) {
+			$response['processing'] = $this->_retrieveProcessingRequest($foreignKey, $foreignValue);
 		}
 
 		if (!empty($parameters['redirect'])) {
@@ -879,6 +889,43 @@ class AppModel extends Config {
 					}
 				}
 			}
+		}
+
+		return $response;
+	}
+
+/**
+ * Retrieve most-recent processing request
+ *
+ * @param string $foreignKey
+ * @param mixed [integer/string] $foreignValue
+ *
+ * @return array $response
+ */
+	protected function _retrieveProcessingRequest($foreignKey, $foreignValue) {
+		$response = array();
+		$request = $this->fetch('requests', array(
+			'conditions' => array(
+				'foreign_key' => $foreignKey,
+				'foreign_value' => $foreignValue,
+				'request_processed' => false
+			),
+			'fields' => array(
+				'encoded_items_processed',
+				'encoded_items_to_process',
+				'encoded_parameters',
+				'foreign_key',
+				'foreign_value',
+				'id',
+				'request_chunks',
+				'request_progress',
+				'token_id'
+			),
+			'limit' => 1
+		));
+
+		if (!empty($request['count'])) {
+			$response = $request['data'][0];
 		}
 
 		return $response;

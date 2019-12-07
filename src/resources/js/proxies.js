@@ -516,7 +516,7 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 
 		requestParameters.items[requestParameters.table] = itemGrid;
 	};
-	elements.addClass('.item-configuration .item-controls', 'hidden');
+	elements.addClass('.item-configuration .item-controls, .item-table', 'hidden');
 	pagination.querySelector('.next').setAttribute('page', 0);
 	pagination.querySelector('.previous').setAttribute('page', 0);
 
@@ -652,7 +652,7 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 			};
 			item.addEventListener('click', item.clickListener);
 		});
-		elements.removeClass('.item-configuration .item-controls', 'hidden');
+		elements.removeClass('.item-configuration .item-controls, .item-table', 'hidden');
 		itemGrid = response.items[requestParameters.table];
 
 		if (requestParameters.action != 'search') {

@@ -25,6 +25,7 @@
 	<div class="section">
 		<div class="container small">
 			<h1 class="order-name"></h1>
+			<div class="hidden item-container item-processing-container"></div>
 			<div class="item-container item-configuration-container">
 				<div class="item">
 					<div class="item-configuration">

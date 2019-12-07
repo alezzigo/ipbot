@@ -579,6 +579,18 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 			return items.innerHTML = '';
 		}
 
+		if (response.processing) {
+			var itemProcessingContainer = document.querySelector('.item-processing-container');
+			var itemProcessingData = '<p class="message">Your recent bulk request to ' + response.processing.parameters.action + ' ' + response.processing.parameters.item_count + ' ' + response.processing.parameters.table + ' is in progress.</p>';
+			itemProcessingData += '<p>' + response.processing.request_progress + '%</p>';
+			itemProcessingData += '<div class="progress-container">';
+			itemProcessingData += '<div class="progress" style="width: ' + response.processing.request_progress + '%;"></div>';
+			itemProcessingData += '</div>';
+			elements.addClass('.item-configuration-container', 'hidden');
+			elements.removeClass('.item-processing-container', 'hidden');
+			itemProcessingContainer.innerHTML = itemProcessingData;
+		}
+
 		items.innerHTML = '<table class="table"><thead><tr><th style="width: 35px;"></th><th>Proxy IP</th></tr></thead><tbody></tbody></table>';
 		response.data.map(function(item, index) {
 			items.querySelector('table tbody').innerHTML += '<tr page="' + currentPage + '" proxy_id="' + item.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" proxy_id="' + item.id + '"></span></td><td><span class="details-container"><span class="details"><span class="detail"><strong>Status:</strong> ' + capitalizeString(item.status) + '</span><span class="detail"><strong>Proxy IP:</strong> ' + item.ip + '</span><span class="detail"><strong>Location:</strong> ' + item.city + ', ' + item.region + ' ' + item.country_code + ' </span><span class="detail"><strong>ISP:</strong> ' + item.asn + ' </span><span class="detail"><strong>HTTP + HTTPS Port:</strong> ' + (item.disable_http == 1 ? 'Disabled' : '80') + '</span><span class="detail"><strong>Username:</strong> ' + (item.username ? item.username : 'N/A') + '</span><span class="detail"><strong>Password:</strong> ' + (item.password ? item.password : 'N/A') + '</span><span class="detail"><strong>Whitelisted IPs:</strong> ' + (item.whitelisted_ips ? '<textarea>' + item.whitelisted_ips + '</textarea>' : 'N/A') + '</span></span></span><span class="table-text">' + item.ip + '</span></td>';
@@ -599,8 +611,6 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 		});
 		elements.removeClass('.item-configuration .item-controls', 'hidden');
 		itemGrid = response.items[requestParameters.table];
-
-		// ..
 
 		if (requestParameters.action != 'search') {
 			requestParameters.action = previousAction;

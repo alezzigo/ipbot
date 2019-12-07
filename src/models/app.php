@@ -458,6 +458,7 @@ class AppModel extends Config {
 					'sort' => true,
 					'table' => true
 				));
+				$parametersToEncode['item_count'] = $items[$table]['count'];
 				$requestData = array(
 					array(
 						'encoded_items_to_process' => json_encode($items[$table]['data']),
@@ -499,11 +500,14 @@ class AppModel extends Config {
 			);
 		}
 
-		if (
-			!empty($foreignValue) &&
-			!isset($response['processing'])
-		) {
-			$response['processing'] = $this->_retrieveProcessingRequest($foreignKey, $foreignValue);
+		if (!empty($foreignValue)) {
+			if (!isset($response['processing'])) {
+				$response['processing'] = $this->_retrieveProcessingRequest($foreignKey, $foreignValue);
+			}
+
+			if (!empty($response['processing'])) {
+				$response['processing']['parameters'] = json_decode($response['processing']['encoded_parameters'], true);
+			}
 		}
 
 		if (!empty($parameters['redirect'])) {
@@ -903,7 +907,7 @@ class AppModel extends Config {
  * @return array $response
  */
 	protected function _retrieveProcessingRequest($foreignKey, $foreignValue) {
-		$response = array();
+		$response = false;
 		$request = $this->fetch('requests', array(
 			'conditions' => array(
 				'foreign_key' => $foreignKey,

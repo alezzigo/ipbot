@@ -582,13 +582,30 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 		if (response.processing) {
 			var itemProcessingContainer = document.querySelector('.item-processing-container');
 			var itemProcessingData = '<p class="message">Your recent bulk request to ' + response.processing.parameters.action + ' ' + response.processing.parameters.item_count + ' ' + response.processing.parameters.table + ' is in progress.</p>';
-			itemProcessingData += '<p>' + response.processing.request_progress + '%</p>';
+			var timeoutId = setTimeout(function() {}, 1);
+			var processRequestProgress = function(response) {
+				var requestProgress = response.processing.request_progress;
+				elements.html('.progress-text, .progress', requestProgress + '%');
+				elements.setAttribute('style', 'width: ' + requestProgress + '%');
+
+				if (requestProgress < 100) {
+					while (timeoutId--) {
+						clearTimeout(timeoutId);
+					}
+
+					var timeoutId = setTimeout(function() {
+						// ..
+					}, 10000);
+				}
+			};
+			itemProcessingData += '<p class="progress-text"></p>';
 			itemProcessingData += '<div class="progress-container">';
-			itemProcessingData += '<div class="progress" style="width: ' + response.processing.request_progress + '%;"></div>';
+			itemProcessingData += '<div class="progress"></div>';
 			itemProcessingData += '</div>';
 			elements.addClass('.item-configuration-container', 'hidden');
 			elements.removeClass('.item-processing-container', 'hidden');
 			itemProcessingContainer.innerHTML = itemProcessingData;
+			processRequestProgress(response);
 		}
 
 		items.innerHTML = '<table class="table"><thead><tr><th style="width: 35px;"></th><th>Proxy IP</th></tr></thead><tbody></tbody></table>';

@@ -456,7 +456,8 @@ class AppModel extends Config {
 					'data' => true,
 					'limit' => true,
 					'sort' => true,
-					'table' => true
+					'table' => true,
+					'tokens' => true
 				));
 				$parametersToEncode['item_count'] = $items[$table]['count'];
 				$requestData = array(
@@ -466,6 +467,7 @@ class AppModel extends Config {
 						'foreign_key' => $foreignKey,
 						'foreign_value' => $foreignValue,
 						'request_chunks' => $itemIndexLineCount,
+						'request_processed' => false,
 						'request_progress' => 0,
 						'token_id' => $token['id'],
 						'user_id' => $parameters['user']['id']

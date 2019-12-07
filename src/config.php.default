@@ -99,6 +99,8 @@ class Config {
 				'foreign_value',
 				'id',
 				'request_chunks',
+				'request_processed',
+				'request_processing',
 				'request_progress',
 				'token_id',
 				'user_id'

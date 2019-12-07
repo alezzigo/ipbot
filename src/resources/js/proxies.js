@@ -586,16 +586,22 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 
 		if (response.processing) {
 			var itemProcessingContainer = document.querySelector('.item-processing-container');
-			var itemProcessingData = '<p class="message">Your recent bulk request to ' + response.processing.parameters.action + ' ' + response.processing.parameters.item_count + ' ' + response.processing.parameters.table + ' is in progress.</p>';
+			var requestDetails = 'to ' + response.processing.parameters.action + ' ' + response.processing.parameters.item_count + ' ' + response.processing.parameters.table;
+			var itemProcessingData = '<p class="message">Your recent bulk request ' + requestDetails + ' is in progress.</p>';
 			var timeoutId = setTimeout(function() {}, 1);
 			var processRequestProgress = function(response) {
 				var previousAction = requestParameters.action;
 				var previousConditions = requestParameters.conditions;
-				var requestProgress = response.processing.request_progress;
+				var previousOffset = requestParameters.offset;
+				var requestProgress = (response.processing ? response.processing.request_progress : 0);
+				var requestProcessed = (response.processing ? response.processing.request_processed : false);
 				elements.html('.progress-text', requestProgress + '%');
 				elements.setAttribute('.progress', 'style', 'width: ' + requestProgress + '%');
 
-				if (requestProgress < 100) {
+				if (
+					requestProgress < 100 &&
+					!requestProcessed
+				) {
 					while (timeoutId--) {
 						clearTimeout(timeoutId);
 					}
@@ -603,9 +609,9 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 					var timeoutId = setTimeout(function() {
 						requestParameters.conditions = {
 							foreign_key: response.processing.foreign_key,
-							foreign_value: response.processing.foreign_value,
-							request_processed: false
+							id: response.processing.id
 						};
+						requestParameters.offset = 0;
 						requestParameters.table = 'requests';
 						requestParameters.url = requestParameters.settings.base_url + 'api/requests';
 						sendRequest(function(response) {
@@ -615,13 +621,22 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 
 							processRequestProgress(response);
 						});
-					}, 8000);
+					}, 10000);
 				} else {
 					requestParameters.action = previousAction;
 					requestParameters.table = defaultTable;
+					requestParameters.offset = previousOffset;
 					requestParameters.url = defaultUrl;
 					elements.addClass('.item-processing-container', 'hidden');
 					elements.removeClass('.item-configuration-container', 'hidden');
+
+					if (
+						proxyMessageContainer &&
+						requestProgress < 100
+					) {
+						proxyMessageContainer.innerHTML = '<p class="error message">Request ' + (response.processing.id ? '#' + response.processing.id + ' ' : '') + requestDetails + ' was interrupted at ' + requestProgress + '%, please try again.</p>';
+						processWindowEvents('resize');
+					}
 				}
 			};
 			itemProcessingData += '<p class="progress-text"></p>';

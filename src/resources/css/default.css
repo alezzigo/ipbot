@@ -777,6 +777,9 @@ main {
 		.icon[frame="replace"] {
 			background: url('../images/icons/icon-replace.png') center no-repeat;
 		}
+		.icon[frame="requests"] {
+			background: url('../images/icons/icon-requests.png') center no-repeat;
+		}
 		.icon[frame="search"] {
 			background: url('../images/icons/icon-search.png') center no-repeat;
 		}
@@ -794,6 +797,7 @@ main {
 		.icon[frame="endpoint"],
 		.icon[frame="group"],
 		.icon[frame="replace"],
+		.icon[frame="requests"],
 		.icon[frame="search"],
 		.icon[frame="upgrade"] {
 			background-size: 100% !important;

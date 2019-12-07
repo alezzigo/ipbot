@@ -610,6 +610,9 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 		processItemGrid(range(0, response.data.length - 1));
 	});
 };
+var processRequests = function(frameName, frameSelector) {
+	// ..
+};
 requestParameters.action = 'fetch';
 requestParameters.sort = {
 	field: 'modified',

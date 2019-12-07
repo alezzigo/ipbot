@@ -11,6 +11,7 @@
 		'endpoint',
 		'group',
 		'replace',
+		'requests',
 		'search'
 	);
 
@@ -45,6 +46,7 @@
 									<span class="button frame-button icon tooltip tooltip-bottom" data-title="Configure proxy API endpoint settings" frame="endpoint" process="endpoint"></span>
 									<span class="button frame-button icon tooltip tooltip-bottom" data-title="Proxy search and filter" frame="search"></span>
 									<span class="button frame-button icon tooltip tooltip-bottom" data-title="Manage proxy groups" frame="group" process="group"></span>
+									<span class="button frame-button icon tooltip tooltip-bottom" data-title="View log of most-recent order requests" frame="requests" process="requests"></span>
 									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Configure proxy replacement settings" frame="replace" item-function></span>
 									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Configure proxy authentication settings" frame="authenticate" item-function></span>
 									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Copy selected proxies to clipboard" frame="copy" item-function process="copy"></span>

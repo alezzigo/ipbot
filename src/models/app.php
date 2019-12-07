@@ -210,6 +210,7 @@ class AppModel extends Config {
 					'order' => 'DESC'
 				)
 			));
+			$response[] = $response[1]['count'];
 		}
 
 		if ($sessionId !== false) {

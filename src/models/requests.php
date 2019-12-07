@@ -69,39 +69,65 @@ class RequestsModel extends ProxiesModel {
 			$requestsProcessedCount = 0;
 
 			if (!empty($requestsToProcess['count'])) {
-				foreach ($requestsToProcess['data'] as $request) {
-					// ..
-					$itemsProcessed = (array) json_decode($request['encoded_items_processed'], true);
-					$itemsToProcess = json_decode($request['encoded_items_to_process'], true);
-					$parameters = json_decode($request['encoded_parameters'], true);
+				$requestData = array();
 
-					if (
-						!empty($itemsToProcess) &&
-						($requestAction = $parameters['action']) &&
-						($requestTable = $parameters['table']) &&
-						method_exists($this, $requestAction)
-					) {
-						$parameters['items'][$requestTable] = array_splice($itemsToProcess, count($itemsProcessed), 1);
-						$itemsProcessed = array_merge($itemsProcessed, $parameters['items'][$requestTable]);
-						$completed = (count($itemsProcessed) === count($itemsToProcess));
-						$parameters['items'] = $this->_retrieveItems($parameters, true);
-						$requestResponse = $this->$requestAction($requestTable, $parameters);
-						$requestData = array(
-							array(
-								'encoded_items_processed' => json_encode($itemsProcessed),
-								'id' => $request['id'],
-								'request_processed' => $completed,
-								'request_processing' => false,
-								'request_progress' => ($completed ? 100 : min(100, $request['request_progress'] + (ceil(100 / $request['request_chunks'])))),
-								'user_id' => $request['user_id']
-							)
-						);
+				foreach ($requestsToProcess['data'] as $request) {
+					$requestData[] = array(
+						'id ' => $request['id'],
+						'request_processing' => true,
+						'user_id' => $request['user_id']
+					);
+				}
+
+				if ($this->save('requests', $requestData)) {
+					foreach ($requestsToProcess['data'] as $request) {
+						$itemsProcessed = (array) json_decode($request['encoded_items_processed'], true);
+						$itemsToProcess = json_decode($request['encoded_items_to_process'], true);
+						$parameters = json_decode($request['encoded_parameters'], true);
 
 						if (
-							$requestResponse['message']['status'] === 'success' &&
-							$this->save($table, $requestData)
+							!empty($itemsToProcess) &&
+							($requestAction = $parameters['action']) &&
+							($requestTable = $parameters['table']) &&
+							method_exists($this, $requestAction)
 						) {
-							$requestsProcessedCount++;
+							$requestData = array(
+								array(
+									'id' => $request['id'],
+									'user_id' => $request['user_id']
+								)
+							);
+
+							if ($parameters['tokens'][$requestTable] === $this->_getToken($requestTable, $parameters, $request['foreign_key'], $request['foreign_value'])) {
+								$parameters['items'][$requestTable] = array_splice($itemsToProcess, count($itemsProcessed), 1);
+								$itemsProcessed = array_merge($itemsProcessed, $parameters['items'][$requestTable]);
+								$completed = (count($itemsProcessed) === count($itemsToProcess));
+								$parameters['items'] = $this->_retrieveItems($parameters, true);
+								$requestResponse = $this->$requestAction($requestTable, $parameters);
+
+								if ($requestResponse['message']['status'] === 'success') {
+									$requestData = array(
+										array_merge($requestData[0], array(
+											'encoded_items_processed' => json_encode($itemsProcessed),
+											'request_processed' => $completed,
+											'request_processing' => false,
+											'request_progress' => ($completed ? 100 : min(100, $request['request_progress'] + (ceil(100 / $request['request_chunks']))))
+										))
+									);
+								}
+							} else {
+								$requestData = array(
+									array_merge($requestData[0], array(
+										'request_processed' => true,
+										'request_processing' => false,
+										'request_progress' => ($completed ? 100 : min(100, $request['request_progress'] + (ceil(100 / $request['request_chunks']))))
+									))
+								);
+							}
+
+							if ($this->save($table, $requestData)) {
+								$requestsProcessedCount++;
+							}
 						}
 					}
 				}

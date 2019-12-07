@@ -1,7 +1,7 @@
 'use_strict';
 
 var defaultTable = 'proxies';
-var defaultUrl = '/api/proxies';
+var defaultUrl = requestParameters.settings.base_url + 'api/proxies';
 var itemGrid = [];
 var itemGridCount = 0;
 var orderMessageContainer = document.querySelector('main .message-container.order');
@@ -101,7 +101,7 @@ var processEndpoint = function(frameName, frameSelector) {
 	requestParameters.action = 'endpoint';
 	requestParameters.data.order_id = document.querySelector('input[name="order_id"]').value;
 	requestParameters.table = 'orders';
-	requestParameters.url = '/api/orders';
+	requestParameters.url = requestParameters.settings.base_url + 'api/orders';
 	sendRequest(function(response) {
 		if (proxyMessageContainer) {
 			processWindowEvents('resize');
@@ -324,7 +324,7 @@ var processOrder = function() {
 		id: orderId
 	};
 	requestParameters.table = 'orders';
-	requestParameters.url = '/api/orders';
+	requestParameters.url = requestParameters.settings.base_url + 'api/orders';
 	sendRequest(function(response) {
 		if (orderMessageContainer) {
 			orderMessageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
@@ -584,9 +584,11 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 			var itemProcessingData = '<p class="message">Your recent bulk request to ' + response.processing.parameters.action + ' ' + response.processing.parameters.item_count + ' ' + response.processing.parameters.table + ' is in progress.</p>';
 			var timeoutId = setTimeout(function() {}, 1);
 			var processRequestProgress = function(response) {
+				var previousAction = requestParameters.action;
+				var previousConditions = requestParameters.conditions;
 				var requestProgress = response.processing.request_progress;
-				elements.html('.progress-text, .progress', requestProgress + '%');
-				elements.setAttribute('style', 'width: ' + requestProgress + '%');
+				elements.html('.progress-text', requestProgress + '%');
+				elements.setAttribute('.progress', 'style', 'width: ' + requestProgress + '%');
 
 				if (requestProgress < 100) {
 					while (timeoutId--) {
@@ -594,8 +596,27 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 					}
 
 					var timeoutId = setTimeout(function() {
-						// ..
-					}, 10000);
+						requestParameters.conditions = {
+							foreign_key: response.processing.foreign_key,
+							foreign_value: response.processing.foreign_value,
+							request_processed: false
+						};
+						requestParameters.table = 'requests';
+						requestParameters.url = requestParameters.settings.base_url + 'api/requests';
+						sendRequest(function(response) {
+							if (response.data.length) {
+								response.processing = response.data[0];
+							}
+
+							processRequestProgress(response);
+						});
+					}, 8000);
+				} else {
+					requestParameters.action = previousAction;
+					requestParameters.table = defaultTable;
+					requestParameters.url = defaultUrl;
+					elements.addClass('.item-processing-container', 'hidden');
+					elements.removeClass('.item-configuration-container', 'hidden');
 				}
 			};
 			itemProcessingData += '<p class="progress-text"></p>';

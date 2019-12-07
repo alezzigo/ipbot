@@ -239,4 +239,4 @@ var processDelete = function() {
 		processCartItems(response);
 	});
 };
-requestParameters.url = '/api/carts';
+requestParameters.url = requestParameters.settings.base_url + 'api/carts';

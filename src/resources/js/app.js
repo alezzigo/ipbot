@@ -7,7 +7,7 @@ var method;
 var processLogout = function() {
 	requestParameters.table = 'users';
 	requestParameters.action = 'logout';
-	requestParameters.url = '/api/users';
+	requestParameters.url = requestParameters.settings.base_url + 'api/users';
 	sendRequest(function(response) {
 		if (
 			typeof response.redirect === 'string' &&

@@ -237,4 +237,4 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue = 1) {
 	});
 };
 requestParameters.table = defaultTable;
-requestParameters.url = '/api/orders';
+requestParameters.url = requestParameters.settings.base_url + 'api/orders';

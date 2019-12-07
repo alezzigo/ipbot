@@ -47,7 +47,8 @@ class RequestsModel extends ProxiesModel {
 				'id',
 				'request_chunks',
 				'request_progress',
-				'token_id'
+				'token_id',
+				'user_id'
 			),
 			'sort' => array(
 				'field' => 'created',
@@ -91,7 +92,8 @@ class RequestsModel extends ProxiesModel {
 								'id' => $request['id'],
 								'request_processed' => $completed,
 								'request_processing' => false,
-								'request_progress' => ($completed ? 100 : min(100, $request['request_progress'] + (ceil(100 / $request['request_chunks']))))
+								'request_progress' => ($completed ? 100 : min(100, $request['request_progress'] + (ceil(100 / $request['request_chunks'])))),
+								'user_id' => $request['user_id']
 							)
 						);
 

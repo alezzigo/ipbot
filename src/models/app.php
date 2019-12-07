@@ -674,7 +674,11 @@ class AppModel extends Config {
 			$response['message']['text'] = 'No results found, please try again.';
 
 			if (
-				empty($table = $parameters['table']) ||
+				!isset($parameters['table']) ||
+				(
+					($table = $parameters['table']) &&
+					empty($table)
+				) ||
 				empty($this->permissions[$table])
 			) {
 				$response['message']['text'] = 'Invalid request table, please try again.';

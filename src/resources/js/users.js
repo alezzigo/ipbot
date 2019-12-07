@@ -245,4 +245,4 @@ var processUsers = function(frameName, frameSelector) {
 		}
 	});
 };
-requestParameters.url = '/api/users';
+requestParameters.url = requestParameters.settings.base_url + 'api/users';

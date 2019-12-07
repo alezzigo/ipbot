@@ -5,7 +5,7 @@ var previousAction = 'fetch';
 var processInvoice = function() {
 	requestParameters.action = 'invoice';
 	requestParameters.table = 'invoices';
-	requestParameters.url = '/api/invoices';
+	requestParameters.url = requestParameters.settings.base_url + 'api/invoices';
 	var invoiceContainer = document.querySelector('.invoice-container');
 	var invoiceData = '';
 	var invoiceId = document.querySelector('input[name="invoice_id"]').value;
@@ -232,7 +232,7 @@ var processInvoices = function() {
 		order: 'DESC'
 	};
 	requestParameters.table = 'invoices';
-	requestParameters.url = '/api/invoices';
+	requestParameters.url = requestParameters.settings.base_url + 'api/invoices';
 	var invoiceData = '';
 	sendRequest(function(response) {
 		var messageContainer = document.querySelector('main .message-container');
@@ -286,7 +286,7 @@ var processPayment = function(frameName, frameSelector) {
 	requestParameters.action = 'payment';
 	requestParameters.data.invoice_id = document.querySelector('input[name="invoice_id"]').value;
 	requestParameters.table = 'transactions';
-	requestParameters.url = '/api/transactions';
+	requestParameters.url = requestParameters.settings.base_url + 'api/transactions';
 	delete requestParameters.conditions;
 	sendRequest(function(response) {
 		var messageContainer = document.querySelector(frameSelector + ' .message-container');

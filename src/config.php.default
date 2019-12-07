@@ -91,6 +91,23 @@ class Config {
 				'username',
 				'whitelisted_ips'
 			),
+			'requests' => array(
+				'encoded_items_processed',
+				'encoded_items_to_process',
+				'encoded_parameters',
+				'foreign_key',
+				'foreign_value',
+				'id',
+				'request_chunks',
+				'request_progress',
+				'token_id',
+				'user_id'
+			),
+			'support_tickets' => array(
+				'id',
+				'message',
+				'subject'
+			),
 			'users' => array(
 				'email',
 				'id'
@@ -239,6 +256,25 @@ class Config {
 				'search' => array(
 					'fields' => $defaultFields['proxies'],
 					'group' => 'user'
+				)
+			),
+			'requests' => array(
+				'fetch' => array(
+					'fields' => array_merge($defaultFields['requests'], array(
+						'created',
+						'modified'
+					)),
+					'group' => 'user'
+				)
+			),
+			'support_tickets' => array(
+				'list' => array(
+					'fields' => array(),
+					'group' => false
+				),
+				'view' => array(
+					'fields' => $defaultFields['support_tickets'],
+					'group' => false
 				)
 			),
 			'transactions' => array(

@@ -467,9 +467,7 @@ class AppModel extends Config {
 					)
 				);
 
-				if ($itemIndexLineCount > 1) {
-					$action = 'fetch';
-				} else {
+				if ($itemIndexLineCount === 1) {
 					$parameters['items'] = $this->_retrieveItems($parameters, true);
 					$requestData[0] = array_merge($requestData[0], array(
 						'request_processed' => true,
@@ -480,8 +478,13 @@ class AppModel extends Config {
 				if ($this->save('requests', $requestData)) {
 					$response['message'] = array(
 						'status' => 'success',
-						'text' => 'Your request to ' . $action . ' ' . $items[$table]['count'] . ' selected ' . $table . ' is currently processing. You can <a href="' . $this->settings['base_url'] . 'requests">check the progress</a> of all current bulk requests.'
+						'text' => 'Your request to ' . $action . ' ' . $items[$table]['count'] . ' selected ' . $table . ' is currently processing.'
 					);
+					$response['processing'] = true;
+				}
+
+				if ($itemIndexLineCount > 1) {
+					$action = 'fetch';
 				}
 			}
 		} else {

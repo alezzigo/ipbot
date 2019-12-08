@@ -212,10 +212,10 @@ main {
 		width: 100%;
 	}
 	main p,
-	.merged-order-details p {
+	.details p {
 		margin-bottom: 15px;
 	}
-		.merged-order-details p .note {
+		.details p .note {
 			display: block;
 			font-size: 12px;
 			line-height: 19px !important;

@@ -6,6 +6,51 @@ var itemGridCount = 0;
 var orderMessageContainer = document.querySelector('main .message-container.order');
 var previousAction = 'fetch';
 var proxyMessageContainer = document.querySelector('main .message-container.proxies');
+var processActions = function(frameName, frameSelector) {
+	var orderId = document.querySelector('input[name="order_id"]').value;
+	var previousAction = requestParameters.action;
+	var previousConditions = requestParameters.conditions;
+	var previousLimit = requestParameters.limit;
+	var previousOffset = requestParameters.offset;
+	var previousUrl = requestParameters.url;
+	requestParameters.action = 'fetch';
+	requestParameters.conditions = {
+		foreign_key: 'order_id',
+		foreign_value: orderId
+	};
+	requestParameters.limit = 10;
+	requestParameters.offset = 0;
+	requestParameters.table = 'actions';
+	requestParameters.url = requestParameters.settings.base_url + 'api/actions';
+	sendRequest(function(response) {
+		var actionData = '<p class="error message">No recent order actions to list.</p>';
+
+		if (response.data.length) {
+			actionData = '<p class="message">Your ' + requestParameters.limit + ' most-recent actions for order #' + orderId + ' are displayed below.</p>';
+			actionData += '<div class="details">';
+			response.data.map(function(action, index) {
+				var actionParameters = JSON.parse(action.encoded_parameters);
+				actionData += '<div class="item-button item-container">';
+				actionData += '<div class="item">';
+				actionData += '<p><strong>Request to ' + actionParameters.action + ' ' + actionParameters.item_count + ' ' + actionParameters.table + '</strong></p>';
+				actionData += '<p>Started at ' + action.created + ' ' + requestParameters.settings.timezone.display + '</p>';
+				actionData += '<p>Finished at ' + action.modified + ' ' + requestParameters.settings.timezone.display + '</p>';
+				actionData += '<label class="label ' + (action.action_progress === 100 ? 'active' : 'inactive') + '">' + (action.action_progress === 100 ? 'Completed' : 'Interrupted') + ' at ' + action.action_progress + '%</label>';
+				actionData += '</div>';
+				actionData += '</div>';
+			});
+			actionData += '</div>';
+		}
+
+		document.querySelector('.actions-container').innerHTML = actionData;
+		requestParameters.action = previousAction;
+		requestParameters.conditions = previousConditions;
+		requestParameters.limit = previousLimit;
+		requestParameters.offset = previousOffset;
+		requestParameters.table = defaultTable;
+		requestParameters.url = previousUrl;
+	});
+};
 var processCopy = function(frameName, frameSelector) {
 	previousAction = requestParameters.action;
 	var processCopyFormat = function() {
@@ -65,7 +110,7 @@ var processDowngrade = function() {
 		if (response.message.status === 'success') {
 			downgradeData += '<input class="hidden" name="confirm_downgrade" type="hidden" value="1">';
 			downgradeData += '<div class="clear"></div>';
-			downgradeData += '<div class="merged-order-details">';
+			downgradeData += '<div class="details merged-order-details">';
 			downgradeData += '<p class="message success">Your current order for ' + response.data.downgraded.order.quantity + ' ' + requestParameters.table + ' will downgrade to the following order and invoice:</p>';
 			downgradeData += '<div class="item-container item-button no-margin-bottom">';
 			downgradeData += '<p><strong>Downgraded Order</strong></p>';

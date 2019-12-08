@@ -170,7 +170,7 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue = 1) {
 			upgradeData += '</div>';
 			upgradeData += '</div>';
 			upgradeData += '<div class="clear"></div>';
-			upgradeData += '<div class="merged-order-details">';
+			upgradeData += '<div class="details merged-order-details">';
 			upgradeData += '<p class="message no-margin-top success">The ' + orderGridCount + ' order' + (orderGridCount !== 1 ? 's' : '') + ' selected will merge into the following ' + (upgradeValue > 0 ? 'upgraded': '') + ' order and invoice:</p>';
 			upgradeData += '<div class="item-container item-button no-margin-bottom">';
 			upgradeData += '<p><strong>Merged Order</strong></p>';

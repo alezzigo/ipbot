@@ -74,8 +74,7 @@ class RequestsModel extends ProxiesModel {
 				foreach ($requestsToProcess['data'] as $request) {
 					$requestData[] = array(
 						'id ' => $request['id'],
-						'request_processing' => true,
-						'user_id' => $request['user_id']
+						'request_processing' => true
 					);
 				}
 
@@ -93,8 +92,7 @@ class RequestsModel extends ProxiesModel {
 						) {
 							$requestData = array(
 								array(
-									'id' => $request['id'],
-									'user_id' => $request['user_id']
+									'id' => $request['id']
 								)
 							);
 

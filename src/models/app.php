@@ -449,50 +449,70 @@ class AppModel extends Config {
 				$encode &&
 				!in_array($action, array('fetch',  'search'))
 			) {
-				$itemIndexLineCount = count($parameters['items'][$table]);
-				$items = $this->_retrieveItems($parameters);
-				$parametersToEncode = array_intersect_key($parameters, array(
-					'action' => true,
-					'conditions' => true,
-					'data' => true,
-					'limit' => true,
-					'sort' => true,
-					'table' => true,
-					'tokens' => true
-				));
-				$parametersToEncode['item_count'] = $items[$table]['count'];
-				$requestData = array(
-					array(
-						'encoded_items_to_process' => json_encode($items[$table]['data']),
-						'encoded_parameters' => json_encode($parametersToEncode),
-						'foreign_key' => $foreignKey,
-						'foreign_value' => $foreignValue,
-						'request_chunks' => $itemIndexLineCount,
-						'request_processed' => false,
-						'request_progress' => 0,
-						'token_id' => $token['id'],
-						'user_id' => $parameters['user']['id']
+				$requestParameters = array(
+					'conditions' => array(
+						'AND' => array(
+							'request_processed' => false,
+							'OR' => array(
+								'AND' => array(
+									'modified >' => date('Y-m-d H:i:s', strtotime('-10 minutes')),
+									'request_processing' => true
+								)
+							)
+						)
+					),
+					'fields' => array(
+						'id'
 					)
 				);
+				$requestsProcessing = $this->fetch('requests', $requestParameters);
 
-				if ($itemIndexLineCount === 1) {
-					$parameters['items'] = $this->_retrieveItems($parameters, true);
-					$requestData[0] = array_merge($requestData[0], array(
-						'request_processed' => true,
-						'request_progress' => 100
+				if (empty($requestsProcessing['count'])) {
+					$itemIndexLineCount = count($parameters['items'][$table]);
+					$items = $this->_retrieveItems($parameters);
+					$parametersToEncode = array_intersect_key($parameters, array(
+						'action' => true,
+						'conditions' => true,
+						'data' => true,
+						'limit' => true,
+						'sort' => true,
+						'table' => true,
+						'tokens' => true
 					));
-				}
-
-				if ($this->save('requests', $requestData)) {
-					$response['message'] = array(
-						'status' => 'success',
-						'text' => 'Your request to ' . $action . ' ' . $items[$table]['count'] . ' selected ' . $table . ' is currently processing.'
+					$parametersToEncode['item_count'] = $items[$table]['count'];
+					$requestData = array(
+						array(
+							'encoded_items_to_process' => json_encode($items[$table]['data']),
+							'encoded_parameters' => json_encode($parametersToEncode),
+							'foreign_key' => $foreignKey,
+							'foreign_value' => $foreignValue,
+							'request_chunks' => $itemIndexLineCount,
+							'request_processed' => false,
+							'request_progress' => 0,
+							'token_id' => $token['id'],
+							'user_id' => $parameters['user']['id']
+						)
 					);
-					$response['processing'] = $requestData[0];
-				}
 
-				if ($itemIndexLineCount > 1) {
-					$action = 'fetch';
+					if ($itemIndexLineCount === 1) {
+						$parameters['items'] = $this->_retrieveItems($parameters, true);
+						$requestData[0] = array_merge($requestData[0], array(
+							'request_processed' => true,
+							'request_progress' => 100
+						));
+					}
+
+					if ($this->save('requests', $requestData)) {
+						$response['message'] = array(
+							'status' => 'success',
+							'text' => 'Your request to ' . $action . ' ' . $items[$table]['count'] . ' selected ' . $table . ' is currently processing.'
+						);
+						$response['processing'] = $requestData[0];
+					}
+
+					if ($itemIndexLineCount > 1) {
+						$action = 'fetch';
+					}
 				}
 			}
 		} else {

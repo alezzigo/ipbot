@@ -19,6 +19,10 @@
 						</div>
 						<label for="whitelisted_ips">Whitelisted IPv4 Addresses</label>
 						<textarea class="whitelisted-ips" id="whitelisted-ips" name="whitelisted_ips" placeholder="<?php echo "127.0.0.1\n127.0.0.2\netc..." ?>" type="text"></textarea>
+						<div class="checkbox-container">
+							<span checked="0" class="checkbox" id="disable-http" name="disable_http"></span>
+							<label class="custom-checkbox-label" for="disable-http" name="disable_http">Disable HTTP Internet Ports</label>
+						</div>
 						<div class="clear"></div>
 					</div>
 					<div class="item-footer">

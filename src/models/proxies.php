@@ -151,6 +151,7 @@ class ProxiesModel extends OrdersModel {
 
 					foreach ($proxies as $key => $proxy) {
 						$proxy = array(
+							'disable_http' => (isset($parameters['data']['disable_http']) && $parameters['data']['disable_http']),
 							'id' => $proxy,
 							'username' => $parameters['data']['username'],
 							'password' => $parameters['data']['password'],

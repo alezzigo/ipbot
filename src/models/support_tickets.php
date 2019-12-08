@@ -33,7 +33,7 @@ class SupportTicketsModel extends AppModel {
 			$supportTicketParameters = array(
 				'conditions' => array(
 					'session_id' => $parameters['session'],
-					'user_id' => null,
+					'user_id' => null
 				),
 				'fields' => array(
 					'created',

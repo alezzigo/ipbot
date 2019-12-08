@@ -608,7 +608,6 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 
 					var timeoutId = setTimeout(function() {
 						requestParameters.conditions = {
-							foreign_key: response.processing.foreign_key,
 							id: response.processing.id
 						};
 						requestParameters.offset = 0;

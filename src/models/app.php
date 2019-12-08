@@ -449,14 +449,14 @@ class AppModel extends Config {
 				$encode &&
 				!in_array($action, array('fetch',  'search'))
 			) {
-				$requestParameters = array(
+				$actionsProcessing = $this->fetch('actions', array(
 					'conditions' => array(
 						'AND' => array(
-							'request_processed' => false,
+							'action_processed' => false,
 							'OR' => array(
 								'AND' => array(
-									'modified >' => date('Y-m-d H:i:s', strtotime('-10 minutes')),
-									'request_processing' => true
+									'action_processing' => true,
+									'modified >' => date('Y-m-d H:i:s', strtotime('-10 minutes'))
 								)
 							)
 						)
@@ -464,10 +464,9 @@ class AppModel extends Config {
 					'fields' => array(
 						'id'
 					)
-				);
-				$requestsProcessing = $this->fetch('requests', $requestParameters);
+				));
 
-				if (empty($requestsProcessing['count'])) {
+				if (empty($actionsProcessing['count'])) {
 					$itemIndexLineCount = count($parameters['items'][$table]);
 					$items = $this->_retrieveItems($parameters);
 					$parametersToEncode = array_intersect_key($parameters, array(
@@ -480,15 +479,15 @@ class AppModel extends Config {
 						'tokens' => true
 					));
 					$parametersToEncode['item_count'] = $items[$table]['count'];
-					$requestData = array(
+					$actionData = array(
 						array(
+							'action_chunks' => $itemIndexLineCount,
+							'action_processed' => false,
+							'action_progress' => 0,
 							'encoded_items_to_process' => json_encode($items[$table]['data']),
 							'encoded_parameters' => json_encode($parametersToEncode),
 							'foreign_key' => $foreignKey,
 							'foreign_value' => $foreignValue,
-							'request_chunks' => $itemIndexLineCount,
-							'request_processed' => false,
-							'request_progress' => 0,
 							'token_id' => $token['id'],
 							'user_id' => $parameters['user']['id']
 						)
@@ -496,18 +495,18 @@ class AppModel extends Config {
 
 					if ($itemIndexLineCount === 1) {
 						$parameters['items'] = $this->_retrieveItems($parameters, true);
-						$requestData[0] = array_merge($requestData[0], array(
-							'request_processed' => true,
-							'request_progress' => 100
+						$actionData[0] = array_merge($actionData[0], array(
+							'action_processed' => true,
+							'action_progress' => 100
 						));
 					}
 
-					if ($this->save('requests', $requestData)) {
+					if ($this->save('actions', $actionData)) {
 						$response['message'] = array(
 							'status' => 'success',
-							'text' => 'Your request to ' . $action . ' ' . $items[$table]['count'] . ' selected ' . $table . ' is currently processing.'
+							'text' => 'Your action to ' . $action . ' ' . $items[$table]['count'] . ' selected ' . $table . ' is currently processing.'
 						);
-						$response['processing'] = $requestData[0];
+						$response['processing'] = $actionData[0];
 					}
 
 					if ($itemIndexLineCount > 1) {
@@ -526,7 +525,7 @@ class AppModel extends Config {
 
 		if (!empty($foreignValue)) {
 			if (!isset($response['processing'])) {
-				$response['processing'] = $this->_retrieveProcessingRequest($foreignKey, $foreignValue);
+				$response['processing'] = $this->_retrieveProcessingAction($foreignKey, $foreignValue);
 			}
 
 			if (!empty($response['processing'])) {
@@ -927,37 +926,37 @@ class AppModel extends Config {
 	}
 
 /**
- * Retrieve most-recent processing request
+ * Retrieve most-recent processing action
  *
  * @param string $foreignKey
  * @param mixed [integer/string] $foreignValue
  *
  * @return array $response
  */
-	protected function _retrieveProcessingRequest($foreignKey, $foreignValue) {
+	protected function _retrieveProcessingAction($foreignKey, $foreignValue) {
 		$response = false;
-		$request = $this->fetch('requests', array(
+		$actionData = $this->fetch('actions', array(
 			'conditions' => array(
+				'action_processed' => false,
 				'foreign_key' => $foreignKey,
-				'foreign_value' => $foreignValue,
-				'request_processed' => false
+				'foreign_value' => $foreignValue
 			),
 			'fields' => array(
+				'action_chunks',
+				'action_progress',
 				'encoded_items_processed',
 				'encoded_items_to_process',
 				'encoded_parameters',
 				'foreign_key',
 				'foreign_value',
 				'id',
-				'request_chunks',
-				'request_progress',
 				'token_id'
 			),
 			'limit' => 1
 		));
 
-		if (!empty($request['count'])) {
-			$response = $request['data'][0];
+		if (!empty($actionData['count'])) {
+			$response = $actionData['data'][0];
 		}
 
 		return $response;

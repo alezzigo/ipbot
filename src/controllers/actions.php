@@ -1,6 +1,6 @@
 <?php
 /**
- * Requests Controller
+ * Actions Controller
  *
  * @author    Will Parsons parsonsbots@gmail.com
  * @copyright 2019 Will Parsons
@@ -8,12 +8,12 @@
  * @link      https://parsonsbots.com
  * @link      https://eightomic.com
  */
-require_once($config->settings['base_path'] . '/models/requests.php');
+require_once($config->settings['base_path'] . '/models/actions.php');
 
-class RequestsController extends RequestsModel {
+class ActionsController extends ActionsModel {
 
 /**
- * Requests API
+ * Actions API
  *
  * @return array Response
  */
@@ -23,5 +23,5 @@ class RequestsController extends RequestsModel {
 
 }
 
-$requestsController = new RequestsController();
-$data = $requestsController->route($config->parameters);
+$actionsController = new ActionsController();
+$data = $actionsController->route($config->parameters);

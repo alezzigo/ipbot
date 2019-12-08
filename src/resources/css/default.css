@@ -759,6 +759,9 @@ main {
 				cursor: default;
 				margin-top: 0;
 			}
+		.icon[frame="actions"] {
+			background: url('../images/icons/icon-actions.png') center no-repeat;
+		}
 		.icon[frame="authenticate"] {
 			background: url('../images/icons/icon-authenticate.png') center no-repeat;
 		}
@@ -791,6 +794,7 @@ main {
 		.icon.edit,
 		.icon.next,
 		.icon.previous,
+		.icon[frame="actions"],
 		.icon[frame="authenticate"],
 		.icon[frame="copy"],
 		.icon[frame="downgrade"],

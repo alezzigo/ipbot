@@ -586,39 +586,40 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 
 		if (response.processing) {
 			var itemProcessingContainer = document.querySelector('.item-processing-container');
-			var requestDetails = 'to ' + response.processing.parameters.action + ' ' + response.processing.parameters.item_count + ' ' + response.processing.parameters.table;
-			var itemProcessingData = '<p class="message">Your recent bulk request ' + requestDetails + ' is in progress.</p>';
+			var actionDetails = 'to ' + response.processing.parameters.action + ' ' + response.processing.parameters.item_count + ' ' + response.processing.parameters.table;
+			var itemProcessingData = '<p class="message">Your recent bulk action ' + actionDetails + ' is in progress.</p>';
 			var timeoutId = setTimeout(function() {}, 1);
-			var processRequestProgress = function(response) {
+			var processActionProgress = function(response) {
 				var previousAction = requestParameters.action;
 				var previousConditions = requestParameters.conditions;
 				var previousOffset = requestParameters.offset;
-				var requestProgress = (response.processing ? response.processing.request_progress : 0);
-				var requestProcessed = (response.processing ? response.processing.request_processed : false);
-				elements.html('.progress-text', requestProgress + '%');
-				elements.setAttribute('.progress', 'style', 'width: ' + requestProgress + '%');
+				var actionProgress = (response.processing ? response.processing.action_progress : 0);
+				var actionProcessed = (response.processing ? response.processing.action_processed : false);
+				elements.html('.progress-text', actionProgress + '%');
+				elements.setAttribute('.progress', 'style', 'width: ' + actionProgress + '%');
 
 				if (
-					requestProgress < 100 &&
-					!requestProcessed
+					actionProgress < 100 &&
+					!actionProcessed
 				) {
 					while (timeoutId--) {
 						clearTimeout(timeoutId);
 					}
 
 					var timeoutId = setTimeout(function() {
+						requestParameters.action = 'fetch';
 						requestParameters.conditions = {
 							id: response.processing.id
 						};
 						requestParameters.offset = 0;
-						requestParameters.table = 'requests';
-						requestParameters.url = requestParameters.settings.base_url + 'api/requests';
+						requestParameters.table = 'actions';
+						requestParameters.url = requestParameters.settings.base_url + 'api/actions';
 						sendRequest(function(response) {
 							if (response.data.length) {
 								response.processing = response.data[0];
 							}
 
-							processRequestProgress(response);
+							processActionProgress(response);
 						});
 					}, 10000);
 				} else {
@@ -631,9 +632,9 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 
 					if (
 						proxyMessageContainer &&
-						requestProgress < 100
+						actionProgress < 100
 					) {
-						proxyMessageContainer.innerHTML = '<p class="error message">Request ' + (response.processing.id ? '#' + response.processing.id + ' ' : '') + requestDetails + ' was interrupted at ' + requestProgress + '%, please try again.</p>';
+						proxyMessageContainer.innerHTML = '<p class="error message">Action ' + (response.processing.id ? '#' + response.processing.id + ' ' : '') + actionDetails + ' was interrupted at ' + actionProgress + '%, please try again.</p>';
 						processWindowEvents('resize');
 					}
 				}
@@ -645,7 +646,7 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 			elements.addClass('.item-configuration-container', 'hidden');
 			elements.removeClass('.item-processing-container', 'hidden');
 			itemProcessingContainer.innerHTML = itemProcessingData;
-			processRequestProgress(response);
+			processActionProgress(response);
 		}
 
 		items.innerHTML = '<table class="table"><thead><tr><th style="width: 35px;"></th><th>Proxy IP</th></tr></thead><tbody></tbody></table>';

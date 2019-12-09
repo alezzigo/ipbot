@@ -634,9 +634,9 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 			var actionDetails = 'to ' + response.processing.parameters.action + ' ' + response.processing.parameters.item_count + ' ' + response.processing.parameters.table;
 			var itemProcessingData = '<p class="message">Your recent bulk action ' + actionDetails + ' is in progress.</p>';
 			var timeoutId = setTimeout(function() {}, 1);
+			var previousConditions = requestParameters.conditions;
 			var processActionProgress = function(response) {
 				var previousAction = requestParameters.action;
-				var previousConditions = requestParameters.conditions;
 				var previousOffset = requestParameters.offset;
 				var actionProgress = (response.processing ? response.processing.action_progress : 0);
 				var actionProcessed = (response.processing ? response.processing.action_processed : false);
@@ -670,6 +670,7 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 					}, 10000);
 				} else {
 					requestParameters.action = previousAction;
+					requestParameters.conditions = previousConditions;
 					requestParameters.table = defaultTable;
 					requestParameters.offset = previousOffset;
 					requestParameters.url = defaultUrl;

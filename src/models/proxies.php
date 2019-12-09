@@ -728,7 +728,7 @@ class ProxiesModel extends OrdersModel {
 			}
 		}
 
-		if ($table == 'proxies') {
+		if ($table === 'proxies') {
 			if (
 				!empty($parameters['items']['proxies']['count']) &&
 				!empty($parameters['items']['proxy_groups']['count'])

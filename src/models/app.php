@@ -848,10 +848,14 @@ class AppModel extends Config {
 		if (!empty($parameters['items'])) {
 			foreach ($parameters['items'] as $table => $items) {
 				$response[$table] = array(
+					'count' => count($items),
 					'data' => $items
 				);
 
-				if (!empty($items)) {
+				if (
+					!empty($items) &&
+					!empty($this->encode[$table])
+				) {
 					$itemIndexes = array();
 					$itemIndexLines = $items;
 					$index = $itemCount = 0;

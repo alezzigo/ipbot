@@ -649,6 +649,7 @@ main {
 			margin-left: -1px;
 		}
 	.item-container .item {
+		cursor: default;
 		display: block;
 		margin-bottom: 0;
 	}

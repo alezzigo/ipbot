@@ -131,6 +131,7 @@ class CartsModel extends AppModel {
 					'created',
 					'has_shipping',
 					'has_tax',
+					'ip_version',
 					'name',
 					'maximum_quantity',
 					'minimum_quantity',
@@ -209,7 +210,6 @@ class CartsModel extends AppModel {
 						'text' => $defaultMessage
 					);
 
-
 					if (empty($cartItemData[0]['id'])) {
 						$response['message']['text'] = 'Error adding item to your cart, please try again.';
 
@@ -236,6 +236,7 @@ class CartsModel extends AppModel {
 										'created',
 										'has_shipping',
 										'has_tax',
+										'ip_version',
 										'name',
 										'maximum_quantity',
 										'minimum_quantity',

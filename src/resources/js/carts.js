@@ -130,7 +130,14 @@ var processCartItems = function(response) {
 	if (cartItemContainer) {
 		cartItemData.map(function(cartItem, index) {
 			var intervalSelectTypes = intervalSelectValues = quantitySelectValues = '';
-			var quantityValues = range(cartItem[1].minimum_quantity, cartItem[1].maximum_quantity);
+			var quantityIncrementValue = 1;
+			var quantityValueCount = cartItem[1].maximum_quantity - cartItem[1].minimum_quantity;
+
+			if (quantityValueCount > 1000) {
+				quantityIncrementValue = +(cartItem[1].minimum_quantity.toString().charAt(0) + repeat(Math.floor(Math.min(quantityValueCount.toString().length / 2, 8)), '0'));
+			}
+
+			var quantityValues = range(cartItem[1].minimum_quantity, cartItem[1].maximum_quantity, quantityIncrementValue);
 			intervalTypes.map(function(intervalType, index) {
 				intervalSelectTypes += '<option ' + (intervalType == cartItem[1].interval_type ? 'selected ' : '') + 'value="' + intervalType + '">' + capitalizeString(intervalType) + (cartItem[1].interval_value > 1 ? 's' : '') + '</option>';
 			});

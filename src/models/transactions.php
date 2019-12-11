@@ -428,6 +428,7 @@ class TransactionsModel extends InvoicesModel {
 								($quantity = $order['quantity'])
 							)
 						) {
+							// ..
 							$processingNodes = $this->fetch('nodes', array(
 								'conditions' => array(
 									'AND' => array(

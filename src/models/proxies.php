@@ -20,7 +20,7 @@ class ProxiesModel extends OrdersModel {
  * @return array $response
  */
 	protected function _generateRandomAuthentication($proxyData) {
-		$characters = 'bcdfghjklmnpqrstvwxyzbcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ01234567890123456789012345678901234567890123456789012345678901234567890123456789';
+		$characters = 'abcdefghjklmnopqrstuvwxyzbcdfghjklmnpqrstvwxyz01234567890123456789012345678901234567890123456789012345678901234567890123456789';
 
 		for ($i = 0; $i < mt_rand(10, 15); $i++) {
 			$proxyData['username'] = substr($proxyData['username'] . $characters[mt_rand(0, strlen($characters) - 1)], 0, 20);

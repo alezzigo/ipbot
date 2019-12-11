@@ -726,6 +726,7 @@ class InvoicesModel extends UsersModel {
 					'interval_type_pending',
 					'interval_value',
 					'interval_value_pending',
+					'ip_version',
 					'modified',
 					'name',
 					'price',

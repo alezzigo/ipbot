@@ -428,11 +428,11 @@ class TransactionsModel extends InvoicesModel {
 								($quantity = $order['quantity'])
 							)
 						) {
-							// ..
 							$processingNodes = $this->fetch('nodes', array(
 								'conditions' => array(
 									'AND' => array(
 										'allocated' => false,
+										'ip_version' => $order['ip_version'],
 										'OR' => array(
 											'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute')),
 											'processing' => false

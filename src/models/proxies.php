@@ -1439,7 +1439,7 @@ class ProxiesModel extends OrdersModel {
 								) {
 									$mailParameters = array(
 										'from' => $this->settings['from_email'],
-										'subject' => $replacementNodeCount . ' proxies replaced successfully',
+										'subject' => $replacementNodeCount . ' scheduled proxies replaced successfully',
 										'template' => array(
 											'name' => 'items_replaced',
 											'parameters' => array(

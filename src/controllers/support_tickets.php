@@ -8,6 +8,7 @@
  * @link      https://parsonsbots.com
  * @link      https://eightomic.com
  */
+
 require_once($config->settings['base_path'] . '/models/support_tickets.php');
 
 class SupportTicketsController extends SupportTicketsModel {

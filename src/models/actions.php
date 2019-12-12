@@ -8,7 +8,10 @@
  * @link      https://parsonsbots.com
  * @link      https://eightomic.com
  */
-require_once($config->settings['base_path'] . '/models/proxies.php');
+
+if (!empty($config->settings['base_path'])) {
+	require_once($config->settings['base_path'] . '/models/proxies.php');
+}
 
 class ActionsModel extends ProxiesModel {
 

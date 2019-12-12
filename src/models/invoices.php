@@ -8,7 +8,10 @@
  * @link      https://parsonsbots.com
  * @link      https://eightomic.com
  */
-require_once($config->settings['base_path'] . '/models/users.php');
+
+if (!empty($config->settings['base_path'])) {
+	require_once($config->settings['base_path'] . '/models/users.php');
+}
 
 class InvoicesModel extends UsersModel {
 

@@ -290,7 +290,7 @@ class UsersModel extends AppModel {
 						);
 
 						if (
-							($user = $this->_retrieveUser($userData[0])) &&
+							($user = $this->retrieveUser($userData[0])) &&
 							$this->save($table, $userData) &&
 							$this->delete('tokens', array(
 								array(

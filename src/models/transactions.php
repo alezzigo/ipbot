@@ -10,10 +10,141 @@
  */
 
 if (!empty($config->settings['base_path'])) {
-	require_once($config->settings['base_path'] . '/models/invoices.php');
+	require_once($config->settings['base_path'] . '/models/app.php');
 }
 
-class TransactionsModel extends InvoicesModel {
+class TransactionsModel extends AppModel {
+
+/**
+ * Format credit card transaction notification
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _formatCreditCardNotification($parameters) {
+		$response = array();
+		// ..
+		return $response;
+	}
+
+/**
+ * Format PayPal transaction notification
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	protected function _formatPaypalNotification($parameters) {
+		$parameters = $response = array();
+		$rawParameters = $parameters['input'] = file_get_contents('php://input');
+		$splitRawParameters = explode('&', $rawParameters);
+
+		foreach ($splitRawParameters as $rawParameter) {
+			$splitRawParameter = explode('=', $rawParameter);
+
+			if (!empty($splitRawParameter[1])) {
+				$parameters[$splitRawParameter[0]] = rawurldecode(utf8_encode($splitRawParameter[1]));
+			}
+		}
+
+		if ($this->_validatePaypalNotification($parameters)) {
+			if (
+				!empty($parameters['charset']) &&
+				$parameters['charset'] !== 'UTF-8'
+			) {
+				$parameterKeys = array_keys($parameters);
+				$parameterValues = mb_convert_encoding(implode('&', $parameters), 'UTF-8', $parameters['charset']);
+				$parameters = array_combine($parameterKeys, explode('&', $parameterValues));
+			}
+
+			$foreignIds = explode('_', $parameters['item_number']);
+			$transactionData = array(
+				array(
+					'billing_address_1' => $parameters['address_street'],
+					'billing_address_status' => $parameters['address_status'],
+					'billing_city' => $parameters['address_city'],
+					'billing_country_code' => $parameters['address_country_code'],
+					'billing_name' => $parameters['address_country_code'],
+					'billing_region' => $parameters['address_state'],
+					'billing_zip' => $parameters['address_zip'],
+					'customer_email' => $parameters['payer_email'],
+					'customer_first_name' => $parameters['first_name'],
+					'customer_id' => $parameters['payer_id'],
+					'customer_last_name' => $parameters['last_name'],
+					'customer_status' => $parameters['payer_status'],
+					'id' => uniqid() . time(),
+					'initial_invoice_id' => ($invoiceId = (!empty($foreignIds[0]) && is_numeric($foreignIds[0]) ? $foreignIds[0] : 0)),
+					'invoice_id' => $invoiceId,
+					'parent_transaction_id' => (!empty($parameters['parent_txn_id']) ? $parameters['parent_txn_id'] : null),
+					'payment_amount' => (!empty($parameters['mc_gross']) ? $parameters['mc_gross'] : $parameters['amount3']),
+					'payment_currency' => $parameters['mc_currency'],
+					'payment_external_fee' => $parameters['mc_fee'],
+					'payment_method_id' => 'paypal',
+					'payment_shipping_amount' => $parameters['shipping'],
+					'payment_status' => strtolower($parameters['payment_status']),
+					'payment_tax_amount' => $parameters['tax'],
+					'payment_transaction_id' => (!empty($parameters['txn_id']) ? $parameters['txn_id'] : uniqid() . time()),
+					'plan_id' => (!empty($foreignIds[1]) && is_numeric($foreignIds[1]) ? $foreignIds[1] : 0),
+					'provider_country_code' => $parameters['residence_country'],
+					'provider_email' => $parameters['receiver_email'],
+					'provider_id' => $parameters['receiver_id'],
+					'sandbox' => (!empty($parameters['test_ipn']) ? true : false),
+					'subscription_id' => (!empty($parameters['subscr_id']) ? $parameters['subscr_id'] : null),
+					'transaction_charset' => (!empty($parameters['charset']) ? $parameters['charset'] : $this->settings['database']['charset']),
+					'transaction_date' => date('Y-m-d H:i:s', strtotime((!empty($parameters['subscr_date']) ? $parameters['subscr_date'] : $parameters['payment_date']))),
+					'transaction_raw' => $rawParameters,
+					'transaction_token' => $parameters['verify_sign'],
+					'user_id' => (!empty($foreignIds[2]) && is_numeric($foreignIds[2]) ? $foreignIds[2] : 0)
+				)
+			);
+
+			if (!empty($parameters['pending_reason'])) {
+				$transactionData[0]['payment_status_code'] = $parameters['pending_reason'];
+			}
+
+			if (!empty($parameters['period3'])) {
+				$subscriptionPeriod = explode(' ', $parameters['period3']);
+
+				if (
+					!empty($subscriptionPeriod[0]) &&
+					is_numeric($subscriptionPeriod[0]) &&
+					!empty($subscriptionPeriod[1]) &&
+					is_string($subscriptionPeriod[1]) &&
+					strlen($subscriptionPeriod[1]) === 1
+				) {
+					switch ($subscriptionPeriod[1]) {
+						case 'D':
+							$transactionData[0]['interval_type'] = 'day';
+							break;
+						case 'M':
+							$transactionData[0]['interval_type'] = 'month';
+							break;
+						case 'W':
+							$transactionData[0]['interval_type'] = 'week';
+							break;
+						case 'Y':
+							$transactionData[0]['interval_type'] = 'year';
+							break;
+					}
+
+					if (!empty($transactionData[0]['interval_type'])) {
+						$transactionData[0]['interval_value'] = $subscriptionPeriod[0];
+					}
+				}
+			}
+
+			if (!empty($parameters['reason_code'])) {
+				$transactionData[0]['payment_status_code'] = $parameters['reason_code'];
+			}
+
+			$transactionData[0] = array_merge($transactionData[0], $this->_retrievePayPalTransactionMethod($parameters));
+			$transactionData[0]['invoice_id'] = $this->_retrieveTransactionInvoiceId($transactionData[0]);
+			$response = $transactionData;
+		}
+
+		return $response;
+	}
 
 /**
  * Process balance payments
@@ -69,7 +200,7 @@ class TransactionsModel extends InvoicesModel {
 				);
 
 				if ($this->save('users', $userData)) {
-					$this->_processTransaction($transactionData[0]);
+					$this->processTransaction($transactionData[0]);
 					$response = array(
 						'data' => $transactionData[0],
 						'message' => array(
@@ -164,43 +295,6 @@ class TransactionsModel extends InvoicesModel {
 	}
 
 /**
- * Process transaction
- *
- * @param array $parameters
- *
- * @return boolean $response
- */
-	protected function _processTransaction($parameters) {
-		$response = false;
-
-		if (
-			!empty($parameters['transaction_method']) &&
-			strlen($parameters['transaction_method']) > 1 &&
-			method_exists($this, ($method = '_processTransaction' . $parameters['transaction_method']))
-		) {
-			$user = $this->fetch('users', array(
-				'conditions' => array(
-					'id' => $parameters['user_id']
-				),
-				'fields' => array(
-					'balance',
-					'email',
-					'id'
-				)
-			));
-
-			if (!empty($user['count'])) {
-				$parameters['user'] = $user['data'][0];
-			}
-
-			$this->$method($parameters);
-			$response = true;
-		}
-
-		return $response;
-	}
-
-/**
  * Process transactions
  *
  * @return array $response
@@ -286,7 +380,7 @@ class TransactionsModel extends InvoicesModel {
 				$processedTransactions = array();
 
 				foreach($transactionsToProcess['data'] as $transaction) {
-					$processed = $this->_processTransaction($transaction);
+					$processed = $this->processTransaction($transaction);
 					$processedTransactions[] = array(
 						'transaction_processed' => $processed,
 						'transaction_processing' => !$processed
@@ -352,12 +446,19 @@ class TransactionsModel extends InvoicesModel {
 		}
 
 		if (!empty($parameters['invoice_id'])) {
-			$invoice = $this->invoice('invoices', array(
-				'conditions' => array(
-					'id' => $parameters['invoice_id'],
-					'payable' => true
+			$invoice = $this->_call('invoices', array(
+				'methodName' => 'invoice',
+				'methodParameters' => array(
+					'invoices',
+					array(
+						'conditions' => array(
+							'id' => $parameters['invoice_id'],
+							'payable' => true
+						)
+					),
+					true
 				)
-			), true);
+			));
 			$invoiceWarningLevel = $invoice['data']['invoice']['warning_level'];
 
 			if (!empty($invoice['data'])) {
@@ -561,7 +662,7 @@ class TransactionsModel extends InvoicesModel {
 											);
 
 											if ($this->save('transactions', $pendingTransactions)) {
-												$this->_processTransaction($transactionToProcess);
+												$this->processTransaction($transactionToProcess);
 											}
 										}
 
@@ -625,7 +726,12 @@ class TransactionsModel extends InvoicesModel {
 					$invoiceData = array();
 
 					if ($invoiceTotalPaid) {
-						$additionalDueInvoices = $this->_retrieveDueInvoices($invoice['data']['invoice']);
+						$additionalDueInvoices = $this->_call('invoices', array(
+							'methodName' => 'retrieveDueInvoices',
+							'methodParameters' => array(
+								$invoice['data']['invoice']
+							)
+						));
 						$intervalType = $invoice['data']['orders'][0]['interval_type'];
 
 						if (!empty($additionalDueInvoices)) {
@@ -685,7 +791,12 @@ class TransactionsModel extends InvoicesModel {
 					$invoice['data']['transactions'][] = $transaction = array_merge($parameters, array(
 						'payment_method' => $this->_retrieveTransactionPaymentMethod($parameters['payment_method_id'])
 					));
-					$invoice['data'] = $this->_calculateInvoicePaymentDetails($invoice['data']);
+					$invoice['data'] = $this->_call('invoices', array(
+						'methodName' => 'calculateInvoicePaymentDetails',
+						'methodParameters' => array(
+							$invoice['data']
+						)
+					));
 
 					if ($parameters['payment_amount'] > 0) {
 						$mailParameters = array(
@@ -725,11 +836,18 @@ class TransactionsModel extends InvoicesModel {
 			!empty($parameters['invoice_id']) &&
 			!empty($parameters['user'])
 		) {
-			$invoice = $this->invoice('invoices', array(
-				'conditions' => array(
-					'id' => $parameters['invoice_id']
+			$invoice = $this->_call('invoices', array(
+				'methodName' => 'invoice',
+				'methodParameters' => array(
+					'invoices',
+					array(
+						'conditions' => array(
+							'id' => $parameters['invoice_id']
+						)
+					),
+					true
 				)
-			), true);
+			));
 
 			if (!empty($invoice['data'])) {
 				$mailParameters = array(
@@ -766,11 +884,18 @@ class TransactionsModel extends InvoicesModel {
 			!empty($parameters['invoice_id']) &&
 			!empty($parameters['user'])
 		) {
-			$invoice = $this->invoice('invoices', array(
-				'conditions' => array(
-					'id' => $parameters['invoice_id']
+			$invoice = $this->_call('invoices', array(
+				'methodName' => 'invoice',
+				'methodParameters' => array(
+					'invoices',
+					array(
+						'conditions' => array(
+							'id' => $parameters['invoice_id']
+						)
+					),
+					true
 				)
-			), true);
+			));
 
 			if (!empty($invoice['data'])) {
 				$mailParameters = array(
@@ -809,14 +934,26 @@ class TransactionsModel extends InvoicesModel {
 			!empty($parameters['invoice_id']) &&
 			!empty($parameters['user'])
 		) {
-			$invoice = $this->invoice('invoices', array(
-				'conditions' => array(
-					'id' => $parameters['invoice_id']
+			$invoice = $this->_call('invoices', array(
+				'methodName' => 'invoice',
+				'methodParameters' => array(
+					'invoices',
+					array(
+						'conditions' => array(
+							'id' => $parameters['invoice_id']
+						)
+					)
 				)
 			));
 
 			if (!empty($invoice['data'])) {
-				$invoiceDeductions = $this->_calculateDeductionsFromInvoice($invoice['data']['invoice'], $parameters['payment_amount']);
+				$invoiceDeductions = $this->_call('invoices', array(
+					'methodName' => 'calculateDeductionsFromInvoice',
+					'methodParameters' => array(
+						$invoice['data']['invoice'],
+						$parameters['payment_amount']
+					)
+				));
 				$amountToDeductFromBalance = min(0, $invoiceDeductions['remainder']);
 
 				foreach ($invoiceDeductions as $key => $invoiceDeduction) {
@@ -863,9 +1000,15 @@ class TransactionsModel extends InvoicesModel {
 						if (!empty($balanceTransactions['count'])) {
 							foreach ($balanceTransactions['data'] as $balanceTransaction) {
 								if (!empty($balanceTransaction['invoice_id'])) {
-									$invoice = $this->invoice('invoices', array(
-										'conditions' => array(
-											'id' => $balanceTransaction['invoice_id']
+									$invoice = $this->_call('invoices', array(
+										'methodName' => 'invoice',
+										'methodParameters' => array(
+											'invoices',
+											array(
+												'conditions' => array(
+													'id' => $balanceTransaction['invoice_id']
+												)
+											)
 										)
 									));
 
@@ -873,7 +1016,14 @@ class TransactionsModel extends InvoicesModel {
 										!empty($invoice['data']) &&
 										$amountToRefundExceedingBalance < 0
 									) {
-										$invoiceDeductions = $this->_calculateDeductionsFromInvoice($invoice['data']['invoice'], max(min(($balanceTransaction['payment_amount'] * -1), $amountToRefundExceedingBalance), $amountToRefundExceedingBalance), $invoiceDeductions);
+										$invoiceDeductions = $this->_call('invoices', array(
+											'methodName' => 'calculateDeductionsFromInvoice',
+											'methodParameters' => array(
+												$invoice['data']['invoice'],
+												max(min(($balanceTransaction['payment_amount'] * -1), $amountToRefundExceedingBalance), $amountToRefundExceedingBalance),
+												$invoiceDeductions
+											)
+										));
 										$amountToRefundExceedingBalance = min(0, $invoiceDeductions['remainder']);
 									}
 								}
@@ -960,7 +1110,12 @@ class TransactionsModel extends InvoicesModel {
 					if (!empty($invoiceDeduction['id'])) {
 						$unpaidInvoiceIds[] = $invoiceDeduction['id'];
 						$invoiceData[$invoiceDeduction['id']]['warning_level'] = 5;
-						$invoiceOrders = $this->_retrieveInvoiceOrders($invoiceDeduction);
+						$invoiceOrders = $this->_call('invoices', array(
+							'methodName' => 'retrieveInvoiceOrders',
+							'methodParameters' => array(
+								$invoiceDeduction
+							)
+						));
 
 						foreach ($invoiceOrders as $invoiceOrder) {
 							if (empty($pendingInvoiceOrders[$invoiceOrder['id']])) {
@@ -1082,11 +1237,18 @@ class TransactionsModel extends InvoicesModel {
 			!empty($parameters['invoice_id']) &&
 			!empty($parameters['user'])
 		) {
-			$invoice = $this->invoice('invoices', array(
-				'conditions' => array(
-					'id' => $parameters['invoice_id']
+			$invoice = $this->_call('invoices', array(
+				'methodName' => 'invoice',
+				'methodParameters' => array(
+					'invoices',
+					array(
+						'conditions' => array(
+							'id' => $parameters['invoice_id']
+						)
+					),
+					true
 				)
-			), true);
+			));
 
 			if (!empty($invoice['data'])) {
 				$mailParameters = array(
@@ -1123,11 +1285,18 @@ class TransactionsModel extends InvoicesModel {
 			!empty($parameters['invoice_id']) &&
 			!empty($parameters['user'])
 		) {
-			$invoice = $this->invoice('invoices', array(
-				'conditions' => array(
-					'id' => $parameters['invoice_id']
+			$invoice = $this->_call('invoices', array(
+				'methodName' => 'invoice',
+				'methodParameters' => array(
+					'invoices',
+					array(
+						'conditions' => array(
+							'id' => $parameters['invoice_id']
+						)
+					),
+					true
 				)
-			), true);
+			));
 
 			if (!empty($invoice['data'])) {
 				$mailParameters = array(
@@ -1724,137 +1893,6 @@ class TransactionsModel extends InvoicesModel {
 	}
 
 /**
- * Format credit card transaction notification
- *
- * @param array $parameters
- *
- * @return array $response
- */
-	protected function _formatCreditCardNotification($parameters) {
-		$response = array();
-		// ..
-		return $response;
-	}
-
-/**
- * Format PayPal transaction notification
- *
- * @param array $parameters
- *
- * @return array $response
- */
-	protected function _formatPaypalNotification($parameters) {
-		$parameters = $response = array();
-		$rawParameters = $parameters['input'] = file_get_contents('php://input');
-		$splitRawParameters = explode('&', $rawParameters);
-
-		foreach ($splitRawParameters as $rawParameter) {
-			$splitRawParameter = explode('=', $rawParameter);
-
-			if (!empty($splitRawParameter[1])) {
-				$parameters[$splitRawParameter[0]] = rawurldecode(utf8_encode($splitRawParameter[1]));
-			}
-		}
-
-		if ($this->_validatePaypalNotification($parameters)) {
-			if (
-				!empty($parameters['charset']) &&
-				$parameters['charset'] !== 'UTF-8'
-			) {
-				$parameterKeys = array_keys($parameters);
-				$parameterValues = mb_convert_encoding(implode('&', $parameters), 'UTF-8', $parameters['charset']);
-				$parameters = array_combine($parameterKeys, explode('&', $parameterValues));
-			}
-
-			$foreignIds = explode('_', $parameters['item_number']);
-			$transactionData = array(
-				array(
-					'billing_address_1' => $parameters['address_street'],
-					'billing_address_status' => $parameters['address_status'],
-					'billing_city' => $parameters['address_city'],
-					'billing_country_code' => $parameters['address_country_code'],
-					'billing_name' => $parameters['address_country_code'],
-					'billing_region' => $parameters['address_state'],
-					'billing_zip' => $parameters['address_zip'],
-					'customer_email' => $parameters['payer_email'],
-					'customer_first_name' => $parameters['first_name'],
-					'customer_id' => $parameters['payer_id'],
-					'customer_last_name' => $parameters['last_name'],
-					'customer_status' => $parameters['payer_status'],
-					'id' => uniqid() . time(),
-					'initial_invoice_id' => ($invoiceId = (!empty($foreignIds[0]) && is_numeric($foreignIds[0]) ? $foreignIds[0] : 0)),
-					'invoice_id' => $invoiceId,
-					'parent_transaction_id' => (!empty($parameters['parent_txn_id']) ? $parameters['parent_txn_id'] : null),
-					'payment_amount' => (!empty($parameters['mc_gross']) ? $parameters['mc_gross'] : $parameters['amount3']),
-					'payment_currency' => $parameters['mc_currency'],
-					'payment_external_fee' => $parameters['mc_fee'],
-					'payment_method_id' => 'paypal',
-					'payment_shipping_amount' => $parameters['shipping'],
-					'payment_status' => strtolower($parameters['payment_status']),
-					'payment_tax_amount' => $parameters['tax'],
-					'payment_transaction_id' => (!empty($parameters['txn_id']) ? $parameters['txn_id'] : uniqid() . time()),
-					'plan_id' => (!empty($foreignIds[1]) && is_numeric($foreignIds[1]) ? $foreignIds[1] : 0),
-					'provider_country_code' => $parameters['residence_country'],
-					'provider_email' => $parameters['receiver_email'],
-					'provider_id' => $parameters['receiver_id'],
-					'sandbox' => (!empty($parameters['test_ipn']) ? true : false),
-					'subscription_id' => (!empty($parameters['subscr_id']) ? $parameters['subscr_id'] : null),
-					'transaction_charset' => (!empty($parameters['charset']) ? $parameters['charset'] : $this->settings['database']['charset']),
-					'transaction_date' => date('Y-m-d H:i:s', strtotime((!empty($parameters['subscr_date']) ? $parameters['subscr_date'] : $parameters['payment_date']))),
-					'transaction_raw' => $rawParameters,
-					'transaction_token' => $parameters['verify_sign'],
-					'user_id' => (!empty($foreignIds[2]) && is_numeric($foreignIds[2]) ? $foreignIds[2] : 0)
-				)
-			);
-
-			if (!empty($parameters['pending_reason'])) {
-				$transactionData[0]['payment_status_code'] = $parameters['pending_reason'];
-			}
-
-			if (!empty($parameters['period3'])) {
-				$subscriptionPeriod = explode(' ', $parameters['period3']);
-
-				if (
-					!empty($subscriptionPeriod[0]) &&
-					is_numeric($subscriptionPeriod[0]) &&
-					!empty($subscriptionPeriod[1]) &&
-					is_string($subscriptionPeriod[1]) &&
-					strlen($subscriptionPeriod[1]) === 1
-				) {
-					switch ($subscriptionPeriod[1]) {
-						case 'D':
-							$transactionData[0]['interval_type'] = 'day';
-							break;
-						case 'M':
-							$transactionData[0]['interval_type'] = 'month';
-							break;
-						case 'W':
-							$transactionData[0]['interval_type'] = 'week';
-							break;
-						case 'Y':
-							$transactionData[0]['interval_type'] = 'year';
-							break;
-					}
-
-					if (!empty($transactionData[0]['interval_type'])) {
-						$transactionData[0]['interval_value'] = $subscriptionPeriod[0];
-					}
-				}
-			}
-
-			if (!empty($parameters['reason_code'])) {
-				$transactionData[0]['payment_status_code'] = $parameters['reason_code'];
-			}
-
-			$transactionData[0] = array_merge($transactionData[0], $this->_retrievePayPalTransactionMethod($parameters));
-			$transactionData[0]['invoice_id'] = $this->_retrieveTransactionInvoiceId($transactionData[0]);
-			$response = $transactionData;
-		}
-
-		return $response;
-	}
-
-/**
  * Validate PayPal notification
  *
  * @param array $parameters
@@ -1891,12 +1929,24 @@ class TransactionsModel extends InvoicesModel {
 				!empty($parameters['user']) ||
 				(
 					(
-						($response = $this->register('users', $parameters)) &&
+						($response = $this->_call('users', array(
+							'methodName' => 'register',
+							'methodParameters' => array(
+								'users',
+								$parameters
+							)
+						))) &&
 						!empty($response['message']['status']) &&
 						$response['message']['status'] === 'success'
 					) ||
 					(
-						($response = $this->login('users', $parameters)) &&
+						($response = $this->_call('users', array(
+							'methodName' => 'login',
+							'methodParameters' => array(
+								'users',
+								$parameters
+							)
+						))) &&
 						!empty($response['message']['status']) &&
 						$response['message']['status'] === 'success'
 					)
@@ -1930,9 +1980,15 @@ class TransactionsModel extends InvoicesModel {
 							$response['message']['text'] = 'Payment amount from your account balance exceeds your account balance, please enter an amount less than or equal to ' . $parameters['user']['balance'] . ' ' . $this->settings['billing']['currency'] . '.';
 						} else {
 							$response['message']['text'] = 'Invalid invoice ID, please try again.';
-							$invoice = $this->invoice('invoices', array(
-								'conditions' => array(
-									'id' => $parameters['data']['invoice_id']
+							$invoice = $this->_call('invoices', array(
+								'methodName' => 'invoice',
+								'methodParameters' => array(
+									'invoices',
+									array(
+										'conditions' => array(
+											'id' => $parameters['data']['invoice_id']
+										)
+									)
 								)
 							));
 							$amountDue = isset($invoice['data']['invoice']['amount_due_pending']) ? $invoice['data']['invoice']['amount_due_pending'] : $invoice['data']['invoice']['amount_due'];
@@ -1992,6 +2048,43 @@ class TransactionsModel extends InvoicesModel {
 					}
 				}
 			}
+		}
+
+		return $response;
+	}
+
+/**
+ * Process transaction
+ *
+ * @param array $parameters
+ *
+ * @return boolean $response
+ */
+	public function processTransaction($parameters) {
+		$response = false;
+
+		if (
+			!empty($parameters['transaction_method']) &&
+			strlen($parameters['transaction_method']) > 1 &&
+			method_exists($this, ($method = '_processTransaction' . $parameters['transaction_method']))
+		) {
+			$user = $this->fetch('users', array(
+				'conditions' => array(
+					'id' => $parameters['user_id']
+				),
+				'fields' => array(
+					'balance',
+					'email',
+					'id'
+				)
+			));
+
+			if (!empty($user['count'])) {
+				$parameters['user'] = $user['data'][0];
+			}
+
+			$this->$method($parameters);
+			$response = true;
 		}
 
 		return $response;

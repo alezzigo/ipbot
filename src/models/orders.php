@@ -10,10 +10,10 @@
  */
 
 if (!empty($config->settings['base_path'])) {
-	require_once($config->settings['base_path'] . '/models/transactions.php');
+	require_once($config->settings['base_path'] . '/models/app.php');
 }
 
-class OrdersModel extends TransactionsModel {
+class OrdersModel extends AppModel {
 
 /**
  * Retrieve available server node details
@@ -69,75 +69,6 @@ class OrdersModel extends TransactionsModel {
 
 				$response['nodeLocations'] = array_values($response['nodeLocations']);
 				$response['nodeSubnets'] = array(); // TODO
-			}
-		}
-
-		return $response;
-	}
-
-/**
- * Retrieve most recent order invoice data
- *
- * @param array $orderData
- *
- * @return array $response
- */
-	protected function _retrieveMostRecentOrderInvoice($orderData) {
-		$response = array();
-		$mostRecentOrderInvoice = $this->fetch('invoice_orders', array(
-			'conditions' => array(
-				'order_id' => $orderData['id']
-			),
-			'fields' => array(
-				'invoice_id'
-			),
-			'limit' => 1
-		));
-
-		if (!empty($mostRecentOrderInvoice['count'])) {
-			$invoiceIds = $this->_retrieveInvoiceIds($mostRecentOrderInvoice['data']);
-			$invoice = $this->fetch('invoices', array(
-				'conditions' => array(
-					'merged_invoice_id' => null,
-					'OR' => array(
-						'id' => $invoiceIds,
-						'initial_invoice_id' => $invoiceIds
-					)
-				),
-				'fields' => array(
-					'amount_paid',
-					'cart_items',
-					'created',
-					'currency',
-					'due',
-					'id',
-					'initial_invoice_id',
-					'merged_invoice_id',
-					'modified',
-					'payable',
-					'remainder_pending',
-					'session_id',
-					'shipping',
-					'shipping_pending',
-					'status',
-					'subtotal',
-					'subtotal_pending',
-					'tax',
-					'tax_pending',
-					'total',
-					'total_pending',
-					'user_id',
-					'warning_level'
-				),
-				'limit' => 1,
-				'sort' => array(
-					'field' => 'due',
-					'order' => 'DESC'
-				)
-			));
-
-			if (!empty($invoice['count'])) {
-				$response = $invoice['data'][0];
 			}
 		}
 
@@ -286,6 +217,100 @@ class OrdersModel extends TransactionsModel {
 	}
 
 /**
+ * Retrieve most recent order invoice data
+ *
+ * @param array $orderData
+ *
+ * @return array $response
+ */
+	public function retrieveMostRecentOrderInvoice($orderData) {
+		$response = array();
+		$mostRecentOrderInvoice = $this->fetch('invoice_orders', array(
+			'conditions' => array(
+				'order_id' => $orderData['id']
+			),
+			'fields' => array(
+				'invoice_id'
+			),
+			'limit' => 1
+		));
+
+		if (!empty($mostRecentOrderInvoice['count'])) {
+			$invoiceIds = $this->_call('invoices', array(
+				'methodName' => 'retrieveInvoiceIds',
+				'methodParameters' => array(
+					$mostRecentOrderInvoice['data']
+				)
+			));
+			$invoice = $this->fetch('invoices', array(
+				'conditions' => array(
+					'merged_invoice_id' => null,
+					'OR' => array(
+						'id' => $invoiceIds,
+						'initial_invoice_id' => $invoiceIds
+					)
+				),
+				'fields' => array(
+					'amount_paid',
+					'cart_items',
+					'created',
+					'currency',
+					'due',
+					'id',
+					'initial_invoice_id',
+					'merged_invoice_id',
+					'modified',
+					'payable',
+					'remainder_pending',
+					'session_id',
+					'shipping',
+					'shipping_pending',
+					'status',
+					'subtotal',
+					'subtotal_pending',
+					'tax',
+					'tax_pending',
+					'total',
+					'total_pending',
+					'user_id',
+					'warning_level'
+				),
+				'limit' => 1,
+				'sort' => array(
+					'field' => 'due',
+					'order' => 'DESC'
+				)
+			));
+
+			if (!empty($invoice['count'])) {
+				$response = $invoice['data'][0];
+			}
+		}
+
+		return $response;
+	}
+
+/**
+ * Shell method for processing new orders
+ *
+ * @param string $table
+ *
+ * @return array $response
+ */
+	public function shellProcessNewOrders($table) {
+		$response = array(
+			'message' => array(
+				'status' => 'error',
+				'text' => 'Error processing new orders, please try again.'
+			)
+		);
+
+		// ..
+
+		return $response;
+	}
+
+/**
  * Process order upgrade requests
  *
  * @param string $table
@@ -352,7 +377,7 @@ class OrdersModel extends TransactionsModel {
 					$productIds[$order['product_id']] = $order['product_id'];
 					$sortInterval = array_search($intervalType, $sortIntervals) . '__';
 					$groupedOrders[$sortInterval . $intervalKey][] = $selectedOrders[] = array(
-						'invoice' => $this->_retrieveMostRecentOrderInvoice($order),
+						'invoice' => $this->retrieveMostRecentOrderInvoice($order),
 						'order' => $order
 					);
 				}
@@ -448,7 +473,13 @@ class OrdersModel extends TransactionsModel {
 							'tax_pending' => $this->_calculateItemTaxPrice($pendingItem)
 						));
 						$mergedData['orders'][] = $mergedData['order'];
-						$mergedData = array_replace_recursive($mergedData, $this->_calculateInvoicePaymentDetails($mergedData, false));
+						$mergedData = array_replace_recursive($mergedData, $this->_call('invoices', array(
+							'methodName' => 'calculateInvoicePaymentDetails',
+							'methodParameters' => array(
+								$mergedData,
+								false
+							)
+						)));
 						$mergedData['invoice']['remainder_pending'] = $mergedData['invoice']['total_pending'];
 						$orderMergeParameters = array(
 							'conditions' => array(
@@ -482,7 +513,12 @@ class OrdersModel extends TransactionsModel {
 						}
 
 						foreach ($selectedOrders as $key => $selectedOrder) {
-							$previouslyPaidInvoices = $this->_retrievePreviouslyPaidInvoices($selectedOrder['invoice']);
+							$previouslyPaidInvoices = $this->_call('invoices', array(
+								'methodName' => 'retrievePreviouslyPaidInvoices',
+								'methodParameters' => array(
+									$selectedOrder['invoice']
+								)
+							));
 
 							foreach ($previouslyPaidInvoices as $previouslyPaidInvoice) {
 								$orderMerge = array(
@@ -623,7 +659,12 @@ class OrdersModel extends TransactionsModel {
 									}
 
 									foreach ($selectedOrders as $key => $selectedOrder) {
-										$additionalOrders = $this->_retrieveInvoiceOrders($selectedOrder['invoice']);
+										$additionalOrders = $this->_call('invoices', array(
+											'methodName' => 'retrieveInvoiceOrders',
+											'methodParameters' => array(
+												$selectedOrder['invoice']
+											)
+										));
 
 										if (!empty($additionalOrders)) {
 											foreach ($additionalOrders as $additionalOrder) {
@@ -835,9 +876,15 @@ class OrdersModel extends TransactionsModel {
 
 										foreach ($pendingInvoices as $pendingInvoice) {
 											if (!empty($pendingInvoice['id'])) {
-												$this->invoice('invoices', array(
-													'conditions' => array(
-														'id' => $pendingInvoice['id']
+												$invoice = $this->_call('invoices', array(
+													'methodName' => 'invoice',
+													'methodParameters' => array(
+														'invoices',
+														array(
+															'conditions' => array(
+																'id' => $pendingInvoice['id']
+															)
+														)
 													)
 												));
 											}
@@ -878,7 +925,12 @@ class OrdersModel extends TransactionsModel {
 										}
 
 										if (!empty($transactionToProcess)) {
-											$this->_processTransaction($transactionToProcess);
+											$this->_call('transactions', array(
+												'methodName' => 'processTransaction',
+												'methodParameters' => array(
+													$transactionToProcess
+												)
+											));
 										}
 									}
 								}
@@ -934,7 +986,7 @@ class OrdersModel extends TransactionsModel {
 			if (!empty($order['count'])) {
 				$response = array(
 					'data' => array_merge(array(
-						'invoice' => ($invoice = $this->_retrieveMostRecentOrderInvoice($order['data'][0])),
+						'invoice' => ($invoice = $this->retrieveMostRecentOrderInvoice($order['data'][0])),
 						'order' => $order['data'][0]
 					), $this->_retrieveAvailableServerNodeDetails($order['data'][0])),
 					'message' => array(

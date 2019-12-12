@@ -10,161 +10,10 @@
  */
 
 if (!empty($config->settings['base_path'])) {
-	require_once($config->settings['base_path'] . '/models/users.php');
+	require_once($config->settings['base_path'] . '/models/app.php');
 }
 
-class InvoicesModel extends UsersModel {
-
-/**
- * Calculate deduction amounts from merged and additional invoices
- *
- * @param array $invoiceData
- * @param integer $amount
- * @param array $invoiceDeductions
- *
- * @return array $response
- */
-	protected function _calculateDeductionsFromInvoice($invoiceData, $amount, $invoiceDeductions = array()) {
-		if (!empty($invoiceData)) {
-			$remainder = min(0, round(($invoiceData['amount_paid'] + $amount) * 100) / 100);
-
-			if (!empty($invoiceDeductions[$invoiceData['id']])) {
-				$remainder = min(0, round(($invoiceData['amount_paid'] + $invoiceDeductions[$invoiceData['id']]['amount_deducted'] + $amount) * 100) / 100);
-			}
-
-			$amountDeducted = max(($invoiceData['amount_paid'] * -1), round(($amount - $remainder) * 100) / 100);
-			$invoiceDeduction = array(
-				'amount_paid' => $invoiceData['amount_paid'],
-				'amount_deducted' => $amountDeducted,
-				'id' => $invoiceData['id'],
-				'remainder_pending' => $invoiceData['remainder_pending'] + ($amountDeducted * -1)
-			);
-
-			if ($amountDeducted < 0) {
-				$invoiceDeduction['status'] = 'unpaid';
-			}
-
-			$invoiceDeductions[$invoiceData['id']] = $invoiceDeduction;
-			$invoiceDeductions['remainder'] = $remainder;
-
-			if ($remainder < 0) {
-				$additionalInvoice = $this->fetch('invoices', array(
-					'conditions' => array(
-						'created >' => date('Y-m-d H:i:s', strtotime($invoiceData['created'])),
-						'OR' => array(
-							'initial_invoice_id' => $invoiceData['id'],
-							'id' => $invoiceData['merged_invoice_id']
-						)
-					),
-					'fields' => array(
-						'amount_paid',
-						'created',
-						'id',
-						'initial_invoice_id',
-						'merged_invoice_id',
-						'status'
-					),
-					'limit' => 1,
-					'sort' => array(
-						'field' => 'created',
-						'order' => 'ASC'
-					)
-				));
-
-				if (!empty($additionalInvoice['count'])) {
-					$invoiceDeductions = $this->_calculateDeductionsFromInvoice($additionalInvoice['data'][0], $invoiceDeductions['remainder'], $invoiceDeductions);
-				}
-			}
-		}
-
-		$response = $invoiceDeductions;
-		return $response;
-	}
-
-/**
- * Calculate invoice payment details
- *
- * @param array $invoiceData
- * @param boolean $saveCalculations
- *
- * @return array $response
- */
-	protected function _calculateInvoicePaymentDetails($invoiceData, $saveCalculations = true) {
-		$response = $invoiceData;
-
-		if (
-			!empty($response['orders']) &&
-			!empty($response['invoice']) &&
-			$response['invoice']['status'] !== 'paid'
-		) {
-			$response['invoice']['total'] = $response['invoice']['total_pending'] = $response['invoice']['shipping'] = $response['invoice']['shipping_pending'] = $response['invoice']['subtotal'] = $response['invoice']['subtotal_pending'] = 0;
-
-			foreach ($response['orders'] as $key => $invoiceOrder) {
-				$response['invoice']['shipping'] += $invoiceOrder['shipping'];
-				$response['invoice']['shipping_pending'] += $invoiceOrder['shipping_pending'];
-				$response['invoice']['subtotal'] += $invoiceOrder['price'];
-				$response['invoice']['subtotal_pending'] += $invoiceOrder['price_pending'];
-				$response['invoice']['tax'] += $invoiceOrder['tax'];
-				$response['invoice']['tax_pending'] += $invoiceOrder['tax_pending'];
-				$response['invoice']['total'] += $invoiceOrder['shipping'] + $invoiceOrder['tax'];
-				$response['invoice']['total_pending'] += $invoiceOrder['shipping_pending'] + $invoiceOrder['tax_pending'];
-			}
-
-			$response['invoice']['total'] += $response['invoice']['subtotal'];
-			$response['invoice']['total_pending'] += $response['invoice']['subtotal_pending'];
-
-			foreach ($response['invoice'] as $invoiceKey => $invoiceValue) {
-				if (is_numeric($invoiceValue)) {
-					$response['invoice'][$invoiceKey] = (integer) round($invoiceValue * 100) / 100;
-				}
-			}
-		}
-
-		$invoiceCalculationData = $response['invoice'];
-		$pendingOrderChange = (
-			isset($response['invoice']['remainder_pending']) &&
-			is_numeric($response['invoice']['remainder_pending'])
-		);
-		unset($invoiceCalculationData['amount_paid']);
-		unset($invoiceCalculationData['billing']);
-		unset($invoiceCalculationData['created']);
-		unset($invoiceCalculationData['initial_invoice_id']);
-		unset($invoiceCalculationData['modified']);
-		unset($invoiceCalculationData['user_id']);
-
-		if (
-			empty($invoiceCalculationData) ||
-			(
-				$invoiceCalculationData['status'] !== 'paid' &&
-				(
-					!$pendingOrderChange &&
-					(
-						$saveCalculations &&
-						!$this->save('invoices', array(
-							$invoiceCalculationData
-						))
-					)
-				)
-			)
-		) {
-			$response = $invoiceData;
-		}
-
-		if (!empty($response['invoice']['due'])) {
-			$dueDate = strtotime($response['invoice']['due']);
-			$response['invoice']['due'] = date('M d, Y', $dueDate) . ' ' . date('g:ia', $dueDate) . ' ' . $this->settings['timezone']['display'];
-		}
-
-		$response['invoice']['amount_due'] = max(0, round(($response['invoice']['total'] - $response['invoice']['amount_paid']) * 100) / 100);
-
-		if ($pendingOrderChange) {
-			$response['invoice']['amount_due_pending'] = $response['invoice']['remainder_pending'];
-		} elseif ($response['invoice']['status'] === 'paid') {
-			$response['invoice']['amount_due'] = 0;
-		}
-
-		return $response;
-	}
+class InvoicesModel extends AppModel {
 
 /**
  * Process invoices
@@ -570,88 +419,6 @@ class InvoicesModel extends UsersModel {
 	}
 
 /**
- * Retrieve additional due invoice data
- *
- * @param array $invoiceData
- *
- * @return array $response
- */
-	protected function _retrieveDueInvoices($invoiceData) {
-		$response = array();
-		$dueInvoices = $this->fetch('invoices', array(
-			'conditions' => array(
-				'due >' => date('Y-m-d H:i:s', strtotime($invoiceData['due'])),
-				'initial_invoice_id' => array_filter(array(
-					$invoiceData['id'],
-					$invoiceData['initial_invoice_id']
-				)),
-				'merged_invoice_id' => null,
-				'status' => 'unpaid',
-				'user_id' => $invoiceData['user_id'],
-				'NOT' => array(
-					'id' => $invoiceData['id']
-				)
-			),
-			'fields' => array(
-				'due',
-				'id',
-				'warning_level'
-			),
-			'sort' => array(
-				'field' => 'created',
-				'order' => 'DESC'
-			)
-		));
-
-		if (!empty($dueInvoices['count'])) {
-			$response = $dueInvoices['data'];
-		}
-
-		return $response;
-	}
-
-/**
- * Retrieve invoice IDs
- *
- * @param array $invoiceIds
- *
- * @return array $response
- */
-	protected function _retrieveInvoiceIds($invoiceIds) {
-		$invoiceIds = $response = array_unique(array_filter($invoiceIds));
-		$invoiceParameters = array(
-			'conditions' => array(
-				'OR' => array(
-					'id' => $invoiceIds,
-					'initial_invoice_id' => $invoiceIds,
-					'merged_invoice_id' => $invoiceIds
-				)
-			),
-			'fields' => array(
-				'id',
-				'initial_invoice_id',
-				'merged_invoice_id'
-			)
-		);
-
-		$invoices = $this->fetch('invoices', $invoiceParameters);
-
-		if (!empty($invoices['count'])) {
-			foreach ($invoices['data'] as $invoice) {
-				$invoiceIds = array_merge($invoiceIds, array_values($invoice));
-			}
-		}
-
-		$invoiceIds = array_unique(array_filter($invoiceIds));
-
-		if (count($invoiceIds) > count($response)) {
-			$response = $this->_retrieveInvoiceIds($invoiceIds);
-		}
-
-		return $response;
-	}
-
-/**
  * Retrieve invoice item data
  *
  * @param array $invoiceData
@@ -691,74 +458,6 @@ class InvoicesModel extends UsersModel {
 	}
 
 /**
- * Retrieve invoice order data
- *
- * @param array $invoiceData
- *
- * @return array $response
- */
-	protected function _retrieveInvoiceOrders($invoiceData) {
-		$response = array();
-		$invoiceIds = $this->_retrieveInvoiceIds(array(
-			$invoiceData['id'],
-			$invoiceData['initial_invoice_id'],
-			$invoiceData['merged_invoice_id']
-		));
-		$invoiceOrders = $this->fetch('invoice_orders', array(
-			'conditions' => array(
-				'invoice_id' => $invoiceIds
-			),
-			'fields' => array(
-				'order_id'
-			)
-		));
-
-		if (!empty($invoiceOrders['count'])) {
-			$orders = $this->fetch('orders', array(
-				'conditions' => array(
-					'id' => $invoiceOrders['data'],
-					'NOT' => array(
-						'status' => 'merged'
-					)
-				),
-				'fields' => array(
-					'created',
-					'currency',
-					'id',
-					'interval_type',
-					'interval_type_pending',
-					'interval_value',
-					'interval_value_pending',
-					'ip_version',
-					'modified',
-					'name',
-					'price',
-					'price_active',
-					'price_pending',
-					'product_id',
-					'quantity',
-					'quantity_active',
-					'quantity_pending',
-					'session_id',
-					'shipping',
-					'shipping_pending',
-					'status',
-					'tax',
-					'tax_pending',
-					'type',
-					'user_id'
-				)
-			));
-
-			if (!empty($orders['count'])) {
-				$response = $orders['data'];
-			}
-		}
-
-		return $response;
-	}
-
-/**
  * Retrieve invoice subscription data
  *
  * @param array $invoiceData
@@ -789,232 +488,151 @@ class InvoicesModel extends UsersModel {
 	}
 
 /**
- * Retrieve invoice transaction data
+ * Calculate deduction amounts from merged and additional invoices
  *
  * @param array $invoiceData
+ * @param integer $amount
+ * @param array $invoiceDeductions
  *
  * @return array $response
  */
-	protected function _retrieveInvoiceTransactions($invoiceData) {
-		$response = array();
-		$invoiceTransactions = $this->fetch('transactions', array(
-			'conditions' => array(
-				'invoice_id' => $invoiceData['id'],
-				'transaction_processed' => true,
-				'transaction_processing' => false,
-				'NOT' => array(
-					'transaction_method' => 'PaymentRefunded'
-				)
-			),
-			'fields' => array(
-				'billing_address_1',
-				'billing_address_2',
-				'billing_address_status',
-				'billing_city',
-				'billing_country_code',
-				'billing_name',
-				'billing_region',
-				'billing_zip',
-				'created',
-				'customer_email',
-				'customer_first_name',
-				'customer_id',
-				'customer_last_name',
-				'customer_status',
-				'details',
-				'id',
-				'initial_invoice_id',
-				'interval_type',
-				'interval_value',
-				'invoice_id',
-				'modified',
-				'parent_transaction_id',
-				'payment_amount',
-				'payment_currency',
-				'payment_external_fee',
-				'payment_method_id',
-				'payment_shipping_amount',
-				'payment_status',
-				'payment_status_code',
-				'payment_status_message',
-				'payment_tax_amount',
-				'payment_transaction_id',
-				'plan_id',
-				'provider_country_code',
-				'provider_email',
-				'provider_id',
-				'sandbox',
-				'transaction_charset',
-				'transaction_date',
-				'transaction_method',
-				'transaction_processed',
-				'transaction_processing',
-				'transaction_raw',
-				'transaction_token',
-				'user_id'
-			),
-			'sort' => array(
-				'field' => 'transaction_date',
-				'order' => 'ASC'
-			)
-		));
-		$paymentMethods = $this->fetch('payment_methods', array(
-			'fields' => array(
-				'id',
-				'name'
-			)
-		));
+	public function calculateDeductionsFromInvoice($invoiceData, $amount, $invoiceDeductions = array()) {
+		if (!empty($invoiceData)) {
+			$remainder = min(0, round(($invoiceData['amount_paid'] + $amount) * 100) / 100);
 
-		if (
-			!empty($invoiceTransactions['count']) &&
-			!empty($paymentMethods['count'])
-		) {
-			foreach ($paymentMethods['data'] as $key => $paymentMethod) {
-				$paymentMethods['data'][$paymentMethod['id']] = $paymentMethod['name'];
-				unset($paymentMethods['data'][$key]);
+			if (!empty($invoiceDeductions[$invoiceData['id']])) {
+				$remainder = min(0, round(($invoiceData['amount_paid'] + $invoiceDeductions[$invoiceData['id']]['amount_deducted'] + $amount) * 100) / 100);
 			}
 
-			foreach ($invoiceTransactions['data'] as $key => $invoiceTransaction) {
-				$transactionTime = strtotime($invoiceTransaction['transaction_date']);
-				$invoiceTransactions['data'][$key]['transaction_date'] = date('M d Y', $transactionTime) . ' at ' . date('g:ia', $transactionTime) . ' ' . $this->settings['timezone']['display'];
+			$amountDeducted = max(($invoiceData['amount_paid'] * -1), round(($amount - $remainder) * 100) / 100);
+			$invoiceDeduction = array(
+				'amount_paid' => $invoiceData['amount_paid'],
+				'amount_deducted' => $amountDeducted,
+				'id' => $invoiceData['id'],
+				'remainder_pending' => $invoiceData['remainder_pending'] + ($amountDeducted * -1)
+			);
 
-				if (!empty($paymentMethods['data'][$invoiceTransaction['payment_method_id']])) {
-					$invoiceTransactions['data'][$key]['payment_method'] = $paymentMethods['data'][$invoiceTransaction['payment_method_id']];
+			if ($amountDeducted < 0) {
+				$invoiceDeduction['status'] = 'unpaid';
+			}
+
+			$invoiceDeductions[$invoiceData['id']] = $invoiceDeduction;
+			$invoiceDeductions['remainder'] = $remainder;
+
+			if ($remainder < 0) {
+				$additionalInvoice = $this->fetch('invoices', array(
+					'conditions' => array(
+						'created >' => date('Y-m-d H:i:s', strtotime($invoiceData['created'])),
+						'OR' => array(
+							'initial_invoice_id' => $invoiceData['id'],
+							'id' => $invoiceData['merged_invoice_id']
+						)
+					),
+					'fields' => array(
+						'amount_paid',
+						'created',
+						'id',
+						'initial_invoice_id',
+						'merged_invoice_id',
+						'status'
+					),
+					'limit' => 1,
+					'sort' => array(
+						'field' => 'created',
+						'order' => 'ASC'
+					)
+				));
+
+				if (!empty($additionalInvoice['count'])) {
+					$invoiceDeductions = $this->calculateDeductionsFromInvoice($additionalInvoice['data'][0], $invoiceDeductions['remainder'], $invoiceDeductions);
 				}
 			}
-
-			$response = $invoiceTransactions['data'];
 		}
 
+		$response = $invoiceDeductions;
 		return $response;
 	}
 
 /**
- * Retrieve most recent payable invoice data
- *
- * @param integer $invoiceId
- *
- * @return array $response
- */
-	protected function _retrieveMostRecentPayableInvoice($invoiceId) {
-		$response = array();
-		$invoiceIds = $this->_retrieveInvoiceIds(array(
-			$invoiceId
-		));
-		$invoice = $this->fetch('invoices', array(
-			'conditions' => array(
-				'merged_invoice_id' => null,
-				'payable' => true,
-				'remainder_pending' => null,
-				'OR' => array(
-					'id' => $invoiceIds,
-					'initial_invoice_id' => $invoiceIds
-				)
-			),
-			'fields' => array(
-				'amount_paid',
-				'cart_items',
-				'created',
-				'currency',
-				'due',
-				'id',
-				'initial_invoice_id',
-				'merged_invoice_id',
-				'modified',
-				'payable',
-				'remainder_pending',
-				'session_id',
-				'shipping',
-				'shipping_pending',
-				'status',
-				'subtotal',
-				'subtotal_pending',
-				'tax',
-				'tax_pending',
-				'total',
-				'total_pending',
-				'user_id'
-			),
-			'limit' => 1,
-			'sort' => array(
-				'field' => 'created',
-				'order' => 'DESC'
-			)
-		));
-
-		if (!empty($invoice['count'])) {
-			$response = $invoice['data'][0];
-		}
-
-		return $response;
-	}
-
-/**
- * Retrieve previously-paid invoice data
+ * Calculate invoice payment details
  *
  * @param array $invoiceData
+ * @param boolean $saveCalculations
  *
  * @return array $response
  */
-	protected function _retrievePreviouslyPaidInvoices($invoiceData) {
-		$response = array();
-		$invoiceIds = $this->_retrieveInvoiceIds(array(
-			$invoiceData['id']
-		));
-		$orderMerges = $this->fetch('order_merges', array(
-			'conditions' => array(
-				'amount_merged >' => 0,
-				'invoice_id' => $invoiceIds,
-				'NOT' => array(
-					'initial_invoice_id' => $invoiceIds
-				)
-			),
-			'fields' => array(
-				'initial_invoice_id'
-			),
-			'sort' => array(
-				'field' => 'created',
-				'order' => 'DESC'
-			)
-		));
+	public function calculateInvoicePaymentDetails($invoiceData, $saveCalculations = true) {
+		$response = $invoiceData;
 
-		if (!empty($orderMerges['count'])) {
-			$invoiceIds = array_unique(array_merge($invoiceIds, $orderMerges['data']));
+		if (
+			!empty($response['orders']) &&
+			!empty($response['invoice']) &&
+			$response['invoice']['status'] !== 'paid'
+		) {
+			$response['invoice']['total'] = $response['invoice']['total_pending'] = $response['invoice']['shipping'] = $response['invoice']['shipping_pending'] = $response['invoice']['subtotal'] = $response['invoice']['subtotal_pending'] = 0;
+
+			foreach ($response['orders'] as $key => $invoiceOrder) {
+				$response['invoice']['shipping'] += $invoiceOrder['shipping'];
+				$response['invoice']['shipping_pending'] += $invoiceOrder['shipping_pending'];
+				$response['invoice']['subtotal'] += $invoiceOrder['price'];
+				$response['invoice']['subtotal_pending'] += $invoiceOrder['price_pending'];
+				$response['invoice']['tax'] += $invoiceOrder['tax'];
+				$response['invoice']['tax_pending'] += $invoiceOrder['tax_pending'];
+				$response['invoice']['total'] += $invoiceOrder['shipping'] + $invoiceOrder['tax'];
+				$response['invoice']['total_pending'] += $invoiceOrder['shipping_pending'] + $invoiceOrder['tax_pending'];
+			}
+
+			$response['invoice']['total'] += $response['invoice']['subtotal'];
+			$response['invoice']['total_pending'] += $response['invoice']['subtotal_pending'];
+
+			foreach ($response['invoice'] as $invoiceKey => $invoiceValue) {
+				if (is_numeric($invoiceValue)) {
+					$response['invoice'][$invoiceKey] = (integer) round($invoiceValue * 100) / 100;
+				}
+			}
 		}
 
-		$previousInvoiceParameters = array(
-			'conditions' => array(
-				'id' => $invoiceIds,
-				'created <' => date('Y-m-d H:i:s', strtotime($invoiceData['created'])),
-				'due <' => date('Y-m-d H:i:s', strtotime($invoiceData['due'])),
-				'OR' => array(
-					'amount_paid >' => 0,
-					'status' => 'paid'
-				),
-				'NOT' => array(
-					'id' => $invoiceData['id']
-				)
-			),
-			'fields' => array(
-				'amount_paid',
-				'created',
-				'due',
-				'id',
-				'initial_invoice_id',
-				'remainder_pending',
-				'status',
-				'total',
-				'total_pending'
-			),
-			'sort' => array(
-				'field' => 'created',
-				'order' => 'DESC'
-			)
+		$invoiceCalculationData = $response['invoice'];
+		$pendingOrderChange = (
+			isset($response['invoice']['remainder_pending']) &&
+			is_numeric($response['invoice']['remainder_pending'])
 		);
-		$previousInvoices = $this->fetch('invoices', $previousInvoiceParameters);
+		unset($invoiceCalculationData['amount_paid']);
+		unset($invoiceCalculationData['billing']);
+		unset($invoiceCalculationData['created']);
+		unset($invoiceCalculationData['initial_invoice_id']);
+		unset($invoiceCalculationData['modified']);
+		unset($invoiceCalculationData['user_id']);
 
-		if (!empty($previousInvoices['count'])) {
-			$response = $previousInvoices['data'];
+		if (
+			empty($invoiceCalculationData) ||
+			(
+				$invoiceCalculationData['status'] !== 'paid' &&
+				(
+					!$pendingOrderChange &&
+					(
+						$saveCalculations &&
+						!$this->save('invoices', array(
+							$invoiceCalculationData
+						))
+					)
+				)
+			)
+		) {
+			$response = $invoiceData;
+		}
+
+		if (!empty($response['invoice']['due'])) {
+			$dueDate = strtotime($response['invoice']['due']);
+			$response['invoice']['due'] = date('M d, Y', $dueDate) . ' ' . date('g:ia', $dueDate) . ' ' . $this->settings['timezone']['display'];
+		}
+
+		$response['invoice']['amount_due'] = max(0, round(($response['invoice']['total'] - $response['invoice']['amount_paid']) * 100) / 100);
+
+		if ($pendingOrderChange) {
+			$response['invoice']['amount_due_pending'] = $response['invoice']['remainder_pending'];
+		} elseif ($response['invoice']['status'] === 'paid') {
+			$response['invoice']['amount_due'] = 0;
 		}
 
 		return $response;
@@ -1089,11 +707,11 @@ class InvoicesModel extends UsersModel {
 							'initial_invoice_id' => null,
 							'invoice_id' => ($invoiceId = $invoiceOrders['data'][0]['initial_invoice_id'])
 						));
-						$mostRecentPayableInvoice = $this->_retrieveMostRecentPayableInvoice($invoiceId);
+						$mostRecentPayableInvoice = $this->retrieveMostRecentPayableInvoice($invoiceId);
 
 						if (!empty($mostRecentPayableInvoice)) {
 							$amountPaidForUpgrade = 0;
-							$invoiceIds = $this->_retrieveInvoiceIds(array(
+							$invoiceIds = $this->retrieveInvoiceIds(array(
 								$invoice['data']['invoice']['id']
 							));
 							$cancelledInvoiceIds = array_diff($invoiceIds, array(
@@ -1224,7 +842,7 @@ class InvoicesModel extends UsersModel {
 							}
 
 							if (!empty($revertedInvoice['count'])) {
-								$additionalDueInvoices = $this->_retrieveDueInvoices($revertedInvoice['data'][0]);
+								$additionalDueInvoices = $this->retrieveDueInvoices($revertedInvoice['data'][0]);
 								$upgradeDifference = max(0, (round(($invoice['data']['invoice']['total_pending'] - $revertedInvoice['data'][0]['invoice']['total']) * 100) / 100));
 								$pendingInvoices[$invoice['data']['invoice']['id']] = array(
 									'amount_paid' => ($amountPaid = max(0, round(($invoice['data']['invoice']['amount_paid'] - $amountPaidForUpgrade) * 100) / 100)),
@@ -1273,7 +891,7 @@ class InvoicesModel extends UsersModel {
 									$this->save('transactions', $pendingTransactions) &&
 									$this->save('users', $userData)
 								) {
-									$initialInvoiceIds = $this->_retrieveInvoiceIds(array(
+									$initialInvoiceIds = $this->retrieveInvoiceIds(array(
 										$invoiceId
 									));
 									$invoiceParameters['conditions'] = array(
@@ -1361,7 +979,7 @@ class InvoicesModel extends UsersModel {
 			$mostRecent === true &&
 			!empty($invoiceParameters['conditions']['id'])
 		) {
-			$invoiceParameters['conditions']['id'] = $this->_retrieveInvoiceIds((array) $invoiceParameters['conditions']['id']);
+			$invoiceParameters['conditions']['id'] = $this->retrieveInvoiceIds((array) $invoiceParameters['conditions']['id']);
 			$invoiceParameters['sort'] = array(
 				'field' => 'created',
 				'order' => 'DESC'
@@ -1378,9 +996,9 @@ class InvoicesModel extends UsersModel {
 			} else {
 				$invoiceData['created'] = date('M d Y', strtotime($invoiceData['created'])) . ' at ' . date('g:ia', strtotime($invoiceData['created'])) . ' ' . $this->settings['timezone']['display'];
 				$invoiceItems = $this->_retrieveInvoiceItems($invoiceData);
-				$invoiceOrders = $this->_retrieveInvoiceOrders($invoiceData);
+				$invoiceOrders = $this->retrieveInvoiceOrders($invoiceData);
 				$invoiceSubscriptions = $this->_retrieveInvoiceSubscriptions($invoiceData);
-				$invoiceTransactions = $this->_retrieveInvoiceTransactions($invoiceData);
+				$invoiceTransactions = $this->retrieveInvoiceTransactions($invoiceData);
 				$invoiceUser = $this->_call('users', array(
 					'methodName' => 'retrieveUser',
 					'methodParameters' => array(
@@ -1407,7 +1025,7 @@ class InvoicesModel extends UsersModel {
 							'text' => ''
 						)
 					);
-					$response['data'] = array_replace_recursive($response['data'], $this->_calculateInvoicePaymentDetails($response['data']));
+					$response['data'] = array_replace_recursive($response['data'], $this->calculateInvoicePaymentDetails($response['data']));
 				}
 			}
 		}
@@ -1425,6 +1043,388 @@ class InvoicesModel extends UsersModel {
  */
 	public function list($table, $parameters = array()) {
 		return array();
+	}
+
+/**
+ * Retrieve additional due invoice data
+ *
+ * @param array $invoiceData
+ *
+ * @return array $response
+ */
+	public function retrieveDueInvoices($invoiceData) {
+		$response = array();
+		$dueInvoices = $this->fetch('invoices', array(
+			'conditions' => array(
+				'due >' => date('Y-m-d H:i:s', strtotime($invoiceData['due'])),
+				'initial_invoice_id' => array_filter(array(
+					$invoiceData['id'],
+					$invoiceData['initial_invoice_id']
+				)),
+				'merged_invoice_id' => null,
+				'status' => 'unpaid',
+				'user_id' => $invoiceData['user_id'],
+				'NOT' => array(
+					'id' => $invoiceData['id']
+				)
+			),
+			'fields' => array(
+				'due',
+				'id',
+				'warning_level'
+			),
+			'sort' => array(
+				'field' => 'created',
+				'order' => 'DESC'
+			)
+		));
+
+		if (!empty($dueInvoices['count'])) {
+			$response = $dueInvoices['data'];
+		}
+
+		return $response;
+	}
+
+/**
+ * Retrieve invoice IDs
+ *
+ * @param array $invoiceIds
+ *
+ * @return array $response
+ */
+	public function retrieveInvoiceIds($invoiceIds) {
+		$invoiceIds = $response = array_unique(array_filter($invoiceIds));
+		$invoiceParameters = array(
+			'conditions' => array(
+				'OR' => array(
+					'id' => $invoiceIds,
+					'initial_invoice_id' => $invoiceIds,
+					'merged_invoice_id' => $invoiceIds
+				)
+			),
+			'fields' => array(
+				'id',
+				'initial_invoice_id',
+				'merged_invoice_id'
+			)
+		);
+
+		$invoices = $this->fetch('invoices', $invoiceParameters);
+
+		if (!empty($invoices['count'])) {
+			foreach ($invoices['data'] as $invoice) {
+				$invoiceIds = array_merge($invoiceIds, array_values($invoice));
+			}
+		}
+
+		$invoiceIds = array_unique(array_filter($invoiceIds));
+
+		if (count($invoiceIds) > count($response)) {
+			$response = $this->retrieveInvoiceIds($invoiceIds);
+		}
+
+		return $response;
+	}
+
+/**
+ * Retrieve invoice order data
+ *
+ * @param array $invoiceData
+ *
+ * @return array $response
+ */
+	public function retrieveInvoiceOrders($invoiceData) {
+		$response = array();
+		$invoiceIds = $this->retrieveInvoiceIds(array(
+			$invoiceData['id'],
+			$invoiceData['initial_invoice_id'],
+			$invoiceData['merged_invoice_id']
+		));
+		$invoiceOrders = $this->fetch('invoice_orders', array(
+			'conditions' => array(
+				'invoice_id' => $invoiceIds
+			),
+			'fields' => array(
+				'order_id'
+			)
+		));
+
+		if (!empty($invoiceOrders['count'])) {
+			$orders = $this->fetch('orders', array(
+				'conditions' => array(
+					'id' => $invoiceOrders['data'],
+					'NOT' => array(
+						'status' => 'merged'
+					)
+				),
+				'fields' => array(
+					'created',
+					'currency',
+					'id',
+					'interval_type',
+					'interval_type_pending',
+					'interval_value',
+					'interval_value_pending',
+					'ip_version',
+					'modified',
+					'name',
+					'price',
+					'price_active',
+					'price_pending',
+					'product_id',
+					'quantity',
+					'quantity_active',
+					'quantity_pending',
+					'session_id',
+					'shipping',
+					'shipping_pending',
+					'status',
+					'tax',
+					'tax_pending',
+					'type',
+					'user_id'
+				)
+			));
+
+			if (!empty($orders['count'])) {
+				$response = $orders['data'];
+			}
+		}
+
+		return $response;
+	}
+
+/**
+ * Retrieve invoice transaction data
+ *
+ * @param array $invoiceData
+ *
+ * @return array $response
+ */
+	public function retrieveInvoiceTransactions($invoiceData) {
+		$response = array();
+		$invoiceTransactions = $this->fetch('transactions', array(
+			'conditions' => array(
+				'invoice_id' => $invoiceData['id'],
+				'transaction_processed' => true,
+				'transaction_processing' => false,
+				'NOT' => array(
+					'transaction_method' => 'PaymentRefunded'
+				)
+			),
+			'fields' => array(
+				'billing_address_1',
+				'billing_address_2',
+				'billing_address_status',
+				'billing_city',
+				'billing_country_code',
+				'billing_name',
+				'billing_region',
+				'billing_zip',
+				'created',
+				'customer_email',
+				'customer_first_name',
+				'customer_id',
+				'customer_last_name',
+				'customer_status',
+				'details',
+				'id',
+				'initial_invoice_id',
+				'interval_type',
+				'interval_value',
+				'invoice_id',
+				'modified',
+				'parent_transaction_id',
+				'payment_amount',
+				'payment_currency',
+				'payment_external_fee',
+				'payment_method_id',
+				'payment_shipping_amount',
+				'payment_status',
+				'payment_status_code',
+				'payment_status_message',
+				'payment_tax_amount',
+				'payment_transaction_id',
+				'plan_id',
+				'provider_country_code',
+				'provider_email',
+				'provider_id',
+				'sandbox',
+				'transaction_charset',
+				'transaction_date',
+				'transaction_method',
+				'transaction_processed',
+				'transaction_processing',
+				'transaction_raw',
+				'transaction_token',
+				'user_id'
+			),
+			'sort' => array(
+				'field' => 'transaction_date',
+				'order' => 'ASC'
+			)
+		));
+		$paymentMethods = $this->fetch('payment_methods', array(
+			'fields' => array(
+				'id',
+				'name'
+			)
+		));
+
+		if (
+			!empty($invoiceTransactions['count']) &&
+			!empty($paymentMethods['count'])
+		) {
+			foreach ($paymentMethods['data'] as $key => $paymentMethod) {
+				$paymentMethods['data'][$paymentMethod['id']] = $paymentMethod['name'];
+				unset($paymentMethods['data'][$key]);
+			}
+
+			foreach ($invoiceTransactions['data'] as $key => $invoiceTransaction) {
+				$transactionTime = strtotime($invoiceTransaction['transaction_date']);
+				$invoiceTransactions['data'][$key]['transaction_date'] = date('M d Y', $transactionTime) . ' at ' . date('g:ia', $transactionTime) . ' ' . $this->settings['timezone']['display'];
+
+				if (!empty($paymentMethods['data'][$invoiceTransaction['payment_method_id']])) {
+					$invoiceTransactions['data'][$key]['payment_method'] = $paymentMethods['data'][$invoiceTransaction['payment_method_id']];
+				}
+			}
+
+			$response = $invoiceTransactions['data'];
+		}
+
+		return $response;
+	}
+
+/**
+ * Retrieve most recent payable invoice data
+ *
+ * @param integer $invoiceId
+ *
+ * @return array $response
+ */
+	public function retrieveMostRecentPayableInvoice($invoiceId) {
+		$response = array();
+		$invoiceIds = $this->retrieveInvoiceIds(array(
+			$invoiceId
+		));
+		$invoice = $this->fetch('invoices', array(
+			'conditions' => array(
+				'merged_invoice_id' => null,
+				'payable' => true,
+				'remainder_pending' => null,
+				'OR' => array(
+					'id' => $invoiceIds,
+					'initial_invoice_id' => $invoiceIds
+				)
+			),
+			'fields' => array(
+				'amount_paid',
+				'cart_items',
+				'created',
+				'currency',
+				'due',
+				'id',
+				'initial_invoice_id',
+				'merged_invoice_id',
+				'modified',
+				'payable',
+				'remainder_pending',
+				'session_id',
+				'shipping',
+				'shipping_pending',
+				'status',
+				'subtotal',
+				'subtotal_pending',
+				'tax',
+				'tax_pending',
+				'total',
+				'total_pending',
+				'user_id'
+			),
+			'limit' => 1,
+			'sort' => array(
+				'field' => 'created',
+				'order' => 'DESC'
+			)
+		));
+
+		if (!empty($invoice['count'])) {
+			$response = $invoice['data'][0];
+		}
+
+		return $response;
+	}
+
+/**
+ * Retrieve previously-paid invoice data
+ *
+ * @param array $invoiceData
+ *
+ * @return array $response
+ */
+	public function retrievePreviouslyPaidInvoices($invoiceData) {
+		$response = array();
+		$invoiceIds = $this->retrieveInvoiceIds(array(
+			$invoiceData['id']
+		));
+		$orderMerges = $this->fetch('order_merges', array(
+			'conditions' => array(
+				'amount_merged >' => 0,
+				'invoice_id' => $invoiceIds,
+				'NOT' => array(
+					'initial_invoice_id' => $invoiceIds
+				)
+			),
+			'fields' => array(
+				'initial_invoice_id'
+			),
+			'sort' => array(
+				'field' => 'created',
+				'order' => 'DESC'
+			)
+		));
+
+		if (!empty($orderMerges['count'])) {
+			$invoiceIds = array_unique(array_merge($invoiceIds, $orderMerges['data']));
+		}
+
+		$previousInvoiceParameters = array(
+			'conditions' => array(
+				'id' => $invoiceIds,
+				'created <' => date('Y-m-d H:i:s', strtotime($invoiceData['created'])),
+				'due <' => date('Y-m-d H:i:s', strtotime($invoiceData['due'])),
+				'OR' => array(
+					'amount_paid >' => 0,
+					'status' => 'paid'
+				),
+				'NOT' => array(
+					'id' => $invoiceData['id']
+				)
+			),
+			'fields' => array(
+				'amount_paid',
+				'created',
+				'due',
+				'id',
+				'initial_invoice_id',
+				'remainder_pending',
+				'status',
+				'total',
+				'total_pending'
+			),
+			'sort' => array(
+				'field' => 'created',
+				'order' => 'DESC'
+			)
+		);
+		$previousInvoices = $this->fetch('invoices', $previousInvoiceParameters);
+
+		if (!empty($previousInvoices['count'])) {
+			$response = $previousInvoices['data'];
+		}
+
+		return $response;
 	}
 
 /**

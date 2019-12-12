@@ -10,10 +10,10 @@
  */
 
 if (!empty($config->settings['base_path'])) {
-	require_once($config->settings['base_path'] . '/models/orders.php');
+	require_once($config->settings['base_path'] . '/models/app.php');
 }
 
-class ProxiesModel extends OrdersModel {
+class ProxiesModel extends AppModel {
 
 /**
  * Generate random proxy username:password authentication
@@ -347,16 +347,32 @@ class ProxiesModel extends OrdersModel {
 					if (!empty($product['count'])) {
 						$response['data']['product'] = $product['data'][0];
 						$mergedData['order']['quantity_pending'] = $mergedData['order']['quantity'] + $response['data']['upgrade_quantity'];
-						$mostRecentOrderInvoice = $this->_retrieveMostRecentOrderInvoice(array(
-							'id' => $orderId
-						));
-						$invoice = $this->invoice('invoices', array(
-							'conditions' => array(
-								'id' => $mostRecentOrderInvoice['id']
+						$mostRecentOrderInvoice = $this->_call('orders', array(
+							'methodName' => 'retrieveMostRecentOrderInvoice',
+							'methodParameters' => array(
+								array(
+									'id' => $orderId
+								)
 							)
 						));
-						$invoiceIds = $this->_retrieveInvoiceIds(array(
-							$invoice['data']['invoice']['id']
+						$invoice = $this->_call('invoices', array(
+							'methodName' => 'invoice',
+							'methodParameters' => array(
+								'invoices',
+								array(
+									'conditions' => array(
+										'id' => $mostRecentOrderInvoice['id']
+									)
+								)
+							)
+						));
+						$invoiceIds = $this->_call('invoices', array(
+							'methodName' => 'retrieveInvoiceIds',
+							'methodParameters' => array(
+								array(
+									$invoice['data']['invoice']['id']
+								)
+							)
 						));
 
 						if (!empty($invoice['data']['invoice'])) {
@@ -408,7 +424,13 @@ class ProxiesModel extends OrdersModel {
 										'tax_pending' => $this->_calculateItemTaxPrice($pendingItem)
 									));
 									$downgradedData['orders'][] = $downgradedData['order'];
-									$downgradedData = array_replace_recursive($downgradedData, $this->_calculateInvoicePaymentDetails($downgradedData, false));
+									$downgradedData = array_replace_recursive($downgradedData, $this->_call('invoices', array(
+										'methodName' => 'calculateInvoicePaymentDetails',
+										'methodParameters' => array(
+											$downgradedData,
+											false
+										)
+									)));
 									$response['data']['downgraded'] = $downgradedData;
 									$response['message'] = array(
 										'status' => 'success',
@@ -492,7 +514,12 @@ class ProxiesModel extends OrdersModel {
 													!empty($downgradedInvoiceOrders['count'])
 												) {
 													$downgradedInvoiceId = $downgradedInvoice['data'][0]['id'];
-													$mostRecentPayableInvoice = $this->_retrieveMostRecentPayableInvoice($invoice['data']['invoice']['id']);
+													$mostRecentPayableInvoice = $this->_call('invoices', array(
+														'methodName' => 'retrieveMostRecentPayableInvoice',
+														'methodParameters' => array(
+															$invoice['data']['invoice']['id']
+														)
+													));
 													$mostRecentPayableInvoiceId = $mostRecentPayableInvoice['id'];
 
 													foreach ($downgradedInvoiceOrders['data'] as $downgradedInvoiceOrder) {
@@ -500,7 +527,12 @@ class ProxiesModel extends OrdersModel {
 													}
 
 													if ($downgradedInvoiceOrders['count'] == 1) {
-														$transactions = $this->_retrieveInvoiceTransactions($invoice['data']['invoice']);
+														$transactions = $this->_call('invoices', array(
+															'methodName' => 'retrieveInvoiceTransactions',
+															'methodParameters' => array(
+																$invoice['data']['invoice']
+															)
+														));
 
 														if (!empty($transactions)) {
 															$pendingTransactions[] = array_replace_recursive($transactions, array_fill(0, count($transactions), array(

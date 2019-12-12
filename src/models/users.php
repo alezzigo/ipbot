@@ -54,41 +54,6 @@ class UsersModel extends AppModel {
 	}
 
 /**
- * Retrieve user data
- *
- * @param array $parameters
- *
- * @return array $response
- */
-	protected function _retrieveUser($parameters) {
-		$response = array();
-
-		if (
-			$parameters['id'] ||
-			$parameters['user_id']
-		) {
-			$user = $this->fetch('users', array(
-				'conditions' => array(
-					'id' => !empty($parameters['user_id']) ? $parameters['user_id'] : $parameters['id']
-				),
-				'fields' => array(
-					'balance',
-					'created',
-					'email',
-					'id',
-					'modified'
-				)
-			));
-
-			if (!empty($user['count'])) {
-				$response = $user['data'][0];
-			}
-		}
-
-		return $response;
-	}
-
-/**
  * Add balance to user account
  *
  * @param string $table
@@ -864,6 +829,41 @@ class UsersModel extends AppModel {
 						'text' => 'Enter a new password for ' . $existingUser['email'] . '.'
 					)
 				);
+			}
+		}
+
+		return $response;
+	}
+
+/**
+ * Retrieve user data
+ *
+ * @param array $parameters
+ *
+ * @return array $response
+ */
+	public function retrieveUser($parameters) {
+		$response = array();
+
+		if (
+			$parameters['id'] ||
+			$parameters['user_id']
+		) {
+			$user = $this->fetch('users', array(
+				'conditions' => array(
+					'id' => !empty($parameters['user_id']) ? $parameters['user_id'] : $parameters['id']
+				),
+				'fields' => array(
+					'balance',
+					'created',
+					'email',
+					'id',
+					'modified'
+				)
+			));
+
+			if (!empty($user['count'])) {
+				$response = $user['data'][0];
 			}
 		}
 

@@ -1381,7 +1381,12 @@ class InvoicesModel extends UsersModel {
 				$invoiceOrders = $this->_retrieveInvoiceOrders($invoiceData);
 				$invoiceSubscriptions = $this->_retrieveInvoiceSubscriptions($invoiceData);
 				$invoiceTransactions = $this->_retrieveInvoiceTransactions($invoiceData);
-				$invoiceUser = $this->_retrieveUser($invoiceData);
+				$invoiceUser = $this->_call('users', array(
+					'methodName' => 'retrieveUser',
+					'methodParameters' => array(
+						$invoiceData
+					)
+				));
 
 				if (!empty($invoiceData)) {
 					if (!empty($this->settings['billing'])) {

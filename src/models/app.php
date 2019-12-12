@@ -184,6 +184,42 @@ class AppModel extends Config {
 	}
 
 /**
+ * Helper method for calling model methods
+ *
+ * @param string $table
+ * @param array $parameters
+ *
+ * @return mixed $response
+ */
+	protected function _call($table, $parameters = array()) {
+		$response = false;
+		$modelName = ucwords($table . 'Model');
+		$modelPath = $this->settings['base_path'] . '/models/' . $table . '.php';
+
+		if (
+			!class_exists($modelName) &&
+			file_exists($modelPath)
+		) {
+			require_once($modelPath);
+		}
+
+		if (empty($this->$modelName)) {
+			$this->$modelName = new $modelName();
+		}
+
+		if (
+			!empty($parameters['methodName']) &&
+			method_exists($this->$modelName, $parameters['methodName'])
+		) {
+			$methodName = $parameters['methodName'];
+			$methodParameters = !empty($parameters['methodParameters']) ? $parameters['methodParameters'] : array();
+			$response = call_user_func_array(array($this->$modelName, $methodName), $methodParameters);
+		}
+
+		return $response;
+	}
+
+/**
  * Create token string from parameters and results
  *
  * @param string $table

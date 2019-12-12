@@ -10,10 +10,10 @@
  */
 
 if (!empty($config->settings['base_path'])) {
-	require_once($config->settings['base_path'] . '/models/proxies.php');
+	require_once($config->settings['base_path'] . '/models/app.php');
 }
 
-class ActionsModel extends ProxiesModel {
+class ActionsModel extends AppModel {
 
 /**
  * Shell method for processing bulk actions
@@ -89,9 +89,7 @@ class ActionsModel extends ProxiesModel {
 
 						if (
 							!empty($itemsToProcess) &&
-							($action = $parameters['action']) &&
-							($actionTable = $parameters['table']) &&
-							method_exists($this, $action)
+							($actionTable = $parameters['table'])
 						) {
 							$actionData = array(
 								array(
@@ -104,9 +102,18 @@ class ActionsModel extends ProxiesModel {
 								$itemsProcessed = array_merge($itemsProcessed, $parameters['items'][$actionTable]);
 								$completed = (count($itemsProcessed) === count($itemsToProcess));
 								$parameters['items'] = $this->_retrieveItems($parameters, true);
-								$actionResponse = $this->$action($actionTable, $parameters);
+								$actionResponse = $this->_call($actionTable, array(
+									'methodName' => $parameters['action'],
+									'methodParameters' => array(
+										$actionTable,
+										$parameters
+									)
+								));
 
-								if ($actionResponse['message']['status'] === 'success') {
+								if (
+									!empty($actionResponse) &&
+									$actionResponse['message']['status'] === 'success'
+								) {
 									$actionData = array(
 										array_merge($actionData[0], array(
 											'action_processed' => $completed,

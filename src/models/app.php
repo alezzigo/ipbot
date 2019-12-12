@@ -8,6 +8,7 @@
  * @link      https://parsonsbots.com
  * @link      https://eightomic.com
  */
+
 class AppModel extends Config {
 
 /**

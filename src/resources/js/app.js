@@ -1,5 +1,3 @@
-'use_strict';
-
 var frameName;
 var frameMethod;
 var frameSelector;

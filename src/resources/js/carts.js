@@ -1,5 +1,3 @@
-'use_strict';
-
 var cartItemGrid = {};
 var messageContainer = document.querySelector('.item-configuration .message-container');
 var processCart = function() {

@@ -1,5 +1,3 @@
-'use_strict';
-
 var defaultTable = 'proxies';
 var itemGrid = [];
 var itemGridCount = 0;

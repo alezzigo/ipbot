@@ -1,5 +1,3 @@
-'use_strict';
-
 var browserDetails = function() {
 	var browserDetails = window.clientInformation ? window.clientInformation : window.navigator;
 	var retrieveMimeTypes = function(mimeTypeObject) {

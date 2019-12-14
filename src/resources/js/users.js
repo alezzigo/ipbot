@@ -1,5 +1,3 @@
-'use_strict';
-
 var defaultTable = 'users';
 var previousAction = 'register';
 var processEmail = function() {

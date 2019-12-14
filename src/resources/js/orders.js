@@ -1,5 +1,3 @@
-'use_strict';
-
 var orderGrid = {};
 var productIdGrid = {};
 var defaultTable = 'orders';

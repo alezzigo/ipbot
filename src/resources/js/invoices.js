@@ -1,5 +1,3 @@
-'use_strict';
-
 var defaultTable = 'invoices';
 var previousAction = 'fetch';
 var processInvoice = function() {

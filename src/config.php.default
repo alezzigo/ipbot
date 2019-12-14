@@ -1,556 +1,554 @@
 <?php
+	class Config {
 
-class Config {
+		public function __construct() {
 
-	public function __construct() {
+			$keys = array(
+				'salt' => '-_-',
+				'start' => 'o_o',
+				'stop' => '._.'
+			);
 
-		$keys = array(
-			'salt' => '-_-',
-			'start' => 'o_o',
-			'stop' => '._.'
-		);
+			$rootPath = $_SERVER['DOCUMENT_ROOT'];
 
-		$rootPath = $_SERVER['DOCUMENT_ROOT'];
+			if (
+				empty($rootPath) &&
+				!empty($_SERVER['PWD']) &&
+				!empty($_SERVER['SCRIPT_FILENAME'])
+			) {
+				$rootPath = str_replace('/src/' . (array_shift(array_reverse(explode('/', $_SERVER['SCRIPT_FILENAME'])))), '', (strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['PWD']) === false ? $_SERVER['PWD'] . '/' : '') . $_SERVER['SCRIPT_FILENAME']);
+			}
 
-		if (
-			empty($rootPath) &&
-			!empty($_SERVER['PWD']) &&
-			!empty($_SERVER['SCRIPT_FILENAME'])
-		) {
-			$rootPath = str_replace('/src/' . (array_shift(array_reverse(explode('/', $_SERVER['SCRIPT_FILENAME'])))), '', (strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['PWD']) === false ? $_SERVER['PWD'] . '/' : '') . $_SERVER['SCRIPT_FILENAME']);
-		}
+			$this->rootPath = $rootPath;
 
-		$this->rootPath = $rootPath;
-
-		$this->defaultFields = $defaultFields = array(
-			'actions' => array(
-				'encoded_items_processed',
-				'encoded_items_to_process',
-				'encoded_parameters',
-				'foreign_key',
-				'foreign_value',
-				'id',
-				'request_chunks',
-				'request_processed',
-				'request_processing',
-				'request_progress',
-				'token_id',
-				'user_id'
-			),
-			'carts' => array(
-				'id',
-				'user_id'
-			),
-			'invoices' => array(
-				'currency',
-				'due',
-				'id',
-				'remainder_pending',
-				'session_id',
-				'status',
-				'user_id'
-			),
-			'orders' => array(
-				'cart_item_id',
-				'currency',
-				'id',
-				'interval_type',
-				'interval_type_pending',
-				'interval_value',
-				'interval_value_pending',
-				'merged_order_id',
-				'name',
-				'price',
-				'price_pending',
-				'product_id',
-				'quantity',
-				'quantity_active',
-				'quantity_pending',
-				'session_id',
-				'shipping',
-				'shipping_pending',
-				'status',
-				'tax',
-				'tax_pending',
-				'user_id'
-			),
-			'proxy_groups' => array(
-				'id',
-				'name',
-				'order_id',
-				'user_id'
-			),
-			'proxies' => array(
-				'asn',
-				'city',
-				'country_code',
-				'country_name',
-				'http_port',
-				'id',
-				'ip',
-				'isp',
-				'order_id',
-				'password',
-				'region',
-				'status',
-				'user_id',
-				'username',
-				'whitelisted_ips'
-			),
-			'support_tickets' => array(
-				'id',
-				'message',
-				'subject'
-			),
-			'users' => array(
-				'email',
-				'id'
-			)
-		);
-
-		$this->encode = array(
-			'proxies' => array(
-				'foreign_key' => 'order_id'
-			)
-		);
-
-		$this->groups = array(
-			'public',
-			'user',
-			'manager',
-			'administrator'
-		);
-
-		$this->keys = array(
-			'salt' => $keys['salt'],
-			'start' => $keys['salt'] . $keys['start'] . $keys['salt'],
-			'stop' => $keys['salt'] . $keys['stop'] . $keys['salt'],
-			'users' => sha1($keys['start'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['HTTP_HOST'] . $_SERVER['REMOTE_ADDRESS'])
-		);
-
-		$this->permissions = array(
-			'actions' => array(
-				'fetch' => array(
-					'fields' => array_merge($defaultFields['actions'], array(
-						'created',
-						'modified'
-					)),
-					'group' => 'user'
+			$this->defaultFields = $defaultFields = array(
+				'actions' => array(
+					'encoded_items_processed',
+					'encoded_items_to_process',
+					'encoded_parameters',
+					'foreign_key',
+					'foreign_value',
+					'id',
+					'request_chunks',
+					'request_processed',
+					'request_processing',
+					'request_progress',
+					'token_id',
+					'user_id'
+				),
+				'carts' => array(
+					'id',
+					'user_id'
+				),
+				'invoices' => array(
+					'currency',
+					'due',
+					'id',
+					'remainder_pending',
+					'session_id',
+					'status',
+					'user_id'
+				),
+				'orders' => array(
+					'cart_item_id',
+					'currency',
+					'id',
+					'interval_type',
+					'interval_type_pending',
+					'interval_value',
+					'interval_value_pending',
+					'merged_order_id',
+					'name',
+					'price',
+					'price_pending',
+					'product_id',
+					'quantity',
+					'quantity_active',
+					'quantity_pending',
+					'session_id',
+					'shipping',
+					'shipping_pending',
+					'status',
+					'tax',
+					'tax_pending',
+					'user_id'
+				),
+				'proxy_groups' => array(
+					'id',
+					'name',
+					'order_id',
+					'user_id'
+				),
+				'proxies' => array(
+					'asn',
+					'city',
+					'country_code',
+					'country_name',
+					'http_port',
+					'id',
+					'ip',
+					'isp',
+					'order_id',
+					'password',
+					'region',
+					'status',
+					'user_id',
+					'username',
+					'whitelisted_ips'
+				),
+				'support_tickets' => array(
+					'id',
+					'message',
+					'subject'
+				),
+				'users' => array(
+					'email',
+					'id'
 				)
-			),
-			'carts' => array(
-				'cart' => array(
-					'fields' => array_merge($defaultFields['carts'], array(
-						'created',
-						'modified'
-					))
-				),
-				'complete' => array(
-					'fields' => array()
+			);
+
+			$this->encode = array(
+				'proxies' => array(
+					'foreign_key' => 'order_id'
 				)
-			),
-			'invoices' => array(
-				'cancel' => array(
-					'fields' => array_merge($defaultFields['invoices']),
-					'group' => 'user'
+			);
+
+			$this->groups = array(
+				'public',
+				'user',
+				'manager',
+				'administrator'
+			);
+
+			$this->keys = array(
+				'salt' => $keys['salt'],
+				'start' => $keys['salt'] . $keys['start'] . $keys['salt'],
+				'stop' => $keys['salt'] . $keys['stop'] . $keys['salt'],
+				'users' => sha1($keys['start'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['HTTP_HOST'] . $_SERVER['REMOTE_ADDRESS'])
+			);
+
+			$this->permissions = array(
+				'actions' => array(
+					'fetch' => array(
+						'fields' => array_merge($defaultFields['actions'], array(
+							'created',
+							'modified'
+						)),
+						'group' => 'user'
+					)
 				),
-				'fetch' => array(
-					'fields' => array_merge($defaultFields['invoices'], array(
-						'created',
-						'modified'
-					)),
-					'group' => 'user'
-				),
-				'invoice' => array(
-					'fields' => array_merge($defaultFields['invoices'], array(
-						'created',
-						'modified'
-					)),
-					'group' => 'user'
-				),
-				'list' => array(
-					'fields' => array(),
-					'group' => 'user'
-				),
-				'view' => array(
-					'fields' => $defaultFields['invoices']
-				)
-			),
-			'orders' => array(
-				'endpoint' => array(
-					'fields' => $defaultFields['orders']
-				),
-				'fetch' => array(
-					'fields' => array_merge($defaultFields['orders'], array(
-						'created',
-						'modified'
-					)),
-					'group' => 'user'
-				),
-				'list' => array(
-					'fields' => array(),
-					'group' => 'user'
-				),
-				'upgrade' => array(
-					'fields' => $defaultFields['orders'],
-					'group' => 'user'
-				),
-				'view' => array(
-					'fields' => $defaultFields['orders'],
-					'group' => 'user'
-				)
-			),
-			'proxy_groups' => array(
-				'fetch' => array(
-					'fields' => array_merge($defaultFields['proxy_groups'], array(
-						'created',
-						'modified'
-					)),
-					'group' => 'user'
-				),
-				'group' => array(
-					'fields' => $defaultFields['proxy_groups'],
-					'group' => 'user'
-				)
-			),
-			'proxies' => array(
-				'authenticate' => array(
-					'fields' => $defaultFields['proxies'],
-					'group' => 'user'
-				),
-				'copy' => array(
-					'fields' => array(
-						'http_port',
-						'ip',
-						'password',
-						'socks_port',
-						'user_id',
-						'username'
+				'carts' => array(
+					'cart' => array(
+						'fields' => array_merge($defaultFields['carts'], array(
+							'created',
+							'modified'
+						))
 					),
-					'group' => 'user'
+					'complete' => array(
+						'fields' => array()
+					)
 				),
-				'downgrade' => array(
-					'fields' => $defaultFields['orders'],
-					'group' => 'user'
-				),
-				'fetch' => array(
-					'fields' => array_merge($defaultFields['proxies'], array(
-						'created',
-						'modified',
-						'next_replacement_available',
-						'replacement_removal_date',
-						'status'
-					)),
-					'group' => 'user'
-				),
-				'group' => array(
-					'fields' => array(
-						'user_id'
+				'invoices' => array(
+					'cancel' => array(
+						'fields' => array_merge($defaultFields['invoices']),
+						'group' => 'user'
 					),
-					'group' => 'user'
+					'fetch' => array(
+						'fields' => array_merge($defaultFields['invoices'], array(
+							'created',
+							'modified'
+						)),
+						'group' => 'user'
+					),
+					'invoice' => array(
+						'fields' => array_merge($defaultFields['invoices'], array(
+							'created',
+							'modified'
+						)),
+						'group' => 'user'
+					),
+					'list' => array(
+						'fields' => array(),
+						'group' => 'user'
+					),
+					'view' => array(
+						'fields' => $defaultFields['invoices']
+					)
 				),
-				'list' => array(
-					'fields' => array()
+				'orders' => array(
+					'endpoint' => array(
+						'fields' => $defaultFields['orders']
+					),
+					'fetch' => array(
+						'fields' => array_merge($defaultFields['orders'], array(
+							'created',
+							'modified'
+						)),
+						'group' => 'user'
+					),
+					'list' => array(
+						'fields' => array(),
+						'group' => 'user'
+					),
+					'upgrade' => array(
+						'fields' => $defaultFields['orders'],
+						'group' => 'user'
+					),
+					'view' => array(
+						'fields' => $defaultFields['orders'],
+						'group' => 'user'
+					)
 				),
-				'replace' => array(
-					'fields' => $defaultFields['proxies'],
-					'group' => 'user'
+				'proxy_groups' => array(
+					'fetch' => array(
+						'fields' => array_merge($defaultFields['proxy_groups'], array(
+							'created',
+							'modified'
+						)),
+						'group' => 'user'
+					),
+					'group' => array(
+						'fields' => $defaultFields['proxy_groups'],
+						'group' => 'user'
+					)
 				),
-				'search' => array(
-					'fields' => $defaultFields['proxies'],
-					'group' => 'user'
-				)
-			),
-			'support_tickets' => array(
-				'list' => array(
-					'fields' => array(),
-					'group' => false
-				),
-				'view' => array(
-					'fields' => $defaultFields['support_tickets'],
-					'group' => false
-				)
-			),
-			'transactions' => array(
-				'payment' => array(
-					'fields' => array()
-				)
-			),
-			'users' => array(
-				'balance' => array(
-					'fields' => $defaultFields['users']
-				),
-				'cancel' => array(
-					'fields' => $defaultFields['users']
-				),
-				'email' => array(
-					'fields' => $defaultFields['users']
-				),
-				'forgot' => array(
-					'fields' => $defaultFields['users']
-				),
-				'login' => array(
-					'fields' => $defaultFields['users']
-				),
-				'logout' => array(
-					'fields' => array()
-				),
-				'register' => array(
-					'fields' => $defaultFields['users']
-				),
-				'remove' => array(
-					'fields' => $defaultFields['users']
-				),
-				'reset' => array(
-					'fields' => $defaultFields['users']
-				),
-				'view' => array(
-					'fields' => $defaultFields['users'],
-					'group' => 'user'
-				)
-			)
-		);
-
-		$this->proxyConfigurations = array(
-			'http' => array(
-				'static' => array(
-					'eightomic' => array(),
-					'squid' => array(
-						'configuration' => array(
-							'include /etc/squid3/proxy_ip_acl.conf',
-							'[ports]',
-							'access_log none',
-							'balance_on_multiple_ip off',
-							'cache deny all',
-							'cache_mem 256 MB',
-							'cache_log /dev/null',
-							'cache_replacement_policy heap LFUDA',
-							'cache_swap_high 2',
-							'cache_swap_low 1',
-							'chunked_request_body_max_size 0',
-							'client_db off',
-							'client_lifetime 2 seconds',
-							'client_persistent_connections off',
-							'connect_timeout 2 seconds',
-							'dns_nameservers [dns_ips]',
-							'dns_retransmit_interval 2 seconds',
-							'dns_timeout 2 seconds',
-							'dns_v4_first on',
-							'error_directory /usr/share/squid3/errors/English',
-							'forward_max_tries 2',
-							'forward_timeout 2 seconds',
-							'half_closed_clients off',
-							'logfile_rotate 0',
-							'log_icp_queries off',
-							'maximum_object_size 0 MB',
-							'maximum_object_size_in_memory 0 KB',
-							'max_open_disk_fds 0',
-							'memory_cache_shared off',
-							'memory_pools off',
-							'memory_replacement_policy heap LFUDA',
-							'netdb_filename none',
-							'persistent_connection_after_error off',
-							'[pid]',
-							'quick_abort_max 0 KB',
-							'quick_abort_min 0 KB',
-							'range_offset_limit 0',
-							'read_timeout 2 seconds',
-							'request_timeout 2 seconds',
-							'server_persistent_connections off',
-							'shutdown_lifetime 8 seconds',
-							'vary_ignore_expire on',
-							'write_timeout 2 seconds'
+				'proxies' => array(
+					'authenticate' => array(
+						'fields' => $defaultFields['proxies'],
+						'group' => 'user'
+					),
+					'copy' => array(
+						'fields' => array(
+							'http_port',
+							'ip',
+							'password',
+							'socks_port',
+							'user_id',
+							'username'
 						),
-						'ports' => array(
-							'80',
-							'8888'
-						)
+						'group' => 'user'
+					),
+					'downgrade' => array(
+						'fields' => $defaultFields['orders'],
+						'group' => 'user'
+					),
+					'fetch' => array(
+						'fields' => array_merge($defaultFields['proxies'], array(
+							'created',
+							'modified',
+							'next_replacement_available',
+							'replacement_removal_date',
+							'status'
+						)),
+						'group' => 'user'
+					),
+					'group' => array(
+						'fields' => array(
+							'user_id'
+						),
+						'group' => 'user'
+					),
+					'list' => array(
+						'fields' => array()
+					),
+					'replace' => array(
+						'fields' => $defaultFields['proxies'],
+						'group' => 'user'
+					),
+					'search' => array(
+						'fields' => $defaultFields['proxies'],
+						'group' => 'user'
+					)
+				),
+				'support_tickets' => array(
+					'list' => array(
+						'fields' => array(),
+						'group' => false
+					),
+					'view' => array(
+						'fields' => $defaultFields['support_tickets'],
+						'group' => false
+					)
+				),
+				'transactions' => array(
+					'payment' => array(
+						'fields' => array()
+					)
+				),
+				'users' => array(
+					'balance' => array(
+						'fields' => $defaultFields['users']
+					),
+					'cancel' => array(
+						'fields' => $defaultFields['users']
+					),
+					'email' => array(
+						'fields' => $defaultFields['users']
+					),
+					'forgot' => array(
+						'fields' => $defaultFields['users']
+					),
+					'login' => array(
+						'fields' => $defaultFields['users']
+					),
+					'logout' => array(
+						'fields' => array()
+					),
+					'register' => array(
+						'fields' => $defaultFields['users']
+					),
+					'remove' => array(
+						'fields' => $defaultFields['users']
+					),
+					'reset' => array(
+						'fields' => $defaultFields['users']
+					),
+					'view' => array(
+						'fields' => $defaultFields['users'],
+						'group' => 'user'
 					)
 				)
-			),
-			'socks' => array(
-				'dynamic' => array(),
-				'static' => array()
-			)
-		);
+			);
 
-		$this->serverConfigurations = array(
-			'linux' => array(
-				'static' => array(
-					'fs.file-max = 2097152',
-					'fs.suid_dumpable = 0',
-					'kernel.core_uses_pid = 1',
-					'kernel.hung_task_timeout_secs = 2',
-					'kernel.kptr_restrict = 2',
-					'kernel.msgmax = 65535',
-					'kernel.msgmnb = 65535',
-					'kernel.printk = 7 7 7 7',
-					'kernel.sem = 404 256000 64 2048',
-					'kernel.shmall = 2684000',
-					'kernel.shmmax = 2684000',
-					'kernel.sysrq = 0',
-					'net.core.default_qdisc = fq',
-					'net.core.dev_weight = 100000',
-					'net.core.netdev_max_backlog = 2621000',
-					'net.core.optmem_max = 251658240',
-					'net.core.rmem_default = 31457280',
-					'net.core.rmem_max = 671088640',
-					'net.core.somaxconn = 65535',
-					'net.core.wmem_default = 31457280',
-					'net.core.wmem_max = 671088640',
-					'net.ipv4.conf.all.accept_redirects = 0',
-					'net.ipv4.conf.all.accept_source_route = 0',
-					'net.ipv4.conf.all.arp_ignore = 1',
-					'net.ipv4.conf.all.bootp_relay = 0',
-					'net.ipv4.conf.all.forwarding = 0',
-					'net.ipv4.conf.all.rp_filter = 1',
-					'net.ipv4.conf.all.secure_redirects = 0',
-					'net.ipv4.conf.all.send_redirects = 0',
-					'net.ipv4.conf.all.log_martians = 0',
-					'net.ipv4.icmp_echo_ignore_all = 0',
-					'net.ipv4.icmp_echo_ignore_broadcasts = 0',
-					'net.ipv4.icmp_ignore_bogus_error_responses = 1',
-					'net.ipv4.ip_forward = 0',
-					'net.ipv4.ip_local_port_range = 1024 65000',
-					'net.ipv4.ipfrag_high_thresh = 41943040',
-					'net.ipv4.ipfrag_low_thresh = 31457280',
-					'net.ipv4.neigh.default.gc_interval = 50',
-					'net.ipv4.neigh.default.gc_stale_time = 10',
-					'net.ipv4.neigh.default.gc_thresh1 = 32',
-					'net.ipv4.neigh.default.gc_thresh2 = 1024',
-					'net.ipv4.neigh.default.gc_thresh3 = 2048',
-					'net.ipv4.netfilter.ip_conntrack_tcp_timeout_time_wait = 2',
-					'net.ipv4.route.gc_timeout = 2',
-					'net.ipv4.tcp_adv_win_scale = 2',
-					'net.ipv4.tcp_congestion_control = htcp',
-					'net.ipv4.tcp_fastopen = 2',
-					'net.ipv4.tcp_fin_timeout = 2',
-					'net.ipv4.tcp_keepalive_intvl = 2',
-					'net.ipv4.tcp_keepalive_probes = 2',
-					'net.ipv4.tcp_keepalive_time = 2',
-					'net.ipv4.tcp_low_latency = 1',
-					'net.ipv4.tcp_max_orphans = 88888',
-					'net.ipv4.tcp_max_syn_backlog = 888888',
-					'net.ipv4.tcp_max_tw_buckets = 144000000',
-					'net.ipv4.tcp_mem = 5555555555 5555555555 5555555555',
-					'net.ipv4.tcp_moderate_rcvbuf = 1',
-					'net.ipv4.tcp_no_metrics_save = 1',
-					'net.ipv4.tcp_orphan_retries = 0',
-					'net.ipv4.tcp_retries2 = 1',
-					'net.ipv4.tcp_rfc1337 = 0',
-					'net.ipv4.tcp_rmem = 5555555555 5555555555 5555555555',
-					'net.ipv4.tcp_sack = 0',
-					'net.ipv4.tcp_slow_start_after_idle = 0',
-					'net.ipv4.tcp_syn_retries = 2',
-					'net.ipv4.tcp_synack_retries = 2',
-					'net.ipv4.tcp_syncookies = 1',
-					'net.ipv4.tcp_thin_linear_timeouts = 1',
-					'net.ipv4.tcp_timestamps = 1',
-					'net.ipv4.tcp_tw_recycle = 0',
-					'net.ipv4.tcp_tw_reuse = 0',
-					'net.ipv4.tcp_window_scaling = 1',
-					'net.ipv4.tcp_wmem = 5555555555 5555555555 5555555555',
-					'net.ipv4.udp_rmem_min = 16384',
-					'net.ipv4.udp_mem = 65536 131072 262144',
-					'net.ipv4.udp_wmem_min = 16384',
-					'net.netfilter.nf_conntrack_max = 196608',
-					'net.netfilter.nf_conntrack_tcp_loose = 0',
-					'net.netfilter.nf_conntrack_tcp_timeout_close = 8',
-					'net.netfilter.nf_conntrack_tcp_timeout_close_wait = 8',
-					'net.netfilter.nf_conntrack_tcp_timeout_established = 8',
-					'net.netfilter.nf_conntrack_tcp_timeout_fin_wait = 8',
-					'net.netfilter.nf_conntrack_tcp_timeout_last_ack = 8',
-					'net.netfilter.nf_conntrack_tcp_timeout_syn_recv = 8',
-					'net.netfilter.nf_conntrack_tcp_timeout_syn_sent = 8',
-					'net.netfilter.nf_conntrack_tcp_timeout_time_wait = 8',
-					'net.nf_conntrack_max = 1966080',
-					'net.ipv6.conf.all.accept_redirects = 0',
-					'net.ipv6.conf.all.accept_source_route = 0',
-					'net.ipv6.conf.all.disable_ipv6 = 0',
-					'net.ipv6.conf.all.forwarding = 0',
-					'net.ipv6.ip6frag_high_thresh = 41943004',
-					'net.ipv6.ip6frag_low_thresh = 31457280',
-					'sunrpc.tcp_fin_timeout = 2',
-					'vm.dirty_background_ratio = 8',
-					'vm.dirty_expire_centisecs = 8',
-					'vm.dirty_ratio = 8',
-					'vm.dirty_writeback_centisecs = 8',
-					'vm.mmap_min_addr = 4096',
-					'vm.overcommit_ratio = 51',
-					'vm.overcommit_memory = 0',
-					'vm.swappiness = 100'
-				)
-			)
-		);
-
-		$this->settings = array(
-			'base_domain' => 'proxies.eightomic.com',
-			'base_path' => $rootPath . '/src',
-			'base_url' => '/',
-			'billing' => array(
-				'address_1' => '',
-				'address_2' => '',
-				'city' => '',
-				'company' => '',
-				'country_code' => 'US',
-				'country_name' => '',
-				'currency' => 'USD',
-				'merchant_ids' => array(
-					'credit_card' => '',
-					'paypal' => ''
+			$this->proxyConfigurations = array(
+				'http' => array(
+					'static' => array(
+						'eightomic' => array(),
+						'squid' => array(
+							'configuration' => array(
+								'include /etc/squid3/proxy_ip_acl.conf',
+								'[ports]',
+								'access_log none',
+								'balance_on_multiple_ip off',
+								'cache deny all',
+								'cache_mem 256 MB',
+								'cache_log /dev/null',
+								'cache_replacement_policy heap LFUDA',
+								'cache_swap_high 2',
+								'cache_swap_low 1',
+								'chunked_request_body_max_size 0',
+								'client_db off',
+								'client_lifetime 2 seconds',
+								'client_persistent_connections off',
+								'connect_timeout 2 seconds',
+								'dns_nameservers [dns_ips]',
+								'dns_retransmit_interval 2 seconds',
+								'dns_timeout 2 seconds',
+								'dns_v4_first on',
+								'error_directory /usr/share/squid3/errors/English',
+								'forward_max_tries 2',
+								'forward_timeout 2 seconds',
+								'half_closed_clients off',
+								'logfile_rotate 0',
+								'log_icp_queries off',
+								'maximum_object_size 0 MB',
+								'maximum_object_size_in_memory 0 KB',
+								'max_open_disk_fds 0',
+								'memory_cache_shared off',
+								'memory_pools off',
+								'memory_replacement_policy heap LFUDA',
+								'netdb_filename none',
+								'persistent_connection_after_error off',
+								'[pid]',
+								'quick_abort_max 0 KB',
+								'quick_abort_min 0 KB',
+								'range_offset_limit 0',
+								'read_timeout 2 seconds',
+								'request_timeout 2 seconds',
+								'server_persistent_connections off',
+								'shutdown_lifetime 8 seconds',
+								'vary_ignore_expire on',
+								'write_timeout 2 seconds'
+							),
+							'ports' => array(
+								'80',
+								'8888'
+							)
+						)
+					)
 				),
-				'region' => '',
-				'zip' => ''
-			),
-			'database' => array(
-				'charset' => 'utf8',
-				'hostname' => '127.0.0.1',
-				'name' => 'proxies',
-				'password' => 'password',
-				'type' => 'mysql',
-				'username' => 'root'
-			),
-			'from_email' => 'email@localhost',
-			'google_site_verification' => '',
-			'open_unallocated_proxies' => false,
-			'session_cookies' => array(
-				'enabled' => true,
-				'lifetime' => 8888888888
-			),
-			'site_name' => 'Proxies',
-			'timezone' => array(
-				'display' => 'PDT',
-				'identifier' => 'America/Los_Angeles',
-			)
-		);
+				'socks' => array(
+					'dynamic' => array(),
+					'static' => array()
+				)
+			);
+
+			$this->serverConfigurations = array(
+				'linux' => array(
+					'static' => array(
+						'fs.file-max = 2097152',
+						'fs.suid_dumpable = 0',
+						'kernel.core_uses_pid = 1',
+						'kernel.hung_task_timeout_secs = 2',
+						'kernel.kptr_restrict = 2',
+						'kernel.msgmax = 65535',
+						'kernel.msgmnb = 65535',
+						'kernel.printk = 7 7 7 7',
+						'kernel.sem = 404 256000 64 2048',
+						'kernel.shmall = 2684000',
+						'kernel.shmmax = 2684000',
+						'kernel.sysrq = 0',
+						'net.core.default_qdisc = fq',
+						'net.core.dev_weight = 100000',
+						'net.core.netdev_max_backlog = 2621000',
+						'net.core.optmem_max = 251658240',
+						'net.core.rmem_default = 31457280',
+						'net.core.rmem_max = 671088640',
+						'net.core.somaxconn = 65535',
+						'net.core.wmem_default = 31457280',
+						'net.core.wmem_max = 671088640',
+						'net.ipv4.conf.all.accept_redirects = 0',
+						'net.ipv4.conf.all.accept_source_route = 0',
+						'net.ipv4.conf.all.arp_ignore = 1',
+						'net.ipv4.conf.all.bootp_relay = 0',
+						'net.ipv4.conf.all.forwarding = 0',
+						'net.ipv4.conf.all.rp_filter = 1',
+						'net.ipv4.conf.all.secure_redirects = 0',
+						'net.ipv4.conf.all.send_redirects = 0',
+						'net.ipv4.conf.all.log_martians = 0',
+						'net.ipv4.icmp_echo_ignore_all = 0',
+						'net.ipv4.icmp_echo_ignore_broadcasts = 0',
+						'net.ipv4.icmp_ignore_bogus_error_responses = 1',
+						'net.ipv4.ip_forward = 0',
+						'net.ipv4.ip_local_port_range = 1024 65000',
+						'net.ipv4.ipfrag_high_thresh = 41943040',
+						'net.ipv4.ipfrag_low_thresh = 31457280',
+						'net.ipv4.neigh.default.gc_interval = 50',
+						'net.ipv4.neigh.default.gc_stale_time = 10',
+						'net.ipv4.neigh.default.gc_thresh1 = 32',
+						'net.ipv4.neigh.default.gc_thresh2 = 1024',
+						'net.ipv4.neigh.default.gc_thresh3 = 2048',
+						'net.ipv4.netfilter.ip_conntrack_tcp_timeout_time_wait = 2',
+						'net.ipv4.route.gc_timeout = 2',
+						'net.ipv4.tcp_adv_win_scale = 2',
+						'net.ipv4.tcp_congestion_control = htcp',
+						'net.ipv4.tcp_fastopen = 2',
+						'net.ipv4.tcp_fin_timeout = 2',
+						'net.ipv4.tcp_keepalive_intvl = 2',
+						'net.ipv4.tcp_keepalive_probes = 2',
+						'net.ipv4.tcp_keepalive_time = 2',
+						'net.ipv4.tcp_low_latency = 1',
+						'net.ipv4.tcp_max_orphans = 88888',
+						'net.ipv4.tcp_max_syn_backlog = 888888',
+						'net.ipv4.tcp_max_tw_buckets = 144000000',
+						'net.ipv4.tcp_mem = 5555555555 5555555555 5555555555',
+						'net.ipv4.tcp_moderate_rcvbuf = 1',
+						'net.ipv4.tcp_no_metrics_save = 1',
+						'net.ipv4.tcp_orphan_retries = 0',
+						'net.ipv4.tcp_retries2 = 1',
+						'net.ipv4.tcp_rfc1337 = 0',
+						'net.ipv4.tcp_rmem = 5555555555 5555555555 5555555555',
+						'net.ipv4.tcp_sack = 0',
+						'net.ipv4.tcp_slow_start_after_idle = 0',
+						'net.ipv4.tcp_syn_retries = 2',
+						'net.ipv4.tcp_synack_retries = 2',
+						'net.ipv4.tcp_syncookies = 1',
+						'net.ipv4.tcp_thin_linear_timeouts = 1',
+						'net.ipv4.tcp_timestamps = 1',
+						'net.ipv4.tcp_tw_recycle = 0',
+						'net.ipv4.tcp_tw_reuse = 0',
+						'net.ipv4.tcp_window_scaling = 1',
+						'net.ipv4.tcp_wmem = 5555555555 5555555555 5555555555',
+						'net.ipv4.udp_rmem_min = 16384',
+						'net.ipv4.udp_mem = 65536 131072 262144',
+						'net.ipv4.udp_wmem_min = 16384',
+						'net.netfilter.nf_conntrack_max = 196608',
+						'net.netfilter.nf_conntrack_tcp_loose = 0',
+						'net.netfilter.nf_conntrack_tcp_timeout_close = 8',
+						'net.netfilter.nf_conntrack_tcp_timeout_close_wait = 8',
+						'net.netfilter.nf_conntrack_tcp_timeout_established = 8',
+						'net.netfilter.nf_conntrack_tcp_timeout_fin_wait = 8',
+						'net.netfilter.nf_conntrack_tcp_timeout_last_ack = 8',
+						'net.netfilter.nf_conntrack_tcp_timeout_syn_recv = 8',
+						'net.netfilter.nf_conntrack_tcp_timeout_syn_sent = 8',
+						'net.netfilter.nf_conntrack_tcp_timeout_time_wait = 8',
+						'net.nf_conntrack_max = 1966080',
+						'net.ipv6.conf.all.accept_redirects = 0',
+						'net.ipv6.conf.all.accept_source_route = 0',
+						'net.ipv6.conf.all.disable_ipv6 = 0',
+						'net.ipv6.conf.all.forwarding = 0',
+						'net.ipv6.ip6frag_high_thresh = 41943004',
+						'net.ipv6.ip6frag_low_thresh = 31457280',
+						'sunrpc.tcp_fin_timeout = 2',
+						'vm.dirty_background_ratio = 8',
+						'vm.dirty_expire_centisecs = 8',
+						'vm.dirty_ratio = 8',
+						'vm.dirty_writeback_centisecs = 8',
+						'vm.mmap_min_addr = 4096',
+						'vm.overcommit_ratio = 51',
+						'vm.overcommit_memory = 0',
+						'vm.swappiness = 100'
+					)
+				)
+			);
+
+			$this->settings = array(
+				'base_domain' => 'proxies.eightomic.com',
+				'base_path' => $rootPath . '/src',
+				'base_url' => '/',
+				'billing' => array(
+					'address_1' => '',
+					'address_2' => '',
+					'city' => '',
+					'company' => '',
+					'country_code' => 'US',
+					'country_name' => '',
+					'currency' => 'USD',
+					'merchant_ids' => array(
+						'credit_card' => '',
+						'paypal' => ''
+					),
+					'region' => '',
+					'zip' => ''
+				),
+				'database' => array(
+					'charset' => 'utf8',
+					'hostname' => '127.0.0.1',
+					'name' => 'proxies',
+					'password' => 'password',
+					'type' => 'mysql',
+					'username' => 'root'
+				),
+				'from_email' => 'email@localhost',
+				'google_site_verification' => '',
+				'open_unallocated_proxies' => false,
+				'session_cookies' => array(
+					'enabled' => true,
+					'lifetime' => 8888888888
+				),
+				'site_name' => 'Proxies',
+				'timezone' => array(
+					'display' => 'PDT',
+					'identifier' => 'America/Los_Angeles',
+				)
+			);
+
+		}
+
+	/**
+	 * Redirect helper method
+	 *
+	 * @param string $redirect Redirect URL
+	 * @param string $responseCode HTTP response code
+	 *
+	 * @return exit
+	 */
+		public function redirect($redirect, $responseCode = 301) {
+			header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+			header('Cache-Control: post-check=0, pre-check=0', false);
+			header('Pragma: no-cache');
+			header('Location: ' . $redirect, false, $responseCode);
+			exit;
+		}
 
 	}
 
-/**
- * Redirect helper method
- *
- * @param string $redirect Redirect URL
- * @param string $responseCode HTTP response code
- *
- * @return exit
- */
-	public function redirect($redirect, $responseCode = 301) {
-		header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-		header('Cache-Control: post-check=0, pre-check=0', false);
-		header('Pragma: no-cache');
-		header('Location: ' . $redirect, false, $responseCode);
-		exit;
+	$config = new Config();
+
+	if (
+		!empty($config->settings['timezone']['identifier']) &&
+		is_string($config->settings['timezone']['identifier'])
+	) {
+		date_default_timezone_set($config->settings['timezone']['identifier']);
 	}
-
-}
-
-$config = new Config();
-
-if (
-	!empty($config->settings['timezone']['identifier']) &&
-	is_string($config->settings['timezone']['identifier'])
-) {
-	date_default_timezone_set($config->settings['timezone']['identifier']);
-}
-
 ?>

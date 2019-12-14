@@ -1,5 +1,3 @@
-'use_strict';
-
 var defaultTable = 'support_tickets';
 var previousAction = 'fetch';
 var processSupportTicket = function() {

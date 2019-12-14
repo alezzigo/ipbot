@@ -141,7 +141,13 @@ var processInvoice = function() {
 				});
 			}
 
-			if (response.data.invoice.billing) {
+			if (
+				response.data.invoice.billing &&
+				response.data.invoice.billing.address_1 &&
+				response.data.invoice.billing.company &&
+				response.data.invoice.billing.country_code &&
+				response.data.invoice.billing.zip
+			) {
 				invoiceData += '<h2>Invoiced From</h2>';
 				invoiceData += '<p><strong>' + response.data.invoice.billing.company + '</strong><br>' + response.data.invoice.billing.address_1 + '<br>' + response.data.invoice.billing.address_2 + '<br>' + response.data.invoice.billing.city + ', ' + response.data.invoice.billing.region + ' ' + response.data.invoice.billing.zip + ' ' + response.data.invoice.billing.country_code + '</p>';
 			}

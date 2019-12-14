@@ -114,7 +114,7 @@
 				<h2>Unmetered Bandwidth</h2>
 				<p>Go crazy with unlimited and unmetered data transfer without worrying about bandwidth fees or hidden overage costs.</p>
 				<h2>High Thread Limits</h2>
-				<p>Eightomic Proxies are configured for virtually unlimited threads and guaranteed to allow enough simultaneous connections for any use case.</p>
+				<p>All allocated proxies can handle virtually unlimited threads and are guaranteed to allow enough simultaneous connections for any use case.</p>
 				<h2>Open-source Control Panel</h2>
 				<p>The control panel for managing your list of proxy servers is completely custom-built. You can <a href="<?php echo $config->settings['base_url']; ?>contact" target="_blank">request new features</a> or just <a href="https://github.com/parsonsbots/proxies" target="_blank">build them yourself</a>.</p>
 				<h2>Large IP Address Reserve</h2>

@@ -1,13 +1,4 @@
 <?php
-/**
- * Actions Model
- *
- * @author    Will Parsons parsonsbots@gmail.com
- * @copyright 2019 Will Parsons
- * @license   https://github.com/parsonsbots/proxies/blob/master/LICENSE MIT License
- * @link      https://parsonsbots.com
- * @link      https://eightomic.com
- */
 
 if (!empty($config->settings['base_path'])) {
 	require_once($config->settings['base_path'] . '/models/app.php');
@@ -155,3 +146,5 @@ class ActionsModel extends AppModel {
 	}
 
 }
+
+?>

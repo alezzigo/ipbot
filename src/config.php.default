@@ -313,7 +313,6 @@
 			$this->proxyConfigurations = array(
 				'http' => array(
 					'static' => array(
-						'eightomic' => array(),
 						'squid' => array(
 							'configuration' => array(
 								'include /etc/squid3/proxy_ip_acl.conf',
@@ -483,7 +482,7 @@
 			);
 
 			$this->settings = array(
-				'base_domain' => 'proxies.eightomic.com',
+				'base_domain' => 'proxies.parsonsbots.com',
 				'base_path' => $rootPath . '/src',
 				'base_url' => '/',
 				'billing' => array(

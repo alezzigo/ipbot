@@ -2065,7 +2065,7 @@ class TransactionsModel extends AppModel {
 
 		if (
 			!empty($parameters['transaction_method']) &&
-			strlen($parameters['transaction_method']) > 1 &&
+			is_string($parameters['transaction_method']) &&
 			method_exists($this, ($method = '_processTransaction' . $parameters['transaction_method']))
 		) {
 			$user = $this->fetch('users', array(

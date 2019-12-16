@@ -156,7 +156,7 @@ var selectAllElements = function(selector) {
 	var response = [];
 
 	if (nodeList.length) {
-		response = Object.entries(document.querySelectorAll(selector));
+		response = Object.entries(nodeList);
 	}
 
 	return response;

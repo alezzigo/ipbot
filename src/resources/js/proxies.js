@@ -492,7 +492,7 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 			var itemGridLineIndex = index - (key * itemGridLineSizeMaximum);
 
 			if (typeof itemState === 'boolean') {
-				itemGrid[key] = replaceCharacter(itemGrid[key], itemGridLineIndex, +itemState);
+				itemGrid[key] = itemGrid[key].substr(0, itemGridLineIndex) + +itemState + itemGrid[key].substr(itemGridLineIndex + Math.max(1, ('' + +itemState).length))
 			}
 
 			itemGrid[key] = itemGrid[key].split("");

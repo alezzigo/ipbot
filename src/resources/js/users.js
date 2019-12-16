@@ -2,7 +2,7 @@ var defaultTable = 'users';
 var previousAction = 'register';
 var processEmail = function() {
 	processUser();
-	var hash = replaceCharacter(window.location.search, 0, '');
+	var hash = window.location.search.substr(1);
 
 	if (hash) {
 		requestParameters.data['token'] = hash;
@@ -67,7 +67,7 @@ var processRemove = function() {
 	});
 };
 var processReset = function() {
-	var hash = replaceCharacter(window.location.search, 0, '');
+	var hash = window.location.search.substr(1);
 	requestParameters.action = 'reset';
 	requestParameters.data['token'] = hash;
 	requestParameters.table = 'users';

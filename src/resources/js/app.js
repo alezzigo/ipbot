@@ -137,7 +137,7 @@ onLoad(function() {
 	}
 
 	if (window.location.hash) {
-		frameName = replaceCharacter(window.location.hash, 0, '').toLowerCase();
+		frameName = window.location.hash.substr(1).toLowerCase();
 		frameSelector = '.frame-container[frame="' + frameName + '"]';
 
 		if (document.querySelector(frameSelector)) {

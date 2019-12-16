@@ -120,7 +120,7 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue = 1) {
 	requestParameters.data.products = productIdGrid;
 	requestParameters.data.upgrade_quantity = upgradeValue;
 	requestParameters.url = requestParameters.settings.base_url + 'api/orders';
-	var orderId = parseInt(replaceCharacter(window.location.search, 0, ''));
+	var orderId = parseInt(window.location.search.substr(1));
 	var upgradeContainer = document.querySelector('.upgrade-container');
 	var upgradeData = '';
 

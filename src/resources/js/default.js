@@ -143,9 +143,6 @@ var repeat = function(count, pattern) {
 
 	return response + (count < 1 ? '' : pattern);
 };
-var replaceCharacter = function(string, index, character) {
-	return string.substr(0, index) + character + string.substr(index + Math.max(1, ('' + character).length));
-};
 var requestParameters = {
 	data: {},
 	items: {},

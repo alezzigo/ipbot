@@ -515,7 +515,7 @@
 					'enabled' => true,
 					'lifetime' => 8888888888
 				),
-				'site_name' => 'Proxies',
+				'site_name' => 'IPBot',
 				'timezone' => array(
 					'display' => 'PDT',
 					'identifier' => 'America/Los_Angeles',

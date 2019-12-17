@@ -29,14 +29,6 @@
 			'text' => 'Home'
 		),
 		array(
-			'href' => $config->settings['base_url'] . 'static-proxies',
-			'text' => 'Buy Proxies'
-		),
-		array(
-			'href' => $config->settings['base_url'] . 'about',
-			'text' => 'About'
-		),
-		array(
 			'href' => $config->settings['base_url'] . 'features',
 			'text' => 'Features'
 		),

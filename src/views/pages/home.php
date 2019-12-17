@@ -8,20 +8,17 @@
 	<div class="section">
 		<div class="container small">
 			<div class="feature-container">
-				<h1>Premium Proxy Services</h1>
-				<p>Power your web crawlers and applications through a premium proxy network and <a href="https://github.com/parsonsbots/proxies" target="_blank">open-source</a> proxy <a href="<?php echo $config->settings['base_url']; ?>features">control panel</a>.</p>
+				<h1>Start Your Own Proxy Network</h1>
+				<p>Deploy IPBot to automate your company's IPv4 and IPv6 proxy server management tasks with a free <a href="https://github.com/parsonsbots/proxies" target="_blank">open-source</a> control panel and API.</p>
 				<div class="align-left feature-buttons">
-					<a class="button main-button" href="<?php echo $config->settings['base_url']; ?>static-proxies">Get Started</a>
-					<a class="button alternate-button" href="<?php echo $config->settings['base_url']; ?>about">Learn More</a>
+					<a class="button main-button" href="<?php echo $config->settings['base_url']; ?>contact">Try a Free Demo</a>
+					<a class="button alternate-button" href="<?php echo $config->settings['base_url']; ?>contact">Learn More</a>
 				</div>
 				<div class="clear"></div>
 				<div class="feature-screenshot">
 					<img alt="Proxy control panel screenshot" class="no-margin-bottom" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/control-panel.png">
 				</div>
 			</div>
-			<h2 class="no-margin-top">Static Proxy IPs</h2>
-			<p>Buy proxies with static proxy IPs, high-end performance, private authenticated access, HTTP and HTTPS support, <a href="https://github.com/parsonsbots/dynamic-proxy-node-reconfiguration/blob/master/dynamic_reconfiguration.php" target="_blank">fast speeds</a> and unmetered data transfer.</p>
-			<a href="<?php echo $config->settings['base_url']; ?>static-proxies">Buy Static Proxies</a>
 		</div>
 	</div>
 </main>

@@ -84,11 +84,6 @@
 			'url' => '/orders/[id]'
 		),
 		array(
-			'file' => $config->settings['base_path'] . '/views/pages/about.php',
-			'title' => 'About',
-			'url' => '/about'
-		),
-		array(
 			'file' => $config->settings['base_path'] . '/views/pages/contact.php',
 			'title' => 'Contact',
 			'url' => '/contact'

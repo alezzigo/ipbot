@@ -2,8 +2,8 @@
 	<div class="container small">
 		<div class="align-left navigation primary-navigation">
 			<div class="align-left">
-				<p>Copyright <?php echo date('Y'); ?> <a href="https://parsonsbots.com" target="_blank">Will S. Parsons</a>.</p>
-				<p class="legal"><a href="<?php echo $config->settings['base_url']; ?>terms">Terms</a> <a href="<?php echo $config->settings['base_url']; ?>privacy">Privacy</a> <a href="<?php echo $config->settings['base_url']; ?>refunds">Refunds</a></p>
+				<p>Copyright <a href="https://parsonsbots.com" target="_blank">Will S. Parsons</a>. All rights reserved.</p>
+				<p class="legal"><a href="<?php echo $config->settings['base_url']; ?>terms">Terms</a> <a href="<?php echo $config->settings['base_url']; ?>privacy">Privacy</a></p>
 			</div>
 		</div>
 	</div>

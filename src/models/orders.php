@@ -566,10 +566,10 @@
 										'payment_amount' => $amountMerged,
 										'payment_currency' => $this->settings['billing']['currency'],
 										'payment_status' => 'completed',
+										'processed' => true,
 										'transaction_charset' => $this->settings['database']['charset'],
 										'transaction_date' => date('Y-m-d H:i:s', time()),
 										'transaction_method' => 'Miscellaneous',
-										'transaction_processed' => true,
 										'user_id' => $parameters['user']['id']
 									);
 
@@ -675,10 +675,10 @@
 														'payment_currency' => $this->settings['billing']['currency'],
 														'payment_status' => 'completed',
 														'payment_status_message' => 'Order merged to new invoice.',
+														'processed' => true,
 														'transaction_charset' => $this->settings['database']['charset'],
 														'transaction_date' => date('Y-m-d H:i:s', time()),
 														'transaction_method' => 'Miscellaneous',
-														'transaction_processed' => true,
 														'user_id' => $parameters['user']['id']
 													);
 												}
@@ -786,10 +786,10 @@
 											'payment_amount' => null,
 											'payment_currency' => $this->settings['billing']['currency'],
 											'payment_status' => 'completed',
+											'processed' => true,
 											'transaction_charset' => $this->settings['database']['charset'],
 											'transaction_date' => date('Y-m-d H:i:s', time()),
 											'transaction_method' => 'Miscellaneous',
-											'transaction_processed' => true,
 											'user_id' => $parameters['user']['id']
 										);
 										$userData = array(
@@ -903,10 +903,10 @@
 															'payment_currency' => $this->settings['billing']['currency'],
 															'payment_status' => 'completed',
 															'payment_status_message' => 'Amount added to account balance.',
+															'processed' => true,
 															'transaction_charset' => $this->settings['database']['charset'],
 															'transaction_date' => date('Y-m-d H:i:s', strtotime('+1 second')),
 															'transaction_method' => 'Miscellaneous',
-															'transaction_processed' => true,
 															'user_id' => $parameters['user']['id']
 														)
 													);

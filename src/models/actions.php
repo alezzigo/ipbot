@@ -22,24 +22,24 @@
 			$actionParameters = array(
 				'conditions' => array(
 					'AND' => array(
-						'action_processed' => false,
+						'processed' => false,
 						'OR' => array(
 							'AND' => array(
-								'action_processing' => true,
+								'processing' => true,
 								'modified >' => date('Y-m-d H:i:s', strtotime('-10 minutes'))
 							)
 						)
 					)
 				),
 				'fields' => array(
-					'action_chunks',
-					'action_progress',
+					'chunks',
 					'encoded_items_processed',
 					'encoded_items_to_process',
 					'encoded_parameters',
 					'foreign_key',
 					'foreign_value',
 					'id',
+					'progress',
 					'token_id',
 					'user_id'
 				),
@@ -52,9 +52,9 @@
 
 			if (empty($actionsProcessing['count'])) {
 				$actionParameters['conditions']['AND']['OR'] = array(
-					'action_processing' => false,
+					'processing' => false,
 					'AND' => array(
-						'action_processing' => true,
+						'processing' => true,
 						'modified <' => date('Y-m-d H:i:s', strtotime('-10 minutes'))
 					)
 				);
@@ -66,7 +66,7 @@
 
 					foreach ($actionsToProcess['data'] as $actionToProcess) {
 						$actionData[] = array(
-							'action_processing' => true,
+							'processing' => true,
 							'id ' => $actionToProcess['id']
 						);
 					}
@@ -106,19 +106,19 @@
 									) {
 										$actionData = array(
 											array_merge($actionData[0], array(
-												'action_processed' => $completed,
-												'action_processing' => false,
-												'action_progress' => ($completed ? 100 : min(100, $actionToProcess['action_progress'] + (ceil(100 / $actionToProcess['action_chunks'])))),
-												'encoded_items_processed' => json_encode($itemsProcessed)
+												'encoded_items_processed' => json_encode($itemsProcessed),
+												'processed' => $completed,
+												'processing' => false,
+												'progress' => ($completed ? 100 : min(100, $actionToProcess['progress'] + (ceil(100 / $actionToProcess['chunks']))))
 											))
 										);
 									}
 								} else {
 									$actionData = array(
 										array_merge($actionData[0], array(
-											'action_processed' => true,
-											'action_processing' => false,
-											'action_progress' => ($completed ? 100 : min(100, $actionToProcess['action_progress'] + (ceil(100 / $actionToProcess['action_chunks']))))
+											'progress' => ($completed ? 100 : min(100, $actionToProcess['progress'] + (ceil(100 / $actionToProcess['chunks'])))),
+											'processed' => true,
+											'processing' => false
 										))
 									);
 								}

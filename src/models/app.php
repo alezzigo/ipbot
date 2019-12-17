@@ -479,10 +479,10 @@
 					$actionsProcessing = $this->fetch('actions', array(
 						'conditions' => array(
 							'AND' => array(
-								'action_processed' => false,
+								'processed' => false,
 								'OR' => array(
 									'AND' => array(
-										'action_processing' => true,
+										'processing' => true,
 										'modified >' => date('Y-m-d H:i:s', strtotime('-10 minutes'))
 									)
 								)
@@ -508,13 +508,13 @@
 						$parametersToEncode['item_count'] = $items[$table]['count'];
 						$actionData = array(
 							array(
-								'action_chunks' => $itemIndexLineCount,
-								'action_processed' => false,
-								'action_progress' => 0,
+								'chunks' => $itemIndexLineCount,
 								'encoded_items_to_process' => json_encode($items[$table]['data']),
 								'encoded_parameters' => json_encode($parametersToEncode),
 								'foreign_key' => $foreignKey,
 								'foreign_value' => $foreignValue,
+								'processed' => false,
+								'progress' => 0,
 								'token_id' => $token['id'],
 								'user_id' => $parameters['user']['id']
 							)
@@ -523,8 +523,8 @@
 						if ($itemIndexLineCount === 1) {
 							$parameters['items'] = $this->_retrieveItems($parameters, true);
 							$actionData[0] = array_merge($actionData[0], array(
-								'action_processed' => true,
-								'action_progress' => 100
+								'processed' => true,
+								'progress' => 100
 							));
 						}
 
@@ -968,19 +968,19 @@
 			$response = false;
 			$actionData = $this->fetch('actions', array(
 				'conditions' => array(
-					'action_processed' => false,
 					'foreign_key' => $foreignKey,
-					'foreign_value' => $foreignValue
+					'foreign_value' => $foreignValue,
+					'processed' => false
 				),
 				'fields' => array(
-					'action_chunks',
-					'action_progress',
+					'chunks',
 					'encoded_items_processed',
 					'encoded_items_to_process',
 					'encoded_parameters',
 					'foreign_key',
 					'foreign_value',
 					'id',
+					'progress',
 					'token_id'
 				),
 				'limit' => 1

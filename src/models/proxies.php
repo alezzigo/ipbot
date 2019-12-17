@@ -714,10 +714,10 @@
 															'payment_currency' => $this->settings['billing']['currency'],
 															'payment_status' => 'completed',
 															'payment_status_message' => 'Order downgrade requested.',
+															'processed' => true,
 															'transaction_charset' => $this->settings['database']['charset'],
 															'transaction_date' => date('Y-m-d H:i:s', strtotime('+1 second')),
 															'transaction_method' => 'Miscellaneous',
-															'transaction_processed' => true,
 															'user_id' => $parameters['user']['id']
 														);
 														$userData = array(
@@ -1368,7 +1368,7 @@
 			);
 			$orders = $this->fetch('orders', array(
 				'conditions' => array(
-					'order_processing' => false,
+					'processing' => false,
 					'quantity_allocated_progress <' => 100
 				),
 				'fields' => array(

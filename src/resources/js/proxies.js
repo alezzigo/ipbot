@@ -33,7 +33,7 @@ var processActions = function(frameName, frameSelector) {
 				actionData += '<p><strong>Request to ' + actionParameters.action + ' ' + actionParameters.item_count + ' ' + actionParameters.table + '</strong></p>';
 				actionData += '<p>Started at ' + action.created + ' ' + requestParameters.settings.timezone.display + '</p>';
 				actionData += '<p>Finished at ' + action.modified + ' ' + requestParameters.settings.timezone.display + '</p>';
-				actionData += '<label class="label ' + (action.action_progress === 100 ? 'active' : 'inactive') + '">' + (action.action_progress === 100 ? 'Completed' : 'Interrupted') + ' at ' + action.action_progress + '%</label>';
+				actionData += '<label class="label ' + (action.progress === 100 ? 'active' : 'inactive') + '">' + (action.progress === 100 ? 'Completed' : 'Interrupted') + ' at ' + action.progress + '%</label>';
 				actionData += '</div>';
 				actionData += '</div>';
 			});
@@ -636,8 +636,8 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 			var processActionProgress = function(response) {
 				var previousAction = requestParameters.action;
 				var previousOffset = requestParameters.offset;
-				var actionProgress = (response.processing ? response.processing.action_progress : 0);
-				var actionProcessed = (response.processing ? response.processing.action_processed : false);
+				var actionProgress = (response.processing ? response.processing.progress : 0);
+				var actionProcessed = (response.processing ? response.processing.processed : false);
 				elements.html('.progress-text', actionProgress + '%');
 				elements.setAttribute('.progress', 'style', 'width: ' + actionProgress + '%');
 

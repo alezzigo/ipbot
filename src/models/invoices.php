@@ -814,10 +814,10 @@
 									'payment_currency' => $this->settings['billing']['currency'],
 									'payment_status' => 'completed',
 									'payment_status_message' => 'Order upgrade request cancelled.',
+									'processed' => true,
 									'transaction_charset' => $this->settings['database']['charset'],
 									'transaction_date' => date('Y-m-d H:i:s', time()),
 									'transaction_method' => 'Miscellaneous',
-									'transaction_processed' => true,
 									'user_id' => $parameters['user']['id']
 								);
 
@@ -1198,8 +1198,8 @@
 			$invoiceTransactions = $this->fetch('transactions', array(
 				'conditions' => array(
 					'invoice_id' => $invoiceData['id'],
-					'transaction_processed' => true,
-					'transaction_processing' => false,
+					'processed' => true,
+					'processing' => false,
 					'NOT' => array(
 						'transaction_method' => 'PaymentRefunded'
 					)
@@ -1238,6 +1238,8 @@
 					'payment_tax_amount',
 					'payment_transaction_id',
 					'plan_id',
+					'processed',
+					'processing',
 					'provider_country_code',
 					'provider_email',
 					'provider_id',
@@ -1245,8 +1247,6 @@
 					'transaction_charset',
 					'transaction_date',
 					'transaction_method',
-					'transaction_processed',
-					'transaction_processing',
 					'transaction_raw',
 					'transaction_token',
 					'user_id'

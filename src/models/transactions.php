@@ -163,10 +163,10 @@
 					'payment_status_message' => 'Payment successful.',
 					'payment_transaction_id' => uniqid() . time(),
 					'plan_id' => $parameters['data']['plan']['id'],
+					'processed' => true,
 					'transaction_charset' => $this->settings['database']['charset'],
 					'transaction_date' => date('Y-m-d H:i:s', time()),
 					'transaction_method' => 'PaymentCompleted',
-					'transaction_processed' => true,
 					'user_id' => $parameters['user']['id']
 				)
 			);
@@ -299,10 +299,10 @@
 			$transactionsToProcess = $this->fetch('transactions', array(
 				'conditions' => array(
 					'AND' => array(
-						'transaction_processed' => false,
+						'processed' => false,
 						'OR' => array(
 							'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute')),
-							'transaction_processing' => false
+							'processing' => false
 						)
 					)
 				),
@@ -336,6 +336,8 @@
 					'payment_tax_amount',
 					'payment_transaction_id',
 					'plan_id',
+					'processed',
+					'processing',
 					'provider_country_code',
 					'provider_email',
 					'provider_id',
@@ -343,8 +345,6 @@
 					'transaction_charset',
 					'transaction_date',
 					'transaction_method',
-					'transaction_processed',
-					'transaction_processing',
 					'transaction_raw',
 					'transaction_token',
 					'user_id'
@@ -362,7 +362,7 @@
 				foreach ($transactionsToProcess['data'] as $transaction) {
 					$transactions[] = array(
 						'id' => $transaction['id'],
-						'transaction_processing' => true
+						'processing' => true
 					);
 				}
 
@@ -372,8 +372,8 @@
 					foreach($transactionsToProcess['data'] as $transaction) {
 						$processed = $this->processTransaction($transaction);
 						$processedTransactions[] = array(
-							'transaction_processed' => $processed,
-							'transaction_processing' => !$processed
+							'processed' => $processed,
+							'processing' => !$processed
 						);
 					}
 
@@ -898,9 +898,9 @@
 							$balanceTransactions = $this->fetch('transactions', array(
 								'conditions' => array(
 									'payment_method_id' => 'balance',
+									'processed' => true,
+									'processing' => false,
 									'transaction_method' => 'PaymentCompleted',
-									'transaction_processed' => true,
-									'transaction_processing' => false,
 									'user_id' => $parameters['user']['id'],
 									'NOT' => array(
 										'invoice_id' => $processedInvoiceIds
@@ -1021,10 +1021,10 @@
 								'payment_status_message' => 'Payment refunded.',
 								'payment_transaction_id' => $parameters['payment_transaction_id'],
 								'plan_id' => $parameters['plan_id'],
+								'processed' => true,
 								'transaction_charset' => $this->settings['database']['charset'],
 								'transaction_date' => date('Y-m-d H:i:s', time()),
 								'transaction_method' => 'PaymentRefundProcessed',
-								'transaction_processed' => true,
 								'user_id' => $parameters['user']['id']
 							);
 						}

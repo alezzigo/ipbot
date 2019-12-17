@@ -23,16 +23,16 @@
 
 			$this->defaultFields = $defaultFields = array(
 				'actions' => array(
+					'chunks',
 					'encoded_items_processed',
 					'encoded_items_to_process',
 					'encoded_parameters',
 					'foreign_key',
 					'foreign_value',
 					'id',
-					'request_chunks',
-					'request_processed',
-					'request_processing',
-					'request_progress',
+					'processed',
+					'processing',
+					'progress',
 					'token_id',
 					'user_id'
 				),

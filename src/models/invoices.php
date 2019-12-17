@@ -1165,6 +1165,7 @@
 						'product_id',
 						'quantity',
 						'quantity_active',
+						'quantity_allocated',
 						'quantity_pending',
 						'session_id',
 						'shipping',

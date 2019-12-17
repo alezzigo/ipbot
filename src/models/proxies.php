@@ -36,7 +36,128 @@
 	 */
 		public function allocateProxies($orderData) {
 			$response = 0;
-			// ..
+			$quantity = min(10000, max(0, $orderData['quantity'] - $orderData['quantity_allocated']));
+
+			if ($quantity) {
+				$orderProcessingData = array(
+					array(
+						'id' => $orderData['id'],
+						'order_processing' => true
+					)
+				);
+
+				if ($this->save('orders', $orderProcessingData)) {
+					$processingNodes = $this->fetch('nodes', array(
+						'conditions' => array(
+							'AND' => array(
+								'allocated' => false,
+								'ip_version' => $orderData['ip_version'],
+								'NOT' => array(
+									'ip' => null
+								),
+								'OR' => array(
+									'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute')),
+									'processing' => false
+								)
+							)
+						),
+						'fields' => array(
+							'asn',
+							'city',
+							'country_code',
+							'country_name',
+							'id',
+							'ip',
+							'isp',
+							'region'
+						),
+						'limit' => $quantity,
+						'sort' => 'random'
+					));
+
+					if ($processingNodesCount = count($processingNodes['data'])) {
+						$newItemData = array(
+							'order_id' => $orderData['id'],
+							'status' => 'online',
+							'user_id' => $orderData['user_id']
+						);
+						$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, $processingNodesCount, array(
+							'processing' => true
+						)));
+
+						if ($this->save('nodes', $processingNodes['data'])) {
+							$allocatedNodes = array();
+
+							foreach ($processingNodes['data'] as $processingNodeKey => $row) {
+								$allocatedNodes[] = array(
+									'allocated' => true,
+									'id' => ($processingNodes['data'][$processingNodeKey]['node_id'] = $row['id']),
+									'processing' => false
+								);
+								$processingNodes['data'][$processingNodeKey] += $newItemData;
+								unset($processingNodes['data'][$processingNodeKey]['id']);
+								unset($processingNodes['data'][$processingNodeKey]['processing']);
+							}
+
+							if (
+								$this->save('nodes', $allocatedNodes) &&
+								$this->save('proxies', $processingNodes['data'])
+							) {
+								$orderProgressData = array(
+									array(
+										'id' => $orderData['id'],
+										'order_processing' => false,
+										'quantity_active' => $orderData['quantity_active'] + $processingNodesCount,
+										'quantity_allocated' => ($quantityAllocated = $orderData['quantity_allocated'] + $processingNodesCount),
+										'quantity_allocated_progress' => ceil(($quantityAllocated / $orderData['quantity']) * 100)
+									)
+								);
+
+								if ($this->save('orders', $orderProgressData)) {
+									$orderData = array_merge($orderData, $orderProgressData[0]);
+
+									if ($orderData['quantity_allocated_progress'] == 100) {
+										$mailParameters = array(
+											'from' => $this->settings['from_email'],
+											'subject' => 'Order #' . $orderData['id'] . ' is activated',
+											'template' => array(
+												'name' => 'order_activated',
+												'parameters' => array(
+													'order' => $orderData,
+													'user' => $this->_call('users', array(
+														'methodName' => 'retrieveUser',
+														'methodParameters' => array(
+															$orderData
+														)
+													))
+												)
+											),
+											'to' => $parameters['user']['email']
+										);
+
+										if ($action = $orderData['previous_action']) {
+											$mailParameters = array_replace_recursive($mailParameters, array(
+												'subject' => 'Order #' . $orderData['id'] . ' is ' . $action . 'd',
+												'template' => array(
+													'name' => 'order_changed'
+												)
+											));
+										}
+
+										$this->_sendMail($mailParameters);
+									}
+
+									$response = $quantityAllocated;
+								}
+							}
+						}
+					}
+
+					$orderProcessingData[0]['order_processing'] = false;
+					$this->save('orders', $orderProcessingData);
+				}
+			}
+
 			return $response;
 		}
 

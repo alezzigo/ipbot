@@ -522,143 +522,75 @@
 									($quantity = $order['quantity'])
 								)
 							) {
-								$processingNodes = $this->fetch('nodes', array(
-									'conditions' => array(
-										'AND' => array(
-											'allocated' => false,
-											'ip_version' => $order['ip_version'],
-											'OR' => array(
-												'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute')),
-												'processing' => false
-											)
-										)
-									),
-									'fields' => array(
-										'asn',
-										'city',
-										'country_code',
-										'country_name',
-										'id',
-										'ip',
-										'isp',
-										'region'
-									),
-									'limit' => $quantity,
-									'sort' => 'random'
+								$quantity = (!empty($order['quantity_pending']) ? $order['quantity_pending'] : $order['quantity']);
+								$orderData = array(
+									array(
+										'currency' => $order['currency'],
+										'id' => $order['id'],
+										'interval_type' => (!empty($order['interval_type_pending']) ? $order['interval_type_pending'] : $order['interval_type']),
+										'interval_type_pending' => null,
+										'interval_value' => (!empty($order['interval_value_pending']) ? $order['interval_value_pending'] : $order['interval_value']),
+										'interval_value_pending' => null,
+										'ip_version' => $order['ip_version'],
+										'previous_action' => null,
+										'price' => ($price = (!empty($order['price_pending']) ? $order['price_pending'] : $order['price'])),
+										'price_active' => min($order['price_active'] + $parameters['payment_amount'], $price),
+										'price_pending' => null,
+										'quantity' => $quantity,
+										'quantity_active' => $order['quantity_active'],
+										'quantity_allocated' => $order['quantity_allocated'],
+										'quantity_pending' => null,
+										'shipping' => (!empty($order['shipping_pending']) ? $order['shipping_pending'] : $order['shipping']),
+										'shipping_pending' => null,
+										'status' => 'active',
+										'tax' => (!empty($order['tax_pending']) ? $order['tax_pending'] : $order['tax']),
+										'tax_pending' => null,
+										'user_id' => $order['user_id']
+									)
+								);
+								$invoice['data']['orders'][$orderKey] = array_merge($invoice['data']['orders'][$orderKey], $orderData[0]);
+								$invoiceItemData[] = array_merge(array_intersect_key($orderData[0], array(
+									'currency' => true,
+									'interval_type' => true,
+									'interval_value' => true,
+									'price' => true,
+									'quantity' => true
+								)), array(
+									'invoice_id' => $invoiceData[0]['id'],
+									'order_id' => $order['id'],
+									'name' => $order['name']
 								));
 
-								if (
-									!empty($processingNodes['count']) &&
-									count($processingNodes['data']) === $quantity
-								) {
-									$newItemData = array(
-										'order_id' => $order['id'],
-										'status' => 'online',
-										'user_id' => $order['user_id']
+								if (is_numeric($order['quantity_pending'])) {
+									$action = $orderData[0]['previous_action'] = ($order['quantity_pending'] > $order['quantity_active'] ? 'upgrade' : 'downgrade');
+									$pendingTransactions[] = array(
+										'customer_email' => $parameters['user']['email'],
+										'details' => 'Order ' . $action . ' successful for order <a href="' . $this->settings['base_url'] . 'orders/' . $order['id'] . '">#' . $order['id'] . '</a>.<br>' . $order['quantity'] . ' ' . $order['name'] . ' to ' . $order['quantity_pending'] . ' ' . $order['name'] . '<br>' . number_format($order['price'], 2, '.', '') . ' ' . $order['currency'] . ' for ' . $order['interval_value'] . ' ' . $order['interval_type'] . ($order['interval_value'] !== 1 ? 's' : '') . ' to ' . number_format($order['price_pending'], 2, '.', '') . ' ' . $order['currency'] . ' for ' . $order['interval_value_pending'] . ' ' . $order['interval_type_pending'] . ($order['interval_value_pending'] !== 1 ? 's' : ''),
+										'id' => uniqid() . time(),
+										'initial_invoice_id' => $invoiceData[0]['id'],
+										'invoice_id' => $invoiceData[0]['id'],
+										'payment_amount' => 0,
+										'payment_currency' => $this->settings['billing']['currency'],
+										'payment_status' => 'completed',
+										'payment_status_message' => 'Order ' . $action . ' successful.',
+										'transaction_charset' => $this->settings['database']['charset'],
+										'transaction_date' => date('Y-m-d H:i:s', strtotime('+1 second')),
+										'transaction_method' => 'PaymentCompleted',
+										'transaction_processed' => true,
+										'user_id' => $parameters['user']['id']
 									);
-									$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, $quantity, array(
-										'processing' => true
-									)));
-									$quantity = (!empty($order['quantity_pending']) ? $order['quantity_pending'] : $order['quantity']);
+								}
 
-									if ($this->save('nodes', $processingNodes['data'])) {
-										foreach ($processingNodes['data'] as $processingNodeKey => $row) {
-											$allocatedNodes[] = array(
-												'allocated' => true,
-												'id' => ($processingNodes['data'][$processingNodeKey]['node_id'] = $row['id']),
-												'processing' => false
-											);
-											$processingNodes['data'][$processingNodeKey] += $newItemData;
-											unset($processingNodes['data'][$processingNodeKey]['id']);
-											unset($processingNodes['data'][$processingNodeKey]['processing']);
-										}
-
-										$orderData = array(
-											array(
-												'currency' => $order['currency'],
-												'id' => $order['id'],
-												'interval_type' => (!empty($order['interval_type_pending']) ? $order['interval_type_pending'] : $order['interval_type']),
-												'interval_type_pending' => null,
-												'interval_value' => (!empty($order['interval_value_pending']) ? $order['interval_value_pending'] : $order['interval_value']),
-												'interval_value_pending' => null,
-												'price' => ($price = (!empty($order['price_pending']) ? $order['price_pending'] : $order['price'])),
-												'price_active' => min($order['price_active'] + $parameters['payment_amount'], $price),
-												'price_pending' => null,
-												'quantity' => $quantity,
-												'quantity_active' => $quantity,
-												'quantity_pending' => null,
-												'shipping' => (!empty($order['shipping_pending']) ? $order['shipping_pending'] : $order['shipping']),
-												'shipping_pending' => null,
-												'status' => 'active',
-												'tax' => (!empty($order['tax_pending']) ? $order['tax_pending'] : $order['tax']),
-												'tax_pending' => null
-											)
-										);
-										$invoice['data']['orders'][$orderKey] = array_merge($invoice['data']['orders'][$orderKey], $orderData[0]);
-										$invoiceItemData[] = array_merge(array_intersect_key($orderData[0], array(
-											'currency' => true,
-											'interval_type' => true,
-											'interval_value' => true,
-											'price' => true,
-											'quantity' => true
-										)), array(
-											'invoice_id' => $invoiceData[0]['id'],
-											'order_id' => $order['id'],
-											'name' => $order['name']
-										));
-
-										if (
-											$this->save('nodes', $allocatedNodes) &&
-											$this->save('orders', $orderData) &&
-											$this->save('proxies', $processingNodes['data'])
-										) {
-											$mailParameters = array(
-												'from' => $this->settings['from_email'],
-												'subject' => 'Order #' . $order['id'] . ' is activated',
-												'template' => array(
-													'name' => 'order_activated',
-													'parameters' => array(
-														'invoice' => $invoiceData[0],
-														'order' => $order,
-														'user' => $parameters['user']
-													)
-												),
-												'to' => $parameters['user']['email']
-											);
-
-											if (is_numeric($order['quantity_pending'])) {
-												$action = $order['quantity_pending'] > $order['quantity_active'] ? 'upgrade' : 'downgrade';
-												$mailParameters = array_replace_recursive($mailParameters, array(
-													'subject' => 'Order #' . $order['id'] . ' is ' . $action . 'd',
-													'template' => array(
-														'name' => 'order_' . $action . 'd'
-													)
-												));
-												$pendingTransactions[] = $transactionToProcess = array(
-													'customer_email' => $parameters['user']['email'],
-													'details' => 'Order ' . $action . ' successful for order <a href="' . $this->settings['base_url'] . 'orders/' . $order['id'] . '">#' . $order['id'] . '</a>.<br>' . $order['quantity'] . ' ' . $order['name'] . ' to ' . $order['quantity_pending'] . ' ' . $order['name'] . '<br>' . number_format($order['price'], 2, '.', '') . ' ' . $order['currency'] . ' for ' . $order['interval_value'] . ' ' . $order['interval_type'] . ($order['interval_value'] !== 1 ? 's' : '') . ' to ' . number_format($order['price_pending'], 2, '.', '') . ' ' . $order['currency'] . ' for ' . $order['interval_value_pending'] . ' ' . $order['interval_type_pending'] . ($order['interval_value_pending'] !== 1 ? 's' : ''),
-													'id' => uniqid() . time(),
-													'initial_invoice_id' => $invoiceData[0]['id'],
-													'invoice_id' => $invoiceData[0]['id'],
-													'payment_amount' => 0,
-													'payment_currency' => $this->settings['billing']['currency'],
-													'payment_status' => 'completed',
-													'payment_status_message' => 'Order ' . $action . ' successful.',
-													'transaction_charset' => $this->settings['database']['charset'],
-													'transaction_date' => date('Y-m-d H:i:s', strtotime('+1 second')),
-													'transaction_method' => 'PaymentCompleted',
-													'transaction_processed' => true,
-													'user_id' => $parameters['user']['id']
-												);
-
-												if ($this->save('transactions', $pendingTransactions)) {
-													$this->processTransaction($transactionToProcess);
-												}
-											}
-
-											$this->_sendMail($mailParameters);
-										}
-									}
+								if (
+									$this->save('orders', $orderData) &&
+									$this->save('transactions', $pendingTransactions)
+								) {
+									$this->_call('proxies', array(
+										'methodName' => 'allocateProxies',
+										'methodParameters' => array(
+											$orderData[0]
+										)
+									));
 								}
 							}
 						}

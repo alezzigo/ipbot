@@ -482,7 +482,7 @@
 			);
 
 			$this->settings = array(
-				'base_domain' => 'proxies.parsonsbots.com',
+				'base_domain' => 'ipbot.com',
 				'base_path' => $rootPath . '/src',
 				'base_url' => '/',
 				'billing' => array(

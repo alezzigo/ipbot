@@ -28,6 +28,19 @@
 		}
 
 	/**
+	 * Allocate proxies to an order
+	 *
+	 * @param array $orderData
+	 *
+	 * @return integer $response
+	 */
+		public function allocateProxies($orderData) {
+			$response = 0;
+			// ..
+			return $response;
+		}
+
+	/**
 	 * Process authenticate requests
 	 *
 	 * @param string $table
@@ -1213,6 +1226,58 @@
 				)
 			));
 			return $response;
+		}
+
+	/**
+	 * Shell method for allocating proxies
+	 *
+	 * @param string $table
+	 *
+	 * @return array $response
+	 */
+		public function shellAllocateProxies($table) {
+			$response = array(
+				'message' => array(
+					'status' => 'error',
+					'text' => 'There aren\'t any new ' . $table . ' to allocate, please try again later.'
+				)
+			);
+			$orders = $this->fetch('orders', array(
+				'conditions' => array(
+					'order_processing' => false,
+					'quantity_allocated_progress <' => 100
+				),
+				'fields' => array(
+					'id',
+					'interval_type',
+					'interval_value',
+					'ip_version',
+					'name',
+					'previous_action',
+					'price',
+					'price_pending',
+					'quantity',
+					'quantity_active',
+					'quantity_allocated',
+					'quantity_allocated_progress',
+					'quantity_pending',
+					'user_id'
+				)
+			));
+			$proxyCount = 0;
+
+			if (!empty($orders['count'])) {
+				foreach ($orders['data'] as $order) {
+					$proxyCount += $this->allocateProxies($order);
+				}
+
+				$response = array(
+					'message' => array(
+						'status' => 'success',
+						'text' => $proxyCount . ' new ' . $table . ' allocated successfully for ' . $orders['count'] . ' orders.'
+					)
+				);
+			}
 		}
 
 	/**

@@ -1142,6 +1142,9 @@
 							'conditions' => array(
 								'AND' => array(
 									'allocated' => false,
+									'NOT' => array(
+										'ip' => null
+									),
 									'OR' => array(
 										'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute')),
 										'processing' => false
@@ -1163,11 +1166,11 @@
 						);
 
 						if (!empty($location)) {
-							$processingNodeParameters['conditions']['AND'] += array_combine(array(
+							$processingNodeParameters['conditions']['AND'] += array_filter(array_combine(array(
 								'city',
 								'country_code',
 								'region'
-							), $location);
+							), $location));
 						}
 
 						$processingNodes = $this->fetch('nodes', $processingNodeParameters);
@@ -1549,6 +1552,9 @@
 								'conditions' => array(
 									'AND' => array(
 										'allocated' => false,
+										'NOT' => array(
+											'ip' => null
+										),
 										'OR' => array(
 											'modified <' => date('Y-m-d H:i:s', strtotime('-1 minute')),
 											'processing' => false

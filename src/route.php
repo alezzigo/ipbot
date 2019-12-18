@@ -142,7 +142,7 @@
 		$routes['files'][$key] = $route['file'];
 		$routes['headers'][$key] = !empty($route['headers']) ? $route['headers'] : array();
 		$routes['parts'][$key] = array_filter(explode('/', $route['url']));
-		$routes['titles'][$key] = (!empty($route['title']) ? $route['title'] : false) . (!empty($config->settings['site_name']) ? ' | ' . $config->settings['site_name'] : false);
+		$routes['titles'][$key] = (!empty($config->settings['site_name']) ? $config->settings['site_name'] . ' | ' : false) . (!empty($route['title']) ? $route['title'] : false);
 		$routes['urls'][$key] = $route['url'];
 		unset($routes[$key]);
 		unset($route);

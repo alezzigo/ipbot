@@ -18,16 +18,16 @@ body,
 html,
 pre {
 	background: #fff;
-	color: #8986ae;
+	color: #888;
 	font-family: helvetica, serif !important;
 	font-size: 14px;
 	line-height: 27px;
 	text-rendering: optimizeSpeed !important;
 }
 pre {
-	background: #f3f3fd;
-	border-left: 2px solid #dddbf4;
-	color: #8986ae;
+	background: #f4f4f4;
+	border-left: 2px solid #ccc;
+	color: #888;
 	font-size: 12px;
 	font-weight: 600;
 	line-height: 18px;
@@ -59,14 +59,14 @@ h3,
 h4,
 h5,
 h6 {
-	color: #7773e3;
+	color: #444;
 	font-weight: 100;
 }
 a,
 a:active,
 a:focus,
 a:visited {
-	color: #7773e3;
+	color: #444;
 	font-weight: 600;
 	text-decoration: none;
 }
@@ -83,7 +83,7 @@ h1 {
 		text-transform: capitalize;
 	}
 h2 {
-	border-bottom: 1px solid #dddbf4;
+	border-bottom: 1px solid #ddd;
 	font-size: 17px;
 	font-weight: 400;
 	margin-bottom: 16px;
@@ -114,9 +114,9 @@ select {
 	appearance: none;
 	background: url('../images/icons/icon-select-arrow.png') #fff right center no-repeat;
 	background-size: auto 100% !important;
-	border: 1px solid #dddbf4;
+	border: 1px solid #ddd;
 	border-radius: 0;
-	color: #8986ae;
+	color: #888;
 	cursor: pointer;
 	display: block;
 	font-size: 14px;
@@ -134,17 +134,18 @@ select {
 		width: 0;
 	}
 	select:hover {
-		border-color: #7773e3;
+		border-color: #444;
+		color: #444;
 	}
 	select[disabled]:hover {
-		border-color: #dddbf4;
+		border-color: #ddd;
 	}
 [disabled] {
 	cursor: default !important;
 	opacity: 0.50;
 }
 ::placeholder {
-	color: #c9c7e6;
+	color: #ccc;
 }
 footer,
 header {
@@ -155,7 +156,7 @@ header {
 	width: 100%;
 }
 	.navigation .logo {
-		color: #2a2473;
+		color: #888;
 		line-height: 42px;
 	}
 	.navigation p {
@@ -181,11 +182,11 @@ header {
 						margin-left: 0;
 					}
 					.navigation nav ul li a.active {
-						border-bottom: 2px solid #7773e3;
-						margin-bottom: -2px;
+						border-bottom: 1px solid #444;
+						margin-bottom: -1px;
 					}
 footer .navigation {
-	border-top: 1px solid #dddbf4;
+	border-top: 1px solid #ddd;
 	margin-bottom: 88px;
 }
 	footer .navigation p {
@@ -201,7 +202,7 @@ footer .navigation {
 			margin-right: 7px;
 		}
 header .navigation {
-	border-bottom: 1px solid #dddbf4;
+	border-bottom: 1px solid #ddd;
 }
 main {
 	display: block;
@@ -254,7 +255,7 @@ main {
 		}
 	.field-group span {
 		background: #f5f5f7;
-		border: 1px solid #dadde0;
+		border: 1px solid #ddd;
 		cursor: default;
 		font-size: 12px;
 		font-weight: 600;
@@ -262,7 +263,7 @@ main {
 		z-index: 2;
 	}
 	.field-group label[type="radio"] {
-		border: 1px solid #dddbf4;
+		border: 1px solid #ddd;
 		cursor: pointer;
 		height: 36px;
 		line-height: 36px;
@@ -276,10 +277,10 @@ main {
 			width: auto;
 		}
 		.field-group label[type="radio"]:hover {
-			border-color: #7773e3;
+			border-color: #444;
 		}
 	.field-group .button {
-		background: #7773e3;
+		background: #444;
 		border: none;
 		color: #fff;
 		cursor: pointer;
@@ -321,17 +322,17 @@ main {
 	text-transform: uppercase;
 }
 .main-button {
-	background: #7773e3;
+	background: #444;
 	color: #fff !important;
 }
 .alternate-button {
 	background: #fff;
-	border: 1px solid #dddbf4;
-	color: #7773e3;
+	border: 1px solid #ddd;
+	color: #444;
 	padding: 14px 29px;
 }
 	.alternate-button:hover {
-		border-color: #7773e3;
+		border-color: #444;
 	}
 .table {
 	border: none;
@@ -341,7 +342,7 @@ main {
 	width: 100%;
 }
 	.table tr {
-		border-bottom: 1px solid #dadde0;
+		border-bottom: 1px solid #ddd;
 		float: left;
 		position: relative;
 		width: 100%;
@@ -375,12 +376,12 @@ main {
 			.table tr td .field-group .button.group-name-cancel-edit-button {
 				background: #fff;
 				border: 1px solid #c4c1e6;
-				color: #7773e3;
+				color: #444;
 				padding: 12px 14px;
 				right: 7px;
 			}
 				.table tr td .field-group .button.group-name-cancel-edit-button:hover {
-					border-color: #7773e3;
+					border-color: #444;
 				}
 			.table tr td .field-group .button.group-name-save-edit-button {
 				right: 88px;
@@ -405,8 +406,11 @@ main {
 				width: 100%;
 				z-index: 1;
 			}
+				.table tr td .details-container strong {
+					color: #fff;
+				}
 				.table tr td .details-container .details {
-					background: #7773e3;
+					background: #777;
 					display: block;
 					padding: 6px 9px;
 				}
@@ -447,10 +451,10 @@ main {
 			font-size: 12px;
 		}
 	.table tbody tr:first-child {
-		border-top: 1px solid #dadde0;
+		border-top: 1px solid #ddd;
 	}
 	.table tbody tr:hover {
-		background: #f5f5f7;
+		background: #f4f4f4;
 	}
 .pricing-table {
 	margin-bottom: 70px;
@@ -458,9 +462,9 @@ main {
 }
 .label,
 .message {
-	background: #f3f3fd;
-	border-left: 2px solid #dddbf4;
-	color: #8986ae;
+	background: #f4f4f4;
+	border-left: 2px solid #ccc;
+	color: #888;
 	display: inline-block;
 	float: none !important;
 	font-size: 12px;
@@ -473,7 +477,7 @@ main {
 	.label.payment,
 	.message.success {
 		background: #eaf9e4;
-		border-left-color: #bceaa6;
+		border-left-color: #b3d8a4;
 	}
 	.label.chargeback,
 	.label.inactive,
@@ -559,7 +563,7 @@ main {
 	}
 	.item-container input,
 	.item-container textarea {
-		border: 1px solid #dddbf4;
+		border: 1px solid #ddd;
 		box-sizing: border-box;
 		color: #616671;
 		display: block;
@@ -572,7 +576,7 @@ main {
 	}
 		.item-container input:hover,
 		.item-container textarea:hover {
-			border-color: #7773e3;
+			border-color: #444;
 		}
 		.item-container input:active,
 		.item-container input:focus,
@@ -580,18 +584,18 @@ main {
 		.item-container textarea:active,
 		.item-container textarea:focus,
 		.item-container textarea:visited {
-			border-color: #7773e3;
+			border-color: #444;
 		}
 		.item-container input[disabled]:hover,
 		.item-container textarea[disabled]:hover {
-			border-color: #dddbf4;
+			border-color: #ddd;
 		}
 		.item-container textarea {
 			height: 140px;
 			line-height: 18px;
 		}
 	.item-container.item-button {
-		border: 1px solid #dddbf4;
+		border: 1px solid #ddd;
 		padding: 15px !important;
 	}
 		.item-container.item-button .cancel {
@@ -626,7 +630,7 @@ main {
 			margin: 0 0 8px 0;
 		}
 		.item-container.item-button:hover {
-			border-color: #7773e3;
+			border-color: #888;
 		}
 		.item-container.item-button p {
 			line-height: 16px;
@@ -636,7 +640,7 @@ main {
 		position: relative;
 	}
 		.item-container.item-button-selectable:hover {
-			border-color: #c4c1e6;
+			border-color: #888;
 		}
 		.item-container.item-button-selectable .checkbox {
 			left: 15px;
@@ -664,8 +668,8 @@ main {
 			padding: 0;
 		}
 		.item-container .item-header {
-			border-bottom: 1px solid #dddbf4;
-			border-top: 1px solid #dddbf4;
+			border-bottom: 1px solid #ddd;
+			border-top: 1px solid #ddd;
 			line-height: 21px;
 			margin-bottom: -1px;
 		}
@@ -718,7 +722,7 @@ main {
 		width: 18px;
 	}
 		.icon.tooltip:hover.tooltip:after {
-			background-color: #7773e3;
+			background-color: #444;
 			content: attr(data-title);
 			display: inline-block;
 			font-size: 12px;
@@ -745,19 +749,19 @@ main {
 			margin-top: 0;
 		}
 		.icon.next {
-			background: url('../images/icons/icon-next.png') #7773e3 center no-repeat;
-			border: 1px solid #7773e3;
+			background: url('../images/icons/icon-next.png') #444 center no-repeat;
+			border: 1px solid #444;
 			margin-top: 0;
 		}
 		.icon.previous {
-			background: url('../images/icons/icon-previous.png') #7773e3 center no-repeat;
-			border: 1px solid #7773e3;
+			background: url('../images/icons/icon-previous.png') #444 center no-repeat;
+			border: 1px solid #444;
 			margin-top: 0;
 		}
 			.icon.previous[page="0"],
 			.icon.next[page="0"] {
-				background-color: #dddbf4;
-				border-color: #dddbf4;
+				background-color: #ddd;
+				border-color: #ddd;
 				cursor: default;
 				margin-top: 0;
 			}
@@ -815,7 +819,7 @@ main {
 		}
 .checkbox {
 	background: #fff;
-	border: 1px solid #dddbf4;
+	border: 1px solid #ddd;
 	cursor: pointer;
 	display: block;
 	height: 18px;
@@ -826,12 +830,12 @@ main {
 	z-index: 2;
 }
 	.checkbox:hover {
-		border-color: #7773e3;
+		border-color: #444;
 	}
 	.checkbox[checked="1"] {
-		background: url('../images/icons/icon-check.png') #7773e3 center no-repeat;
+		background: url('../images/icons/icon-check.png') #444 center no-repeat;
 		background-size: 100% !important;
-		border-color: #7773e3;
+		border-color: #444;
 	}
 .frame-container,
 .frame-container .frame,
@@ -872,7 +876,7 @@ main {
 					padding-left: 31px;
 				}
 					.frame-container .frame .checkbox-container .custom-checkbox-label:hover {
-						color: #7773e3;
+						color: #444;
 					}
 			.frame-container .frame .checkbox-option-container {
 				box-sizing: border-box;
@@ -909,7 +913,7 @@ main {
 					width: 100%;
 				}
 			.frame-container .frame .item-footer {
-				border-top: 1px solid #dddbf4;
+				border-top: 1px solid #ddd;
 				padding-top: 34px;
 				position: relative;
 			}
@@ -1035,14 +1039,14 @@ main {
 	padding-top: 7px;
 }
 .progress-container {
-	background: #dddbf4;
+	background: #ddd;
 	display: block;
 	height: 8px;
 	position: relative;
 	width: 100%;
 }
 	.progress {
-		background: #7773e3;
+		background: #77a960;
 		display: block;
 		height: 8px;
 		left: 0;

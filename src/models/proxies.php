@@ -42,7 +42,7 @@
 				$orderProcessingData = array(
 					array(
 						'id' => $orderData['id'],
-						'order_processing' => true
+						'processing' => true
 					)
 				);
 
@@ -106,7 +106,7 @@
 								$orderProgressData = array(
 									array(
 										'id' => $orderData['id'],
-										'order_processing' => false,
+										'processing' => false,
 										'quantity_active' => $orderData['quantity_active'] + $processingNodesCount,
 										'quantity_allocated' => ($quantityAllocated = $orderData['quantity_allocated'] + $processingNodesCount),
 										'quantity_allocated_progress' => ceil(($quantityAllocated / $orderData['quantity']) * 100)
@@ -153,7 +153,7 @@
 						}
 					}
 
-					$orderProcessingData[0]['order_processing'] = false;
+					$orderProcessingData[0]['processing'] = false;
 					$this->save('orders', $orderProcessingData);
 				}
 			}

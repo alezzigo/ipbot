@@ -573,10 +573,10 @@
 										'payment_currency' => $this->settings['billing']['currency'],
 										'payment_status' => 'completed',
 										'payment_status_message' => 'Order ' . $action . ' successful.',
+										'processed' => true,
 										'transaction_charset' => $this->settings['database']['charset'],
 										'transaction_date' => date('Y-m-d H:i:s', strtotime('+1 second')),
 										'transaction_method' => 'PaymentCompleted',
-										'transaction_processed' => true,
 										'user_id' => $parameters['user']['id']
 									);
 								}

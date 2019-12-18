@@ -100,7 +100,7 @@
 		),
 		array(
 			'file' => $config->settings['base_path'] . '/views/pages/home.php',
-			'title' => 'Buy Premium Proxies',
+			'title' => 'Free Automation Platform for IPv4 and IPv6 Proxy Management',
 			'url' => '/'
 		),
 		array(

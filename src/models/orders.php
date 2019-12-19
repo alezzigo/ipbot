@@ -339,6 +339,7 @@
 						'product_id',
 						'quantity',
 						'quantity_active',
+						'quantity_allocated',
 						'quantity_pending',
 						'session_id',
 						'shipping',
@@ -352,7 +353,7 @@
 				));
 
 				if (!empty($orders['count'])) {
-					$groupedOrders = $groupedOrderMerges = $invoiceIds = $pendingAmountMergedTransactions = $pendingInvoices = $pendingInvoiceIds = $pendingInvoiceOrders = $pendingOrders = $pendingOrderMerges = $pendingOrderIds = $pendingProxies = $pendingProxyGroups = $pendingTransactions = $processedInvoices = $productIds = $selectedOrders = array();
+					$actionData = $groupedOrders = $groupedOrderMerges = $invoiceIds = $pendingAmountMergedTransactions = $pendingInvoices = $pendingInvoiceIds = $pendingInvoiceOrders = $pendingOrders = $pendingOrderMerges = $pendingOrderIds = $pendingProxies = $pendingProxyGroups = $pendingTransactions = $processedInvoices = $productIds = $selectedOrders = array();
 					$sortIntervals = array(
 						'day',
 						'week',
@@ -381,7 +382,7 @@
 						'interval_value_pending' => (integer) $largestInterval[0]
 					);
 					$mergedData['order'] = array_merge($mergedData['order'], $mergedInterval);
-					$mergedData['invoice']['amount_paid'] = $mergedData['order']['price_active'] = $mergedData['order']['quantity'] = $mergedData['order']['quantity_active'] = 0;
+					$mergedData['invoice']['amount_paid'] = $mergedData['order']['price_active'] = $mergedData['order']['quantity'] = $mergedData['order']['quantity_active'] = $mergedData['order']['quantity_allocated'] = 0;
 
 					foreach ($selectedOrders as $key => $selectedOrder) {
 						$invoiceIds[] = $invoiceId = $selectedOrder['invoice']['id'];
@@ -412,6 +413,7 @@
 						$mergedData['order']['price_active'] += $selectedOrder['order']['price_active'];
 						$mergedData['order']['quantity'] += (!empty($selectedOrder['order']['quantity_pending']) ? $selectedOrder['order']['quantity_pending'] : $selectedOrder['order']['quantity']);
 						$mergedData['order']['quantity_active'] += $selectedOrder['order']['quantity_active'];
+						$mergedData['order']['quantity_allocated'] += $selectedOrder['order']['quantity_allocated'];
 					}
 
 					foreach ($pendingInvoices as $invoiceId => $pendingInvoice) {
@@ -817,7 +819,23 @@
 											$userData[0]['balance'] += $amountToApplyToBalance;
 										}
 
-										if (count($pendingOrders) !== 1) {
+										$defaultActionData = array(
+											'chunks' => 1,
+											'foreign_key' => 'order_id',
+											'foreign_value' => $mergedData['order']['id'],
+											'processed' => true,
+											'progress' => 100,
+											'user_id' => $parameters['user']['id']
+										);
+
+										if (($pendingOrderCount = count($pendingOrders)) !== 1) {
+											$actionData[] = array_merge($defaultActionData, array(
+												'encoded_parameters' => json_encode(array(
+													'action' => 'merge',
+													'item_count' => $pendingOrderCount,
+													'table' => $table
+												))
+											));
 											$details = ($mergeDetails = 'Merge requested from ' . $pendingOrderMergeDetails . ' to ' . $mergeDetails) . $amountToApplyToBalanceTransaction;
 											$amountToApplyToBalanceTransaction = '';
 											$pendingTransactions[] = array_merge(array(
@@ -828,11 +846,11 @@
 										}
 
 										if ($action === 'upgrade') {
-											$details = ($upgradeDetails = 'Order upgrade requested for ' . $upgradeDetails) . $amountToApplyToBalanceTransaction;
+											$details = ($upgradeDetails = 'Order ' . $action . ' requested for ' . $upgradeDetails) . $amountToApplyToBalanceTransaction;
 											$pendingTransactions[] = array_merge($pendingTransaction, array(
 												'details' => $details,
 												'id' => uniqid() . time(),
-												'payment_status_message' => 'Order upgrade requested.',
+												'payment_status_message' => 'Order ' . $action . ' requested.',
 												'transaction_date' => date('Y-m-d H:i:s', strtotime('+1 second')),
 											));
 										}
@@ -849,6 +867,20 @@
 										}
 
 										if (
+											$action === 'upgrade' &&
+											$mergedData['invoice']['remainder_pending'] === 0
+										) {
+											$actionData[] = array_merge($defaultActionData, array(
+												'encoded_parameters' => json_encode(array(
+													'action' => $action,
+													'item_count' => 1,
+													'table' => ($pendingOrderCount === 1 ? $this->_formatPluralToSingular($table) : $table)
+												))
+											));
+										}
+
+										if (
+											$this->save('actions', $actionData) &&
 											$this->save('invoices', array_values($pendingInvoices)) &&
 											$this->save('invoice_orders', $pendingInvoiceOrders) &&
 											$this->save('orders', array_values($pendingOrders)) &&

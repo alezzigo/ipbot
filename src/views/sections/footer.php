@@ -2,7 +2,7 @@
 	<div class="container small">
 		<div class="align-left navigation primary-navigation">
 			<div class="align-left">
-				<p>Copyright <a href="https://parsonsbots.com" target="_blank">Will S. Parsons</a>. All rights reserved.</p>
+				<p>Copyright <a href="https://parsonsbots.com" target="_blank">Will Parsons</a>. All rights reserved.</p>
 				<p class="legal"><a href="<?php echo $config->settings['base_url']; ?>terms">Terms</a> <a href="<?php echo $config->settings['base_url']; ?>privacy">Privacy</a></p>
 			</div>
 		</div>

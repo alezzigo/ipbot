@@ -24,7 +24,7 @@ var processActions = function(frameName, frameSelector) {
 		var actionData = '<p class="error message">No recent order actions to list.</p>';
 
 		if (response.data.length) {
-			actionData = '<p class="message">Your ' + requestParameters.limit + ' most-recent actions for order #' + orderId + ' are displayed below.</p>';
+			actionData = '<p class="message">Your ' + response.data.length + ' most-recent actions for order #' + orderId + ' are displayed below.</p>';
 			actionData += '<div class="details">';
 			response.data.map(function(action, index) {
 				var actionParameters = JSON.parse(action.encoded_parameters);

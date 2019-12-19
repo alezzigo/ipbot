@@ -31,8 +31,12 @@ var processActions = function(frameName, frameSelector) {
 				actionData += '<div class="item-button item-container">';
 				actionData += '<div class="item">';
 				actionData += '<p><strong>Request to ' + actionParameters.action + ' ' + actionParameters.item_count + ' ' + actionParameters.table + '</strong></p>';
-				actionData += '<p>Started at ' + action.created + ' ' + requestParameters.settings.timezone.display + '</p>';
-				actionData += '<p>Finished at ' + action.modified + ' ' + requestParameters.settings.timezone.display + '</p>';
+
+				if (action.created != action.modified) {
+					actionData += '<p>Started at ' + action.created + ' ' + requestParameters.settings.timezone.display + '</p>';
+				}
+
+				actionData += '<p>Completed at ' + action.modified + ' ' + requestParameters.settings.timezone.display + '</p>';
 				actionData += '<label class="label ' + (action.progress === 100 ? 'active' : 'inactive') + '">' + (action.progress === 100 ? 'Completed' : 'Interrupted') + ' ' + action.progress + '%</label>';
 				actionData += '</div>';
 				actionData += '</div>';

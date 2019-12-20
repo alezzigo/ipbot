@@ -126,6 +126,14 @@ var processUser = function() {
 				userData += '<p><strong>Email Address</strong><br>' + response.user.email + '<br><a class="email" href="' + requestParameters.settings.base_url + 'account/?#email">Change email address</a></p>';
 				userData += '<p><strong>Password</strong><br>********<br>Last changed: ' + response.user.password_modified + '<br><a class="password" href="' + requestParameters.settings.base_url + 'account/?#reset">Change password</a></p>';
 				userData += '<h2>Account Balance</h2>';
+
+				if (
+					typeof response.user.test_account !== 'undefined' &&
+					response.user.test_account
+				) {
+					userData += '<p class="message error">Invoices, payments and account balance are for testing purposes only.</p>';
+				}
+
 				userData += '<p><strong>Current Balance</strong><br>' + response.user.balance + ' ' + requestParameters.settings.billing_currency + '</p>';
 				userData += '<div class="balance-message-container"></div>';
 				userData += '<p class="no-margin-bottom"><strong>Add to Account Balance</strong></p>';
@@ -163,7 +171,7 @@ var processUser = function() {
 
 			userContainer.innerHTML = userData;
 
-			if (response.user.subscriptions.length) {
+			if (response.user.subscriptions) {
 				response.user.subscriptions.map(function(item, index) {
 					var cancelSubscriptionButton = document.querySelector('.item-button[subscription_id="' + item.id + '"] .cancel-subscription');
 					var cancelSubscription = function(subscriptionId) {

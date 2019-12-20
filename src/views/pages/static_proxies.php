@@ -43,7 +43,7 @@
 					'price' => 5120.00
 				)
 			)
-		),
+		)/*,
 		array(
 			'id' => 2,
 			'interval_type' => 'month',
@@ -83,7 +83,7 @@
 					'price' => 6400.00
 				)
 			)
-		)
+		)*/
 	);
 ?>
 <main process="cart">

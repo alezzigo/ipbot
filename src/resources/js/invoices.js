@@ -187,8 +187,17 @@ var processInvoice = function() {
 				hasBalance &&
 				response.data.orders.length
 			) {
+				var balanceMessage = 'You have an available account balance of ' + response.user.balance.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.currency + '.';
+
+				if (
+					typeof response.user.test_account !== 'undefined' &&
+					response.user.test_account
+				) {
+					balanceMessage += ' <strong>Account balance is for testing purposes only<strong>.';
+				}
+
 				elements.removeClass('.payment-methods label[for="balance"]', 'hidden');
-				elements.html('.payment-method.balance .message ', 'You have an available account balance of ' + response.user.balance.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.currency);
+				elements.html('.payment-method.balance .message ', balanceMessage);
 			}
 
 			if (!response.data.orders.length) {

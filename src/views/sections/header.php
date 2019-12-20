@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="google-site-verification" content="<?php echo $config->settings['google_site_verification']; ?>">
 <meta name="viewport" content="initial-scale=2, width=1000">
-<link rel="shortcut icon" type="image/png" href="/resources/images/icons/favicon.png">
 <title><?php echo $config->parameters['title']; ?></title>
 <?php
 	if (!empty($styleSheets)) {

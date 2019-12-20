@@ -592,10 +592,12 @@
 								$password = $this->_hashPassword($parameters['data']['password'], time());
 								$userData = array(
 									array(
+										'balance' => (!empty($parameters['data']['test_account']) ? 1000 : 0),
 										'email' => $email,
 										'password' => $password['string'],
 										'password_modified' => $password['modified'],
-										'permissions' => 'user'
+										'permissions' => 'user',
+										'test_account' => !empty($parameters['data']['test_account'])
 									)
 								);
 

@@ -8,14 +8,20 @@ var api = {
 				if (typeof apiRequestParameters.current[requestParameterKey] !== 'undefined') {
 					Object.defineProperty(apiRequestParameters.previous, requestParameterKey, {
 						configurable: true,
-						value: apiRequestParameters.current[requestParameterKey]
+						enumerable: true,
+						value: apiRequestParameters.current[requestParameterKey],
+						writable: false
 					});
 
 					if (mergeRequestParameters === true) {
 						var apiRequestParametersToMerge = apiRequestParameters.current[requestParameterKey];
 
-						for (var requestParameterNestedKey in requestParameters[requestParameterKey]) {
-							apiRequestParametersToMerge[requestParameterNestedKey] = requestParameters[requestParameterKey][requestParameterNestedKey];
+						if (typeof requestParameters[requestParameterKey] === 'object') {
+							for (var requestParameterNestedKey in requestParameters[requestParameterKey]) {
+								apiRequestParametersToMerge[requestParameterNestedKey] = requestParameters[requestParameterKey][requestParameterNestedKey];
+							}
+						} else {
+							apiRequestParametersToMerge = requestParameters[requestParameterKey];
 						}
 
 						requestParameters[requestParameterKey] = apiRequestParametersToMerge;
@@ -24,16 +30,18 @@ var api = {
 
 				Object.defineProperty(apiRequestParameters.current, requestParameterKey, {
 					configurable: true,
-					value: requestParameters[requestParameterKey]
+					enumerable: true,
+					value: requestParameters[requestParameterKey],
+					writable: false
 				});
 			}
 		}
 	},
 	sendRequest: function(callback) {
 		var request = new XMLHttpRequest();
-		request.open('POST', apiRequestParameters.url, true);
+		request.open('POST', apiRequestParameters.current.url, true);
 		request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-		request.send('json=' + encodeURIComponent(JSON.stringify(apiRequestParameters)));
+		request.send('json=' + encodeURIComponent(JSON.stringify(apiRequestParameters.current)));
 		request.onload = function(response) {
 			callback(JSON.parse(response.target.response));
 		};

@@ -281,26 +281,6 @@
 		}
 
 	/**
-	 * Shell method for processing new orders
-	 *
-	 * @param string $table
-	 *
-	 * @return array $response
-	 */
-		public function shellProcessNewOrders($table) {
-			$response = array(
-				'message' => array(
-					'status' => 'error',
-					'text' => 'Error processing new orders, please try again.'
-				)
-			);
-
-			// ..
-
-			return $response;
-		}
-
-	/**
 	 * Process order upgrade requests
 	 *
 	 * @param string $table

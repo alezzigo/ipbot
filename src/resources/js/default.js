@@ -39,6 +39,14 @@ var api = {
 		};
 	}
 };
+var apiRequestParameters = {
+	current: {
+		data: {},
+		items: {},
+		tokens: {}
+	},
+	previous: {}
+};
 var browserDetails = function() {
 	var browserDetails = window.clientInformation ? window.clientInformation : window.navigator;
 	var retrieveMimeTypes = function(mimeTypeObject) {

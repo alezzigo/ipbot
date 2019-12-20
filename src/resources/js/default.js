@@ -1,3 +1,44 @@
+var api = {
+	setRequestParameters: function(requestParameters, mergeRequestParameters) {
+		if (
+			requestParameters &&
+			typeof requestParameters === 'object'
+		) {
+			for (var requestParameterKey in requestParameters) {
+				if (typeof apiRequestParameters.current[requestParameterKey] !== 'undefined') {
+					Object.defineProperty(apiRequestParameters.previous, requestParameterKey, {
+						configurable: true,
+						value: apiRequestParameters.current[requestParameterKey]
+					});
+
+					if (mergeRequestParameters === true) {
+						var apiRequestParametersToMerge = apiRequestParameters.current[requestParameterKey];
+
+						for (var requestParameterNestedKey in requestParameters[requestParameterKey]) {
+							apiRequestParametersToMerge[requestParameterNestedKey] = requestParameters[requestParameterKey][requestParameterNestedKey];
+						}
+
+						requestParameters[requestParameterKey] = apiRequestParametersToMerge;
+					}
+				}
+
+				Object.defineProperty(apiRequestParameters.current, requestParameterKey, {
+					configurable: true,
+					value: requestParameters[requestParameterKey]
+				});
+			}
+		}
+	},
+	sendRequest: function(callback) {
+		var request = new XMLHttpRequest();
+		request.open('POST', apiRequestParameters.url, true);
+		request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+		request.send('json=' + encodeURIComponent(JSON.stringify(apiRequestParameters)));
+		request.onload = function(response) {
+			callback(JSON.parse(response.target.response));
+		};
+	}
+};
 var browserDetails = function() {
 	var browserDetails = window.clientInformation ? window.clientInformation : window.navigator;
 	var retrieveMimeTypes = function(mimeTypeObject) {

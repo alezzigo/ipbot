@@ -11,7 +11,7 @@
 				<h1>Start Your Own Proxy Network</h1>
 				<p>Deploy IPBot to automate your company's IPv4 and IPv6 proxy server management tasks with a free <a href="https://github.com/parsonsbots/ipbot" target="_blank">open-source</a> control panel and API.</p>
 				<div class="align-left feature-buttons">
-					<a class="button main-button" href="<?php echo $config->settings['base_url']; ?>?#register">Try a Free Demo</a>
+					<a class="button main-button" href="<?php echo $config->settings['base_url']; ?>orders">Try a Free Demo</a>
 					<a class="button alternate-button" href="https://github.com/parsonsbots/ipbot" target="_blank">Get Source</a>
 				</div>
 				<div class="clear"></div>

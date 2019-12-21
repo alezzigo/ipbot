@@ -62,7 +62,6 @@ var processCopy = function(frameName, frameSelector) {
 		api.setRequestParameters({
 			action: frameName,
 			data: frameData,
-			//defaults: {},
 			items: {
 				proxies: itemGrid
 			}
@@ -73,8 +72,7 @@ var processCopy = function(frameName, frameSelector) {
 			elements.removeClass(frameSelector + ' .copy', 'hidden');
 			elements.removeAttribute(frameSelector + ' .list-format select', 'disabled');
 			api.setRequestParameters({
-				action: apiRequestParameters.previous.action,
-				//defaults: apiRequestParameters.previous.defaults
+				action: apiRequestParameters.previous.action
 			});
 		});
 	};

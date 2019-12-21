@@ -270,7 +270,7 @@
 					is_array($value) &&
 					count($value) != count($value, COUNT_RECURSIVE)
 				) {
-					$conditions[$key] = '(' . implode(' ' . $condition . ' ', $this->_formatConditions($value, $condition)) . ')';
+					$conditions[$key] = implode(' ' . $condition . ' ', $this->_formatConditions($value, $condition)) ;
 				} else {
 					if (is_array($value)) {
 						array_walk($value, function(&$fieldValue, $fieldKey) use ($key, $operators) {
@@ -281,10 +281,10 @@
 						$value = array((is_null($value) ? $key . ' IS NULL' : trim(in_array($operator = trim(substr($key, strpos($key, ' '))), $operators) ? $key : $key . ' =') . ' ' . $this->_prepareValue($value)));
 					}
 
-					$conditions[$key] = '(' . implode(' ' . (strpos($key, '!=') !== false ? 'AND' : $condition) . ' ', $value) . ')';
+					$conditions[$key] = implode(' ' . (strpos($key, '!=') !== false ? 'AND' : $condition) . ' ', $value);
 				}
 
-				$conditions[$key] = ($key === 'NOT' ? 'NOT' : null) . $conditions[$key];
+				$conditions[$key] = ($key === 'NOT' ? 'NOT' : null) . ($conditions[$key] ? '(' . $conditions[$key] . ')' : $conditions[$key]);
 			}
 
 			$response = $conditions;
@@ -1258,10 +1258,14 @@
 				!empty($conditions) &&
 				is_array($conditions)
 			) {
-				$query .= ' WHERE ' . implode(' AND ', $this->_formatConditions($conditions));
+				$query .= ' WHERE ' . ($queryConditions = implode(' AND ', array_filter($this->_formatConditions($conditions))));
+
+				if (empty($queryConditions)) {
+					return true;
+				}
 			}
 
-			$response = $this->_query($query, $parameters);
+			$response = $this->_query($query);
 			return $response;
 		}
 

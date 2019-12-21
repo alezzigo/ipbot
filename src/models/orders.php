@@ -907,7 +907,7 @@
 													$balanceTransferTransactions = array(
 														array(
 															'customer_email' => $parameters['user']['email'],
-															'details' => number_format($amountToApplyToBalance, 2, '.', '') . ' ' . $mergedData['invoice']['currency'] . ' overpayment added to account balance.<br> ' . ucwords($action) . 'd' . $mergeDetails,
+															'details' => number_format($amountToApplyToBalance, 2, '.', '') . ' ' . $mergedData['invoice']['currency'] . ' overpayment added to account balance.<br> ' . $mergeDetails,
 															'id' => uniqid() . time(),
 															'initial_invoice_id' => $balanceTransferInvoiceId,
 															'invoice_id' => $balanceTransferInvoiceId,

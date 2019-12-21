@@ -682,7 +682,16 @@
 							'limit' => 1
 						));
 						$orderData = array(
-							array_merge($orderData, array(
+							array_merge(array_intersect_key($orderData, array(
+								'id' => true,
+								'interval_type' => true,
+								'interval_value' => true,
+								'ip_version' => true,
+								'price' => true,
+								'quantity' => true,
+								'quantity_active' => true,
+								'status' => true
+							)), array(
 								'interval_type_pending' => null,
 								'interval_value_pending' => null,
 								'price_pending' => null,

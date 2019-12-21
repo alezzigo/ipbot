@@ -8,7 +8,7 @@
 	<div class="section">
 		<div class="container small">
 			<div class="feature-container">
-				<h1>Start Your Own Proxy Network</h1>
+				<h1>Create Your Own Cloud Firewall and Proxy IP Network</h1>
 				<p>Deploy IPBot to automate your company's IPv4 and IPv6 proxy server management tasks with a free <a href="https://github.com/parsonsbots/ipbot" target="_blank">open-source</a> control panel and API.</p>
 				<div class="align-left feature-buttons">
 					<a class="button main-button" href="<?php echo $config->settings['base_url']; ?>orders">Try a Free Demo</a>

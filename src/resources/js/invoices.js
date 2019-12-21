@@ -1,16 +1,15 @@
-var defaultTable = 'invoices';
-var previousAction = 'fetch';
 var processInvoice = function() {
-	requestParameters.action = 'invoice';
-	requestParameters.table = 'invoices';
-	requestParameters.url = requestParameters.settings.base_url + 'api/invoices';
+	api.setRequestParameters({
+		action: 'invoice',
+		conditions: {
+			id: document.querySelector('input[name="invoice_id"]').value
+		},
+		table: 'invoices',
+		url: apiRequestParameters.current.settings.base_url + 'api/invoices'
+	});
 	var invoiceContainer = document.querySelector('.invoice-container');
 	var invoiceData = '';
-	var invoiceId = document.querySelector('input[name="invoice_id"]').value;
-	requestParameters.conditions = {
-		id: invoiceId
-	};
-	sendRequest(function(response) {
+	api.sendRequest(function(response) {
 		var messageContainer = document.querySelector('main .message-container');
 
 		if (messageContainer) {
@@ -43,7 +42,7 @@ var processInvoice = function() {
 			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + response.data.invoice.status + '</label> Invoice #' + response.data.invoice.id;
 			document.querySelector('.billing-currency').innerHTML = response.data.invoice.currency;
 			document.querySelector('.billing-view-details').addEventListener('click', function(element) {
-				closeFrames(defaultTable);
+				closeFrames();
 			});
 
 			if (response.data.items.length) {
@@ -212,9 +211,13 @@ var processInvoice = function() {
 		invoiceContainer.innerHTML = invoiceData;
 		var cancelPendingButton = document.querySelector('.item-button .cancel-pending');
 		var cancelPending = function(orderId) {
-			requestParameters.action = 'cancel';
-			requestParameters.data.order_id = orderId;
-			sendRequest(function(response) {
+			api.setRequestParameters({
+				action: 'cancel',
+				data: {
+					order_id: orderId
+				}
+			}, true);
+			api.sendRequest(function(response) {
 				if (
 					typeof response.redirect === 'string' &&
 					response.redirect
@@ -235,19 +238,20 @@ var processInvoice = function() {
 	});
 };
 var processInvoices = function() {
-	requestParameters.action = 'fetch';
-	requestParameters.conditions = {
-		merged_invoice_id: null,
-		payable: true
-	};
-	requestParameters.sort = {
-		field: 'created',
-		order: 'DESC'
-	};
-	requestParameters.table = 'invoices';
-	requestParameters.url = requestParameters.settings.base_url + 'api/invoices';
+	api.setRequestParameters({
+		action: 'fetch',
+		conditions: {
+			merged_invoice_id: null,
+			payable: true
+		},
+		sort: {
+			field: 'created',
+			order: 'DESC'
+		},
+		url: apiRequestParameters.current.settings.base_url + 'api/invoices'
+	});
 	var invoiceData = '';
-	sendRequest(function(response) {
+	api.sendRequest(function(response) {
 		var messageContainer = document.querySelector('main .message-container');
 
 		if (messageContainer) {
@@ -256,7 +260,7 @@ var processInvoices = function() {
 				elements.removeClass('nav .guest', 'hidden');
 				response.message = {
 					status: 'error',
-					text: 'You\'re currently not logged in, please <a href="' + requestParameters.settings.base_url + '?#login">log in</a> or <a href="' + requestParameters.settings.base_url + '?#register">register an account</a>.'
+					text: 'You\'re currently not logged in, please <a href="' + apiRequestParameters.current.settings.base_url + '?#login">log in</a> or <a href="' + apiRequestParameters.current.settings.base_url + '?#register">register an account</a>.'
 				};
 			}
 
@@ -296,12 +300,16 @@ var processLoginVerification = function(response) {
 	}
 };
 var processPayment = function(frameName, frameSelector) {
-	requestParameters.action = 'payment';
-	requestParameters.data.invoice_id = document.querySelector('input[name="invoice_id"]').value;
-	requestParameters.table = 'transactions';
-	requestParameters.url = requestParameters.settings.base_url + 'api/transactions';
-	delete requestParameters.conditions;
-	sendRequest(function(response) {
+	delete apiRequestParameters.current.conditions;
+	api.setRequestParameters({
+		action: 'payment',
+		data: {
+			invoice_id: document.querySelector('input[name="invoice_id"]').value
+		},
+		table: 'transactions',
+		url: apiRequestParameters.current.settings.base_url + 'api/transactions'
+	}, true);
+	api.sendRequest(function(response) {
 		var messageContainer = document.querySelector(frameSelector + ' .message-container');
 
 		if (messageContainer) {
@@ -326,3 +334,10 @@ var processPayment = function(frameName, frameSelector) {
 		}
 	});
 };
+api.setRequestParameters({
+	defaults: {
+		action: 'fetch',
+		table: 'invoices'
+	},
+	table: 'invoices'
+});

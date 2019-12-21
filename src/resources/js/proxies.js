@@ -1,26 +1,21 @@
-var defaultTable = 'proxies';
 var itemGrid = [];
 var itemGridCount = 0;
 var orderMessageContainer = document.querySelector('main .message-container.order');
-var previousAction = 'fetch';
 var proxyMessageContainer = document.querySelector('main .message-container.proxies');
 var processActions = function(frameName, frameSelector) {
 	var orderId = document.querySelector('input[name="order_id"]').value;
-	var previousAction = requestParameters.action;
-	var previousConditions = requestParameters.conditions;
-	var previousLimit = requestParameters.limit;
-	var previousOffset = requestParameters.offset;
-	var previousUrl = requestParameters.url;
-	requestParameters.action = 'fetch';
-	requestParameters.conditions = {
-		foreign_key: 'order_id',
-		foreign_value: orderId
-	};
-	requestParameters.limit = 10;
-	requestParameters.offset = 0;
-	requestParameters.table = 'actions';
-	requestParameters.url = requestParameters.settings.base_url + 'api/actions';
-	sendRequest(function(response) {
+	api.setRequestParameters({
+		action: 'fetch',
+		conditions: {
+			foreign_key: 'order_id',
+			foreign_value: orderId
+		},
+		limit: 10,
+		offset: 0,
+		table: 'actions',
+		url: apiRequestParameters.current.settings.base_url + 'api/actions'
+	});
+	api.sendRequest(function(response) {
 		var actionData = '<p class="error message">No recent order actions to list.</p>';
 
 		if (response.data.length) {
@@ -33,10 +28,10 @@ var processActions = function(frameName, frameSelector) {
 				actionData += '<p><strong>Request to ' + actionParameters.action + ' ' + actionParameters.item_count + ' ' + actionParameters.table + '</strong></p>';
 
 				if (action.created != action.modified) {
-					actionData += '<p>Started at ' + action.created + ' ' + requestParameters.settings.timezone.display + '</p>';
+					actionData += '<p>Started at ' + action.created + ' ' + apiRequestParameters.current.settings.timezone.display + '</p>';
 				}
 
-				actionData += '<p>Completed at ' + action.modified + ' ' + requestParameters.settings.timezone.display + '</p>';
+				actionData += '<p>Completed at ' + action.modified + ' ' + apiRequestParameters.current.settings.timezone.display + '</p>';
 				actionData += '<label class="label ' + (action.progress === 100 ? 'active' : 'inactive') + '">' + (action.progress === 100 ? 'Completed' : 'Interrupted') + ' ' + action.progress + '%</label>';
 				actionData += '</div>';
 				actionData += '</div>';
@@ -45,31 +40,42 @@ var processActions = function(frameName, frameSelector) {
 		}
 
 		document.querySelector('.actions-container').innerHTML = actionData;
-		requestParameters.action = previousAction;
-		requestParameters.conditions = previousConditions;
-		requestParameters.limit = previousLimit;
-		requestParameters.offset = previousOffset;
-		requestParameters.table = defaultTable;
-		requestParameters.url = previousUrl;
+		api.setRequestParameters({
+			action: apiRequestParameters.previous.action,
+			conditions: apiRequestParameters.previous.conditions,
+			limit: apiRequestParameters.previous.limit,
+			offset: apiRequestParameters.previous.offset,
+			table: apiRequestParameters.previous.table,
+			url: apiRequestParameters.previous.url
+		});
 	});
 };
 var processCopy = function(frameName, frameSelector) {
-	previousAction = requestParameters.action;
 	var processCopyFormat = function() {
-		requestParameters.action = frameName;
+		var frameData = {};
 		elements.addClass(frameSelector + ' .copy', 'hidden');
 		elements.removeClass(frameSelector + ' .loading', 'hidden');
 		elements.setAttribute(frameSelector + ' .list-format select', 'disabled', 'disabled');
 		elements.loop(frameSelector + ' input, ' + frameSelector + ' select, ' + frameSelector + ' textarea', function(index, element) {
-			requestParameters.data[element.getAttribute('name')] = element.value;
+			frameData[element.getAttribute('name')] = element.value;
 		});
-		requestParameters.items[requestParameters.table] = itemGrid;
-		sendRequest(function(response) {
+		api.setRequestParameters({
+			action: frameName,
+			data: frameData,
+			//defaults: {},
+			items: {
+				proxies: itemGrid
+			}
+		}, true);
+		api.sendRequest(function(response) {
 			document.querySelector(frameSelector + ' textarea[name="' + frameName + '"]').value = response.data;
 			elements.addClass(frameSelector + ' .loading', 'hidden');
 			elements.removeClass(frameSelector + ' .copy', 'hidden');
 			elements.removeAttribute(frameSelector + ' .list-format select', 'disabled');
-			requestParameters.action = previousAction;
+			api.setRequestParameters({
+				action: apiRequestParameters.previous.action,
+				//defaults: apiRequestParameters.previous.defaults
+			});
 		});
 	};
 	elements.loop(frameSelector + ' select', function(index, element) {
@@ -91,8 +97,10 @@ var processCopy = function(frameName, frameSelector) {
 var processDowngrade = function() {
 	var downgradeContainer = document.querySelector('.downgrade-container');
 	var pagination = document.querySelector('.item-configuration .pagination');
-	requestParameters.action = 'downgrade';
-	sendRequest(function(response) {
+	api.setRequestParameters({
+		action: 'downgrade'
+	});
+	api.sendRequest(function(response) {
 		var downgradeData = '';
 		var downgradeMessageContainer = document.querySelector('.downgrade-configuration .message-container');
 		elements.setAttribute('.button.submit', 'disabled');
@@ -113,7 +121,7 @@ var processDowngrade = function() {
 			downgradeData += '<input class="hidden" name="confirm_downgrade" type="hidden" value="1">';
 			downgradeData += '<div class="clear"></div>';
 			downgradeData += '<div class="details merged-order-details">';
-			downgradeData += '<p class="message success">Your current order for ' + response.data.downgraded.order.quantity + ' ' + requestParameters.table + ' will downgrade to the following order and invoice:</p>';
+			downgradeData += '<p class="message success">Your current order for ' + response.data.downgraded.order.quantity + ' ' + apiRequestParameters.current.table + ' will downgrade to the following order and invoice:</p>';
 			downgradeData += '<div class="item-container item-button no-margin-bottom">';
 			downgradeData += '<p><strong>Downgraded Order</strong></p>';
 			downgradeData += '<p>' + response.data.downgraded.order.quantity_pending + ' ' + response.data.downgraded.order.name + '</p>';
@@ -132,24 +140,29 @@ var processDowngrade = function() {
 			elements.removeAttribute('.button.submit', 'disabled');
 		}
 
-		if (requestParameters.data.confirm_downgrade) {
+		if (apiRequestParameters.current.data.confirm_downgrade) {
 			closeFrames(defaultTable);
 			document.querySelector('.order-name').innerHTML = response.data.downgraded.order.quantity_pending + ' ' + response.data.downgraded.order.name;
 			proxyMessageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
-			requestParameters.action = 'fetch';
-			delete requestParameters.data.confirm_downgrade;
+			api.setRequestParameters({
+				action: 'fetch'
+			});
+			delete apiRequestParameters.current.data.confirm_downgrade;
 		}
 
 		downgradeContainer.innerHTML = downgradeData;
 	});
 };
 var processEndpoint = function(frameName, frameSelector) {
-	var defaultUrl = requestParameters.settings.base_url + 'api/proxies';
-	requestParameters.action = 'endpoint';
-	requestParameters.data.order_id = document.querySelector('input[name="order_id"]').value;
-	requestParameters.table = 'orders';
-	requestParameters.url = requestParameters.settings.base_url + 'api/orders';
-	sendRequest(function(response) {
+	api.setRequestParameters({
+		action: 'endpoint',
+		data: {
+			order_id: document.querySelector('input[name="order_id"]').value
+		},
+		table: 'orders',
+		url: apiRequestParameters.current.settings.base_url + 'api/orders'
+	}, true);
+	api.sendRequest(function(response) {
 		if (proxyMessageContainer) {
 			processWindowEvents('resize');
 			proxyMessageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
@@ -194,8 +207,10 @@ var processEndpoint = function(frameName, frameSelector) {
 			}
 		}
 
-		requestParameters.table = defaultTable;
-		requestParameters.url = defaultUrl;
+		api.setRequestParameters({
+			table: 'proxies',
+			url: apiRequestParameters.current.settings.base_url + 'api/proxies'
+		});
 	});
 };
 var processGroup = function(frameName, frameSelector) {
@@ -204,33 +219,47 @@ var processGroup = function(frameName, frameSelector) {
 	var groupNameField = document.querySelector(frameSelector + ' .group-name-field');
 	var groupTable = document.querySelector(frameSelector + ' .group-table');
 	var orderId = document.querySelector('input[name="order_id"]').value;
-	requestParameters.url = requestParameters.settings.base_url + 'api/proxies';
+	api.setRequestParameters({
+		url: apiRequestParameters.current.settings.base_url + 'api/proxies'
+	});
 	var groupAdd = function(groupName) {
-		requestParameters.action = frameName;
-		requestParameters.data.name = groupName;
-		requestParameters.data.order_id = orderId;
-		delete requestParameters.data.id;
-		sendRequest(function(response) {
+		api.setRequestParameters({
+			action: frameName,
+			data: {
+				name: groupName,
+				order_id: orderId
+			}
+		}, true);
+		delete apiRequestParameters.current.data.id;
+		api.sendRequest(function(response) {
 			processGroupTable(response);
 		});
 	};
 	var groupDelete = function(button, row) {
 		var groupId = row.getAttribute('group_id');
-		requestParameters.action = frameName;
-		requestParameters.data.id = [groupId];
-		delete requestParameters.data.name;
-		sendRequest(function(response) {
+		api.setRequestParameters({
+			action: frameName,
+			data: {
+				id: [groupId]
+			}
+		}, true);
+		delete apiRequestParameters.current.data.name;
+		api.sendRequest(function(response) {
 			delete groupGrid[frameName + groupId];
 			processGroupTable(response);
 		});
 	};
 	var groupEdit = function(button, row) {
 		var processGroupEdit = function(row) {
-			requestParameters.action = frameName;
-			requestParameters.data.id = row.getAttribute('group_id');
-			requestParameters.data.order_id = orderId;
-			requestParameters.data.name = row.querySelector('.group-name-edit-field').value;
-			sendRequest(function(response) {
+			api.setRequestParameters({
+				action: frameName,
+				data: {
+					id: row.getAttribute('group_id'),
+					name: row.querySelector('.group-name-edit-field').value,
+					order_id: orderId
+				}
+			}, true);
+			api.sendRequest(function(response) {
 				processGroupTable(response);
 			});
 		};
@@ -269,13 +298,17 @@ var processGroup = function(frameName, frameSelector) {
 		}
 
 		elements.addClass('.item-configuration .item-controls', 'hidden');
-		closeFrames(defaultTable);
-		requestParameters.action = 'search';
-		requestParameters.data.groups = [button.getAttribute('group_id')];
-		requestParameters.table = 'proxies';
+		closeFrames();
+		api.setRequestParameters({
+			action: 'search',
+			data: {
+				groups: [button.getAttribute('group_id')]
+			},
+			table: 'proxies'
+		}, true);
 		itemGrid = [];
 		itemGridCount = 0;
-		sendRequest(function() {
+		api.sendRequest(function() {
 			processProxies(false, false, 1);
 		});
 	};
@@ -290,11 +323,13 @@ var processGroup = function(frameName, frameSelector) {
 				delete groupGrid[frameName + groupId];
 			}
 		});
-		requestParameters.items[requestParameters.table] = groupGrid;
+		api.setRequestParameters({
+			items: {
+				proxy_groups: groupGrid
+			}
+		}, true);
 	};
 	var processGroupTable = function(response) {
-		requestParameters.limit = limit;
-		requestParameters.offset = offset;
 		groupTable.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 
 		if (
@@ -354,28 +389,34 @@ var processGroup = function(frameName, frameSelector) {
 	groupNameField.addEventListener('keydown', groupNameField.keydownListener);
 	groupNameButton.addEventListener('click', groupNameButton.clickListener);
 	groupTable.innerHTML = '<p class="message no-margin-bottom">Loading ...</p>';
-	requestParameters.action = 'fetch';
-	requestParameters.sort.field = 'created';
-	requestParameters.table = 'proxy_groups';
-	requestParameters.url = requestParameters.settings.base_url + 'api/proxies';
-	var limit = requestParameters.limit;
-	var offset = requestParameters.offset;
-	delete requestParameters.limit;
-	delete requestParameters.offset;
-	sendRequest(function(response) {
+	api.setRequestParameters({
+		action: 'fetch',
+		sort: {
+			field: 'created'
+		},
+		table: 'proxy_groups',
+		url: apiRequestParameters.current.settings.base_url + 'api/proxies'
+	}, true);
+	delete apiRequestParameters.current.limit;
+	delete apiRequestParameters.current.offset;
+	api.sendRequest(function(response) {
+		api.setRequestParameters({
+			limit: apiRequestParameters.previous.limit,
+			offset: apiRequestParameters.previous.offset
+		});
 		processGroupTable(response);
 	});
 };
 var processOrder = function() {
-	var defaultUrl = requestParameters.settings.base_url + 'api/proxies';
-	var orderId = document.querySelector('input[name="order_id"]').value;
-	requestParameters.action = 'view';
-	requestParameters.conditions = {
-		id: orderId
-	};
-	requestParameters.table = 'orders';
-	requestParameters.url = requestParameters.settings.base_url + 'api/orders';
-	sendRequest(function(response) {
+	api.setRequestParameters({
+		action: 'view',
+		conditions: {
+			id: document.querySelector('input[name="order_id"]').value
+		},
+		table: 'orders',
+		url: apiRequestParameters.current.settings.base_url + 'api/orders'
+	});
+	api.sendRequest(function(response) {
 		if (orderMessageContainer) {
 			orderMessageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
@@ -389,12 +430,16 @@ var processOrder = function() {
 		}
 
 		if (response.data.order) {
-			document.querySelector('.order-name').innerHTML = (response.data.order.quantity_active ? response.data.order.quantity_active : response.data.order.quantity) + ' ' + response.data.order.name;
-			requestParameters.table = defaultTable;
-			requestParameters.url = defaultUrl;
+			api.setRequestParameters({
+				table: 'proxies',
+				url: apiRequestParameters.current.settings.base_url + 'api/proxies'
+			});
+			elements.html('.order-name', (response.data.order.quantity_active ? response.data.order.quantity_active : response.data.order.quantity) + ' ' + response.data.order.name);
 
 			if (document.querySelector('.pagination')) {
-				requestParameters.action = 'fetch';
+				api.setRequestParameters({
+					action: 'fetch'
+				});
 				processProxies();
 				selectAllElements('.pagination .button').map(function(element) {
 					element[1].addEventListener('click', function(element) {
@@ -436,7 +481,6 @@ var processOrder = function() {
 };
 var processProxies = function(frameName, frameSelector, currentPage) {
 	var currentPage = currentPage || 1;
-	var defaultUrl = requestParameters.settings.base_url + 'api/proxies';
 	var items = document.querySelector('.item-configuration .item-table');
 	var orderId = document.querySelector('input[name="order_id"]').value;
 	var pagination = document.querySelector('.item-configuration .pagination');
@@ -561,7 +605,11 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 			elements.addClass('.item-configuration span.icon[item-function][process="downgrade"]', 'hidden');
 		}
 
-		requestParameters.items[requestParameters.table] = itemGrid;
+		api.setRequestParameters({
+			items: {
+				proxies: itemGrid
+			}
+		}, true);
 	};
 	elements.addClass('.item-configuration .item-controls, .item-table', 'hidden');
 	pagination.querySelector('.next').setAttribute('page', 0);
@@ -575,39 +623,60 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 		currentPage = pagination.hasAttribute('current_page') ? Math.max(1, +pagination.getAttribute('current_page')) : 1;
 
 		if (
-			requestParameters.action == 'search' &&
-			previousAction == 'fetch'
+			apiRequestParameters.current.action == 'search' &&
+			apiRequestParameters.previous.action == 'fetch'
 		) {
 			currentPage = 1;
 		}
 	}
 
-	requestParameters.conditions = {
-		order_id: orderId
-	};
-	requestParameters.current_page = currentPage;
-	requestParameters.items[requestParameters.table] = itemGrid;
-	requestParameters.limit = resultsPerPage;
-	requestParameters.offset = ((currentPage * resultsPerPage) - resultsPerPage);
-	requestParameters.sort.field = 'modified';
-	requestParameters.url = defaultUrl;
-	sendRequest(function(response) {
+	api.setRequestParameters({
+		action: apiRequestParameters.current.action,
+		conditions: {
+			order_id: orderId
+		},
+		current_page: currentPage,
+		limit: resultsPerPage,
+		offset: ((currentPage * resultsPerPage) - resultsPerPage),
+		table: 'proxies',
+		url: apiRequestParameters.current.settings.base_url + 'api/proxies'
+	});
+	api.setRequestParameters({
+		items: {
+			proxies: itemGrid
+		},
+		sort: {
+			field: 'modified'
+		}
+	}, true);
+	api.sendRequest(function(response) {
 		if (proxyMessageContainer) {
 			proxyMessageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
 
 		if (
-			requestParameters.action == 'search' &&
-			requestParameters.data &&
+			apiRequestParameters.current.action == 'search' &&
+			apiRequestParameters.current.data &&
 			response.message
 		) {
+			api.setRequestParameters({
+				defaults: {
+					action: apiRequestParameters.current.action,
+					table: 'proxies'
+				}
+			});
 			setTimeout(function() {
 				var itemsClear = document.querySelector('.item-configuration a.clear');
 				itemsClear.removeEventListener('click', itemsClear.clickListener);
 				itemsClear.clickListener = function() {
-					previousAction = 'fetch';
-					requestParameters.data = {};
-					closeFrames(defaultTable);
+					api.setRequestParameters({
+						data: {},
+						defaults: {
+							action: 'fetch',
+							table: 'proxies'
+						}
+					});
+					closeFrames(apiRequestParameters.current.defaults);
 					itemGrid = [];
 					itemGridCount = 0;
 					processProxies(false, false, 1);
@@ -636,10 +705,7 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 			var actionDetails = 'to ' + response.processing.parameters.action + ' ' + response.processing.parameters.item_count + ' ' + response.processing.parameters.table;
 			var itemProcessingData = '<p class="message">Your recent bulk action ' + actionDetails + ' is in progress.</p>';
 			var timeoutId = setTimeout(function() {}, 1);
-			var previousConditions = requestParameters.conditions;
 			var processActionProgress = function(response) {
-				var previousAction = requestParameters.action;
-				var previousOffset = requestParameters.offset;
 				var actionProgress = (response.processing ? response.processing.progress : 0);
 				var actionProcessed = (response.processing ? response.processing.processed : false);
 				elements.html('.progress-text', actionProgress + '%');
@@ -654,15 +720,18 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 					}
 
 					var timeoutId = setTimeout(function() {
-						requestParameters.action = 'fetch';
-						requestParameters.conditions = {
-							foreign_key: response.processing.foreign_key,
-							foreign_value: response.processing.foreign_value
-						};
-						requestParameters.offset = 0;
-						requestParameters.table = 'actions';
-						requestParameters.url = requestParameters.settings.base_url + 'api/actions';
-						sendRequest(function(response) {
+						api.setRequestParameters({
+							action: 'fetch',
+							conditions: {
+								foreign_key: response.processing.foreign_key,
+								foreign_value: response.processing.foreign_value
+							},
+							offset: 0,
+							table: 'actions',
+							url: apiRequestParameters.current.settings.base_url + 'api/actions'
+						});
+
+						api.sendRequest(function(response) {
 							if (response.data.length) {
 								response.processing = response.data[0];
 							}
@@ -671,11 +740,13 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 						});
 					}, 10000);
 				} else {
-					requestParameters.action = previousAction;
-					requestParameters.conditions = previousConditions;
-					requestParameters.table = defaultTable;
-					requestParameters.offset = previousOffset;
-					requestParameters.url = defaultUrl;
+					api.setRequestParameters({
+						action: apiRequestParameters.previous.action,
+						conditions: apiRequestParameters.previous.conditions,
+						offset: apiRequestParameters.previous.offset,
+						table: apiRequestParameters.previous.table,
+						url: apiRequestParameters.previous.url
+					});
 					elements.addClass('.item-processing-container', 'hidden');
 					elements.removeClass('.item-configuration-container', 'hidden');
 
@@ -717,22 +788,32 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 			item.addEventListener('click', item.clickListener);
 		});
 		elements.removeClass('.item-configuration .item-controls, .item-table', 'hidden');
-		itemGrid = response.items[requestParameters.table];
+		itemGrid = response.items['proxies'];
 
-		if (requestParameters.action != 'search') {
-			requestParameters.action = previousAction;
+		if (apiRequestParameters.current.action != 'search') {
+			api.setRequestParameters(apiRequestParameters.current.defaults);
 		}
 
-		requestParameters.tokens[requestParameters.table] = response.tokens[requestParameters.table];
+		api.setRequestParameters({
+			tokens: {
+				proxies: response.tokens['proxies']
+			}
+		}, true);
 		processItemGrid(range(0, response.data.length - 1));
 	});
 };
 var processRequests = function(frameName, frameSelector) {
 	// ..
 };
-requestParameters.action = 'fetch';
-requestParameters.sort = {
-	field: 'modified',
-	order: 'DESC'
-};
-requestParameters.table = defaultTable;
+api.setRequestParameters({
+	action: 'fetch',
+	defaults: {
+		action: 'fetch',
+		table: 'proxies'
+	},
+	sort: {
+		field: 'modified',
+		order: 'DESC'
+	},
+	table: 'proxies'
+});

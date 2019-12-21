@@ -1,7 +1,5 @@
 var orderGrid = {};
 var productIdGrid = {};
-var defaultTable = 'orders';
-var previousAction = 'fetch';
 var processOrders = function() {
 	var ordersAllVisible = document.querySelector('.item-container .checkbox[index="all-visible"]');
 	var ordersContainer = document.querySelector('.orders-container');
@@ -40,24 +38,33 @@ var processOrders = function() {
 		}
 
 		ordersAllVisible.setAttribute('checked', +(allVisibleChecked === selectAllElements('.orders-container .item-button').length));
-		requestParameters.items[requestParameters.table] = orderGrid;
+		api.setRequestParameters({
+			items: {
+				orders: orderGrid
+			}
+		}, true);
 	};
-	requestParameters.action = previousAction;
-	requestParameters.conditions = {
-		'status !=': 'merged'
-	};
-	requestParameters.sort = {
-		field: 'modified',
-		order: 'DESC'
-	};
-	requestParameters.url = requestParameters.settings.base_url + 'api/orders';
+	api.setRequestParameters({
+		action: apiRequestParameters.previous.action,
+		conditions: {
+			'status !=': 'merged'
+		},
+		items: {
+			orders: orderGrid
+		},
+		sort: {
+			field: 'modified',
+			order: 'DESC'
+		},
+		url: apiRequestParameters.current.settings.base_url + 'api/orders'
+	});
 	var ordersData = '';
-	sendRequest(function(response) {
+	api.sendRequest(function(response) {
 		var messageContainer = document.querySelector('main .message-container');
 
 		if (messageContainer) {
 			if (response.user === false) {
-				window.location.href = requestParameters.settings.base_url + '?#login';
+				window.location.href = apiRequestParameters.current.settings.base_url + '?#login';
 				return false;
 			}
 
@@ -103,7 +110,7 @@ var processOrders = function() {
 				});
 				elements.html('.item-configuration .total-results', response.data.length);
 			} else {
-				messageContainer.innerHTML = '<p class="error message">No orders found, please <a href="' + requestParameters.settings.base_url + 'static-proxies">create a new order</a>.</p>';
+				messageContainer.innerHTML = '<p class="error message">No orders found, please <a href="' + apiRequestParameters.current.settings.base_url + 'static-proxies">create a new order</a>.</p>';
 			}
 		}
 
@@ -115,20 +122,28 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue = 1) {
 		processOrders();
 	}
 
-	requestParameters.action = 'upgrade';
-	requestParameters.data.orders = orderGrid;
-	requestParameters.data.products = productIdGrid;
-	requestParameters.data.upgrade_quantity = upgradeValue;
-	requestParameters.url = requestParameters.settings.base_url + 'api/orders';
 	var orderId = parseInt(window.location.search.substr(1));
 	var upgradeContainer = document.querySelector('.upgrade-container');
 	var upgradeData = '';
+	api.setRequestParameters({
+		action: 'upgrade',
+		data: {
+			orders: orderGrid,
+			products: productIdGrid,
+			upgrade_quantity: upgradeValue
+		},
+		url: apiRequestParameters.current.settings.base_url + 'api/orders'
+	}, true);
 
-	if (requestParameters.data.confirm_upgrade) {
-		requestParameters.data.upgrade_quantity = upgradeContainer.querySelector('.upgrade-quantity').value;
+	if (apiRequestParameters.current.data.confirm_upgrade) {
+		api.setRequestParameters({
+			data: {
+				upgrade_quantity: upgradeContainer.querySelector('.upgrade-quantity').value
+			}
+		}, true);
 	}
 
-	var orderGridCount = Object.entries(requestParameters.data.orders).length;
+	var orderGridCount = Object.entries(apiRequestParameters.current.data.orders).length;
 
 	if (
 		!orderGridCount &&
@@ -136,12 +151,16 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue = 1) {
 		typeof orderId === 'number'
 	) {
 		orderGridCount = 1;
-		requestParameters.data.orders = {
-			orderId: orderId
-		};
+		api.setRequestParameters({
+			data: {
+				orders: {
+					orderId: orderId
+				}
+			}
+		}, true);
 	}
 
-	sendRequest(function(response) {
+	api.sendRequest(function(response) {
 		var messageContainer = document.querySelector('.upgrade-configuration .message-container');
 
 		if (messageContainer) {
@@ -236,4 +255,10 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue = 1) {
 		}
 	});
 };
-requestParameters.table = defaultTable;
+api.setRequestParameters({
+	defaults: {
+		action: 'fetch',
+		table: 'orders'
+	},
+	table: 'orders'
+});

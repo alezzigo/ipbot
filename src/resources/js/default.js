@@ -1,8 +1,8 @@
 var api = {
-	setRequestParameters: function(requestParameters, mergeRequestParameters) {
+	setRequestParameters: function(requestParameters, mergeRequestParameters, callback) {
 		if (
-			requestParameters &&
-			typeof requestParameters === 'object'
+			typeof requestParameters === 'object' &&
+			requestParameters
 		) {
 			for (var requestParameterKey in requestParameters) {
 				if (typeof apiRequestParameters.current[requestParameterKey] !== 'undefined') {
@@ -50,6 +50,7 @@ var api = {
 var apiRequestParameters = {
 	current: {
 		data: {},
+		defaults: {},
 		items: {},
 		tokens: {}
 	},
@@ -97,12 +98,11 @@ var capitalizeString = function(string) {
 	});
 	return stringParts.join(' ');
 };
-var closeFrames = function(defaultTable) {
+var closeFrames = function(closeFrameApiRequestParameters) {
 	elements.addClass('.frame-container', 'hidden');
 	elements.html('.frame .message-container', '');
 	elements.removeClass('footer, header, main', 'hidden');
-	requestParameters.action = previousAction;
-	requestParameters.table = defaultTable;
+	api.setRequestParameters(closeFrameApiRequestParameters);
 	window.scroll(0, 0);
 };
 var elements = {
@@ -200,11 +200,6 @@ var repeat = function(count, pattern) {
 
 	return response + (count < 1 ? '' : pattern);
 };
-var requestParameters = {
-	data: {},
-	items: {},
-	tokens: {}
-};
 var selectAllElements = function(selector) {
 	var nodeList = document.querySelectorAll(selector);
 	var response = [];
@@ -214,15 +209,6 @@ var selectAllElements = function(selector) {
 	}
 
 	return response;
-};
-var sendRequest = function(callback) {
-	var request = new XMLHttpRequest();
-	request.open('POST', requestParameters.url, true);
-	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	request.send('json=' + encodeURIComponent(JSON.stringify(requestParameters)));
-	request.onload = function(response) {
-		callback(JSON.parse(response.target.response));
-	};
 };
 var unique = function(value, index, self) {
 	return self.indexOf(value) === index;
@@ -269,11 +255,19 @@ if (!Object.entries) {
 
 onLoad(function() {
 	if (document.querySelector('.hidden.keys')) {
-		requestParameters.keys = JSON.parse(document.querySelector('.hidden.keys').innerHTML);
-		requestParameters.keys.users += JSON.stringify(browserDetails());
+		var keys = JSON.parse(document.querySelector('.hidden.keys').innerHTML);
+		Object.defineProperty(keys, 'users', {
+			configurable: true,
+			value: keys.users + JSON.stringify(browserDetails())
+		});
+		api.setRequestParameters({
+			keys: keys
+		});
 	}
 
 	if (document.querySelector('.hidden.settings')) {
-		requestParameters.settings = JSON.parse(document.querySelector('.hidden.settings').innerHTML);
+		api.setRequestParameters({
+			settings: JSON.parse(document.querySelector('.hidden.settings').innerHTML)
+		});
 	}
 });

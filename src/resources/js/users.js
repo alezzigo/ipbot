@@ -1,21 +1,24 @@
-var defaultTable = 'users';
-var previousAction = 'register';
 var processEmail = function() {
 	processUser();
 	var hash = window.location.search.substr(1);
 
 	if (hash) {
-		requestParameters.data['token'] = hash;
+		api.setRequestParameters({
+			data: {
+				token: hash
+			}
+		}, true);
 	}
 
 	if (
-		requestParameters.data['token'] ||
-		requestParameters.data['email']
+		apiRequestParameters.current.data['token'] ||
+		apiRequestParameters.current.data['email']
 	) {
-		requestParameters.action = 'email';
-		requestParameters.table = 'users';
-		requestParameters.url = requestParameters.settings.base_url + 'api/users';
-		sendRequest(function(response) {
+		api.setRequestParameters({
+			action: 'email',
+			url: apiRequestParameters.current.settings.base_url + 'api/users'
+		});
+		api.sendRequest(function(response) {
 			var messageContainer = document.querySelector('.change-email .message-container');
 
 			if (messageContainer) {
@@ -29,7 +32,7 @@ var processEmail = function() {
 					elements.setAttribute('.change-email input.email', 'disabled', 'disabled');
 					response.message = {
 						status: 'error',
-						text: 'You\'re currently not logged in, please <a href="' + requestParameters.settings.base_url + '?#login">log in</a> or <a href="' + requestParameters.settings.base_url + '?#register">register an account</a>.'
+						text: 'You\'re currently not logged in, please <a href="' + apiRequestParameters.current.settings.base_url + '?#login">log in</a> or <a href="' + apiRequestParameters.current.settings.base_url + '?#register">register an account</a>.'
 					};
 				}
 
@@ -49,10 +52,11 @@ var processEmail = function() {
 	}
 };
 var processRemove = function() {
-	requestParameters.action = 'remove';
-	requestParameters.table = 'users';
-	requestParameters.url = requestParameters.settings.base_url + 'api/users';
-	sendRequest(function(response) {
+	api.setRequestParameters({
+		action: 'remove',
+		url: apiRequestParameters.current.settings.base_url + 'api/users'
+	});
+	api.sendRequest(function(response) {
 		var messageContainer = document.querySelector('.request-removal .message-container');
 
 		if (messageContainer) {
@@ -68,11 +72,14 @@ var processRemove = function() {
 };
 var processReset = function() {
 	var hash = window.location.search.substr(1);
-	requestParameters.action = 'reset';
-	requestParameters.data['token'] = hash;
-	requestParameters.table = 'users';
-	requestParameters.url = requestParameters.settings.base_url + 'api/users';
-	sendRequest(function(response) {
+	api.setRequestParameters({
+		action: 'reset',
+		data: {
+			token: hash
+		},
+		url: apiRequestParameters.current.settings.base_url + 'api/users'
+	}, true);
+	api.sendRequest(function(response) {
 		var messageContainer = document.querySelector('.reset .message-container');
 
 		if (messageContainer) {
@@ -87,7 +94,7 @@ var processReset = function() {
 
 			if (
 				response.message.status === 'success' &&
-				requestParameters.data.email
+				apiRequestParameters.current.data.email
 			) {
 				elements.addClass('.reset .submit', 'hidden');
 			}
@@ -97,13 +104,14 @@ var processReset = function() {
 	});
 };
 var processUser = function() {
-	elements.removeClass('.form-item', 'hidden');
-	requestParameters.action = 'view';
-	requestParameters.table = 'users';
-	requestParameters.url = requestParameters.settings.base_url + 'api/users';
 	var userContainer = document.querySelector('.user-container');
 	var userData = '';
-	sendRequest(function(response) {
+	elements.removeClass('.form-item', 'hidden');
+	api.setRequestParameters({
+		action: 'view',
+		url: apiRequestParameters.current.settings.base_url + 'api/users'
+	});
+	api.sendRequest(function(response) {
 		var messageContainer = document.querySelector('main .message-container');
 
 		if (messageContainer) {
@@ -112,7 +120,7 @@ var processUser = function() {
 				elements.removeClass('nav .guest', 'hidden');
 				response.message = {
 					status: 'error',
-					text: 'You\'re currently not logged in, please <a href="' + requestParameters.settings.base_url + '?#login">log in</a> or <a href="' + requestParameters.settings.base_url + '?#register">register an account</a>.'
+					text: 'You\'re currently not logged in, please <a href="' + apiRequestParameters.current.settings.base_url + '?#login">log in</a> or <a href="' + apiRequestParameters.current.settings.base_url + '?#register">register an account</a>.'
 				};
 			}
 
@@ -123,8 +131,8 @@ var processUser = function() {
 			if (response.user !== false) {
 				userData += '<h2>Account Details</h2>';
 				userData += '<p><strong>User ID</strong><br>' + response.user.id + '</p>';
-				userData += '<p><strong>Email Address</strong><br>' + response.user.email + '<br><a class="email" href="' + requestParameters.settings.base_url + 'account/?#email">Change email address</a></p>';
-				userData += '<p><strong>Password</strong><br>********<br>Last changed: ' + response.user.password_modified + '<br><a class="password" href="' + requestParameters.settings.base_url + 'account/?#reset">Change password</a></p>';
+				userData += '<p><strong>Email Address</strong><br>' + response.user.email + '<br><a class="email" href="' + apiRequestParameters.current.settings.base_url + 'account/?#email">Change email address</a></p>';
+				userData += '<p><strong>Password</strong><br>********<br>Last changed: ' + response.user.password_modified + '<br><a class="password" href="' + apiRequestParameters.current.settings.base_url + 'account/?#reset">Change password</a></p>';
 				userData += '<h2>Account Balance</h2>';
 
 				if (
@@ -134,11 +142,11 @@ var processUser = function() {
 					userData += '<p class="message error">Invoices, payments and account balance are for testing purposes only.</p>';
 				}
 
-				userData += '<p><strong>Current Balance</strong><br>' + response.user.balance + ' ' + requestParameters.settings.billing_currency + '</p>';
+				userData += '<p><strong>Current Balance</strong><br>' + response.user.balance + ' ' + apiRequestParameters.current.settings.billing_currency + '</p>';
 				userData += '<div class="balance-message-container"></div>';
 				userData += '<p class="no-margin-bottom"><strong>Add to Account Balance</strong></p>';
 				userData += '<div class="clear"></div>';
-				userData += '<div class="align-left item-container no-margin-bottom"><div class="field-group no-margin"><input class="balance-amount billing-amount" id="balance-amount" max="10000" min="20" name="balance_amount" step="0.01" type="number" value="100.00"><span class="balance-currency-name">' + requestParameters.settings.billing_currency + '</span><a class="add add-to-balance button" disabled href="javascript:void(0);">Add</a></div></div>';
+				userData += '<div class="align-left item-container no-margin-bottom"><div class="field-group no-margin"><input class="balance-amount billing-amount" id="balance-amount" max="10000" min="20" name="balance_amount" step="0.01" type="number" value="100.00"><span class="balance-currency-name">' + apiRequestParameters.current.settings.billing_currency + '</span><a class="add add-to-balance button" disabled href="javascript:void(0);">Add</a></div></div>';
 				userData += '<div class="clear"></div>';
 
 				if (response.user.subscriptions) {
@@ -148,7 +156,7 @@ var processUser = function() {
 						userData += '<div class="item">';
 						userData += '<div class="item-body">';
 						userData += '<p><strong>Subscription #' + item.id + '</strong></p>';
-						userData += '<p>' + item.price + ' ' + requestParameters.settings.billing_currency + ' per ' + item.interval_value + ' ' + item.interval_type + (item.interval_value !== 1 ? 's' : '') + '</p>';
+						userData += '<p>' + item.price + ' ' + apiRequestParameters.current.settings.billing_currency + ' per ' + item.interval_value + ' ' + item.interval_type + (item.interval_value !== 1 ? 's' : '') + '</p>';
 						userData += '<span class="label-container">'
 						userData += '<label class="label ' + item.status + '">' + item.status.replace('_', ' ') + '</label>';
 						userData += '</span>';
@@ -165,7 +173,7 @@ var processUser = function() {
 				if (response.user.removed) {
 					userData += '<p class="error message">Your account will be removed shortly as requested.</p>';
 				} else {
-					userData += '<a class="remove" href="' + requestParameters.settings.base_url + 'account/?#request-removal">Request account removal</a>';
+					userData += '<a class="remove" href="' + apiRequestParameters.current.settings.base_url + 'account/?#request-removal">Request account removal</a>';
 				}
 			}
 
@@ -175,9 +183,13 @@ var processUser = function() {
 				response.user.subscriptions.map(function(item, index) {
 					var cancelSubscriptionButton = document.querySelector('.item-button[subscription_id="' + item.id + '"] .cancel-subscription');
 					var cancelSubscription = function(subscriptionId) {
-						requestParameters.action = 'cancel';
-						requestParameters.data.subscription_id = subscriptionId;
-						sendRequest(function(response) {
+						api.setRequestParameters({
+							action: 'cancel',
+							data: {
+								subscription_id: subscriptionId
+							}
+						}, true);
+						api.sendRequest(function(response) {
 							if (typeof response.message.text !== 'undefined') {
 								var subscriptionContainerSelector = '.item-button[subscription_id="' + subscriptionId + '"]';
 								elements.addClass('.item-button[subscription_id] .message-container', 'hidden');
@@ -208,9 +220,13 @@ var processUser = function() {
 			if (userAddBalanceButton) {
 				userAddBalanceButton.removeEventListener('click', userAddBalanceButton.clickListener);
 				userAddBalanceButton.clickListener = function() {
-					requestParameters.data['balance'] = userContainer.querySelector('.balance-amount').value;
-					requestParameters.action = 'balance';
-					sendRequest(function(response) {
+					api.setRequestParameters({
+						action: 'balance',
+						data: {
+							balance: userContainer.querySelector('.balance-amount').value
+						}
+					}, true);
+					api.sendRequest(function(response) {
 						var messageContainer = document.querySelector('.balance-message-container');
 
 						if (messageContainer) {
@@ -233,10 +249,11 @@ var processUser = function() {
 	});
 };
 var processUsers = function(frameName, frameSelector) {
-	requestParameters.action = frameName;
-	requestParameters.table = 'users';
-	requestParameters.url = requestParameters.settings.base_url + 'api/users';
-	sendRequest(function(response) {
+	api.setRequestParameters({
+		action: frameName,
+		url: apiRequestParameters.current.settings.base_url + 'api/users'
+	});
+	api.sendRequest(function(response) {
 		var messageContainer = document.querySelector('.' + frameName + ' .message-container');
 
 		if (messageContainer) {
@@ -256,3 +273,10 @@ var processUsers = function(frameName, frameSelector) {
 		}
 	});
 };
+api.setRequestParameters({
+	defaults: {
+		action: 'register',
+		table: 'users'
+	},
+	table: 'users'
+});

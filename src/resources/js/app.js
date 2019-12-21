@@ -3,10 +3,12 @@ var frameMethod;
 var frameSelector;
 var method;
 var processLogout = function() {
-	requestParameters.table = 'users';
-	requestParameters.action = 'logout';
-	requestParameters.url = requestParameters.settings.base_url + 'api/users';
-	sendRequest(function(response) {
+	api.setRequestParameters({
+		action: 'logout',
+		table: 'users',
+		url: apiRequestParameters.current.settings.base_url + 'api/users'
+	});
+	api.sendRequest(function(response) {
 		if (
 			typeof response.redirect === 'string' &&
 			response.redirect
@@ -25,27 +27,31 @@ var processMethodForm = function(element) {
 	frameSelector = '.frame-container[frame="' + frameName + '"]';
 
 	if (
-		typeof defaultTable !== 'undefined' &&
+		typeof apiRequestParameters.current.defaults !== 'undefined' &&
+		apiRequestParameters.current.action !== 'search' &&
 		(
 			element.classList.contains('close') ||
 			!element.classList.contains('submit')
 		)
 	) {
-		closeFrames(defaultTable);
+		closeFrames(apiRequestParameters.current.defaults);
 	}
 
 	if (element.classList.contains('submit')) {
+		var frameData = {};
 		elements.loop(frameSelector + ' input, ' + frameSelector + ' select, ' + frameSelector + ' textarea', function(index, element) {
-			requestParameters.data[element.getAttribute('name')] = element.value;
+			frameData[element.getAttribute('name')] = element.value;
 		});
 		elements.loop(frameSelector + ' .checkbox', function(index, element) {
-			requestParameters.data[element.getAttribute('name')] = +element.getAttribute('checked');
+			frameData[element.getAttribute('name')] = +element.getAttribute('checked');
 		});
 		elements.loop(frameSelector + ' input[type="radio"]:checked', function(index, element) {
-			requestParameters.data[element.getAttribute('name')] = element.value;
+			frameData[element.getAttribute('name')] = element.value;
 		});
-		previousAction = requestParameters.action;
-		requestParameters.action = frameName;
+		api.setRequestParameters({
+			action: frameName,
+			data: frameData
+		}, true);
 
 		if (frameName == 'search') {
 			itemGrid = [];
@@ -99,7 +105,7 @@ onLoad(function() {
 	});
 	selectAllElements('.frame .button.close').map(function(element) {
 		element[1].addEventListener('click', function(element) {
-			closeFrames(defaultTable);
+			closeFrames(apiRequestParameters.current.defaults);
 		});
 	});
 	selectAllElements('.frame .checkbox, .frame label.custom-checkbox-label').map(function(element) {
@@ -141,7 +147,7 @@ onLoad(function() {
 		frameSelector = '.frame-container[frame="' + frameName + '"]';
 
 		if (document.querySelector(frameSelector)) {
-			closeFrames(defaultTable);
+			closeFrames(apiRequestParameters.current.defaults);
 			frameMethod = 'process' + capitalizeString(frameName);
 			openFrame(frameName, frameSelector);
 

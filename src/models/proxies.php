@@ -1019,6 +1019,85 @@
 		}
 
 	/**
+	 * Remove proxies from an order
+	 *
+	 * @param array $orderData
+	 *
+	 * @return integer $response
+	 */
+		public function removeProxies($orderData) {
+			$response = 0;
+			$proxyIds = $nodeData = array();
+			$quantity = min(10000, max(0, $orderData['quantity_allocated']));
+
+			if ($quantity) {
+				$orderProcessingData = array(
+					array(
+						'id' => $orderData['id'],
+						'processing' => true
+					)
+				);
+
+				if ($this->save('orders', $orderProcessingData)) {
+					$processingProxies = $this->fetch('proxies', array(
+						'conditions' => array(
+							'order_id' => $orderData['id']
+						),
+						'fields' => array(
+							'id',
+							'node_id'
+						),
+						'limit' => $quantity,
+						'sort' => array(
+							'field' => 'created',
+							'order' => 'DESC'
+						)
+					));
+
+					if ($processingProxiesCount = count($processingProxies['data'])) {
+						foreach ($processingProxies['data'] as $processingProxy) {
+							$proxyIds[] = $processingProxy['id'];
+							$nodeData[] = array(
+								'id' => $processingProxy['node_id']
+							);
+						}
+
+						$nodeData = array_replace_recursive($nodeData, array_fill(0, $processingProxiesCount, array(
+							'allocated' => false,
+							'processing' => false
+						)));
+
+						if (
+							$this->delete('proxies', array(
+								'id' => $proxyIds
+							)) &&
+							$this->save('nodes', $nodeData)
+						) {
+							$orderProgressData = array(
+								array(
+									'id' => $orderData['id'],
+									'processing' => false,
+									'quantity_active' => max(0, $orderData['quantity_active'] - $processingProxiesCount),
+									'quantity_allocated' => max(0, ($quantityAllocated = $orderData['quantity_allocated'] - $processingProxiesCount)),
+									'quantity_allocated_progress' => ceil(($quantityAllocated / $orderData['quantity']) * 100)
+								)
+							);
+
+							if ($this->save('orders', $orderProgressData)) {
+								$response = $processingProxiesCount;
+							}
+						}
+					}
+
+					$orderProcessingData[0]['processing'] = false;
+					$this->save('orders', $orderProcessingData);
+				}
+			}
+
+			return $response;
+		}
+
+	/**
 	 * Process replace requests
 	 *
 	 * @param string $table
@@ -1353,7 +1432,7 @@
 		}
 
 	/**
-	 * Shell method for allocating proxies
+	 * Shell method for allocating proxies to orders
 	 *
 	 * @param string $table
 	 *
@@ -1369,7 +1448,8 @@
 			$orders = $this->fetch('orders', array(
 				'conditions' => array(
 					'processing' => false,
-					'quantity_allocated_progress <' => 100
+					'quantity_allocated_progress <' => 100,
+					'status' => 'active'
 				),
 				'fields' => array(
 					'id',
@@ -1398,10 +1478,67 @@
 				$response = array(
 					'message' => array(
 						'status' => 'success',
-						'text' => $proxyCount . ' new ' . $table . ' allocated successfully for ' . $orders['count'] . ' orders.'
+						'text' => $proxyCount . ' new ' . $table . ' allocated successfully.'
 					)
 				);
 			}
+
+			return $response;
+		}
+
+	/**
+	 * Shell method for removing proxies from orders
+	 *
+	 * @param string $table
+	 *
+	 * @return array $response
+	 */
+		public function shellRemoveProxies($table) {
+			$response = array(
+				'message' => array(
+					'status' => 'error',
+					'text' => 'There aren\'t any new ' . $table . ' to remove, please try again later.'
+				)
+			);
+			$orders = $this->fetch('orders', array(
+				'conditions' => array(
+					'processing' => false,
+					'quantity_allocated_progress >' => 0,
+					'status' => 'pending'
+				),
+				'fields' => array(
+					'id',
+					'interval_type',
+					'interval_value',
+					'ip_version',
+					'name',
+					'previous_action',
+					'price',
+					'price_pending',
+					'quantity',
+					'quantity_active',
+					'quantity_allocated',
+					'quantity_allocated_progress',
+					'quantity_pending',
+					'user_id'
+				)
+			));
+			$proxyCount = 0;
+
+			if (!empty($orders['count'])) {
+				foreach ($orders['data'] as $order) {
+					$proxyCount += $this->removeProxies($order);
+				}
+
+				$response = array(
+					'message' => array(
+						'status' => 'success',
+						'text' => $proxyCount . ' new ' . $table . ' removed successfully.'
+					)
+				);
+			}
+
+			return $response;
 		}
 
 	/**

@@ -231,45 +231,14 @@
 							!empty($invoice['data']['user'])
 						) {
 							foreach ($invoice['data']['orders'] as $order) {
-								$nodeData = $orderData = array();
-								$orderData[] = array(
-									'id' => $order['id'],
-									'status' => 'pending'
+								$orderData = array(
+									array(
+										'id' => $order['id'],
+										'status' => 'pending'
+									)
 								);
 
 								if ($this->save('orders', $orderData)) {
-									$proxyParameters = array(
-										'conditions' => array(
-											'order_id' => $order['id']
-										),
-										'fields' => array(
-											'node_id'
-										)
-									);
-									$nodeIds = $this->fetch('proxies', $proxyParameters);
-									$proxyParameters['fields'] = array(
-										'id'
-									);
-									$proxyIds = $this->fetch('proxies', $proxyParameters);
-
-									if (
-										!empty($nodeIds['count']) &&
-										!empty($proxyIds['count'])
-									) {
-										foreach ($nodeIds['data'] as $nodeId) {
-											$nodeData[$nodeId] = array(
-												'allocated' => false,
-												'id' => $nodeId,
-												'processing' => false
-											);
-										}
-
-										$this->save('nodes', array_values($nodeData));
-										$this->delete('proxies', array(
-											'id' => $proxyIds['data']
-										));
-									}
-
 									$mailParameters = array(
 										'from' => $this->settings['from_email'],
 										'subject' => 'Order #' . $order['id'] . ' is deactivated',

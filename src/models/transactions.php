@@ -1093,38 +1093,6 @@
 
 						foreach ($pendingInvoiceOrders as $pendingInvoiceOrder) {
 							if ($pendingInvoiceOrder['quantity_active'] === 0) {
-								$proxyParameters = array(
-									'conditions' => array(
-										'order_id' => $pendingInvoiceOrder['id']
-									),
-									'fields' => array(
-										'node_id'
-									)
-								);
-								$nodeIds = $this->fetch('proxies', $proxyParameters);
-								$proxyParameters['fields'] = array(
-									'id'
-								);
-								$proxyIds = $this->fetch('proxies', $proxyParameters);
-
-								if (
-									!empty($nodeIds['count']) &&
-									!empty($proxyIds['count'])
-								) {
-									foreach ($nodeIds['data'] as $nodeId) {
-										$nodeData[$nodeId] = array(
-											'allocated' => false,
-											'id' => $nodeId,
-											'processing' => false
-										);
-									}
-
-									$this->save('nodes', array_values($nodeData));
-									$this->delete('proxies', array(
-										'id' => $proxyIds['data']
-									));
-								}
-
 								$mailParameters = array(
 									'from' => $this->settings['from_email'],
 									'subject' => 'Order #' . $pendingInvoiceOrder['id'] . ' is deactivated',

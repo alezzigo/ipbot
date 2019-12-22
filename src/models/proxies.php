@@ -346,7 +346,11 @@
 				}
 			}
 
-			if (!empty($response['data'])) {
+			if (
+				!empty($response['data']) &&
+				($proxyCount = count($response['data']))
+			) {
+				// ..
 				$delimiters = array(
 					!empty($parameters['data']['ipv4_delimiter_1']) ? $parameters['data']['ipv4_delimiter_1'] : '',
 					!empty($parameters['data']['ipv4_delimiter_2']) ? $parameters['data']['ipv4_delimiter_2'] : '',

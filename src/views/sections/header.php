@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="google-site-verification" content="<?php echo $config->settings['google_site_verification']; ?>">
-<meta name="viewport" content="initial-scale=2, width=1000">
+<meta name="viewport" content="initial-scale=1, width=device-width">
 <title><?php echo $config->parameters['title']; ?></title>
 <?php
 	if (!empty($styleSheets)) {

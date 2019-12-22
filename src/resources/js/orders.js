@@ -117,7 +117,7 @@ var processOrders = function() {
 		processWindowEvents('resize');
 	});
 };
-var processUpgrade = function(frameName, frameSelector, upgradeValue = 1) {
+var processUpgrade = function(frameName, frameSelector, upgradeValue) {
 	if (!document.querySelector('.orders-container .checkbox[index="0"]')) {
 		processOrders();
 	}
@@ -125,6 +125,7 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue = 1) {
 	var orderId = parseInt(window.location.search.substr(1));
 	var upgradeContainer = document.querySelector('.upgrade-container');
 	var upgradeData = '';
+	upgradeValue = upgradeValue || 1;
 	api.setRequestParameters({
 		action: 'upgrade',
 		data: {

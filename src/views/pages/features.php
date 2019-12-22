@@ -8,7 +8,7 @@
 	<div class="section">
 		<div class="container small">
 			<h1>Control Panel Features</h1>
-			<div class="section">
+			<div class="no-margin-bottom feature-container section">
 				<h2>Schedule Automatic Proxy Replacements</h2>
 				<p>Set custom proxy replacement frequencies for individually-selected proxies. All proxies can be refreshed up to twice per month.</p>
 				<div class="feature-screenshot">

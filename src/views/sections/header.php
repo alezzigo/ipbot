@@ -76,6 +76,7 @@
 	}
 ?>
 </head>
+<body>
 <header>
 	<div class="container small">
 		<div class="align-left navigation primary-navigation">
@@ -127,7 +128,6 @@
 		<?php endif; ?>
 	</div>
 </header>
-<body>
 <?php
 	$frames = array(
 		'forgot',

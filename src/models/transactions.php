@@ -593,7 +593,7 @@
 												'data' => array(
 													'order' => $orderData[0]
 												),
-												'item_count' => $itemCount = (abs($order['quantity'] - (integer) $order['quantity_pending'])),
+												'item_count' => ($itemCount = (abs($order['quantity'] - (integer) $order['quantity_pending']))),
 												'table' => ($itemCount === 1 ? 'proxy' : 'proxies')
 											)),
 											'foreign_key' => 'order_id',
@@ -1083,6 +1083,40 @@
 									) {
 										$pendingInvoiceOrders[$invoiceOrder['id']]['quantity_active'] = 0;
 										$pendingInvoiceOrders[$invoiceOrder['id']]['status'] = 'pending';
+										$actionData = array(
+											array(
+												'chunks' => ($chunks = ceil($invoiceOrder['quantity_active'] / 10000)),
+												'encoded_parameters' => json_encode(array(
+													'action' => 'remove',
+													'data' => array(
+														'order' => $invoiceOrder
+													),
+													'item_count' => ($itemCount = $invoiceOrder['quantity_active']),
+													'table' => 'proxies'
+												)),
+												'foreign_key' => 'order_id',
+												'foreign_value' => $invoiceOrder['id'],
+												'processed' => ($processOrder = ($chunks == 1)),
+												'progress' => ($processOrder ? 100 : 0),
+												'user_id' => $parameters['user']['id']
+											)
+										);
+
+										if ($processOrder) {
+											$this->_call('proxies', array(
+												'methodName' => 'remove',
+												'methodParameters' => array(
+													'proxies',
+													array(
+														'data' => array(
+															'order' => $invoiceOrder
+														)
+													)
+												)
+											));
+										}
+
+										$this->save('actions', $actionData);
 									}
 								}
 							}

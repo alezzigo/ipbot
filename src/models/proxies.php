@@ -1048,71 +1048,80 @@
 	 * @return integer $response
 	 */
 		public function remove($table, $parameters) {
-			// ..
-			$response = 0;
+			$response = array();
 			$proxyIds = $nodeData = array();
-			$quantity = min(10000, max(0, $parameters['data']['order']['quantity_allocated']));
 
-			if ($quantity) {
-				$orderProcessingData = array(
-					array(
-						'id' => $parameters['data']['order']['id'],
-						'processing' => true
+			if (!empty($parameters['data']['order']['id'])) {
+				$order = $this->fetch('orders', array(
+					'conditions' => array(
+						'id' => $parameters['data']['order']['id']
+					),
+					'fields' => array(
+						'id',
+						'quantity',
+						'quantity_active',
+						'quantity_allocated'
 					)
-				);
+				));
 
-				if ($this->save('orders', $orderProcessingData)) {
-					$processingProxies = $this->fetch('proxies', array(
-						'conditions' => array(
-							'order_id' => $parameters['data']['order']['id']
-						),
-						'fields' => array(
-							'id',
-							'node_id'
-						),
-						'limit' => $quantity,
-						'sort' => array(
-							'field' => 'created',
-							'order' => 'DESC'
-						)
-					));
+				if (
+					!empty($order['count']) &&
+					($orderData = $order['data'][0])
+				) {
+					$quantity = min(10000, max(0, $orderData['quantity_allocated']));
 
-					if ($processingProxiesCount = count($processingProxies['data'])) {
-						foreach ($processingProxies['data'] as $processingProxy) {
-							$proxyIds[] = $processingProxy['id'];
-							$nodeData[] = array(
-								'id' => $processingProxy['node_id']
-							);
-						}
+					if ($quantity) {
+						$processingProxies = $this->fetch('proxies', array(
+							'conditions' => array(
+								'order_id' => $orderData['id']
+							),
+							'fields' => array(
+								'id',
+								'node_id'
+							),
+							'limit' => $quantity,
+							'sort' => array(
+								'field' => 'created',
+								'order' => 'DESC'
+							)
+						));
 
-						$nodeData = array_replace_recursive($nodeData, array_fill(0, $processingProxiesCount, array(
-							'allocated' => false,
-							'processing' => false
-						)));
+						if ($processingProxiesCount = count($processingProxies['data'])) {
+							foreach ($processingProxies['data'] as $processingProxy) {
+								$proxyIds[] = $processingProxy['id'];
+								$nodeData[] = array(
+									'id' => $processingProxy['node_id']
+								);
+							}
 
-						if (
-							$this->delete('proxies', array(
-								'id' => $proxyIds
-							)) &&
-							$this->save('nodes', $nodeData)
-						) {
-							$orderProgressData = array(
-								array(
-									'id' => $parameters['data']['order']['id'],
-									'processing' => false,
-									'quantity_active' => max(0, $parameters['data']['order']['quantity_active'] - $processingProxiesCount),
-									'quantity_allocated' => max(0, ($quantityAllocated = $parameters['data']['order']['quantity_allocated'] - $processingProxiesCount))
-								)
-							);
+							$nodeData = array_replace_recursive($nodeData, array_fill(0, $processingProxiesCount, array(
+								'allocated' => false,
+								'processing' => false
+							)));
 
-							if ($this->save('orders', $orderProgressData)) {
-								$response = $processingProxiesCount;
+							if (
+								$this->delete('proxies', array(
+									'id' => $proxyIds
+								)) &&
+								$this->save('nodes', $nodeData)
+							) {
+								$orderProgressData = array(
+									array(
+										'id' => $orderData['id'],
+										'quantity_active' => max(0, $orderData['quantity_active'] - $processingProxiesCount),
+										'quantity_allocated' => max(0, ($quantityAllocated = $orderData['quantity_allocated'] - $processingProxiesCount))
+									)
+								);
+
+								if ($this->save('orders', $orderProgressData)) {
+									$response['message'] = array(
+										'status' => 'success',
+										'text' => $processingProxiesCount . ' ' . ($processingProxiesCount === 1 ? $this->_formatPluralToSingular($table) : $table) . ' removed successfully.'
+									);
+								}
 							}
 						}
 					}
-
-					$orderProcessingData[0]['processing'] = false;
-					$this->save('orders', $orderProcessingData);
 				}
 			}
 

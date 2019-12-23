@@ -980,17 +980,21 @@
 						'name',
 						'quantity',
 						'quantity_active',
+						'quantity_allocated',
 						'type'
 					),
 					'limit' => 1
 				));
 
-				if (!empty($order['count'])) {
+				if (
+					!empty($order['count']) &&
+					($orderData = $order['data'][0])
+				) {
 					$response = array(
 						'data' => array_merge(array(
-							'invoice' => ($invoice = $this->retrieveMostRecentOrderInvoice($order['data'][0])),
-							'order' => $order['data'][0]
-						), $this->_retrieveAvailableServerNodeDetails($order['data'][0])),
+							'invoice' => ($invoice = $this->retrieveMostRecentOrderInvoice($orderData)),
+							'order' => $orderData
+						), $this->_retrieveAvailableServerNodeDetails($orderData)),
 						'message' => array(
 							'status' => 'success',
 							'text' => ''
@@ -1015,17 +1019,16 @@
 					)
 				));
 
-				if (
-					!empty($order['count']) &&
-					!empty($order['data'][0]['merged_order_id'])
-				) {
-					$this->redirect($this->settings['base_url'] . 'orders/' . $order['data'][0]['merged_order_id']);
-				}
+				if (!empty($order['count'])) {
+					if (!empty($orderData['merged_order_id'])) {
+						$this->redirect($this->settings['base_url'] . 'orders/' . $orderData['merged_order_id']);
+					}
 
-				$response = array(
-					'order_id' => $parameters['id'],
-					'results_per_page' => 50
-				);
+					$response = array(
+						'order_id' => $parameters['id'],
+						'results_per_page' => 50
+					);
+				}
 			}
 
 			return $response;

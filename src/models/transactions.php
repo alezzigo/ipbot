@@ -591,7 +591,7 @@
 											'encoded_parameters' => json_encode(array(
 												'action' => 'allocate',
 												'data' => array(
-													'order' => $orderData
+													'order' => $orderData[0]
 												),
 												'item_count' => $itemCount = (abs($order['quantity'] - (integer) $order['quantity_pending'])),
 												'table' => ($itemCount === 1 ? 'proxy' : 'proxies')

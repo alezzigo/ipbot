@@ -77,27 +77,30 @@
 							$itemsToProcess = json_decode($actionToProcess['encoded_items_to_process'], true);
 							$parameters = json_decode($actionToProcess['encoded_parameters'], true);
 
-							if (
-								!empty($itemsToProcess) &&
-								($actionTable = $parameters['table'])
-							) {
+							if ($actionTable = $parameters['table']) {
 								$actionData = array(
 									array(
 										'id' => $actionToProcess['id']
 									)
 								);
 
-								if ($parameters['tokens'][$actionTable] === $this->_getToken($actionTable, $parameters, $actionToProcess['foreign_key'], $actionToProcess['foreign_value'])) {
-									$parameters['items'][$actionTable] = array_splice($itemsToProcess, count($itemsProcessed), 1);
-									$itemsProcessed = array_merge($itemsProcessed, $parameters['items'][$actionTable]);
-									$completed = (count($itemsProcessed) === count($itemsToProcess));
+								if (
+									empty($itemsToProcess) ||
+									$parameters['tokens'][$actionTable] === $this->_getToken($actionTable, $parameters, $actionToProcess['foreign_key'], $actionToProcess['foreign_value'])
+								) {
+									$actionProgress = min(100, $actionToProcess['progress'] + ceil(100 / $actionToProcess['chunks']));
+
+									if (!empty($itemsToProcess)) {
+										$parameters['items'][$actionTable] = array_splice($itemsToProcess, count($itemsProcessed), 1);
+										$actionData[0]['encoded_items_processed'] = json_encode(array_merge($itemsProcessed, $parameters['items'][$actionTable]));
+										$parameters['items'] = $this->_retrieveItems($parameters, true);
+									}
+
 									$parameters['data']['action'] = array_merge($actionData[0], array(
-										'encoded_items_processed' => json_encode($itemsProcessed),
-										'processed' => $completed,
+										'processed' => ($actionProgress === 100),
 										'processing' => false,
-										'progress' => ($completed ? 100 : min(100, $actionToProcess['progress'] + (ceil(100 / $actionToProcess['chunks']))))
+										'progress' => $actionProgress
 									));
-									$parameters['items'] = $this->_retrieveItems($parameters, true);
 									$actionResponse = $this->_call($actionTable, array(
 										'methodName' => $parameters['action'],
 										'methodParameters' => array(
@@ -117,7 +120,7 @@
 								} else {
 									$actionData = array(
 										array_merge($actionData[0], array(
-											'progress' => ($completed ? 100 : min(100, $actionToProcess['progress'] + (ceil(100 / $actionToProcess['chunks'])))),
+											'progress' => $actionToProcess['progress'],
 											'processed' => true,
 											'processing' => false
 										))

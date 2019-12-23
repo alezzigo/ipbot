@@ -38,23 +38,38 @@
 		public function allocate($table, $parameters) {
 			$response = array();
 
-			if (!empty($parameters['data']['order'])) {
-				$quantity = min(10, max(0, $parameters['data']['order']['quantity'] - $parameters['data']['order']['quantity_allocated']));
+			if (!empty($parameters['data']['order']['id'])) {
+				$order = $this->fetch('orders', array(
+					'conditions' => array(
+						'id' => $parameters['data']['order']['id']
+					),
+					'fields' => array(
+						'id',
+						'ip_version',
+						'interval_type',
+						'interval_value',
+						'name',
+						'previous_action',
+						'price',
+						'quantity',
+						'quantity_active',
+						'quantity_allocated',
+						'user_id'
+					)
+				));
 
-				if ($quantity) {
-					$orderProcessingData = array(
-						array(
-							'id' => $parameters['data']['order']['id'],
-							'processing' => true
-						)
-					);
+				if (
+					!empty($order['count']) &&
+					($orderData = $order['data'][0])
+				) {
+					$quantity = min(10000, max(0, $orderData['quantity'] - $orderData['quantity_allocated']));
 
-					if ($this->save('orders', $orderProcessingData)) {
+					if ($quantity) {
 						$processingNodes = $this->fetch('nodes', array(
 							'conditions' => array(
 								'AND' => array(
 									'allocated' => false,
-									'ip_version' => $parameters['data']['order']['ip_version'],
+									'ip_version' => $orderData['ip_version'],
 									'NOT' => array(
 										'ip' => null
 									),
@@ -80,9 +95,9 @@
 
 						if ($processingNodesCount = count($processingNodes['data'])) {
 							$newItemData = array(
-								'order_id' => $parameters['data']['order']['id'],
+								'order_id' => $orderData['id'],
 								'status' => 'online',
-								'user_id' => $parameters['data']['order']['user_id']
+								'user_id' => $orderData['user_id']
 							);
 							$processingNodes['data'] = array_replace_recursive($processingNodes['data'], array_fill(0, $processingNodesCount, array(
 								'processing' => true
@@ -102,26 +117,22 @@
 									unset($processingNodes['data'][$processingNodeKey]['processing']);
 								}
 
-								// todo: use parameters['data']['action'] for order progress tracking
-
 								if (
 									$this->save('nodes', $allocatedNodes) &&
 									$this->save('proxies', $processingNodes['data'])
 								) {
 									$orderProgressData = array(
 										array(
-											'id' => $parameters['data']['order']['id'],
-											'processing' => false,
-											'quantity_active' => $parameters['data']['order']['quantity_active'] + $processingNodesCount,
-											'quantity_allocated' => ($quantityAllocated = $parameters['data']['order']['quantity_allocated'] + $processingNodesCount),
-											'quantity_allocated_progress' => ceil(($quantityAllocated / $parameters['data']['order']['quantity']) * 100)
+											'id' => $orderData['id'],
+											'quantity_active' => $orderData['quantity_active'] + $processingNodesCount,
+											'quantity_allocated' => ($quantityAllocated = $orderData['quantity_allocated'] + $processingNodesCount)
 										)
 									);
 
 									if ($this->save('orders', $orderProgressData)) {
-										$parameters['data']['order'] = array_merge($parameters['data']['order'], $orderProgressData[0]);
+										$orderData = array_merge($orderData, $orderProgressData[0]);
 
-										if ($orderData['quantity_allocated_progress'] == 100) {
+										if ($parameters['data']['action']['progress'] === 100) {
 											$mailParameters = array(
 												'from' => $this->settings['from_email'],
 												'subject' => 'Order #' . $orderData['id'] . ' is activated',
@@ -152,14 +163,14 @@
 											$this->_sendMail($mailParameters);
 										}
 
-										$response = $quantityAllocated;
+										$response['message'] = array(
+											'status' => 'success',
+											'text' => $processingNodesCount . ' ' . ($processingNodesCount === 1 ? $this->_formatPluralToSingular($table) : $table) . ' allocated successfully.'
+										);
 									}
 								}
 							}
 						}
-
-						$orderProcessingData[0]['processing'] = false;
-						$this->save('orders', $orderProcessingData);
 					}
 				}
 			}
@@ -1037,6 +1048,7 @@
 	 * @return integer $response
 	 */
 		public function remove($table, $parameters) {
+			// ..
 			$response = 0;
 			$proxyIds = $nodeData = array();
 			$quantity = min(10000, max(0, $parameters['data']['order']['quantity_allocated']));
@@ -1089,8 +1101,7 @@
 									'id' => $parameters['data']['order']['id'],
 									'processing' => false,
 									'quantity_active' => max(0, $parameters['data']['order']['quantity_active'] - $processingProxiesCount),
-									'quantity_allocated' => max(0, ($quantityAllocated = $parameters['data']['order']['quantity_allocated'] - $processingProxiesCount)),
-									'quantity_allocated_progress' => ceil(($quantityAllocated / $parameters['data']['order']['quantity']) * 100)
+									'quantity_allocated' => max(0, ($quantityAllocated = $parameters['data']['order']['quantity_allocated'] - $processingProxiesCount))
 								)
 							);
 

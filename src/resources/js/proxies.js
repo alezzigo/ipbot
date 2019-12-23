@@ -512,6 +512,13 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 			processItemGrid(range(0, selectAllElements('.item-configuration tr .checkbox').length - 1));
 		};
 
+		if (
+			typeof itemIndexes[1] === 'number' &&
+			itemIndexes[1] < 0
+		) {
+			return;
+		}
+
 		if (!itemGrid.length) {
 			elements.html('.total-checked', 0);
 		}
@@ -693,7 +700,10 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 
 		if (
 			response.code !== 200 ||
-			!response.data.length
+			(
+				!response.data.length &&
+				!response.processing
+			)
 		) {
 			return items.innerHTML = '';
 		}
@@ -747,6 +757,10 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 					});
 					elements.addClass('.item-processing-container', 'hidden');
 					elements.removeClass('.item-configuration-container', 'hidden');
+
+					if (!response.processing.token_id) {
+						processProxies(false, false, 1);
+					}
 
 					if (
 						proxyMessageContainer &&

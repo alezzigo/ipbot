@@ -738,7 +738,6 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 							table: 'actions',
 							url: apiRequestParameters.current.settings.base_url + 'api/actions'
 						});
-
 						api.sendRequest(function(response) {
 							if (response.data.length) {
 								response.processing = response.data[0];

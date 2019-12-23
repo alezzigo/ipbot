@@ -1192,13 +1192,6 @@
 					'transfer_authentication' => !empty($parameters['data']['transfer_authentication']) ? true : false
 				);
 
-				if (!empty($parameters['data']['instant_replacement'])) {
-					$oldItemData += array(
-						'replacement_removal_date' => date('Y-m-d H:i:s', strtotime('+24 hours')),
-						'status' => 'replaced'
-					);
-				}
-
 				if (
 					(
 						!empty($parameters['data']['automatic_replacement_interval_value']) &&
@@ -1216,6 +1209,13 @@
 						'last_replacement_date' => date('Y-m-d H:i:s', time())
 					);
 					$newItemData = $oldItemData = array_merge($newItemData, $intervalData);
+				}
+
+				if (!empty($parameters['data']['instant_replacement'])) {
+					$oldItemData += array(
+						'replacement_removal_date' => date('Y-m-d H:i:s', strtotime('+24 hours')),
+						'status' => 'replaced'
+					);
 				}
 
 				if (!empty($parameters['data']['replace_with_specific_node_locations'])) {

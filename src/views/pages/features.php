@@ -19,7 +19,7 @@
 				<div class="feature-screenshot">
 					<img alt="Proxy order upgrade screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/order-upgrade.png">
 				</div>
-				<h2>Manage Proxies Programatically via API</h2>
+				<h2>Maintain Proxy Settings Programatically via API</h2>
 				<p>Automate existing control panel functions with a complete API for authentication, replacements and proxy retrieval.</p>
 				<div class="feature-screenshot">
 					<img alt="Proxy JSON API documentation screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/api-endpoint.png">
@@ -49,6 +49,13 @@
 				<div class="feature-screenshot">
 					<img alt="Proxy group management screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/proxy-groups.png">
 				</div>
+				<h2>Manage Millions of IPs</h2>
+				<p>Allocate, authenticate, change and group proxy IPs in bulk with background request processing.</p>
+				<div class="feature-screenshot">
+					<img alt="Bulk request processing screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/order-bulk-action.png">
+				</div>
+				<h2>Download HTTP Request Logs</h2>
+				<p>Coming soon: Select individual proxy IPs and download a comprehensive log of all HTTP / HTTPS proxy requests within a specified date range.</p>
 			</div>
 		</div>
 	</div>

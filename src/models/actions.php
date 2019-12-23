@@ -91,6 +91,12 @@
 									$parameters['items'][$actionTable] = array_splice($itemsToProcess, count($itemsProcessed), 1);
 									$itemsProcessed = array_merge($itemsProcessed, $parameters['items'][$actionTable]);
 									$completed = (count($itemsProcessed) === count($itemsToProcess));
+									$parameters['data']['action'] = array_merge($actionData[0], array(
+										'encoded_items_processed' => json_encode($itemsProcessed),
+										'processed' => $completed,
+										'processing' => false,
+										'progress' => ($completed ? 100 : min(100, $actionToProcess['progress'] + (ceil(100 / $actionToProcess['chunks']))))
+									));
 									$parameters['items'] = $this->_retrieveItems($parameters, true);
 									$actionResponse = $this->_call($actionTable, array(
 										'methodName' => $parameters['action'],
@@ -105,12 +111,7 @@
 										$actionResponse['message']['status'] === 'success'
 									) {
 										$actionData = array(
-											array_merge($actionData[0], array(
-												'encoded_items_processed' => json_encode($itemsProcessed),
-												'processed' => $completed,
-												'processing' => false,
-												'progress' => ($completed ? 100 : min(100, $actionToProcess['progress'] + (ceil(100 / $actionToProcess['chunks']))))
-											))
+											$parameters['data']['action']
 										);
 									}
 								} else {

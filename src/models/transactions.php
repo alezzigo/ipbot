@@ -585,12 +585,40 @@
 									$this->save('orders', $orderData) &&
 									$this->save('transactions', $pendingTransactions)
 								) {
-									$this->_call('proxies', array(
-										'methodName' => 'allocateProxies',
-										'methodParameters' => array(
-											$orderData[0]
+									$actionData = array(
+										array(
+											'chunks' => ($chunks = ceil($quantity / 10000)),
+											'encoded_parameters' => json_encode(array(
+												'action' => 'allocate',
+												'data' => array(
+													'order' => $orderData
+												),
+												'item_count' => $itemCount = (abs($order['quantity'] - (integer) $order['quantity_pending'])),
+												'table' => ($itemCount === 1 ? 'proxy' : 'proxies')
+											)),
+											'foreign_key' => 'order_id',
+											'foreign_value' => $order['id'],
+											'processed' => ($processOrder = ($chunks == 1)),
+											'progress' => ($processOrder ? 100 : 0),
+											'user_id' => $parameters['user']['id']
 										)
-									));
+									);
+
+									if ($processOrder) {
+										$this->_call('proxies', array(
+											'methodName' => 'allocate',
+											'methodParameters' => array(
+												'proxies',
+												array(
+													'data' => array(
+														'order' => $orderData[0]
+													)
+												)
+											)
+										));
+									}
+
+									$this->save('actions', $actionData);
 								}
 							}
 						}

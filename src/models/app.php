@@ -506,6 +506,11 @@
 							'tokens' => true
 						));
 						$parametersToEncode['item_count'] = $items[$table]['count'];
+
+						if ($parametersToEncode['item_count'] === 1) {
+							$parametersToEncode['table'] = $this->_formatPluralToSingular($parametersToEncode['table']);
+						}
+
 						$actionData = array(
 							array(
 								'chunks' => $itemIndexLineCount,

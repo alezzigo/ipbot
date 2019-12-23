@@ -549,10 +549,13 @@
 			} else {
 				$action = 'fetch';
 				$response['items'] = $clearItems;
-				$response['message'] = array(
-					'status' => 'error',
-					'text' => 'Your ' . $table . ' have been recently modified and your previously-selected results have been deselected automatically.'
-				);
+
+				if (!empty($parameters['items'][$table])) {
+					$response['message'] = array(
+						'status' => 'error',
+						'text' => 'Your ' . $table . ' have been recently modified and your previously-selected results have been deselected automatically.'
+					);
+				}
 			}
 
 			if (!empty($foreignValue)) {

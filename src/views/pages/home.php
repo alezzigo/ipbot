@@ -23,7 +23,7 @@
 					<p>Take full control of your network firewalls, cloud applications and web crawlers using authentication rules and grouping for individual IP addresses.</p>
 					<h2>Minimal Design and Code Structure</h2>
 					<p>The dashboard uses minimal design elements so you can add your own theme to match company branding.</p>
-					<p>Developer implementation is a breeze with simple and secure routing, MVC and API structure using vanilla JavaScript, PHP and SQL.</p>
+					<p>Developer implementation is a breeze using simple and secure authentication, MVC routing and API structure. The custom-built framework uses vanilla JavaScript and PHP/MySQL.</p>
 					<h2>Built for Scale</h2>
 					<p><a href="<?php echo $config->settings['base_url']; ?>features">Control panel functions</a> are designed specifically for managing billions of IPs across multiple internet service providers using custom data encoding and batch request processing.</p>
 					<h2>Complete Recurring Billing System</h2>

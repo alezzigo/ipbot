@@ -587,13 +587,13 @@
 								) {
 									$actionData = array(
 										array(
-											'chunks' => ($chunks = ceil($quantity / 10000)),
+											'chunks' => ($chunks = ceil(($itemCount = (abs($order['quantity'] - (integer) $order['quantity_pending']))) / 10000)),
 											'encoded_parameters' => json_encode(array(
 												'action' => 'allocate',
 												'data' => array(
 													'order' => $orderData[0]
 												),
-												'item_count' => ($itemCount = (abs($order['quantity'] - (integer) $order['quantity_pending']))),
+												'item_count' => $itemCount,
 												'table' => ($itemCount === 1 ? 'proxy' : 'proxies')
 											)),
 											'foreign_key' => 'order_id',

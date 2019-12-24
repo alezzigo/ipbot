@@ -50,10 +50,10 @@ var processActions = function(frameName, frameSelector) {
 		});
 	});
 };
-var processCopy = function(frameName, frameSelector) {
-	var processCopyFormat = function() {
+var processDownload = function(frameName, frameSelector) {
+	var processDownloadFormat = function() {
 		var frameData = {};
-		elements.addClass(frameSelector + ' .copy', 'hidden');
+		elements.addClass(frameSelector + ' .item-controls', 'hidden');
 		elements.removeClass(frameSelector + ' .loading', 'hidden');
 		elements.setAttribute(frameSelector + ' .list-format select', 'disabled', 'disabled');
 		elements.loop(frameSelector + ' input, ' + frameSelector + ' select, ' + frameSelector + ' textarea', function(index, element) {
@@ -66,31 +66,38 @@ var processCopy = function(frameName, frameSelector) {
 				proxies: itemGrid
 			}
 		}, true);
-		api.sendRequest(function(response) {
-			document.querySelector(frameSelector + ' textarea[name="' + frameName + '"]').value = response.data;
-			elements.addClass(frameSelector + ' .loading', 'hidden');
-			elements.removeClass(frameSelector + ' .copy', 'hidden');
-			elements.removeAttribute(frameSelector + ' .list-format select', 'disabled');
-			api.setRequestParameters({
-				action: apiRequestParameters.previous.action
+
+		if (itemGrid.length === 1) {
+			api.sendRequest(function(response) {
+				document.querySelector(frameSelector + ' textarea[name="copy"]').value = response.data;
+				elements.addClass(frameSelector + ' .loading', 'hidden');
+				elements.removeAttribute(frameSelector + ' .list-format select', 'disabled');
+				elements.removeClass(frameSelector + ' .item-controls', 'hidden');
+				api.setRequestParameters({
+					action: apiRequestParameters.previous.action
+				});
 			});
-		});
+		} else {
+			elements.addClass(frameSelector + ' .loading', 'hidden');
+			elements.removeClass(frameSelector + ' .download', 'hidden');
+			elements.removeAttribute(frameSelector + ' .list-format select', 'disabled');
+		}
 	};
 	elements.loop(frameSelector + ' select', function(index, element) {
 		element.removeEventListener('change', element.changeListener);
 		element.changeListener = function() {
-			processCopyFormat();
+			processDownloadFormat();
 		};
 		element.addEventListener('change', element.changeListener);
 	});
-	var itemsCopy = document.querySelector(frameSelector + ' .button.' + frameName);
-	itemsCopy.removeEventListener('click', itemsCopy.clickListener);
-	itemsCopy.clickListener = function() {
+	var itemsDownload = document.querySelector(frameSelector + ' .button.copy');
+	itemsDownload.removeEventListener('click', itemsDownload.clickListener);
+	itemsDownload.clickListener = function() {
 		document.querySelector('[name="copy"]').select();
 		document.execCommand(frameName);
 	};
-	itemsCopy.addEventListener('click', itemsCopy.clickListener);
-	processCopyFormat();
+	itemsDownload.addEventListener('click', itemsDownload.clickListener);
+	processDownloadFormat();
 };
 var processDowngrade = function() {
 	var downgradeContainer = document.querySelector('.downgrade-container');

@@ -219,7 +219,11 @@
 						'fields' => $defaultFields['proxies'],
 						'group' => 'user'
 					),
-					'copy' => array(
+					'downgrade' => array(
+						'fields' => $defaultFields['orders'],
+						'group' => 'user'
+					),
+					'download' => array(
 						'fields' => array(
 							'http_port',
 							'ip',
@@ -228,10 +232,6 @@
 							'user_id',
 							'username'
 						),
-						'group' => 'user'
-					),
-					'downgrade' => array(
-						'fields' => $defaultFields['orders'],
 						'group' => 'user'
 					),
 					'fetch' => array(

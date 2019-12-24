@@ -1,13 +1,14 @@
-<div class="hidden frame-container" frame="copy">
+<div class="hidden frame-container" frame="download">
 	<div class="section frame">
 		<div class="item-container">
 			<div class="item">
 				<div class="copy-configuration">
 					<div class="item-header">
 						<span class="button close icon icon-close"></span>
-						<h1>Copy Proxy List to Clipboard</h1>
+						<h1>Download Proxies</h1>
 					</div>
 					<div class="item-body">
+						<input class="hidden" name="confirm_download" type="hidden" value="0">
 						<label>Proxy List Format</label>
 						<div class="field-group list-format no-margin-top">
 							<select class="ipv4-column-1" name="ipv4_column_1">
@@ -75,15 +76,25 @@
 								<select class="separated-by" name="separated_by">
 									<option selected value="new_line">New Line</option>
 									<option value="comma">Comma</option>
+									<option value="hyphen">Hyphen</option>
+									<option value="plus">Plus</option>
 									<option value="semicolon">Semicolon</option>
 									<option value="space">Space</option>
 									<option value="underscore">Underscore</option>
 								</select>
 							</div>
 						</div>
+						<div class="align-left">
+							<label class="clear">Download Format</label>
+							<div class="field-group no-margin-top download-format">
+								<select class="download_format" name="download_format">
+									<option selected value="txt">.txt File</option>
+								</select>
+							</div>
+						</div>
 						<div class="clear"></div>
 						<p class="message loading">Loading...</p>
-						<div class="copy hidden">
+						<div class="hidden item-controls">
 							<label>Proxy List</label>
 							<div class="copy-textarea-container">
 								<textarea class="copy" id="copy" name="copy"></textarea>
@@ -93,7 +104,8 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button copy main-button" field="copy">Copy to Clipboard</button>
+						<button class="button copy item-controls main-button" field="copy">Copy to Clipboard</button>
+						<button class="button download item-controls main-button submit" disabled frame="download" process="proxies">Download List</button>
 					</div>
 				</div>
 			</div>

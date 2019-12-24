@@ -335,80 +335,6 @@
 		}
 
 	/**
-	 * Process copy requests
-	 *
-	 * @param string $table
-	 * @param array $parameters
-	 *
-	 * @return array $response
-	 */
-		public function copy($table, $parameters) {
-			$items = array();
-			$response = $this->fetch($table, array(
-				'conditions' => array(
-					'id' => $parameters['items'][$table]['data']
-				),
-				'fields' => $this->permissions[$table]['copy']['fields']
-			));
-
-			if (
-				!empty($parameters['data']) &&
-				is_array($parameters['data']) &&
-				!empty($parameters['data']['proxy_list_type'])
-			) {
-				foreach ($parameters['data'] as $columnField => $columnValue) {
-					if ($columnValue == 'port') {
-						$parameters['data'][$columnField] = $parameters['data']['proxy_list_type'] . '_port';
-					}
-				}
-			}
-
-			if (
-				!empty($response['data']) &&
-				($proxyCount = count($response['data']))
-			) {
-				// ..
-				$delimiters = array(
-					!empty($parameters['data']['ipv4_delimiter_1']) ? $parameters['data']['ipv4_delimiter_1'] : '',
-					!empty($parameters['data']['ipv4_delimiter_2']) ? $parameters['data']['ipv4_delimiter_2'] : '',
-					!empty($parameters['data']['ipv4_delimiter_3']) ? $parameters['data']['ipv4_delimiter_3'] : '',
-					''
-				);
-				$delimiterMask = implode('', array_unique(array_filter($delimiters)));
-				$separators = array(
-					'comma' => ',',
-					'new_line' => "\n",
-					'semicolon' => ';',
-					'space' => ' ',
-					'underscore' => '_'
-				);
-
-				if (
-					empty($parameters['data']['separated_by']) ||
-					empty($separator = $separators[$parameters['data']['separated_by']])
-				) {
-					$separator = "\n";
-				}
-
-				foreach ($response['data'] as $key => $data) {
-					$items[$key] = '';
-
-					for ($i = 1; $i < 5; $i++) {
-						$items[$key] .= !empty($column = $response['data'][$key][$parameters['data']['ipv4_column_' . $i]]) ? $column . $delimiters[($i - 1)] : '';
-					}
-
-					$items[$key] = rtrim($items[$key], $delimiterMask);
-				}
-			}
-
-			$response = array(
-				'count' => count($items),
-				'data' => implode($separator, $items)
-			);
-			return $response;
-		}
-
-	/**
 	 * Process order downgrade requests
 	 *
 	 * @param string $table
@@ -814,6 +740,88 @@
 				}
 			}
 
+			return $response;
+		}
+
+	/**
+	 * Process download requests
+	 *
+	 * @param string $table
+	 * @param array $parameters
+	 *
+	 * @return array $response
+	 */
+		public function download($table, $parameters) {
+			$response = $this->fetch($table, array(
+				'conditions' => array(
+					'id' => $parameters['items'][$table]['data']
+				),
+				'fields' => $this->permissions[$table]['copy']['fields']
+			));
+			$items = array();
+
+			if (!empty($parameters['data']['proxy_list_type'])) {
+				foreach ($parameters['data'] as $columnField => $columnValue) {
+					if ($columnValue == 'port') {
+						$parameters['data'][$columnField] = $parameters['data']['proxy_list_type'] . '_port';
+					}
+				}
+			}
+
+			if (
+				!empty($response['data']) &&
+				($proxyCount = count($response['data']))
+			) {
+				$delimiters = array(
+					!empty($parameters['data']['ipv4_delimiter_1']) ? $parameters['data']['ipv4_delimiter_1'] : '',
+					!empty($parameters['data']['ipv4_delimiter_2']) ? $parameters['data']['ipv4_delimiter_2'] : '',
+					!empty($parameters['data']['ipv4_delimiter_3']) ? $parameters['data']['ipv4_delimiter_3'] : '',
+					''
+				);
+				$delimiterMask = implode('', array_unique(array_filter($delimiters)));
+				$separators = array(
+					'comma' => ',',
+					'hyphen' => '-',
+					'new_line' => "\n",
+					'plus' => '+',
+					'semicolon' => ';',
+					'space' => ' ',
+					'underscore' => '_'
+				);
+
+				if (
+					empty($parameters['data']['separated_by']) ||
+					empty($separator = $separators[$parameters['data']['separated_by']])
+				) {
+					$separator = "\n";
+				}
+
+				foreach ($response['data'] as $key => $data) {
+					$items[$key] = '';
+
+					for ($i = 1; $i < 5; $i++) {
+						$items[$key] .= !empty($column = $response['data'][$key][$parameters['data']['ipv4_column_' . $i]]) ? $column . $delimiters[($i - 1)] : '';
+					}
+
+					$items[$key] = rtrim($items[$key], $delimiterMask);
+				}
+
+				if (
+					!empty($items) &&
+					!empty($parameters['data']['confirm_download'])
+				) {
+					$response['message'] = array(
+						'status' => 'error',
+						'text' => 'Error processing your download request, please try again.'
+					);
+					// ..
+				}
+			}
+
+			$response = array(
+				'count' => count($items),
+				'data' => implode($separator, $items)
+			);
 			return $response;
 		}
 

@@ -7,8 +7,8 @@
 	$frames = array(
 		'actions',
 		'authenticate',
-		'copy',
 		'downgrade',
+		'download',
 		'endpoint',
 		'group',
 		'replace',
@@ -52,7 +52,7 @@
 									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Download proxy request logs" frame="requests" item-function process="requests"></span>
 									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Configure proxy replacement settings" frame="replace" item-function></span>
 									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Configure proxy authentication settings" frame="authenticate" item-function></span>
-									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Copy selected proxies to clipboard" frame="copy" item-function process="copy"></span>
+									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Download list of selected proxies" frame="download" item-function process="download"></span>
 								</div>
 								<div class="clear"></div>
 								<p class="hidden item-controls no-margin-bottom"><span class="checked-container"><span class="total-checked">0</span> of <span class="total-results"></span> selected.</span> <a class="item-action hidden" href="javascript:void(0);" index="all" status="1"><span class="action">Select</span> all results</a><span class="clear"></span></p>

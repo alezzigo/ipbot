@@ -770,11 +770,11 @@ main {
 		.icon[frame="authenticate"] {
 			background: url('../images/icons/icon-authenticate.png') center no-repeat;
 		}
-		.icon[frame="copy"] {
-			background: url('../images/icons/icon-copy.png') center no-repeat;
-		}
 		.icon[frame="downgrade"] {
 			background: url('../images/icons/icon-downgrade.png') center no-repeat;
+		}
+		.icon[frame="download"] {
+			background: url('../images/icons/icon-download.png') center no-repeat;
 		}
 		.icon[frame="endpoint"] {
 			background: url('../images/icons/icon-endpoint.png') center no-repeat;
@@ -801,8 +801,8 @@ main {
 		.icon.previous,
 		.icon[frame="actions"],
 		.icon[frame="authenticate"],
-		.icon[frame="copy"],
 		.icon[frame="downgrade"],
+		.icon[frame="download"],
 		.icon[frame="endpoint"],
 		.icon[frame="group"],
 		.icon[frame="replace"],
@@ -1031,7 +1031,8 @@ main {
 	left: 40px;
 	max-width: 451px !important;
 }
-.field-group.proxy-list-type {
+.field-group.proxy-list-type,
+.field-group.separated-by {
 	margin-right: 18px;
 }
 .endpoint-documentation {

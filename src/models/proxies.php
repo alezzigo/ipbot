@@ -33,7 +33,7 @@
 	 * @param string $table
 	 * @param array $parameters
 	 *
-	 * @return integer $response
+	 * @return array $response
 	 */
 		public function allocate($table, $parameters) {
 			$response = array();
@@ -1053,7 +1053,7 @@
 	 * @param string $table
 	 * @param array $parameters
 	 *
-	 * @return integer $response
+	 * @return array $response
 	 */
 		public function remove($table, $parameters) {
 			$response = array();

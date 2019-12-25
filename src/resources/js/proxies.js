@@ -50,55 +50,6 @@ var processActions = function(frameName, frameSelector) {
 		});
 	});
 };
-var processDownload = function(frameName, frameSelector) {
-	var processDownloadFormat = function() {
-		var frameData = {};
-		elements.addClass(frameSelector + ' .item-controls', 'hidden');
-		elements.removeClass(frameSelector + ' .loading', 'hidden');
-		elements.setAttribute(frameSelector + ' .list-format select', 'disabled', 'disabled');
-		elements.loop(frameSelector + ' input, ' + frameSelector + ' select, ' + frameSelector + ' textarea', function(index, element) {
-			frameData[element.getAttribute('name')] = element.value;
-		});
-		api.setRequestParameters({
-			action: frameName,
-			data: frameData,
-			items: {
-				proxies: itemGrid
-			}
-		}, true);
-
-		if (itemGrid.length === 1) {
-			api.sendRequest(function(response) {
-				document.querySelector(frameSelector + ' textarea[name="copy"]').value = response.data;
-				elements.addClass(frameSelector + ' .loading', 'hidden');
-				elements.removeAttribute(frameSelector + ' .list-format select', 'disabled');
-				elements.removeClass(frameSelector + ' .item-controls', 'hidden');
-				api.setRequestParameters({
-					action: apiRequestParameters.previous.action
-				});
-			});
-		} else {
-			elements.addClass(frameSelector + ' .loading', 'hidden');
-			elements.removeClass(frameSelector + ' .download', 'hidden');
-			elements.removeAttribute(frameSelector + ' .list-format select', 'disabled');
-		}
-	};
-	elements.loop(frameSelector + ' select', function(index, element) {
-		element.removeEventListener('change', element.changeListener);
-		element.changeListener = function() {
-			processDownloadFormat();
-		};
-		element.addEventListener('change', element.changeListener);
-	});
-	var itemsDownload = document.querySelector(frameSelector + ' .button.copy');
-	itemsDownload.removeEventListener('click', itemsDownload.clickListener);
-	itemsDownload.clickListener = function() {
-		document.querySelector('[name="copy"]').select();
-		document.execCommand(frameName);
-	};
-	itemsDownload.addEventListener('click', itemsDownload.clickListener);
-	processDownloadFormat();
-};
 var processDowngrade = function() {
 	var downgradeContainer = document.querySelector('.downgrade-container');
 	var pagination = document.querySelector('.item-configuration .pagination');
@@ -157,6 +108,201 @@ var processDowngrade = function() {
 
 		downgradeContainer.innerHTML = downgradeData;
 	});
+};
+var processDownload = function(frameName, frameSelector) {
+	var downloadOptions = {
+		columns: [
+			{
+				name: 'ip',
+				value: 'ip'
+			},
+			{
+				name: 'port',
+				value: 'port'
+			},
+			{
+				name: 'user',
+				value: 'username'
+			},
+			{
+				name: 'pass',
+				value: 'password'
+			}
+		],
+		delimiters: [
+			':',
+			';',
+			',',
+			'@'
+		],
+		formats: [
+			'txt',
+			// ..
+		],
+		separators: [
+			{
+				name: 'New Line',
+				value: 'new_line'
+			},
+			{
+				name: 'Comma',
+				value: 'comma'
+			},
+			{
+				name: 'Hyphen',
+				value: 'hyphen'
+			},
+			{
+				name: 'Plus',
+				value: 'plus'
+			},
+			{
+				name: 'Semicolon',
+				value: 'semicolon'
+			},
+			{
+				name: 'Space',
+				value: 'space'
+			},
+			{
+				name: 'Underscore',
+				value: 'underscore'
+			}
+		],
+		protocols: [
+			{
+				name: 'HTTP / HTTPS',
+				value: 'http'
+			}
+		]
+	};
+	var downloadContainer = document.querySelector('.download-container');
+	var downloadData = '';
+	var processDownloadFormat = function() {
+		var frameData = {};
+		elements.addClass(frameSelector + ' .item-controls', 'hidden');
+		elements.removeClass(frameSelector + ' .loading', 'hidden');
+		elements.setAttribute(frameSelector + ' input[name="confirm_download"]', 'value', 0);
+		elements.setAttribute(frameSelector + ' .list-format select', 'disabled', 'disabled');
+		elements.loop(frameSelector + ' input, ' + frameSelector + ' select, ' + frameSelector + ' textarea', function(index, element) {
+			frameData[element.getAttribute('name')] = element.value;
+		});
+		api.setRequestParameters({
+			action: frameName,
+			data: frameData,
+			items: {
+				proxies: itemGrid
+			}
+		}, true);
+
+		if (itemGrid.length === 1) {
+			api.sendRequest(function(response) {
+				document.querySelector(frameSelector + ' textarea[name="copy"]').value = response.data;
+				elements.addClass(frameSelector + ' .loading', 'hidden');
+				elements.removeAttribute(frameSelector + ' .list-format select', 'disabled');
+				elements.removeClass(frameSelector + ' .item-controls', 'hidden');
+				api.setRequestParameters({
+					action: apiRequestParameters.previous.action
+				});
+			});
+		} else {
+			elements.addClass(frameSelector + ' .loading', 'hidden');
+			elements.removeClass(frameSelector + ' .download', 'hidden');
+			elements.removeAttribute(frameSelector + ' .list-format select', 'disabled');
+		}
+
+		elements.setAttribute(frameSelector + ' input[name="confirm_download"]', 'value', 1);
+	};
+
+	downloadData += '<div class="clear"></div>';
+	downloadData += '<input class="hidden" name="confirm_download" type="hidden" value="0">';
+	downloadData += '<label>Proxy List Format</label>';
+	downloadData += '<div class="field-group list-format no-margin-top">';
+
+	for (var i = 1; i < 5; i++) {
+		downloadData += '<select class="ipv4-column-' + i + '" name="ipv4_column_' + i + '">';
+
+		for (var columnOptionKey in downloadOptions.columns) {
+			downloadData += '<option ' + ((+(columnOptionKey) + 1) === i ? 'selected' : '') + ' value="' + downloadOptions.columns[columnOptionKey].value + '">' + downloadOptions.columns[columnOptionKey].name + '</option>';
+		}
+
+		downloadData += '</select>';
+
+		if (i < 4) {
+			downloadData += '<select class="ipv4-delimiter-' + i + '" name="ipv4_delimiter_' + i + '">';
+
+			for (var delimiterOptionKey in downloadOptions.delimiters) {
+				downloadData += '<option value="' + downloadOptions.delimiters[delimiterOptionKey] + '">' + downloadOptions.delimiters[delimiterOptionKey] + '</option>';
+			}
+
+			downloadData += '</select>';
+		}
+	}
+
+	downloadData += '</div>';
+	downloadData += '<div class="clear"></div>';
+	downloadData += '<div class="align-left">';
+	downloadData += '<label class="clear">Proxy List Type</label>';
+	downloadData += '<div class="field-group no-margin-top proxy-list-type">';
+	downloadData += '<select class="proxy-list-type" name="proxy_list_type">';
+
+	for (var protocolOptionKey in downloadOptions.protocols) {
+		downloadData += '<option value="' + downloadOptions.protocols[protocolOptionKey].value + '">' + downloadOptions.protocols[protocolOptionKey].name + '</option>';
+	}
+
+	downloadData += '</select>';
+	downloadData += '</div>';
+	downloadData += '</div>';
+	downloadData += '<div class="align-left">';
+	downloadData += '<label class="clear">Separated By</label>';
+	downloadData += '<div class="field-group no-margin-top separated-by">';
+	downloadData += '<select class="separated-by" name="separated_by">';
+
+	for (var separatorOptionKey in downloadOptions.separators) {
+		downloadData += '<option value="' + downloadOptions.separators[separatorOptionKey].value + '">' + downloadOptions.separators[separatorOptionKey].name + '</option>';
+	}
+
+	downloadData += '</select>';
+	downloadData += '</div>';
+	downloadData += '</div>';
+	downloadData += '<div class="align-left">';
+	downloadData += '<label class="clear">Download Format</label>';
+	downloadData += '<div class="field-group no-margin-top download-format">';
+	downloadData += '<select class="download_format" name="download_format">';
+
+	for (var formatOptionKey in downloadOptions.formats) {
+		downloadData += '<option value="' + downloadOptions.formats[formatOptionKey] + '">' + downloadOptions.formats[formatOptionKey] + '</option>';
+	}
+
+	downloadData += '<option selected value="txt">.txt File</option>';
+	downloadData += '</select>';
+	downloadData += '</div>';
+	downloadData += '</div>';
+	downloadData += '<div class="clear"></div>';
+	downloadData += '<p class="message loading">Loading...</p>';
+	downloadData += '<div class="hidden item-controls">';
+	downloadData += '<label>Proxy List</label>';
+	downloadData += '<div class="copy-textarea-container">';
+	downloadData += '<textarea class="copy" id="copy" name="copy"></textarea>';
+	downloadData += '</div>';
+	downloadData += '</div>';
+	downloadData += '<div class="clear"></div>';
+	downloadContainer.innerHTML = downloadData;
+	elements.loop(frameSelector + ' select', function(index, element) {
+		element.removeEventListener('change', element.changeListener);
+		element.changeListener = function() {
+			processDownloadFormat();
+		};
+		element.addEventListener('change', element.changeListener);
+	});
+	var itemsCopy = document.querySelector(frameSelector + ' .button.copy');
+	itemsCopy.removeEventListener('click', itemsCopy.clickListener);
+	itemsCopy.clickListener = function() {
+		document.querySelector('[name="copy"]').select();
+		document.execCommand(frameName);
+	};
+	itemsCopy.addEventListener('click', itemsCopy.clickListener);
+	processDownloadFormat();
 };
 var processEndpoint = function(frameName, frameSelector) {
 	api.setRequestParameters({

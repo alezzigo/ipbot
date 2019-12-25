@@ -14,6 +14,7 @@
 	 * @return array $response
 	 */
 		protected function _formatSquidAccessControls($dnsIps, $proxies) {
+			// ..
 			$disabledProxies = $formattedFiles = $formattedProxies = $formattedUsers = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = $proxyIps = array();
 			$formattedAcls = array(
 				'auth_param basic program /usr/lib/squid3/basic_ncsa_auth /etc/squid3/passwords',

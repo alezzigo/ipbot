@@ -14,7 +14,13 @@
 	 * @return array $response
 	 */
 		protected function _formatSquidAccessControls($dnsIps, $proxies) {
-			// ..
+			// TODO: Implement gateway proxy IPs with cache_peer for automatic IP rotation with custom rotation frequencies
+			// http_access allow IP_ACL USER_ACL
+			// always_direct deny USER_ACL
+			// never_direct allow USER_ACL
+			// cache_peer PROXY_IP parent 80 4827 htcp=no-clr allow-miss no-query no-digest no-tproxy proxy-only no-netdb-exchange round-robin connect-timeout=8 connect-fail-limit=88888 name=ORDER_ID-INDEX;
+			// cache_peer_access ORDER_ID-INDEX allow IP_ACL;
+
 			$disabledProxies = $formattedFiles = $formattedProxies = $formattedUsers = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = $proxyIps = array();
 			$formattedAcls = array(
 				'auth_param basic program /usr/lib/squid3/basic_ncsa_auth /etc/squid3/passwords',
@@ -203,6 +209,26 @@
 								'order' => 'ASC'
 							)
 						));
+						$gateways = $this->fetch('gateways', array(
+							'conditions' => array(
+								'node_id' => $nodeIds['data'],
+								'NOT' => array(
+									'status' => 'offline'
+								)
+							),
+							'fields' => array(
+								'disable_http',
+								'http_port',
+								'id',
+								'ip',
+								'rotation_frequency',
+								'status'
+							),
+							'sort' => array(
+								'field' => 'modified',
+								'order' => 'DESC'
+							)
+						));
 						$proxies = $this->fetch('proxies', array(
 							'conditions' => array(
 								'node_id' => $nodeIds['data'],
@@ -211,18 +237,12 @@
 								)
 							),
 							'fields' => array(
-								'asn',
-								'city',
-								'country_name',
-								'country_code',
 								'disable_http',
 								'http_port',
 								'id',
 								'ip',
 								'isp',
-								'node_id',
 								'password',
-								'region',
 								'require_authentication',
 								'status',
 								'username',
@@ -292,6 +312,8 @@
 									);
 
 									foreach ($this->proxyConfigurations as $proxyProtocol => $proxyConfiguration) {
+										// ..
+
 										if (
 											!empty($proxyConfiguration) &&
 											!empty($proxyConfiguration[$server['data'][0]['server_configuration_type']][$proxyConfigurationType = $server['data'][0][$proxyProtocol . '_proxy_configuration']]) &&

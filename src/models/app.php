@@ -253,6 +253,63 @@
 		}
 
 	/**
+	 * cURL function
+	 *
+	 * @param array $parameters
+	 *
+	 * @return array $response
+	 */
+		protected function _curl($parameters) {
+			$response = array(
+				'data' => false,
+				'message' => array(
+					'status' => 'error',
+					'text' => ($defaultMessage = 'Error processing your cURL request, please try again.')
+				)
+			);
+			$curl = curl_init();
+
+			if ($curl) {
+				$response['message']['text'] = 'URL parameter is required for your cURL request.';
+
+				if (!empty($parameters['url'])) {
+					$response['message']['text'] = $defaultMessage;
+					curl_setopt($curl, CURLOPT_URL, $parameters['url']);
+
+					if (
+						!empty($parameters['headers']) &&
+						is_array($parameters['headers'])
+					) {
+						curl_setopt($curl, CURLOPT_HTTPHEADER, $parameters['headers']);
+					}
+
+					if (
+						!empty($parameters['post_fields']) &&
+						is_array($parameters['post_fields'])
+					) {
+						curl_setopt($curl, CURLOPT_POST, true);
+						curl_setopt($curl, CURLOPT_POSTFIELDS, $parameters['post_fields']);
+					}
+
+					curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+					curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+
+					$response['data'] = curl_exec($curl);
+					curl_close($curl);
+				}
+			}
+
+			if ($response['data']) {
+				$response['message'] = array(
+					'status' => 'success',
+					'text' => 'Successfully processed cURL request.'
+				);
+			}
+
+			return $response;
+		}
+
+	/**
 	 * Format array of data to SQL query conditions
 	 *
 	 * @param array $conditions

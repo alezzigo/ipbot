@@ -1014,11 +1014,11 @@
 							'id',
 							'ip',
 							'isp',
-							'last_replacement_date',
 							'next_replacement_available',
 							'node_id',
 							'order_id',
 							'password',
+							'previous_replacement_date',
 							'region',
 							'replacement_removal_date',
 							'require_authentication',
@@ -1214,7 +1214,7 @@
 					$intervalData = array(
 						'automatic_replacement_interval_type' => $automaticReplacementIntervalType,
 						'automatic_replacement_interval_value' => $parameters['data']['automatic_replacement_interval_value'],
-						'last_replacement_date' => date('Y-m-d H:i:s', time())
+						'previous_replacement_date' => date('Y-m-d H:i:s', time())
 					);
 					$newItemData = $oldItemData = array_merge($newItemData, $intervalData);
 				}
@@ -1250,9 +1250,9 @@
 						}
 					} else {
 						$newItemData += array(
-							'last_replacement_date' => date('Y-m-d H:i:s', time()),
 							'next_replacement_available' => date('Y-m-d H:i:s', strtotime('+1 week')),
 							'order_id' => $orderId,
+							'previous_replacement_date' => date('Y-m-d H:i:s', time()),
 							'status' => 'online',
 							'user_id' => $parameters['user']['id']
 						);
@@ -1581,7 +1581,7 @@
 						'AND' => array(
 							'automatic_replacement_interval_type' => $intervalType,
 							'automatic_replacement_interval_value' => $intervalValue,
-							'last_replacement_date <' => date('Y-m-d H:i:s', strtotime('-' . $intervalValue . ' ' . $intervalType))
+							'previous_replacement_date <' => date('Y-m-d H:i:s', strtotime('-' . $intervalValue . ' ' . $intervalType))
 						)
 					);
 				}
@@ -1685,9 +1685,9 @@
 										$processingNodes['data'][$key] += array(
 											'automatic_replacement_interval_type' => $userProxies[$key]['automatic_replacement_interval_type'],
 											'automatic_replacement_interval_value' => $userProxies[$key]['automatic_replacement_interval_value'],
-											'last_replacement_date' => date('Y-m-d H:i:s', time()),
 											'next_replacement_available' => date('Y-m-d H:i:s', strtotime('+1 week')),
 											'order_id' => $orderId,
+											'previous_replacement_date' => date('Y-m-d H:i:s', time()),
 											'status' => 'online',
 											'user_id' => $userId
 										);

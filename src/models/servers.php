@@ -240,16 +240,23 @@
 						!is_numeric($gatewayProxy['rotation_frequency'])
 					) {
 						$gatewayProxyForwardingProxyIds = $this->fetch('proxy_forwarding_proxies', $gatewayProxyIdParameters);
+						$globalForwardingProxyParameters = $localForwardingProxyParameters = $proxyParameters;
 
 						if (!empty($gatewayProxyForwardingProxyIds['count'])) {
-							$proxyParameters['conditions'] = array_merge($proxyParameters['conditions'], array(
+							$globalForwardingProxyParameters['conditions'] = $localForwardingProxyParameters['conditions'] = array_merge($proxyParameters['conditions'], array(
 								'id' => $gatewayProxyForwardingProxyIds['data'],
 								'type' => 'forwarding'
 							));
-							$forwardingProxies = $this->fetch('proxies', $proxyParameters);
+							unset($globalForwardingProxyParameters['conditions']['node_id']);
+							$globalForwardingProxies = $this->fetch('proxies', $globalForwardingProxyParameters);
+							$localForwardingProxies = $this->fetch('proxies', $localForwardingProxyParameters);
 
-							if (!empty($forwardingProxies['count'])) {
-								$response['gateway_proxies'][$gatewayProxyKey]['forwarding_proxies'] = $forwardingProxies['data'];
+							if (!empty($globalForwardingProxies['count'])) {
+								$response['gateway_proxies'][$gatewayProxyKey]['global_forwarding_proxies'] = $globalForwardingProxies['data'];
+							}
+
+							if (!empty($localForwardingProxies['count'])) {
+								$response['gateway_proxies'][$gatewayProxyKey]['local_forwarding_proxies'] = $localForwardingProxies['data'];
 							}
 
 							// ..
@@ -259,11 +266,12 @@
 					$gatewayProxyStaticProxyIds = $this->fetch('proxy_static_proxies', $gatewayProxyIdParameters);
 
 					if (!empty($gatewayProxyStaticProxyIds['count'])) {
-						$proxyParameters['conditions'] = array_merge($proxyParameters['conditions'], array(
+						$staticProxyParameters = $proxyParameters;
+						$staticProxyParameters['conditions'] = array_merge($staticProxyParameters['conditions'], array(
 							'id' => $gatewayProxyStaticProxyIds['data'],
 							'type' => 'static'
 						));
-						$staticProxies = $this->fetch('proxies', $proxyParameters);
+						$staticProxies = $this->fetch('proxies', $staticProxyParameters);
 
 						if (!empty($staticProxies['count'])) {
 							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = $staticProxies['data'];
@@ -274,7 +282,6 @@
 				}
 			}
 
-			unset($proxyParameters['conditions']['id']);
 			$proxyParameters['conditions'] = array_merge($proxyParameters['conditions'], array(
 				'allow_direct' => true,
 				'type' => 'static'

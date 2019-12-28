@@ -8,11 +8,11 @@
 	/**
 	 * Format Squid access controls for list of IPs
 	 *
-	 * @param array $ipData
+	 * @param array $serverData
 	 *
 	 * @return array $response
 	 */
-		protected function _formatSquidAccessControls($ipData) {
+		protected function _formatSquidAccessControls($serverData) {
 			// TODO: Implement gateway proxy IPs with cache_peer for automatic IP rotation with custom rotation frequencies
 			// http_access allow IP_ACL USER_ACL
 			// always_direct deny USER_ACL
@@ -29,7 +29,7 @@
 			);
 			$userIndex = 0;
 
-			foreach ($ipData['proxies'] as $key => $proxy) {
+			foreach ($serverData['static_proxies'] as $key => $proxy) {
 				if (
 					!empty($proxy['whitelisted_ips']) &&
 					!empty($proxy['require_authentication'])
@@ -131,7 +131,7 @@
 			);
 
 			if (strpos($response['configuration'], '[dns_ips]') !== false) {
-				$response['configuration'] = str_replace('[dns_ips]', '127.0.0.1 ' . implode(' ', $ipData['dns_ips']), $response['configuration']);
+				$response['configuration'] = str_replace('[dns_ips]', '127.0.0.1 ' . implode(' ', $serverData['dns_ips']), $response['configuration']);
 			}
 
 			if (
@@ -342,41 +342,9 @@
 
 					if (!empty($nodeIds['count'])) {
 						$response['message']['text'] = 'No active proxies available on server.';
-						$dnsIps = $this->_retrieveDnsIps($nodeIds['data']);
-						$proxies = $this->fetch('proxies', array(
-							'conditions' => array(
-								'node_id' => $nodeIds['data'],
-								'NOT' => array(
-									'status' => 'offline'
-								)
-							),
-							'fields' => array(
-								'disable_http',
-								'http_port',
-								'id',
-								'ip',
-								'isp',
-								'node_id',
-								'password',
-								'previous_rotation_date',
-								'require_authentication',
-								'rotation_frequency',
-								'status',
-								'type',
-								'username',
-								'whitelisted_ips'
-							),
-							'sort' => array(
-								'field' => 'modified',
-								'order' => 'DESC'
-							)
-						));
-						// ..
+						$proxyData = $this->_retrieveProxyData($nodeIds['data']);
 
-						if (
-							!empty($dnsIps) &&
-							!empty($proxies['count'])
-						) {
+						if (!empty($proxyData)) {
 							$response['message']['status'] = 'Invalid server configuration type, please check your configuration file and server options in database.';
 
 							if (
@@ -392,10 +360,6 @@
 									!empty($this->proxyConfigurations) &&
 									is_array($this->proxyConfigurations)
 								) {
-									foreach ($proxies['data'] as $proxy) {
-										$proxyIps[$proxy['node_id']] = $proxy['ip'];
-									}
-
 									if (!empty($this->settings['open_unallocated_proxies'])) {
 										$unallocatedNodes = $this->fetch('nodes', array(
 											'conditions' => array(
@@ -410,38 +374,38 @@
 
 										if (!empty($unallocatedNodes['count'])) {
 											foreach ($unallocatedNodes['data'] as $unallocatedNode) {
-												$proxies['data'][] = array(
+												$proxyData['static_proxies'][] = array(
 													'ip' => $unallocatedNode['ip'],
 													'require_authentication' => false
 												);
-												$proxyIps[$unallocatedNode['id']] = $unallocatedNode['ip'];
+												$proxyData['proxy_ips'][$unallocatedNode['id']] = $unallocatedNode['ip'];
 											}
 										}
 									}
 
 									$response = array(
-										'data' => array(
-											'dns_ips' => $dnsIps,
-											'proxies' => $proxies['data'],
-											'proxy_ips' => array_unique($proxyIps),
+										'data' => array_merge($proxyData, array(
+											'dns_ips' => $this->_retrieveDnsIps($nodeIds['data']),
 											'server' => $serverConfiguration
-										),
+										)),
 										'message' => array(
 											'status' => 'success',
 											'text' => 'Proxies retrieved for server ' . $serverIp . ' successfully.'
 										)
 									);
 
-									foreach ($this->proxyConfigurations as $proxyProtocol => $proxyConfiguration) {
-										// ..
+									if (!empty($response['data']['dns_ips'])) {
+										foreach ($this->proxyConfigurations as $proxyProtocol => $proxyConfiguration) {
+											// ..
 
-										if (
-											!empty($proxyConfiguration) &&
-											!empty($proxyConfiguration[$server['data'][0]['server_configuration_type']][$proxyConfigurationType = $server['data'][0][$proxyProtocol . '_proxy_configuration']]) &&
-											method_exists($this, ($method = '_format' . ucwords($proxyConfigurationType) . 'AccessControls')) &&
-											($formattedAcls = $this->$method($response['data']))
-										) {
-											$response['data'][$proxyProtocol] = $formattedAcls;
+											if (
+												!empty($proxyConfiguration) &&
+												!empty($proxyConfiguration[$server['data'][0]['server_configuration_type']][$proxyConfigurationType = $server['data'][0][$proxyProtocol . '_proxy_configuration']]) &&
+												method_exists($this, ($method = '_format' . ucwords($proxyConfigurationType) . 'AccessControls')) &&
+												($formattedAcls = $this->$method($response['data']))
+											) {
+												$response['data'][$proxyProtocol] = $formattedAcls;
+											}
 										}
 									}
 

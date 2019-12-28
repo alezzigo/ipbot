@@ -236,8 +236,10 @@
 					);
 
 					if (
-						empty($gatewayProxy['rotation_frequency']) &&
-						!is_numeric($gatewayProxy['rotation_frequency'])
+						$rotateOnEveryRequest = (
+							empty($gatewayProxy['rotation_frequency']) &&
+							!is_numeric($gatewayProxy['rotation_frequency'])
+						)
 					) {
 						$gatewayProxyForwardingProxyIds = $this->fetch('proxy_forwarding_proxies', $gatewayProxyIdParameters);
 						$globalForwardingProxyParameters = $localForwardingProxyParameters = $proxyParameters;

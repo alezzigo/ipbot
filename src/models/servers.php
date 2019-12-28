@@ -148,8 +148,6 @@
 				}
 			}
 
-			echo '<pre>'; print_r($formattedAcls); echo '</pre>'; die();
-
 			return $response;
 		}
 

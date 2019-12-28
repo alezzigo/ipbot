@@ -216,6 +216,7 @@
 							),
 							'fields' => array(
 								'disable_http',
+								'gateway_id',
 								'http_port',
 								'id',
 								'ip',

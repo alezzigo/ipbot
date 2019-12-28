@@ -148,6 +148,55 @@
 				}
 			}
 
+			echo '<pre>'; print_r($formattedAcls); echo '</pre>'; die();
+
+			return $response;
+		}
+
+	/**
+	 * Retrieve gateways
+	 *
+	 * @param array $nodeIds
+	 *
+	 * @return array $response
+	 */
+		protected function _retrieveGateways($nodeIds) {
+			$response = array(
+				'message' => array(
+					'status' => 'error',
+					'text' => 'Error retrieving server gateways, please try again.'
+				)
+			);
+			// ..
+			return $response;
+		}
+
+	/**
+	 * Retrieve DNS IPs
+	 *
+	 * @param array $nodeIds
+	 *
+	 * @return array $response
+	 */
+		protected function _retrieveDnsIps($nodeIds) {
+			$response = array();
+			$dnsIps = $this->fetch('dns_ips', array(
+				'conditions' => array(
+					'node_id' => $nodeIds
+				),
+				'fields' => array(
+					'ip'
+				),
+				'sort' => array(
+					'field' => 'created',
+					'order' => 'ASC'
+				)
+			));
+
+			if (!empty($dnsIps['count'])) {
+				$response = $dnsIps['data'];
+			}
+
 			return $response;
 		}
 
@@ -195,18 +244,7 @@
 
 					if (!empty($nodeIds['count'])) {
 						$response['message']['text'] = 'No active proxies available on server.';
-						$dnsIps = $this->fetch('dns_ips', array(
-							'conditions' => array(
-								'node_id' => $nodeIds['data']
-							),
-							'fields' => array(
-								'ip'
-							),
-							'sort' => array(
-								'field' => 'created',
-								'order' => 'ASC'
-							)
-						));
+						$dnsIps = $this->_retrieveDnsIps($nodeIds['data']);
 						$gateways = $this->fetch('gateways', array(
 							'conditions' => array(
 								'node_id' => $nodeIds['data'],

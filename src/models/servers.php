@@ -258,6 +258,7 @@
 								'http_port',
 								'id',
 								'ip',
+								'previous_rotation_date',
 								'rotation_frequency',
 								'status'
 							),

@@ -154,24 +154,6 @@
 		}
 
 	/**
-	 * Retrieve gateways
-	 *
-	 * @param array $nodeIds
-	 *
-	 * @return array $response
-	 */
-		protected function _retrieveGateways($nodeIds) {
-			$response = array(
-				'message' => array(
-					'status' => 'error',
-					'text' => 'Error retrieving server gateways, please try again.'
-				)
-			);
-			// ..
-			return $response;
-		}
-
-	/**
 	 * Retrieve DNS IPs
 	 *
 	 * @param array $nodeIds
@@ -194,7 +176,7 @@
 			));
 
 			if (!empty($dnsIps['count'])) {
-				$response = $dnsIps['data'];
+				$response = array_unique($dnsIps['data']);
 			}
 
 			return $response;
@@ -245,51 +227,6 @@
 					if (!empty($nodeIds['count'])) {
 						$response['message']['text'] = 'No active proxies available on server.';
 						$dnsIps = $this->_retrieveDnsIps($nodeIds['data']);
-						$gateways = $this->fetch('gateways', array(
-							'conditions' => array(
-								'node_id' => $nodeIds['data'],
-								'NOT' => array(
-									'status' => 'offline'
-								)
-							),
-							'fields' => array(
-								'disable_http',
-								'gateway_id',
-								'http_port',
-								'id',
-								'ip',
-								'previous_rotation_date',
-								'rotation_frequency',
-								'status'
-							),
-							'sort' => array(
-								'field' => 'modified',
-								'order' => 'DESC'
-							)
-						));
-
-						foreach ($gateways['data'] as $gateway) {
-							$gatewayIds[] = $gateway['id'];
-						}
-
-						if (!empty($gatewayIds)) {
-							$gatewayProxyIds = $this->fetch('gateway_proxies', array(
-								'conditions' => array(
-									'gateway_id' => $gatewayIds
-								),
-								'fields' => array(
-									'id',
-									'gateway_id',
-									'proxy_id'
-								),
-								'sort' => array(
-									'field' => 'modified',
-									'order' => 'DESC'
-								)
-							));
-							$gatewayProxyIds = $gatewayProxyIds['data'];
-						}
-
 						$proxies = $this->fetch('proxies', array(
 							'conditions' => array(
 								'node_id' => $nodeIds['data'],
@@ -305,8 +242,11 @@
 								'isp',
 								'node_id',
 								'password',
+								'previous_rotation_date',
 								'require_authentication',
+								'rotation_frequency',
 								'status',
+								'type',
 								'username',
 								'whitelisted_ips'
 							),
@@ -315,9 +255,10 @@
 								'order' => 'DESC'
 							)
 						));
+						// ..
 
 						if (
-							!empty($dnsIps['count']) &&
+							!empty($dnsIps) &&
 							!empty($proxies['count'])
 						) {
 							$response['message']['status'] = 'Invalid server configuration type, please check your configuration file and server options in database.';
@@ -364,9 +305,7 @@
 
 									$response = array(
 										'data' => array(
-											'dns_ips' => array_unique($dnsIps['data']),
-											'gateways' => $gateways['data'],
-											'gateway_proxy_ids' => $gatewayProxyIds,
+											'dns_ips' => $dnsIps,
 											'proxies' => $proxies['data'],
 											'proxy_ips' => array_unique($proxyIps),
 											'server' => $serverConfiguration

@@ -271,6 +271,7 @@
 							'id' => $gatewayProxyStaticProxyIds['data'],
 							'type' => 'static'
 						));
+						unset($staticProxyParameters['conditions']['node_id']);
 						$staticProxies = $this->fetch('proxies', $staticProxyParameters);
 
 						if (!empty($staticProxies['count'])) {

@@ -181,11 +181,129 @@
 		}
 
 	/**
+	 * Retrieve proxy data
+	 *
+	 * @param array $nodeIds
+	 *
+	 * @return array $response
+	 */
+		protected function _retrieveProxyData($nodeIds) {
+			$response = array();
+			$proxyParameters = array(
+				'conditions' => array(
+					'node_id' => $nodeIds,
+					'type' => 'gateway',
+					'NOT' => array(
+						'status' => 'offline'
+					)
+				),
+				'fields' => array(
+					'allow_direct',
+					'disable_http',
+					'http_port',
+					'id',
+					'ip',
+					'isp',
+					'node_id',
+					'password',
+					'previous_rotation_date',
+					'require_authentication',
+					'rotation_frequency',
+					'rotation_node_id',
+					'status',
+					'type',
+					'username',
+					'whitelisted_ips'
+				),
+				'sort' => array(
+					'field' => 'created',
+					'order' => 'ASC'
+				)
+			);
+			$gatewayProxies = $this->fetch('proxies', $proxyParameters);
+
+			if (!empty($gatewayProxies['count'])) {
+				$response['gateway_proxies'] = $gatewayProxies['data'];
+
+				foreach ($response['gateway_proxies'] as $gatewayProxyKey => $gatewayProxy) {
+					$gatewayProxyIdParameters = array(
+						'conditions' => array(
+							'gateway_proxy_id' => $gatewayProxy['id']
+						),
+						'fields' => array(
+							'proxy_id'
+						)
+					);
+
+					if (
+						empty($gatewayProxy['rotation_frequency']) &&
+						!is_numeric($gatewayProxy['rotation_frequency'])
+					) {
+						$gatewayProxyForwardingProxyIds = $this->fetch('proxy_forwarding_proxies', $gatewayProxyIdParameters);
+
+						if (!empty($gatewayProxyForwardingProxyIds['count'])) {
+							$proxyParameters['conditions'] = array_merge($proxyParameters['conditions'], array(
+								'id' => $gatewayProxyForwardingProxyIds['data'],
+								'type' => 'forwarding'
+							));
+							$forwardingProxies = $this->fetch('proxies', $proxyParameters);
+
+							if (!empty($forwardingProxies['count'])) {
+								$response['gateway_proxies'][$gatewayProxyKey]['forwarding_proxies'] = $forwardingProxies['data'];
+							}
+
+							// ..
+						}
+					}
+
+					$gatewayProxyStaticProxyIds = $this->fetch('proxy_static_proxies', $gatewayProxyIdParameters);
+
+					if (!empty($gatewayProxyStaticProxyIds['count'])) {
+						$proxyParameters['conditions'] = array_merge($proxyParameters['conditions'], array(
+							'id' => $gatewayProxyStaticProxyIds['data'],
+							'type' => 'static'
+						));
+						$staticProxies = $this->fetch('proxies', $proxyParameters);
+
+						if (!empty($staticProxies['count'])) {
+							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = $staticProxies['data'];
+						}
+
+						// ..
+					}
+				}
+			}
+
+			unset($proxyParameters['conditions']['id']);
+			$proxyParameters['conditions'] = array_merge($proxyParameters['conditions'], array(
+				'allow_direct' => true,
+				'type' => 'static'
+			));
+			$staticProxies = $this->fetch('proxies', $proxyParameters);
+
+			if (!empty($staticProxies['count'])) {
+				$response['static_proxies'] = $staticProxies['data'];
+			}
+
+			unset($proxyParameters['conditions']['type']);
+			$proxyParameters['fields'] = array(
+				'ip'
+			);
+			$proxyIps = $this->fetch('proxies', $proxyParameters);
+
+			if (!empty($proxyIps['count'])) {
+				$response['proxy_ips'] = array_unique($proxyIps['data']);
+			}
+
+			return $response;
+		}
+
+	/**
 	 * Retrieve server data
 	 *
 	 * @return array $response
 	 */
-		protected function _retrieveServerDetails() {
+		protected function _retrieveServerData() {
 			$response = array(
 				'message' => array(
 					'status' => 'error',
@@ -205,7 +323,7 @@
 					'server_configuration_type'
 				)
 			));
-			$gatewayIds = $gatewayProxyIds = $proxyConfiguration = $proxyIps = $serverConfiguration = array();
+			$proxyConfiguration = $serverConfiguration = array();
 
 			if (!empty($server['count'])) {
 				$response['message']['text'] = 'Duplicate server IPs, please check server options in database.';

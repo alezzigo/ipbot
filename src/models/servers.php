@@ -280,6 +280,15 @@
 							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = $staticProxies['data'];
 						}
 
+						if (
+							$rotateOnEveryRequest &&
+							!empty($response['gateway_proxies'][$gatewayProxyKey]['global_forwarding_proxies']) &&
+							($gatewayGlobalForwardingProxies = $response['gateway_proxies'][$gatewayProxyKey]['global_forwarding_proxies']) &&
+							($gatewayStaticProxies = $response['gateway_proxies'][$gatewayProxyKey]['static_proxies'])
+						) {
+							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array_chunk($gatewayStaticProxies, ceil(count($gatewayStaticProxies) / count($gatewayGlobalForwardingProxies)));
+						}
+
 						// ..
 					}
 				}

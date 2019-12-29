@@ -213,7 +213,98 @@
 	 * @return array $response
 	 */
 		protected function _processCreditCard($parameters) {
-			$response = array();
+			$response = array(
+				'message' => array(
+					'status' => 'error',
+					'text' => 'Error processing credit card transaction, please check your details and try again.'
+				)
+			);
+
+			if (!empty($parameters['data'])) {
+				if (
+					empty($parameters['data']['billing_cc_name']) ||
+					!is_string($parameters['data']['billing_cc_name'])
+				) {
+					$response['data']['errors']['billing_cc_name'] = 'Invalid credit card name.';
+				}
+
+				if (
+					empty($parameters['data']['billing_cc_number']) ||
+					!is_numeric($parameters['data']['billing_cc_number'])
+				) {
+					$response['data']['errors']['billing_cc_number'] = 'Invalid credit card number.';
+				}
+
+				if (
+					empty($parameters['data']['billing_cc_month']) ||
+					!in_array($parameters['data']['billing_cc_month'], range(1, 12))
+				) {
+					$response['data']['errors']['billing_cc_security'] = 'Invalid credit card month.';
+				}
+
+				if (
+					empty($parameters['data']['billing_cc_year']) ||
+					!is_numeric($parameters['data']['billing_cc_year']) ||
+					strlen($parameters['data']['billing_cc_year']) !== 4
+				) {
+					$response['data']['errors']['billing_cc_security'] = 'Invalid credit card year.';
+				}
+
+				if (
+					!empty($parameters['data']['billing_cc_month']) &&
+					!empty($parameters['data']['billing_cc_year']) &&
+					($parameters['data']['billing_cc_year'] . $parameters['data']['billing_cc_month']) < date('Ym', time())
+				) {
+					$response['data']['errors']['billing_cc_security'] = 'Credit card is expired.';
+				}
+
+				if (
+					empty($parameters['data']['billing_name']) ||
+					!is_string($parameters['data']['billing_name'])
+				) {
+					$response['data']['errors']['billing_name'] = 'Invalid billing name.';
+				}
+
+				if (
+					empty($parameters['data']['billing_address_1']) ||
+					!is_string($parameters['data']['billing_address_1'])
+				) {
+					$response['data']['errors']['billing_address_1'] = 'Invalid billing address.';
+				}
+
+				if (
+					empty($parameters['data']['state']) ||
+					!is_string($parameters['data']['state'])
+				) {
+					$response['data']['errors']['state'] = 'Invalid billing state/region.';
+				}
+
+				if (
+					empty($parameters['data']['city']) ||
+					!is_string($parameters['data']['city'])
+				) {
+					$response['data']['errors']['city'] = 'Invalid billing city.';
+				}
+
+				if (
+					empty($parameters['data']['zip']) ||
+					!is_string($parameters['data']['zip'])
+				) {
+					$response['data']['errors']['zip'] = 'Invalid billing zip.';
+				}
+
+				if (
+					empty($parameters['data']['country']) ||
+					!is_string($parameters['data']['country'])
+				) {
+					$response['data']['errors']['country'] = 'Invalid billing country.';
+				}
+
+				if (empty($response['data']['errors'])) {
+					// ..
+				}
+			}
+
 			// ..
 			return $response;
 		}

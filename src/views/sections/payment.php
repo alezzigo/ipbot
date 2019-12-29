@@ -41,7 +41,7 @@
 						<h2>Payment Method</h2>
 						<div class="field-group no-margin payment-methods">
 							<label for="paypal" type="radio"><input checked id="paypal" name="payment_method" type="radio" value="paypal"> PayPal</label>
-							<!--<label for="credit-card" type="radio"><input id="credit-card" name="payment_method" type="radio" value="credit_card"> Credit Card</label>-->
+							<label for="credit-card" type="radio"><input id="credit-card" name="payment_method" type="radio" value="credit_card"> Credit Card</label>
 							<label class="hidden" for="balance" type="radio"><input id="balance" name="payment_method" type="radio" value="balance"> Account Balance</label>
 						</div>
 						<div class="clear"></div>
@@ -52,6 +52,7 @@
 							<p class="message">You'll be redirected to log into PayPal after clicking "Complete Payment".</p>
 						</div>
 						<div class="credit-card hidden payment-method">
+							<p class="message">Enter your credit card details below to complete payment.</p>
 							<label for="billing-cc-name">Full Name on Card</label>
 							<input class="billing-cc-name" id="billing-cc-name" name="billing_cc_name" placeholder="Enter full name on credit card" type="text">
 							<label for="billing-cc-number">Card Number</label>
@@ -70,7 +71,7 @@
 							<label for="billing-state">Billing State</label>
 							<input class="billing-state" id="billing-state" name="billing_state" placeholder="Enter your billing state" type="text">
 							<label for="billing-zip">Billing Zip</label>
-							<input class="billing-zip" id="billing-zip" name="billing_zip" placeholder="Enter your billing zip" type="text">
+							<input class="billing-zip" id="billing-zip" name="billing_zip" placeholder="Enter your billing zip code" type="text">
 							<label for="billing-country">Billing Country</label>
 							<select class="billing-country" id="billing-country" name="billing_country"><?php echo $countrySelectValues; ?></select>
 						</div>

@@ -62,6 +62,17 @@
 						}
 					}
 
+					if (!empty($proxy['local_forwarding_proxies'])) {
+						$localForwardingSources = array();
+
+						foreach ($proxy['local_forwarding_proxies'] as $localForwardingProxy) {
+							$localForwardingSources[] = $localForwardingProxy['ip'];
+						}
+
+						$localForwardingSources = json_encode(array_filter($localForwardingSources));
+						$formattedProxies['whitelist'][$localForwardingSources][] = $proxy['ip'];
+					}
+
 					if (empty($proxy['require_authentication'])) {
 						$formattedProxies['public'][] = $proxy['ip'];
 					}

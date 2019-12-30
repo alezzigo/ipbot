@@ -73,6 +73,20 @@
 						$formattedProxies['whitelist'][$localForwardingSources][] = $proxy['ip'];
 					}
 
+					if (!empty($proxy['static_proxies'])) {
+						foreach ($proxy['static_proxies'] as $staticProxyChunkKey => $staticProxies) {
+							$staticProxySources = array();
+
+							foreach ($staticProxies as $staticProxy) {
+								$staticProxySources[] = $staticProxy['ip'];
+							}
+
+							$staticProxySources = json_encode(array_filter($staticProxySources));
+							$gatewayIp = !empty($proxy['local_forwarding_proxies']) ? $proxy['local_forwarding_proxies'][$staticProxyChunkKey]['ip'] : $proxyIp;
+							$formattedProxies['whitelist'][$staticProxySources][] = $gatewayIp;
+						}
+					}
+
 					if (empty($proxy['require_authentication'])) {
 						$formattedProxies['public'][] = $proxy['ip'];
 					}

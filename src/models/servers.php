@@ -19,7 +19,7 @@
 			// never_direct allow USER_ACL
 			// cache_peer PROXY_IP parent 80 4827 htcp=no-clr allow-miss no-query no-digest no-tproxy proxy-only no-netdb-exchange round-robin connect-timeout=8 connect-fail-limit=88888 name=ORDER_ID-INDEX;
 			// cache_peer_access ORDER_ID-INDEX allow IP_ACL;
-			$disabledProxies = $formattedFiles = $formattedProxies = $formattedUsers = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = array();
+			$disabledProxies = $formattedFiles = $formattedProxies = $formattedUsers = $gatewayAcls = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = array();
 			$formattedAcls = array(
 				'auth_param basic program /usr/lib/squid3/basic_ncsa_auth /etc/squid3/passwords',
 				'auth_param basic children 88888',
@@ -27,11 +27,19 @@
 				'auth_param basic credentialsttl 88888 days',
 				'auth_param basic casesensitive on'
 			);
+			$userIndex = 0;
+
+			if (!empty($serverData['proxy_ips'])) {
+				foreach ($serverData['proxy_ips'] as $proxyIp => $proxyIndex) {
+					$proxyIpAcls[] = 'acl ip' . $proxyIndex . ' localip ' . $proxyIp;
+					$proxyIpAcls[] = 'tcp_outgoing_address ' . $proxyIp . ' ip' . $proxyIndex;
+				}
+			}
+
 			$proxyData = array_intersect_key($serverData, array(
 				'gateway_proxies' => true,
 				'static_proxies' => true
 			));
-			$userIndex = 0;
 
 			foreach ($proxyData as $proxyType => $proxies) {
 				foreach ($proxies as $proxy) {
@@ -94,13 +102,6 @@
 					if (!empty($proxy['disable_http'])) {
 						$disabledProxies[$proxy['ip']] = $proxy['ip'];
 					}
-				}
-			}
-
-			if (!empty($formattedProxies['proxy_ips'])) {
-				foreach ($formattedProxies['proxy_ips'] as $proxyIndex => $proxyIp) {
-					$proxyIpAcls[] = 'acl ip' . $proxyIndex . ' localip ' . $proxyIp;
-					$proxyIpAcls[] = 'tcp_outgoing_address ' . $proxyIp . ' ip' . $proxyIndex;
 				}
 			}
 
@@ -343,7 +344,8 @@
 			$proxyIps = $this->fetch('proxies', $proxyParameters);
 
 			if (!empty($proxyIps['count'])) {
-				$response['proxy_ips'] = array_unique($proxyIps['data']);
+				$proxyIps['data'] = array_unique($proxyIps['data']);
+				$response['proxy_ips'] = array_combine($proxyIps['data'], range(0, count($proxyIps['data']) - 1));
 			}
 
 			return $response;

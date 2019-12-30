@@ -70,9 +70,12 @@
 						}
 					}
 
-					if (!empty($proxy['local_forwarding_proxies'])) {
+					if ($proxyType == 'gateway_proxies') {
 						$gatewayAcls[] = 'always_direct deny ip' . $serverData['proxy_ips'][$proxy['ip']];
 						$gatewayAcls[] = 'never_direct allow ip' . $serverData['proxy_ips'][$proxy['ip']];
+					}
+
+					if (!empty($proxy['local_forwarding_proxies'])) {
 						$localForwardingSources = array();
 
 						foreach ($proxy['local_forwarding_proxies'] as $localForwardingProxy) {

@@ -85,7 +85,10 @@
 						$proxyIpAcls[] = 'acl ip' . $proxyIndex . ' localip ' . $proxyIp;
 						$proxyIpAcls[] = 'tcp_outgoing_address ' . $proxyIp . ' ip' . $proxyIndex;
 						$proxyIps[$proxyIndex] = $proxyIp;
+						$proxyIndex++;
 					}
+
+					// ..
 				}
 			}
 

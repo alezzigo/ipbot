@@ -19,7 +19,7 @@
 			// never_direct allow USER_ACL
 			// cache_peer PROXY_IP parent 80 4827 htcp=no-clr allow-miss no-query no-digest no-tproxy proxy-only no-netdb-exchange round-robin connect-timeout=8 connect-fail-limit=88888 name=ORDER_ID-INDEX;
 			// cache_peer_access ORDER_ID-INDEX allow IP_ACL;
-			$disabledProxies = $formattedFiles = $formattedProxies = $formattedUsers = $proxyAuthenticationAcls = $proxyIpAcls = $proxyIps = $proxyWhitelistAcls = array();
+			$disabledProxies = $formattedFiles = $formattedProxies = $formattedUsers = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = array();
 			$formattedAcls = array(
 				'auth_param basic program /usr/lib/squid3/basic_ncsa_auth /etc/squid3/passwords',
 				'auth_param basic children 88888',
@@ -31,7 +31,7 @@
 				'gateway_proxies' => true,
 				'static_proxies' => true
 			));
-			$proxyIndex = $userIndex = 0;
+			$userIndex = 0;
 
 			foreach ($proxyData as $proxyType => $proxies) {
 				foreach ($proxies as $proxy) {
@@ -94,15 +94,13 @@
 					if (!empty($proxy['disable_http'])) {
 						$disabledProxies[$proxy['ip']] = $proxy['ip'];
 					}
+				}
+			}
 
-					if (!in_array(($proxyIp = $proxy['ip']), $proxyIps)) {
-						$proxyIpAcls[] = 'acl ip' . $proxyIndex . ' localip ' . $proxyIp;
-						$proxyIpAcls[] = 'tcp_outgoing_address ' . $proxyIp . ' ip' . $proxyIndex;
-						$proxyIps[$proxyIndex] = $proxyIp;
-						$proxyIndex++;
-					}
-
-					// ..
+			if (!empty($formattedProxies['proxy_ips'])) {
+				foreach ($formattedProxies['proxy_ips'] as $proxyIndex => $proxyIp) {
+					$proxyIpAcls[] = 'acl ip' . $proxyIndex . ' localip ' . $proxyIp;
+					$proxyIpAcls[] = 'tcp_outgoing_address ' . $proxyIp . ' ip' . $proxyIndex;
 				}
 			}
 

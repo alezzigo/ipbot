@@ -19,7 +19,7 @@
 			// never_direct allow USER_ACL
 			// cache_peer PROXY_IP parent 80 4827 htcp=no-clr allow-miss no-query no-digest no-tproxy proxy-only no-netdb-exchange round-robin connect-timeout=8 connect-fail-limit=88888 name=ORDER_ID-INDEX;
 			// cache_peer_access ORDER_ID-INDEX allow IP_ACL;
-			$disabledProxies = $formattedFiles = $formattedProxies = $formattedUsers = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = $proxyIps = array();
+			$disabledProxies = $formattedFiles = $formattedProxies = $formattedUsers = $proxyAuthenticationAcls = $proxyIpAcls = $proxyIps = $proxyWhitelistAcls = array();
 			$formattedAcls = array(
 				'auth_param basic program /usr/lib/squid3/basic_ncsa_auth /etc/squid3/passwords',
 				'auth_param basic children 88888',
@@ -27,48 +27,54 @@
 				'auth_param basic credentialsttl 88888 days',
 				'auth_param basic casesensitive on'
 			);
-			$userIndex = 0;
+			$proxyData = array_intersect_key($serverData, array(
+				'gateway_proxies' => true,
+				'static_proxies' => true
+			));
+			$proxyIndex = $userIndex = 0;
 
-			foreach ($serverData['static_proxies'] as $key => $proxy) {
-				if (
-					!empty($proxy['whitelisted_ips']) &&
-					!empty($proxy['require_authentication'])
-				) {
-					$sources = json_encode(array_filter(explode("\n", $proxy['whitelisted_ips'])));
+			foreach ($proxyData as $proxyType => $proxies) {
+				foreach ($proxies as $proxy) {
+					if (
+						!empty($proxy['whitelisted_ips']) &&
+						!empty($proxy['require_authentication'])
+					) {
+						$sources = json_encode(array_filter(explode("\n", $proxy['whitelisted_ips'])));
+
+						if (
+							empty($formattedProxies['whitelist'][$sources]) ||
+							!in_array($proxy['ip'], $formattedProxies['whitelist'][$sources])
+						) {
+							$formattedProxies['whitelist'][$sources][] = $proxy['ip'];
+						}
+					}
 
 					if (
-						empty($formattedProxies['whitelist'][$sources]) ||
-						!in_array($proxy['ip'], $formattedProxies['whitelist'][$sources])
+						!empty($proxy['username']) &&
+						!empty($proxy['password']) &&
+						!empty($proxy['require_authentication'])
 					) {
-						$formattedProxies['whitelist'][$sources][] = $proxy['ip'];
+						if (
+							empty($formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']]) ||
+							!in_array($proxy['ip'], $formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']])
+						) {
+							$formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']][] = $proxy['ip'];
+						}
 					}
-				}
 
-				if (
-					!empty($proxy['username']) &&
-					!empty($proxy['password']) &&
-					!empty($proxy['require_authentication'])
-				) {
-					if (
-						empty($formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']]) ||
-						!in_array($proxy['ip'], $formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']])
-					) {
-						$formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']][] = $proxy['ip'];
+					if (empty($proxy['require_authentication'])) {
+						$formattedProxies['public'][] = $proxy['ip'];
 					}
-				}
 
-				if (empty($proxy['require_authentication'])) {
-					$formattedProxies['public'][] = $proxy['ip'];
-				}
+					if (!empty($proxy['disable_http'])) {
+						$disabledProxies[$proxy['ip']] = $proxy['ip'];
+					}
 
-				if (!empty($proxy['disable_http'])) {
-					$disabledProxies[$proxy['ip']] = $proxy['ip'];
-				}
-
-				if (!in_array(($proxyIp = $proxy['ip']), $proxyIps)) {
-					$proxyIpAcls[] = 'acl ip' . $key . ' localip ' . $proxyIp;
-					$proxyIpAcls[] = 'tcp_outgoing_address ' . $proxyIp . ' ip' . $key;
-					$proxyIps[] = $proxyIp;
+					if (!in_array(($proxyIp = $proxy['ip']), $proxyIps)) {
+						$proxyIpAcls[] = 'acl ip' . $proxyIndex . ' localip ' . $proxyIp;
+						$proxyIpAcls[] = 'tcp_outgoing_address ' . $proxyIp . ' ip' . $proxyIndex;
+						$proxyIps[$proxyIndex] = $proxyIp;
+					}
 				}
 			}
 

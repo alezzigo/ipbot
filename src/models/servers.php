@@ -13,12 +13,7 @@
 	 * @return array $response
 	 */
 		protected function _formatSquidAccessControls($serverData) {
-			// TODO: Implement gateway proxy IPs with cache_peer for automatic IP rotation with custom rotation frequencies
-			// http_access allow IP_ACL USER_ACL
-			// always_direct deny USER_ACL
-			// never_direct allow USER_ACL
-			// cache_peer PROXY_IP parent 80 4827 htcp=no-clr allow-miss no-query no-digest no-tproxy proxy-only no-netdb-exchange round-robin connect-timeout=8 connect-fail-limit=88888 name=ORDER_ID-INDEX;
-			// cache_peer_access ORDER_ID-INDEX allow IP_ACL;
+			// TODO: Add custom intervals for gateways (10 min+), IPv6 support
 			$disabledProxies = $formattedFiles = $formattedProxies = $formattedUsers = $gatewayAcls = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = array();
 			$formattedAcls = array(
 				'auth_param basic program /usr/lib/squid3/basic_ncsa_auth /etc/squid3/passwords',
@@ -320,7 +315,9 @@
 						$staticProxies = $this->fetch('proxies', $staticProxyParameters);
 
 						if (!empty($staticProxies['count'])) {
-							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = $staticProxies['data'];
+							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array(
+								$staticProxies['data']
+							);
 						}
 
 						if (
@@ -329,7 +326,7 @@
 							($gatewayGlobalForwardingProxies = $response['gateway_proxies'][$gatewayProxyKey]['global_forwarding_proxies']) &&
 							($gatewayStaticProxies = $response['gateway_proxies'][$gatewayProxyKey]['static_proxies'])
 						) {
-							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array_chunk($gatewayStaticProxies, ceil(count($gatewayStaticProxies) / count($gatewayGlobalForwardingProxies)));
+							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array_chunk($gatewayStaticProxies[0], ceil(count($gatewayStaticProxies[0]) / count($gatewayGlobalForwardingProxies)));
 						}
 
 						// ..

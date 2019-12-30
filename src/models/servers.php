@@ -71,9 +71,13 @@
 					}
 
 					if (!empty($proxy['local_forwarding_proxies'])) {
+						$gatewayAcls[] = 'always_direct deny ip' . $serverData['proxy_ips'][$proxy['ip']];
+						$gatewayAcls[] = 'never_direct allow ip' . $serverData['proxy_ips'][$proxy['ip']];
 						$localForwardingSources = array();
 
 						foreach ($proxy['local_forwarding_proxies'] as $localForwardingProxy) {
+							$gatewayAcls[] = 'cache_peer ' . $localForwardingProxy['ip'] . ' parent ' . $localForwardingProxy['http_port'] . ' 4827 htcp=no-clr allow-miss no-query no-digest no-tproxy proxy-only no-netdb-exchange round-robin connect-timeout=8 connect-fail-limit=88888 name=' . $localForwardingProxy['id'];
+							$gatewayAcls[] = 'cache_peer_access ' . $localForwardingProxy['id'] . ' allow ip' . $serverData['proxy_ips'][$proxy['ip']];
 							$localForwardingSources[] = $localForwardingProxy['ip'];
 						}
 

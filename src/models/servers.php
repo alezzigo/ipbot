@@ -90,14 +90,16 @@
 
 					if (!empty($proxy['static_proxies'])) {
 						foreach ($proxy['static_proxies'] as $staticProxyChunkKey => $staticProxies) {
+							$gatewayIp = !empty($proxy['local_forwarding_proxies']) ? $proxy['local_forwarding_proxies'][$staticProxyChunkKey]['ip'] : $proxy['ip'];
 							$staticProxySources = array();
 
 							foreach ($staticProxies as $staticProxy) {
+								$gatewayAcls[] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxy['http_port'] . ' 4827 htcp=no-clr allow-miss no-query no-digest no-tproxy proxy-only no-netdb-exchange round-robin connect-timeout=8 connect-fail-limit=88888 name=' . $staticProxy['id'];
+								$gatewayAcls[] = 'cache_peer_access ' . $staticProxy['id'] . ' allow ip' . $serverData['proxy_ips'][$gatewayIp];
 								$staticProxySources[] = $staticProxy['ip'];
 							}
 
 							$staticProxySources = json_encode(array_filter($staticProxySources));
-							$gatewayIp = !empty($proxy['local_forwarding_proxies']) ? $proxy['local_forwarding_proxies'][$staticProxyChunkKey]['ip'] : $proxyIp;
 							$formattedProxies['whitelist'][$staticProxySources][] = $gatewayIp;
 						}
 					}

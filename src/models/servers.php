@@ -65,7 +65,10 @@
 						}
 					}
 
-					if ($proxyType == 'gateway_proxies') {
+					if (
+						$proxyType == 'gateway_proxies' &&
+						empty($proxy['allow_direct'])
+					) {
 						$gatewayAcls[] = 'always_direct deny ip' . $serverData['proxy_ips'][$proxy['ip']];
 						$gatewayAcls[] = 'never_direct allow ip' . $serverData['proxy_ips'][$proxy['ip']];
 					}
@@ -85,8 +88,17 @@
 
 					if (!empty($proxy['static_proxies'])) {
 						foreach ($proxy['static_proxies'] as $staticProxyChunkKey => $staticProxies) {
-							$gatewayIp = !empty($proxy['local_forwarding_proxies']) ? $proxy['local_forwarding_proxies'][$staticProxyChunkKey]['ip'] : $proxy['ip'];
+							$gatewayIp = $proxy['ip'];
 							$staticProxySources = array();
+
+							if (!empty($proxy['local_forwarding_proxies'])) {
+								$gatewayIp = $proxy['local_forwarding_proxies'][$staticProxyChunkKey]['ip'];
+
+								if (empty($proxy['local_forwarding_proxies'][$staticProxyChunkKey]['allow_direct'])) {
+									$gatewayAcls[] = 'always_direct deny ip' . $serverData['proxy_ips'][$gatewayIp];
+									$gatewayAcls[] = 'never_direct allow ip' . $serverData['proxy_ips'][$gatewayIp];
+								}
+							}
 
 							foreach ($staticProxies as $staticProxy) {
 								$gatewayAcls[] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxy['http_port'] . ' 4827 htcp=no-clr allow-miss no-query no-digest no-tproxy proxy-only no-netdb-exchange round-robin connect-timeout=8 connect-fail-limit=88888 name=' . $staticProxy['id'];
@@ -334,11 +346,11 @@
 				}
 			}
 
-			$proxyParameters['conditions'] = array_merge($proxyParameters['conditions'], array(
+			$staticProxyParameters['conditions'] = array_merge($proxyParameters['conditions'], array(
 				'allow_direct' => true,
 				'type' => 'static'
 			));
-			$staticProxies = $this->fetch('proxies', $proxyParameters);
+			$staticProxies = $this->fetch('proxies', $staticProxyParameters);
 
 			if (!empty($staticProxies['count'])) {
 				$response['static_proxies'] = $staticProxies['data'];

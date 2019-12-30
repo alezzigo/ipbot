@@ -164,6 +164,7 @@
 				$formattedAcls[] = 'http_access allow d' . $userIndex . ' all';
 			}
 
+			$formattedAcls = array_merge($formattedAcls, $gatewayAcls);
 			$formattedAcls[] = 'http_access deny all';
 			$response = array(
 				'acls' => implode("\n", $formattedAcls),

@@ -100,7 +100,7 @@
 								}
 							}
 
-							$loadBalanceMethod = count($staticProxies) === 1 ? 'default' : 'round-robin';
+							$loadBalanceMethod = empty($staticProxies[1]) ? 'default' : 'round-robin';
 
 							foreach ($staticProxies as $staticProxy) {
 								$gatewayAcls[] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxy['http_port'] . ' 4827 htcp=no-clr allow-miss no-query no-digest no-tproxy proxy-only no-netdb-exchange ' . $loadBalanceMethod . ' connect-timeout=8 connect-fail-limit=88888 name=' . $staticProxy['id'];

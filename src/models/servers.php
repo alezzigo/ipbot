@@ -13,7 +13,7 @@
 	 * @return array $response
 	 */
 		protected function _formatSquidAccessControls($serverData) {
-			// TODO: Add custom intervals for gateways (10 min+), IPv6 support
+			// TODO: Add process for continuous IP rotation with city selection, IPv6 support
 			$disabledProxies = $formattedFiles = $formattedProxies = $formattedUsers = $gatewayAcls = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = array();
 			$formattedAcls = array(
 				'auth_param basic program /usr/lib/squid3/basic_ncsa_auth /etc/squid3/passwords',
@@ -257,9 +257,12 @@
 					'node_id',
 					'password',
 					'previous_rotation_date',
+					'previous_rotation_node_id',
+					'previous_rotation_node_ip',
 					'require_authentication',
 					'rotation_frequency',
 					'rotation_node_id',
+					'rotation_node_ip',
 					'status',
 					'type',
 					'username',
@@ -310,14 +313,15 @@
 							if (!empty($localForwardingProxies['count'])) {
 								$response['gateway_proxies'][$gatewayProxyKey]['local_forwarding_proxies'] = $localForwardingProxies['data'];
 							}
-
-							// ..
 						}
 					}
 
 					$gatewayProxyStaticProxyIds = $this->fetch('proxy_static_proxies', $gatewayProxyIdParameters);
 
-					if (!empty($gatewayProxyStaticProxyIds['count'])) {
+					if (
+						$rotateOnEveryRequest &&
+						!empty($gatewayProxyStaticProxyIds['count'])
+					) {
 						$staticProxyParameters = $proxyParameters;
 						$staticProxyParameters['conditions'] = array_merge($staticProxyParameters['conditions'], array(
 							'id' => $gatewayProxyStaticProxyIds['data'],
@@ -333,15 +337,26 @@
 						}
 
 						if (
-							$rotateOnEveryRequest &&
+							!empty($response['gateway_proxies'][$gatewayProxyKey]['static_proxies']) &&
 							!empty($response['gateway_proxies'][$gatewayProxyKey]['global_forwarding_proxies']) &&
 							($gatewayGlobalForwardingProxies = $response['gateway_proxies'][$gatewayProxyKey]['global_forwarding_proxies']) &&
 							($gatewayStaticProxies = $response['gateway_proxies'][$gatewayProxyKey]['static_proxies'])
 						) {
 							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array_chunk($gatewayStaticProxies[0], ceil(count($gatewayStaticProxies[0]) / count($gatewayGlobalForwardingProxies)));
 						}
-
-						// ..
+					} elseif (
+						!empty($gatewayProxy['rotation_node_id']) &&
+						!empty($gatewayProxy['rotation_node_ip'])
+					) {
+						$rotationIntervalProxy = array(
+							array(
+								'id' => $gatewayProxy['rotation_node_id'],
+								'ip' => $gatewayProxy['rotation_node_ip']
+							)
+						);
+						$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array(
+							$rotationIntervalProxy
+						);
 					}
 				}
 			}

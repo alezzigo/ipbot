@@ -66,7 +66,7 @@
 					}
 
 					if (
-						$proxyType == 'gateway_proxies' &&
+						$proxyType === 'gateway_proxies' &&
 						empty($proxy['allow_direct'])
 					) {
 						$gatewayAcls[] = 'always_direct deny ip' . $serverData['proxy_ips'][$proxy['ip']];
@@ -100,8 +100,10 @@
 								}
 							}
 
+							$loadBalanceMethod = count($staticProxies) === 1 ? 'default' : 'round-robin';
+
 							foreach ($staticProxies as $staticProxy) {
-								$gatewayAcls[] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxy['http_port'] . ' 4827 htcp=no-clr allow-miss no-query no-digest no-tproxy proxy-only no-netdb-exchange round-robin connect-timeout=8 connect-fail-limit=88888 name=' . $staticProxy['id'];
+								$gatewayAcls[] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxy['http_port'] . ' 4827 htcp=no-clr allow-miss no-query no-digest no-tproxy proxy-only no-netdb-exchange ' . $loadBalanceMethod . ' connect-timeout=8 connect-fail-limit=88888 name=' . $staticProxy['id'];
 								$gatewayAcls[] = 'cache_peer_access ' . $staticProxy['id'] . ' allow ip' . $serverData['proxy_ips'][$gatewayIp];
 								$staticProxySources[] = $staticProxy['ip'];
 							}

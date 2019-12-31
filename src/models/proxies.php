@@ -1478,6 +1478,7 @@
 	 * @return array $response
 	 */
 		public function shellProcessRemoveReplacedProxies($table) {
+			// TODO: Automatically remove replaced proxy associations from proxy_forwarding_proxies and proxy_static_proxies
 			$response = array(
 				'message' => array(
 					'status' => 'error',
@@ -1529,13 +1530,13 @@
 		}
 
 	/**
-	 * Shell method to rotate sticky IPs for gateway proxies
+	 * Shell method to rotate sticky IPs for gateway proxies based on rotation frequency
 	 *
 	 * @param string $table
 	 *
 	 * @return array $response
 	 */
-		public function shellProcessRotateGateways() {
+		public function shellProcessRotateGateways($table) {
 			$response = array(
 				'message' => array(
 					'status' => 'error',
@@ -1545,26 +1546,24 @@
 			$gatewayProxies = $this->fetch('proxies', array(
 				'conditions' => array(
 					'disable_http' => false,
+					'next_rotation_date <' => date('Y-m-d H:i:s', time()),
 					'rotation_frequency >=' => 1,
-]					'type' => 'gateway',
+					'type' => 'gateway',
 					'NOT' => array(
-						'rotation_frequency' => null,
 						'status' => 'offline'
-					),
-					// ..
+					)
 				),
 				'fields' => array(
 					'id',
 					'ip',
-					'previous_rotation_date',
+					'next_rotation_date',
 					'previous_rotation_proxy_id',
 					'previous_rotation_proxy_ip',
-					'require_authentication',
 					'rotation_frequency',
 					'rotation_proxy_id',
-					'rotation_proxy_ip',
-					'status'
+					'rotation_proxy_ip'
 				),
+				'limit' => 100000,
 				'sort' => array(
 					'field' => 'created',
 					'order' => 'ASC'
@@ -1575,10 +1574,59 @@
 				$proxyData = array();
 
 				foreach ($gatewayProxies['data'] as $gatewayProxy) {
-					// ..
+					$gatewayProxyStaticProxyIds = $this->fetch('proxy_static_proxies', array(
+						'conditions' => array(
+							'gateway_proxy_id' => $gatewayProxy['id'],
+							'NOT' => array(
+								'proxy_id' => array_unique(array(
+									$gatewayProxy['previous_rotation_proxy_id'],
+									$gatewayProxy['rotation_proxy_id']
+								))
+							)
+						),
+						'fields' => array(
+							'proxy_id'
+						),
+						'limit' => 1,
+						'sort' => 'random'
+					));
+
+					if (!empty($gatewayProxyStaticProxyIds['data'])) {
+						$gatewayStaticProxy = $this->fetch('proxies', array(
+							'conditions' => array(
+								'id' => $gatewayProxyStaticProxyIds['data'][0],
+								'type' => 'static',
+								'NOT' => array(
+									'status' => 'offline'
+								)
+							),
+							'fields' => array(
+								'id',
+								'ip'
+							)
+						));
+
+						if (!empty($gatewayStaticProxy['data'])) {
+							$proxyData[] = array(
+								'id' => $gatewayProxy['id'],
+								'next_rotation_date' => date('Y-m-d H:i:s', strtotime('+' . $gatewayProxy['rotation_frequency'] . ' minutes')),
+								'previous_rotation_proxy_id' => $gatewayProxy['rotation_proxy_id'],
+								'previous_rotation_proxy_ip' => $gatewayProxy['rotation_proxy_ip'],
+								'rotation_proxy_id' => $gatewayStaticProxy['data'][0]['id'],
+								'rotation_proxy_ip' => $gatewayStaticProxy['data'][0]['ip']
+							);
+						}
+					}
 				}
 
-				$this->save('proxies', $proxyData);
+				if ($this->save('proxies', $proxyData)) {
+					$response = array(
+						'message' => array(
+							'status' => 'success',
+							'text' => count($proxyData) . ' proxies rotated successfully.'
+						)
+					);
+				}
 			}
 
 			return $response;

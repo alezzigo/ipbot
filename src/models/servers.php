@@ -259,12 +259,12 @@
 					'node_id',
 					'password',
 					'previous_rotation_date',
-					'previous_rotation_node_id',
-					'previous_rotation_node_ip',
+					'previous_rotation_proxy_id',
+					'previous_rotation_proxy_ip',
 					'require_authentication',
 					'rotation_frequency',
-					'rotation_node_id',
-					'rotation_node_ip',
+					'rotation_proxy_id',
+					'rotation_proxy_ip',
 					'status',
 					'type',
 					'username',
@@ -347,13 +347,13 @@
 							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array_chunk($gatewayStaticProxies[0], ceil(count($gatewayStaticProxies[0]) / count($gatewayGlobalForwardingProxies)));
 						}
 					} elseif (
-						!empty($gatewayProxy['rotation_node_id']) &&
-						!empty($gatewayProxy['rotation_node_ip'])
+						!empty($gatewayProxy['rotation_proxy_id']) &&
+						!empty($gatewayProxy['rotation_proxy_ip'])
 					) {
 						$rotationIntervalProxy = array(
 							array(
-								'id' => $gatewayProxy['rotation_node_id'],
-								'ip' => $gatewayProxy['rotation_node_ip']
+								'id' => $gatewayProxy['rotation_proxy_id'],
+								'ip' => $gatewayProxy['rotation_proxy_ip']
 							)
 						);
 						$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array(

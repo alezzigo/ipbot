@@ -1542,7 +1542,45 @@
 					'text' => 'There aren\'t any ' . $table . ' to rotate at the moment, please try again later.'
 				)
 			);
-			// ..
+			$gatewayProxies = $this->fetch('proxies', array(
+				'conditions' => array(
+					'disable_http' => false,
+					'rotation_frequency >=' => 1,
+]					'type' => 'gateway',
+					'NOT' => array(
+						'rotation_frequency' => null,
+						'status' => 'offline'
+					),
+					// ..
+				),
+				'fields' => array(
+					'id',
+					'ip',
+					'previous_rotation_date',
+					'previous_rotation_proxy_id',
+					'previous_rotation_proxy_ip',
+					'require_authentication',
+					'rotation_frequency',
+					'rotation_proxy_id',
+					'rotation_proxy_ip',
+					'status'
+				),
+				'sort' => array(
+					'field' => 'created',
+					'order' => 'ASC'
+				)
+			));
+
+			if (!empty($gatewayProxies['count'])) {
+				$proxyData = array();
+
+				foreach ($gatewayProxies['data'] as $gatewayProxy) {
+					// ..
+				}
+
+				$this->save('proxies', $proxyData);
+			}
+
 			return $response;
 		}
 

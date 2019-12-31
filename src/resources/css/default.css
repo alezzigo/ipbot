@@ -788,6 +788,9 @@ main {
 		.icon[frame="requests"] {
 			background: url('../images/icons/icon-requests.png') center no-repeat;
 		}
+		.icon[frame="rotate"] {
+			background: url('../images/icons/icon-rotate.png') center no-repeat;
+		}
 		.icon[frame="search"] {
 			background: url('../images/icons/icon-search.png') center no-repeat;
 		}
@@ -807,6 +810,7 @@ main {
 		.icon[frame="group"],
 		.icon[frame="replace"],
 		.icon[frame="requests"],
+		.icon[frame="rotate"],
 		.icon[frame="search"],
 		.icon[frame="upgrade"] {
 			background-size: 100% !important;

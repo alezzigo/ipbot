@@ -13,6 +13,7 @@
 		'group',
 		'replace',
 		'requests',
+		'rotate',
 		'search'
 	);
 
@@ -51,6 +52,7 @@
 									<span class="button frame-button icon tooltip tooltip-bottom" data-title="View log of recent order actions" frame="actions" process="actions"></span>
 									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Download proxy request logs" frame="requests" item-function process="requests"></span>
 									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Configure proxy replacement settings" frame="replace" item-function></span>
+									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Configure proxy gateway rotation settings" frame="rotate" item-function></span>
 									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Configure proxy authentication settings" frame="authenticate" item-function></span>
 									<span class="button frame-button icon hidden tooltip tooltip-bottom" data-title="Download list of selected proxies" frame="download" item-function process="download"></span>
 								</div>

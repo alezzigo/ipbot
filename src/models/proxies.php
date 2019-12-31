@@ -1481,7 +1481,7 @@
 			$response = array(
 				'message' => array(
 					'status' => 'error',
-					'text' => 'There aren\'t any new replaced ' . $table . ' to remove, please try again later.'
+					'text' => 'There aren\'t any new replaced ' . $table . ' to remove at the moment, please try again later.'
 				)
 			);
 			$proxies = $this->fetch('proxies', array(
@@ -1529,6 +1529,24 @@
 		}
 
 	/**
+	 * Shell method to rotate sticky IPs for gateway proxies
+	 *
+	 * @param string $table
+	 *
+	 * @return array $response
+	 */
+		public function shellProcessRotateGateways() {
+			$response = array(
+				'message' => array(
+					'status' => 'error',
+					'text' => 'There aren\'t any ' . $table . ' to rotate at the moment, please try again later.'
+				)
+			);
+			// ..
+			return $response;
+		}
+
+	/**
 	 * Shell method for processing scheduled proxy replacements
 	 *
 	 * @param string $table
@@ -1539,7 +1557,7 @@
 			$response = array(
 				'message' => array(
 					'status' => 'error',
-					'text' => 'There aren\'t any new scheduled ' . $table . ' to replace, please try again later.'
+					'text' => 'There aren\'t any new scheduled ' . $table . ' to replace at the moment, please try again later.'
 				)
 			);
 			$intervalTypes = array(

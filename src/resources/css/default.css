@@ -883,6 +883,7 @@ main {
 					}
 			.frame-container .frame .checkbox-option-container {
 				box-sizing: border-box;
+				clear: left;
 				float: left;
 				margin-bottom: 18px;
 				max-width: 100%;
@@ -890,6 +891,10 @@ main {
 			}
 				.frame-container .frame .checkbox-option-container .field-group {
 					margin-bottom: 8px;
+				}
+				.frame-container .frame .checkbox-option-container .checkbox-container {
+					box-sizing: border-box;
+					clear: left;
 				}
 		.frame-container .frame-overlay {
 			z-index: 2;

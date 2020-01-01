@@ -13,8 +13,30 @@
 						<label for="granular-search">Filter List of Specific IPs or Subnets</label>
 						<textarea class="granular-search" id="granular-search" name="granular_search" placeholder="<?php echo "Enter list of specific proxy IPs to filter within your order\n127.0.0.1\n127.0.0.2\netc..."; ?>"></textarea>
 						<div class="checkbox-container">
+							<span checked="0" class="checkbox" id="filter-proxy-types" name="filter_proxy_types"></span>
+							<label class="custom-checkbox-label" for="filter-proxy-types" name="filter_proxy_types">Filter By Specific Proxy Types</label>
+						</div>
+						<div class="checkbox-option-container hidden" field="filter_proxy_types">
+							<!--<div class="checkbox-container no-margin-top">
+								<span checked="0" class="checkbox" id="dns-ips" name="dns_ips"></span>
+								<label class="custom-checkbox-label" for="dns-ips" name="dns_ips">DNS IPs</label>
+							</div>-->
+							<div class="checkbox-container no-margin-top">
+								<span checked="0" class="checkbox" id="gateway-proxies" name="type[gateway]"></span>
+								<label class="custom-checkbox-label" for="gateway-proxies" name="type[gateway]">Gateway Proxies</label>
+							</div>
+							<div class="checkbox-container no-margin-top">
+								<span checked="0" class="checkbox" id="forwarding-proxies" name="type[forwarding]"></span>
+								<label class="custom-checkbox-label" for="forwarding-proxies" name="type[forwarding]">Forwarding Proxies</label>
+							</div>
+							<div class="checkbox-container no-margin">
+								<span checked="0" class="checkbox" id="static-proxies" name="type[static]"></span>
+								<label class="custom-checkbox-label" for="static-proxies" name="type[static]">Static Proxies</label>
+							</div>
+						</div>
+						<div class="checkbox-container no-margin-top">
 							<span checked="0" class="checkbox" id="exclude-search" name="exclude_search"></span>
-							<label class="custom-checkbox-label" for="exclude-search" name="exclude_search">Exclude Proxies Matching Terms and Filter</label>
+							<label class="custom-checkbox-label" for="exclude-search" name="exclude_search">Exclude Proxies Matching Search Terms and Filters</label>
 						</div>
 						<div class="checkbox-container no-margin-top">
 							<span checked="0" class="checkbox" id="match-all-search" name="match_all_search"></span>

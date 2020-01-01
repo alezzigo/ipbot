@@ -459,6 +459,61 @@
 		}
 
 	/**
+	 * Parsing helper method for a form data item if correct brackets exist
+	 *
+	 * @param string $formDataItemKey
+	 * @param string $formDataItemValue
+	 *
+	 * @return array $response
+	 */
+		protected function _parseFormDataItem($formDataItemKey, $formDataItemValue) {
+			$parsedFormDataItem = array(
+				$formDataItemKey => $formDataItemValue
+			);
+
+			if (
+				!empty($formDataItemKey) &&
+				($openingBracket = stripos($formDataItemKey, '[')) !== false &&
+				($closingBracket = stripos($formDataItemKey, ']', -1)) !== false &&
+				$closingBracket === (strlen($formDataItemKey) - 1)
+			) {
+				$parsedFormDataItemKey = substr_replace(substr($formDataItemKey, $openingBracket), '', -1);
+				$parsedFormDataItemKey = substr($parsedFormDataItemKey, 1);
+
+				$parsedFormDataItem = array(
+					substr_replace($formDataItemKey, '', $openingBracket) => $this->_parseFormDataItem($parsedFormDataItemKey, $formDataItemValue)
+				);
+			}
+
+			$response = $parsedFormDataItem;
+			return $response;
+		}
+
+	/**
+	 * Parsing helper method for form data items
+	 *
+	 * @param array $formDataItems
+	 *
+	 * @return array $response
+	 */
+		protected function _parseFormDataItems($formDataItems) {
+			foreach ($formDataItems as $formDataItemKey => $formDataItemValue) {
+				$formDataItem = array(
+					$formDataItemKey => $formDataItemValue
+				);
+				$parsedFormDataItem = $this->_parseFormDataItem($formDataItemKey, $formDataItemValue);
+
+				if ($formDataItem !== $parsedFormDataItem) {
+					unset($formDataItems[$formDataItemKey]);
+					$formDataItems = array_merge_recursive($formDataItems, $parsedFormDataItem);
+				}
+			}
+
+			$response = $formDataItems;
+			return $response;
+		}
+
+	/**
 	 * Parse and filter IPv4 address list.
 	 *
 	 * @param array $ips
@@ -524,6 +579,13 @@
 			);
 			$response['items'] = $parameters['items'] = isset($parameters['items']) ? $parameters['items'] : $clearItems;
 			$response['tokens'][$table] = $token;
+
+			if (
+				!empty($parameters['data']) &&
+				is_array($parameters['data'])
+			) {
+				$parameters['data'] = $this->_parseFormDataItems($parameters['data']);
+			}
 
 			if (
 				empty($parameters['tokens'][$table]) ||

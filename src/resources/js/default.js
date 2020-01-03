@@ -118,9 +118,15 @@ var elements = {
 		});
 	},
 	hasClass: function(selector, className) {
-		return !selectAllElements(selector).map(function(element) {
-			return element[1].classList.contains(className) ? '' : 1;
-		}).join('');
+		let hasClass = false;
+
+		selectAllElements(selector, function(selectedElementKey, selectedElement) {
+			if (selectedElement.classList.contains(className)) {
+				hasClass = true;
+			}
+		});
+
+		return hasClass;
 	},
 	html: function(selector, value) {
 		return selectAllElements(selector, function(selectedElementKey, selectedElement) {

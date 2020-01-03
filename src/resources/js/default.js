@@ -60,16 +60,22 @@ var browserDetails = function() {
 	var browserDetails = window.clientInformation ? window.clientInformation : window.navigator;
 	var retrieveMimeTypes = function(mimeTypeObject) {
 		var response = [];
-		Object.entries(mimeTypeObject).map(function(mimeType) {
-			response.push(mimeType[1].description + mimeType[1].suffixes + mimeType[1].type + (mimeType[1].enabledPlugin ? mimeType[1].enabledPlugin.description + mimeType[1].enabledPlugin.filename + mimeType[1].enabledPlugin.length + mimeType[1].enabledPlugin.name : false));
-		});
+
+		for (var mimeTypeObjectKey in Object.entries(mimeTypeObject)) {
+			var mimeType = mimeTypeObject[mimeTypeObjectKey];
+			response.push(mimeType.description + mimeType.suffixes + mimeType.type + (mimeType.enabledPlugin ? mimeType.enabledPlugin.description + mimeType.enabledPlugin.filename + mimeType.enabledPlugin.length + mimeType.enabledPlugin.name : false));
+		}
+
 		return response;
 	};
 	var retrievePlugins = function(pluginObject) {
 		var response = [];
-		Object.entries(pluginObject).map(function(plugin) {
-			response.push(plugin[1].description + plugin[1].filename + plugin[1].length + plugin[1].name);
-		});
+
+		for (var pluginObjectKey in Object.entries(pluginObject)) {
+			var plugin = pluginObject[pluginObjectKey];
+			response.push(plugin.description + plugin.filename + plugin.length + plugin.name);
+		}
+
 		return response;
 	};
 	return {

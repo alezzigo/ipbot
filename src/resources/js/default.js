@@ -113,8 +113,8 @@ var closeFrames = function(closeFrameApiRequestParameters) {
 };
 var elements = {
 	addClass: function(selector, className) {
-		selectAllElements(selector).map(function(element) {
-			element[1].classList.add(className);
+		selectAllElements(selector, function(selectedElementKey, selectedElement) {
+			selectedElement.classList.add(className);
 		});
 	},
 	hasClass: function(selector, className) {
@@ -128,25 +128,25 @@ var elements = {
 		})[0];
 	},
 	loop: function(selector, callback) {
-		selectAllElements(selector).map(function(element) {
-			callback(element[0], element[1]);
+		selectAllElements(selector, function(selectedElementKey, selectedElement) {
+			callback(selectedElementKey, selectedElement);
 		});
 	},
 	removeAttribute: function(selector, attribute) {
-		selectAllElements(selector).map(function(element) {
-			if (element[1].hasAttribute(attribute)) {
-				element[1].removeAttribute(attribute);
+		selectAllElements(selector, function(selectedElementKey, selectedElement) {
+			if (selectedElement.hasAttribute(attribute)) {
+				selectedElement.removeAttribute(attribute);
 			}
 		});
 	},
 	removeClass: function(selector, className) {
-		selectAllElements(selector).map(function(element) {
-			element[1].classList.remove(className);
+		selectAllElements(selector, function(selectedElementKey, selectedElement) {
+			selectedElement.classList.remove(className);
 		});
 	},
 	setAttribute: function(selector, attribute, value) {
-		selectAllElements(selector).map(function(element) {
-			element[1].setAttribute(attribute, value);
+		selectAllElements(selector, function(selectedElementKey, selectedElement) {
+			selectedElement.setAttribute(attribute, value);
 		});
 	}
 };
@@ -206,12 +206,18 @@ var repeat = function(count, pattern) {
 
 	return response + (count < 1 ? '' : pattern);
 };
-var selectAllElements = function(selector) {
+var selectAllElements = function(selector, callback) {
 	var nodeList = document.querySelectorAll(selector);
 	var response = [];
 
 	if (nodeList.length) {
 		response = Object.entries(nodeList);
+	}
+
+	if (typeof callback === 'function') {
+		for (let selectedElementKey in response) {
+			callback(selectedElementKey, response[selectedElementKey][1]);
+		}
 	}
 
 	return response;

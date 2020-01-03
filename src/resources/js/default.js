@@ -123,8 +123,12 @@ var elements = {
 		}).join('');
 	},
 	html: function(selector, value) {
-		return selectAllElements(selector).map(function(element) {
-			return typeof value !== 'undefined' ? element[1].innerHTML = value : element[1].innerHTML;
+		return selectAllElements(selector, function(selectedElementKey, selectedElement) {
+			if (typeof value === 'undefined') {
+				return selectedElement.innerHTML;
+			}
+
+			return (selectedElement.innerHTML = value);
 		})[0];
 	},
 	loop: function(selector, callback) {

@@ -129,13 +129,15 @@ var elements = {
 		return hasClass;
 	},
 	html: function(selector, value) {
-		return selectAllElements(selector, function(selectedElementKey, selectedElement) {
-			if (typeof value === 'undefined') {
-				return selectedElement.innerHTML;
-			}
+		let html = value || document.querySelector(selector).innerHTML;
 
-			return (selectedElement.innerHTML = value);
-		})[0];
+		if (typeof value !== 'undefined') {
+			selectAllElements(selector, function(selectedElementKey, selectedElement) {
+				selectedElement.innerHTML = value;
+			});
+		}
+
+		return html;
 	},
 	loop: function(selector, callback) {
 		selectAllElements(selector, function(selectedElementKey, selectedElement) {

@@ -1,8 +1,8 @@
-var frameName;
-var frameMethod;
-var frameSelector;
-var method;
-var processLogout = function() {
+let frameName;
+let frameMethod;
+let frameSelector;
+let method;
+const processLogout = function() {
 	api.setRequestParameters({
 		action: 'logout',
 		table: 'users',
@@ -18,11 +18,11 @@ var processLogout = function() {
 		}
 	});
 };
-var processMethod = function(method, frameName, frameSelector) {
+const processMethod = function(method, frameName, frameSelector) {
 	window[method](frameName, frameSelector);
 };
-var processMethodForm = function(element) {
-	var processName = element.hasAttribute('process') ? element.getAttribute('process') : '';
+const processMethodForm = function(element) {
+	const processName = element.hasAttribute('process') ? element.getAttribute('process') : '';
 	frameName = element.hasAttribute('frame') ? element.getAttribute('frame') : '';
 	frameSelector = '.frame-container[frame="' + frameName + '"]';
 
@@ -38,7 +38,7 @@ var processMethodForm = function(element) {
 	}
 
 	if (element.classList.contains('submit')) {
-		var frameData = {};
+		let frameData = {};
 		elements.loop(frameSelector + ' input, ' + frameSelector + ' select, ' + frameSelector + ' textarea', function(index, element) {
 			frameData[element.getAttribute('name')] = element.value;
 		});
@@ -72,8 +72,8 @@ var processMethodForm = function(element) {
 onLoad(function() {
 	if ((scrollableElements = selectAllElements('.scrollable')).length) {
 		scrollableElements.map(function(element) {
-			var event = function() {
-				var elementContainerDetails = element[1].parentNode.getBoundingClientRect();
+			let event = function() {
+				const elementContainerDetails = element[1].parentNode.getBoundingClientRect();
 
 				if (elementContainerDetails.width) {
 					element[1].parentNode.querySelector('.item-body').setAttribute('style', 'padding-top: ' + (element[1].querySelector('.item-header').clientHeight + 1) + 'px');
@@ -88,12 +88,12 @@ onLoad(function() {
 	}
 
 	selectAllElements('.frame-container').map(function(element) {
-		var frameSelector = '.frame-container[frame="' + element[1].getAttribute('frame') + '"]';
+		frameSelector = '.frame-container[frame="' + element[1].getAttribute('frame') + '"]';
 		selectAllElements(frameSelector + ' input[type="password"], ' + frameSelector + ' input[type="number"], ' + frameSelector + ' input[type="text"]').map(function(element) {
 			element[1].removeEventListener('keydown', element[1].keydownListener);
 			element[1].keydownListener = function() {
 				if (event.key == 'Enter') {
-					var submitButton = document.querySelector(frameSelector + ' .button.submit');
+					let submitButton = document.querySelector(frameSelector + ' .button.submit');
 
 					if (submitButton) {
 						processMethodForm(submitButton);
@@ -110,14 +110,14 @@ onLoad(function() {
 	});
 	selectAllElements('.frame .checkbox, .frame label.custom-checkbox-label').map(function(element) {
 		element[1].addEventListener('click', function(element) {
-			var hiddenField = document.querySelector('div[field="' + element.target.getAttribute('name') + '"]');
-			var item = document.querySelector('.checkbox[name="' + element.target.getAttribute('name') + '"]');
+			let hiddenField = document.querySelector('div[field="' + element.target.getAttribute('name') + '"]');
+			let item = document.querySelector('.checkbox[name="' + element.target.getAttribute('name') + '"]');
 			hiddenField ? (hiddenField.classList.contains('hidden') ? hiddenField.classList.remove('hidden') : hiddenField.classList.add('hidden')) : null;
 			item.setAttribute('checked', +!+item.getAttribute('checked'));
 
 			if (item.hasAttribute('toggle-display')) {
-				var toggleSelector = '.' + item.getAttribute('toggle-display');
-				var toggleElement = document.querySelector(toggleSelector);
+				let toggleSelector = '.' + item.getAttribute('toggle-display');
+				let toggleElement = document.querySelector(toggleSelector);
 
 				if (toggleElement) {
 					+item.getAttribute('checked') ? elements.removeClass(toggleSelector, 'hidden') : elements.addClass(toggleSelector, 'hidden');

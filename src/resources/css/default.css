@@ -419,7 +419,7 @@ main {
 						width: 100%;
 					}
 						.table tr td .details-container .details .detail textarea {
-							background: #5e5bbe;
+							background: #444;
 							border: none;
 							box-sizing: border-box;
 							color: #fff;

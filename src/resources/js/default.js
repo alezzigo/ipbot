@@ -1,10 +1,10 @@
-var api = {
+const api = {
 	setRequestParameters: function(requestParameters, mergeRequestParameters, callback) {
 		if (
 			typeof requestParameters === 'object' &&
 			requestParameters
 		) {
-			for (var requestParameterKey in requestParameters) {
+			for (let requestParameterKey in requestParameters) {
 				if (typeof apiRequestParameters.current[requestParameterKey] !== 'undefined') {
 					Object.defineProperty(apiRequestParameters.previous, requestParameterKey, {
 						configurable: true,
@@ -14,10 +14,10 @@ var api = {
 					});
 
 					if (mergeRequestParameters === true) {
-						var apiRequestParametersToMerge = apiRequestParameters.current[requestParameterKey];
+						let apiRequestParametersToMerge = apiRequestParameters.current[requestParameterKey];
 
 						if (typeof requestParameters[requestParameterKey] === 'object') {
-							for (var requestParameterNestedKey in requestParameters[requestParameterKey]) {
+							for (let requestParameterNestedKey in requestParameters[requestParameterKey]) {
 								apiRequestParametersToMerge[requestParameterNestedKey] = requestParameters[requestParameterKey][requestParameterNestedKey];
 							}
 						} else {
@@ -38,7 +38,7 @@ var api = {
 		}
 	},
 	sendRequest: function(callback) {
-		var request = new XMLHttpRequest();
+		let request = new XMLHttpRequest();
 		request.open('POST', apiRequestParameters.current.url, true);
 		request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 		request.send('json=' + encodeURIComponent(JSON.stringify(apiRequestParameters.current)));
@@ -56,23 +56,23 @@ var apiRequestParameters = {
 	},
 	previous: {}
 };
-var browserDetails = function() {
-	var browserDetails = window.clientInformation ? window.clientInformation : window.navigator;
-	var retrieveMimeTypes = function(mimeTypeObject) {
-		var response = [];
+const browserDetails = function() {
+	const browserDetails = window.clientInformation ? window.clientInformation : window.navigator;
+	const retrieveMimeTypes = function(mimeTypeObject) {
+		let response = [];
 
-		for (var mimeTypeObjectKey in Object.entries(mimeTypeObject)) {
-			var mimeType = mimeTypeObject[mimeTypeObjectKey];
+		for (let mimeTypeObjectKey in Object.entries(mimeTypeObject)) {
+			let mimeType = mimeTypeObject[mimeTypeObjectKey];
 			response.push(mimeType.description + mimeType.suffixes + mimeType.type + (mimeType.enabledPlugin ? mimeType.enabledPlugin.description + mimeType.enabledPlugin.filename + mimeType.enabledPlugin.length + mimeType.enabledPlugin.name : false));
 		}
 
 		return response;
 	};
-	var retrievePlugins = function(pluginObject) {
-		var response = [];
+	const retrievePlugins = function(pluginObject) {
+		let response = [];
 
-		for (var pluginObjectKey in Object.entries(pluginObject)) {
-			var plugin = pluginObject[pluginObjectKey];
+		for (let pluginObjectKey in Object.entries(pluginObject)) {
+			let plugin = pluginObject[pluginObjectKey];
 			response.push(plugin.description + plugin.filename + plugin.length + plugin.name);
 		}
 
@@ -97,21 +97,21 @@ var browserDetails = function() {
 		vendor: browserDetails.vendor ? browserDetails.vendor : false
 	};
 };
-var capitalizeString = function(string) {
+const capitalizeString = function(string) {
 	stringParts = string.split(' ');
 	stringParts.map(function(stringPart, stringPartIndex) {
 		stringParts[stringPartIndex] = stringPart.charAt(0).toUpperCase() + stringPart.substr(1);
 	});
 	return stringParts.join(' ');
 };
-var closeFrames = function(closeFrameApiRequestParameters) {
+const closeFrames = function(closeFrameApiRequestParameters) {
 	elements.addClass('.frame-container', 'hidden');
 	elements.html('.frame .message-container', '');
 	elements.removeClass('footer, header, main', 'hidden');
 	api.setRequestParameters(closeFrameApiRequestParameters);
 	window.scroll(0, 0);
 };
-var elements = {
+const elements = {
 	addClass: function(selector, className) {
 		selectAllElements(selector, function(selectedElementKey, selectedElement) {
 			selectedElement.classList.add(className);
@@ -162,15 +162,15 @@ var elements = {
 		});
 	}
 };
-var onLoad = function(callback) {
+const onLoad = function(callback) {
 	document.readyState != 'complete' ? setTimeout('onLoad(' + callback + ')', 10) : callback();
 };
-var openFrame = function(frameName, frameSelector) {
+const openFrame = function(frameName, frameSelector) {
 	elements.addClass('footer, header, main', 'hidden');
 	elements.removeClass(frameSelector, 'hidden');
 	window.scroll(0, 0);
 };
-var processWindowEvents = function(event) {
+const processWindowEvents = function(event) {
 	if (typeof event === 'undefined') {
 		return false;
 	}
@@ -184,8 +184,8 @@ var processWindowEvents = function(event) {
 		});
 	}
 };
-var range = function(low, high, step) {
-	var response = [];
+const range = function(low, high, step) {
+	let response = [];
 	high = +high;
 	low = +low;
 	step = step || 1;
@@ -204,8 +204,8 @@ var range = function(low, high, step) {
 
 	return response;
 };
-var repeat = function(count, pattern) {
-	var response = '';
+const repeat = function(count, pattern) {
+	let response = '';
 
 	while (count > 1) {
 		if (count & 1) {
@@ -218,9 +218,9 @@ var repeat = function(count, pattern) {
 
 	return response + (count < 1 ? '' : pattern);
 };
-var selectAllElements = function(selector, callback) {
-	var nodeList = document.querySelectorAll(selector);
-	var response = [];
+const selectAllElements = function(selector, callback) {
+	let nodeList = document.querySelectorAll(selector);
+	let response = [];
 
 	if (nodeList.length) {
 		response = Object.entries(nodeList);
@@ -234,7 +234,7 @@ var selectAllElements = function(selector, callback) {
 
 	return response;
 };
-var unique = function(value, index, self) {
+const unique = function(value, index, self) {
 	return self.indexOf(value) === index;
 };
 var windowEvents = {
@@ -265,9 +265,9 @@ if (!Object.entries) {
 			return false;
 		}
 
-		var response = [];
+		let response = [];
 
-		for (var objectKey in object) {
+		for (let objectKey in object) {
 			if (object.hasOwnProperty(objectKey)) {
 				response.push([objectKey, object[objectKey]]);
 			}
@@ -279,7 +279,7 @@ if (!Object.entries) {
 
 onLoad(function() {
 	if (document.querySelector('.hidden.keys')) {
-		var keys = JSON.parse(document.querySelector('.hidden.keys').innerHTML);
+		let keys = JSON.parse(document.querySelector('.hidden.keys').innerHTML);
 		Object.defineProperty(keys, 'users', {
 			configurable: true,
 			value: keys.users + JSON.stringify(browserDetails())

@@ -191,6 +191,8 @@ const processItemList = function(itemListParameters, callback) {
 		typeof itemListParameters.options === 'object' &&
 		itemListParameters.options
 	) {
+		itemListData += '<div class="align-left hidden item-controls">';
+
 		for (let optionKey in itemListParameters.options) {
 			let option = itemListParameters.options[optionKey];
 			itemListData += '<' + option.tag;
@@ -201,22 +203,50 @@ const processItemList = function(itemListParameters, callback) {
 			) {
 				for (let attributeKey in option.attributes) {
 					let attribute = option.attributes[attributeKey];
-					itemListData += ' ' + attribute.name + '="' + attribute.value + '"';
+					itemListData += ' ' + attribute.name;
+
+					if (typeof attribute.value !== 'undefined') {
+						itemListData += '="' + attribute.value + '"';
+					}
 				}
 			}
 
 			itemListData += '></' + option.tag + '>';
 		}
 
-		itemListData += '<div class="align-left hidden item-controls">';
 		itemListData += '</div>';
 	}
 
 	itemListData += '<div class="clear"></div>';
-	itemListData += '<p class="hidden item-controls no-margin-bottom"><span class="checked-container"><span class="total-checked">0</span> of <span class="total-results"></span> selected.</span> <a class="item-action hidden" href="javascript:void(0);" index="all" status="1"><span class="action">Select</span> all results</a><span class="clear"></span></p>';
-	itemListData += '<div class="clear"></div>';
-	itemListData += '<div class="message-container order"></div>';
-	itemListData += '<div class="message-container proxies"><p class="message no-margin-top">Loading...</p></div>';
+	itemListData += '<p class="hidden item-controls no-margin-bottom">';
+	itemListData += '<span class="checked-container">';
+	itemListData += '<span class="total-checked">0</span> of <span class="total-results"></span> selected.</span>';
+	itemListData += '<a class="item-action hidden" href="javascript:void(0);" index="all" status="1"><span class="action">Select</span> all results</a>';
+	itemListData += '<span class="clear"></span>';
+	itemListData += '</p>';
+
+	if (
+		typeof itemListParameters.messages === 'object' &&
+		itemListParameters.messages
+	) {
+		itemListData += '<div class="clear"></div>';
+
+		for (let messageKey in itemListParameters.messages) {
+			let message = itemListParameters.messages[messageKey];
+			itemListData += '<div class="message-container ' + message.name + '">';
+
+			if (typeof message.value !== 'undefined') {
+				itemListData += message.value;
+			}
+
+			itemListData += '</div>';
+		}
+	}
+
+	itemListData += '</div>';
+	itemListData += '</div>';
+	itemListData += '<div class="item-body">';
+	itemListData += '<div class="item-table" previous_checked="0"></div>';
 	itemListData += '</div>';
 	elements.html(itemListParameters.selector, itemListData);
 	// ..

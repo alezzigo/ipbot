@@ -170,6 +170,57 @@ const openFrame = function(frameName, frameSelector) {
 	elements.removeClass(frameSelector, 'hidden');
 	window.scroll(0, 0);
 };
+const processItemList = function(itemListParameters, callback) {
+	let itemListData = '<div class="hidden item-container item-processing-container"></div>';
+	itemListData += '<div class="item-container item-configuration-container">';
+	itemListData += '<div class="item">';
+	itemListData += '<div class="item-configuration">';
+	itemListData += '<div class="item-controls-container controls-container scrollable">';
+	itemListData += '<div class="item-header">';
+	itemListData += '<div class="align-right">';
+	itemListData += '<span class="pagination" current_page="1" results="' + itemListParameters.resultsPerPage + '">';
+	itemListData += '<span class="align-left hidden item-controls results">';
+	itemListData += '<span class="first-result"></span> - <span class="last-result"></span> of <span class="total-results"></span>';
+	itemListData += '</span>';
+	itemListData += '<span class="align-left button icon previous"></span>';
+	itemListData += '<span class="align-left button icon next"></span>';
+	itemListData += '</span>';
+	itemListData += '</div>';
+
+	if (
+		typeof itemListParameters.options === 'object' &&
+		itemListParameters.options
+	) {
+		for (let optionKey in itemListParameters.options) {
+			let option = itemListParameters.options[optionKey];
+			itemListData += '<' + option.tag;
+
+			if (
+				typeof option.attributes === 'object' &&
+				option.attributes
+			) {
+				for (let attributeKey in option.attributes) {
+					let attribute = option.attributes[attributeKey];
+					itemListData += ' ' + attribute.name + '="' + attribute.value + '"';
+				}
+			}
+
+			itemListData += '></' + option.tag + '>';
+		}
+
+		itemListData += '<div class="align-left hidden item-controls">';
+		itemListData += '</div>';
+	}
+
+	itemListData += '<div class="clear"></div>';
+	itemListData += '<p class="hidden item-controls no-margin-bottom"><span class="checked-container"><span class="total-checked">0</span> of <span class="total-results"></span> selected.</span> <a class="item-action hidden" href="javascript:void(0);" index="all" status="1"><span class="action">Select</span> all results</a><span class="clear"></span></p>';
+	itemListData += '<div class="clear"></div>';
+	itemListData += '<div class="message-container order"></div>';
+	itemListData += '<div class="message-container proxies"><p class="message no-margin-top">Loading...</p></div>';
+	itemListData += '</div>';
+	elements.html(itemListParameters.selector, itemListData);
+	// ..
+};
 const processWindowEvents = function(event) {
 	if (typeof event === 'undefined') {
 		return false;

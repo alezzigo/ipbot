@@ -1,5 +1,5 @@
 const api = {
-	setRequestParameters: function(requestParameters, mergeRequestParameters, callback) {
+	setRequestParameters: function(requestParameters, mergeRequestParameters) {
 		if (
 			typeof requestParameters === 'object' &&
 			requestParameters

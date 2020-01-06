@@ -250,6 +250,7 @@ const processItemList = function(itemListParameters, callback) {
 	itemListData += '</div>';
 	elements.html(itemListParameters.selector, itemListData);
 	// ..
+	return;
 };
 const processWindowEvents = function(event) {
 	if (typeof event === 'undefined') {

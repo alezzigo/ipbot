@@ -259,7 +259,6 @@ const processItemList = function(itemListName, callback) {
 	itemListData += '</div>';
 	elements.html(itemListParameters.selector, itemListData);
 	let itemListGrid = apiRequestParameters.current.items[itemListParameters.table] || [];
-	let pagination = elements.get(itemListParameters.selector + ' .pagination');
 	const itemToggle = function(itemListItem) {
 		let previousChecked = elements.getAttribute(itemListParameters.selector + ' .item-table', 'previous_checked');
 		elements.setAttribute(itemListParameters.selector + ' .item-table', 'current_checked', itemListItem.getAttribute('index'));
@@ -391,18 +390,17 @@ const processItemList = function(itemListName, callback) {
 		api.setRequestParameters(mergeRequestParameters, true);
 	};
 	elements.addClass(itemListParameters.selector + ' .item-controls, ' + itemListParameters.selector + ' .item-table', 'hidden');
-	pagination.querySelector('.next').setAttribute('page', 0);
-	pagination.querySelector('.previous').setAttribute('page', 0);
+	elements.setAttribute(itemListParameters.selector + ' .pagination .next', 'page', 0);
+	elements.setAttribute(itemListParameters.selector + ' .pagination .previous', 'page', 0);
 
-	if (!itemListParameters.page) {
-		itemListParameters.page = pagination.hasAttribute('current_page') ? Math.max(1, +pagination.getAttribute('current_page')) : 1;
-
-		if (
+	if (
+		!itemListParameters.page ||
+		(
 			apiRequestParameters.current.action == 'search' &&
 			apiRequestParameters.previous.action == 'fetch'
-		) {
-			itemListParameters.page = 1;
-		}
+		)
+	) {
+		itemListParameters.page = 1;
 	}
 
 	api.setRequestParameters({
@@ -430,9 +428,9 @@ const processItemList = function(itemListName, callback) {
 		elements.html(itemListParameters.selector + ' .first-result', itemListParameters.page === 1 ? itemListParameters.page : ((itemListParameters.page * itemListParameters.results_per_page) - itemListParameters.results_per_page) + 1);
 		elements.html(itemListParameters.selector + ' .last-result', lastResult >= response.count ? response.count : lastResult);
 		elements.html(itemListParameters.selector + ' .total-results', response.count);
-		pagination.setAttribute('current_page', itemListParameters.page);
-		pagination.querySelector('.next').setAttribute('page', +elements.html('.item-configuration .last-result') < response.count ? itemListParameters.page + 1 : 0);
-		pagination.querySelector('.previous').setAttribute('page', itemListParameters.page <= 0 ? 0 : itemListParameters.page - 1);
+		elements.setAttribute(itemListParameters.selector + ' .pagination', 'current_page', itemListParameters.page);
+		elements.setAttribute(itemListParameters.selector + ' .pagination .next', 'page', +elements.html('.item-configuration .last-result') < response.count ? itemListParameters.page + 1 : 0);
+		elements.setAttribute(itemListParameters.selector + ' .pagination .previous', 'page', itemListParameters.page <= 0 ? 0 : itemListParameters.page - 1);
 		elements.loop('.item-configuration tbody tr', function(index, row) {
 			var item = row.querySelector('.checkbox');
 			item.removeEventListener('click', item.clickListener);

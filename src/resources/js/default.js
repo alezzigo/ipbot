@@ -117,6 +117,13 @@ const elements = {
 			selectedElement.classList.add(className);
 		});
 	},
+	get: function(selector) {
+		return document.querySelector(selector);
+	},
+	getAttribute: function(selector, attribute) {
+		let element = document.querySelector(selector);
+		return element.getAttribute(attribute);
+	},
 	hasClass: function(selector, className) {
 		let hasClass = false;
 
@@ -170,7 +177,9 @@ const openFrame = function(frameName, frameSelector) {
 	elements.removeClass(frameSelector, 'hidden');
 	window.scroll(0, 0);
 };
-const processItemList = function(itemListParameters, callback) {
+
+const processItemList = function(itemListName, callback) {
+	let itemListParameters = apiRequestParameters.current[itemListName];
 	let itemListData = '<div class="hidden item-container item-processing-container"></div>';
 	itemListData += '<div class="item-container item-configuration-container">';
 	itemListData += '<div class="item">';
@@ -178,7 +187,7 @@ const processItemList = function(itemListParameters, callback) {
 	itemListData += '<div class="item-controls-container controls-container scrollable">';
 	itemListData += '<div class="item-header">';
 	itemListData += '<div class="align-right">';
-	itemListData += '<span class="pagination" current_page="1" results="' + itemListParameters.resultsPerPage + '">';
+	itemListData += '<span class="pagination" current_page="' + itemListParameters.page + '" results="' + itemListParameters.results_per_page + '">';
 	itemListData += '<span class="align-left hidden item-controls results">';
 	itemListData += '<span class="first-result"></span> - <span class="last-result"></span> of <span class="total-results"></span>';
 	itemListData += '</span>';
@@ -249,8 +258,180 @@ const processItemList = function(itemListParameters, callback) {
 	itemListData += '<div class="item-table" previous_checked="0"></div>';
 	itemListData += '</div>';
 	elements.html(itemListParameters.selector, itemListData);
-	// ..
-	return;
+	let itemListItems = elements.get(itemListParameters.selector + ' .item-table');
+	let itemListGrid = apiRequestParameters.current.items[itemListParameters.table] || [];
+	let pagination = elements.get(itemListParameters.selector + ' .pagination');
+	const itemToggle = function(itemListItem) {
+		itemListItems.setAttribute('current_checked', itemListItem.getAttribute('index'));
+		processItemListGrid(window.event.shiftKey ? range(itemListItems.getAttribute('previous_checked'), itemListItem.getAttribute('index')) : [itemListItem.getAttribute('index')], window.event.shiftKey ? +elements.get(itemListParameters.selector + ' .checkbox[index="' + itemListItems.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +itemListItem.getAttribute('checked') === 0);
+		itemListItems.setAttribute('previous_checked', itemListItem.getAttribute('index'));
+	};
+	const itemAll = elements.get(itemListParameters.selector + ' .item-action[index="all"]');
+	const itemAllVisible = elements.get(itemListParameters.selector + ' .checkbox[index="all-visible"]');
+	const itemToggleAllVisible = function(item) {
+		items.setAttribute('current_checked', 0);
+		items.setAttribute('previous_checked', 0);
+		processItemListGrid(range(0, selectAllElements(itemListParameters.selector + ' tr .checkbox').length - 1), +item.getAttribute('checked') === 0);
+	};
+	const processItemListGrid = function(itemListIndexes, itemState) {
+		let itemListCount = 0;
+		const itemListGridLineSizeMaximum = +('1' + repeat(Math.min(elements.html(itemListParameters.selector + ' .total-results').length, 4), '0'));
+		const itemListPageResultCount = (+elements.html(itemListParameters.selector + ' .last-result') - +elements.html(itemListParameters.selector + ' .first-result') + 1);
+		const itemListTotalResults = +elements.html(itemListParameters.selector + ' .total-results');
+		const itemListGridLineSize = function(key) {
+			return Math.min(itemListGridLineSizeMaximum, itemListTotalResults - (key * itemListGridLineSizeMaximum)).toString();
+		};
+		const processItemListGridSelection = function(item) {
+			let keyIndexes = range(0, Math.floor(itemListTotalResults / itemListGridLineSizeMaximum));
+			elements.html('.total-checked', (selectionStatus = +item.getAttribute('status')) ? itemListTotalResults : 0);
+			keyIndexes.map(function(key) {
+				itemListGrid[key] = selectionStatus + itemListGridLineSize(key);
+			});
+			itemListGrid = selectionStatus ? itemListGrid : [];
+			processItemListGrid(range(0, selectAllElements(itemListParameters.selector + ' tr .checkbox').length - 1));
+		};
+
+		if (
+			typeof itemListIndexes[1] === 'number' &&
+			itemListIndexes[1] < 0
+		) {
+			return;
+		}
+
+		if (!itemListGrid.length) {
+			elements.html('.total-checked', 0);
+		}
+
+		itemListIndexes.map(function(itemIndex) {
+			let encodeCount = 1;
+			let encodedListGridLineItems = [];
+			let index = ((itemListParameters.page * itemListParameters.results_per_page) - itemListParameters.results_per_page) + +itemIndex;
+			let item = elements.get(itemListParameters.results_per_page + ' .checkbox[index="' + itemIndex + '"]');
+			let key = Math.floor(index / itemListGridLineSizeMaximum);
+
+			if (!itemListGrid[key]) {
+				itemListGrid[key] = repeat(itemListGridLineSize(key), '0');
+			} else {
+				itemListGrid[key] = itemListGrid[key].split('_');
+				itemListGrid[key].map(function(itemStatus, itemStatusIndex) {
+					itemStatusCount = itemStatus.substr(1);
+					itemStatus = itemStatus.substr(0, 1);
+					itemListGrid[key][itemStatusIndex] = repeat(itemStatusCount, itemStatus);
+				});
+				itemListGrid[key] = itemListGrid[key].join("");
+			}
+
+			const itemListGridLineIndex = index - (key * itemListGridLineSizeMaximum);
+
+			if (typeof itemState === 'boolean') {
+				itemListGrid[key] = itemListGrid[key].substr(0, itemListGridLineIndex) + +itemState + itemListGrid[key].substr(itemListGridLineIndex + Math.max(1, ('' + +itemState).length))
+			}
+
+			itemListGrid[key] = itemListGrid[key].split("");
+			itemListGrid[key].map(function(itemStatus, itemStatusIndex) {
+				if (itemStatus != itemListGrid[key][itemStatusIndex + 1]) {
+					encodedListGridLineItems.push(itemStatus + encodeCount);
+					encodeCount = 0;
+				}
+
+				encodeCount++;
+			});
+			item.setAttribute('checked', +itemListGrid[key][itemListGridLineIndex]);
+			itemListGrid[key] = encodedListGridLineItems.join('_');
+		});
+
+		range(0, itemListPageResultCount - 1).map(function(itemIndex) {
+			if (+(elements.getAttribute(itemListParameters.selector + ' .checkbox[index="' + itemIndex + '"]', 'checked'))) {
+				itemListCount++;
+			}
+		});
+
+		if (typeof itemState === 'boolean') {
+			elements.html('.total-checked', +elements.html('.total-checked') + (itemListCount - itemListGridCount));
+		}
+
+		itemAll.classList.add('hidden');
+		itemAll.removeEventListener('click', itemAll.clickListener);
+		itemAll.clickListener = function() {
+			processItemListGridSelection(itemAll);
+		};
+		itemAll.addEventListener('click', itemAll.clickListener);
+		itemAllVisible.setAttribute('checked', +(allVisibleChecked = (itemListCount === itemListPageResultCount)));
+		itemAllVisible.removeEventListener('click', itemAllVisible.clickListener);
+		itemAllVisible.clickListener = function() {
+			itemToggleAllVisible(itemAllVisible);
+		};
+		itemAllVisible.addEventListener('click', itemAllVisible.clickListener);
+
+		if (
+			itemListPageResultCount != itemListTotalResults &&
+			(
+				(
+					allVisibleChecked &&
+					+elements.html('.total-checked') < itemListTotalResults
+				) ||
+				+elements.html('.total-checked') === itemListTotalResults
+			)
+		) {
+			itemAll.classList.remove('hidden');
+			itemAll.querySelector('.action').innerText = (selectionStatus = +(+elements.html('.total-checked') === itemListTotalResults)) ? 'Unselect' : 'Select';
+			itemAll.setAttribute('status', +(selectionStatus === 0));
+		}
+
+		processWindowEvents('resize');
+		+elements.html('.total-checked') ? elements.removeClass(itemListParameters.selector + ' span.icon[item-function]', 'hidden') : elements.addClass(itemListParameters.selector + ' span.icon[item-function]', 'hidden');
+		itemListGridCount = itemListCount;
+
+		if (itemListTotalResults === +elements.html('.total-checked')) {
+			elements.addClass(itemListParameters.selector + ' span.icon[item-function][process="downgrade"]', 'hidden');
+		}
+
+		let mergeRequestParameters = {};
+		mergeRequestParameters.items[itemListParameters.table] = itemListGrid;
+		api.setRequestParameters(mergeRequestParameters, true);
+	};
+	elements.addClass(itemListParameters.selector + ' .item-controls, ' + itemListParameters.selector + ' .item-table', 'hidden');
+	pagination.querySelector('.next').setAttribute('page', 0);
+	pagination.querySelector('.previous').setAttribute('page', 0);
+
+	if (proxyMessageContainer) {
+		proxyMessageContainer.innerHTML = '<p class="message no-margin-top">Loading ...</p>';
+	}
+
+	if (!itemListParameters.page) {
+		itemListParameters.page = pagination.hasAttribute('current_page') ? Math.max(1, +pagination.getAttribute('current_page')) : 1;
+
+		if (
+			apiRequestParameters.current.action == 'search' &&
+			apiRequestParameters.previous.action == 'fetch'
+		) {
+			itemListParameters.page = 1;
+		}
+	}
+
+	api.setRequestParameters({
+		action: apiRequestParameters.current.action,
+		conditions: {
+			order_id: apiRequestParameters.current.order_id
+		},
+		limit: itemListParameters.results_per_page,
+		offset: ((itemListParameters.page * itemListParameters.results_per_page) - itemListParameters.results_per_page),
+		table: itemListParameters.table,
+		url: apiRequestParameters.current.settings.base_url + 'api/' + itemListParameters.table
+	});
+	let mergeRequestParameters = {
+		items: [],
+		sort: {
+			field: 'modified'
+		}
+	};
+	mergeRequestParameters.items[itemListParameters.table] = itemListGrid;
+	api.setRequestParameters(mergeRequestParameters, true);
+	api.sendRequest(function(response) {
+		// ..
+		callback(response, itemListParameters);
+		// ..
+	});
 };
 const processWindowEvents = function(event) {
 	if (typeof event === 'undefined') {

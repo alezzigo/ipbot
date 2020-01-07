@@ -258,13 +258,13 @@ const processItemList = function(itemListName, callback) {
 	itemListData += '<div class="item-table" previous_checked="0"></div>';
 	itemListData += '</div>';
 	elements.html(itemListParameters.selector, itemListData);
-	let itemListItems = elements.get(itemListParameters.selector + ' .item-table');
 	let itemListGrid = apiRequestParameters.current.items[itemListParameters.table] || [];
 	let pagination = elements.get(itemListParameters.selector + ' .pagination');
 	const itemToggle = function(itemListItem) {
-		itemListItems.setAttribute('current_checked', itemListItem.getAttribute('index'));
-		processItemListGrid(window.event.shiftKey ? range(itemListItems.getAttribute('previous_checked'), itemListItem.getAttribute('index')) : [itemListItem.getAttribute('index')], window.event.shiftKey ? +elements.get(itemListParameters.selector + ' .checkbox[index="' + itemListItems.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +itemListItem.getAttribute('checked') === 0);
-		itemListItems.setAttribute('previous_checked', itemListItem.getAttribute('index'));
+		let previousChecked = elements.getAttribute(itemListParameters.selector + ' .item-table', 'previous_checked');
+		elements.setAttribute(itemListParameters.selector + ' .item-table', 'current_checked', itemListItem.getAttribute('index'));
+		processItemListGrid(window.event.shiftKey ? range(previousChecked, itemListItem.getAttribute('index')) : [itemListItem.getAttribute('index')], window.event.shiftKey ? +elements.getAttribute(itemListParameters.selector + ' .checkbox[index="' + previousChecked + '"]', 'checked') !== 0 : +itemListItem.getAttribute('checked') === 0);
+		elements.setAttribute(itemListParameters.selector + ' .item-table', 'previous_checked', itemListItem.getAttribute('index'));
 	};
 	const itemAll = elements.get(itemListParameters.selector + ' .item-action[index="all"]');
 	const itemAllVisible = elements.get(itemListParameters.selector + ' .checkbox[index="all-visible"]');

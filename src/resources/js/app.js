@@ -18,9 +18,6 @@ const processLogout = function() {
 		}
 	});
 };
-const processMethod = function(method, frameName, frameSelector) {
-	window[method](frameName, frameSelector);
-};
 const processMethodForm = function(element) {
 	const processName = element.hasAttribute('process') ? element.getAttribute('process') : '';
 	frameName = element.hasAttribute('frame') ? element.getAttribute('frame') : '';
@@ -64,7 +61,7 @@ const processMethodForm = function(element) {
 	method = 'process' + capitalizeString(processName);
 
 	if (typeof window[method] === 'function') {
-		processMethod(method, frameName, frameSelector);
+		window[method](frameName, frameSelector);
 	}
 
 	processWindowEvents('resize');
@@ -162,7 +159,7 @@ onLoad(function() {
 		typeof window[method] === 'function'
 	) {
 		setTimeout(function() {
-			processMethod(method, frameName, frameSelector);
+			window[method](frameName, frameSelector);
 		}, 100);
 	}
 });

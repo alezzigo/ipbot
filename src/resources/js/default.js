@@ -242,10 +242,10 @@ const processItemList = function(itemListName, callback) {
 
 		for (let messageKey in itemListParameters.messages) {
 			let message = itemListParameters.messages[messageKey];
-			itemListData += '<div class="message-container ' + message.name + '">';
+			itemListData += '<div class="message-container ' + messageKey + '">';
 
-			if (typeof message.value !== 'undefined') {
-				itemListData += message.value;
+			if (typeof message !== 'undefined') {
+				itemListData += message;
 			}
 
 			itemListData += '</div>';
@@ -393,10 +393,6 @@ const processItemList = function(itemListName, callback) {
 	elements.addClass(itemListParameters.selector + ' .item-controls, ' + itemListParameters.selector + ' .item-table', 'hidden');
 	pagination.querySelector('.next').setAttribute('page', 0);
 	pagination.querySelector('.previous').setAttribute('page', 0);
-
-	if (proxyMessageContainer) {
-		proxyMessageContainer.innerHTML = '<p class="message no-margin-top">Loading ...</p>';
-	}
 
 	if (!itemListParameters.page) {
 		itemListParameters.page = pagination.hasAttribute('current_page') ? Math.max(1, +pagination.getAttribute('current_page')) : 1;

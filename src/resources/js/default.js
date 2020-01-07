@@ -306,7 +306,7 @@ const processItemList = function(itemListName, callback) {
 			let encodeCount = 1;
 			let encodedListGridLineItems = [];
 			let index = ((itemListParameters.page * itemListParameters.results_per_page) - itemListParameters.results_per_page) + +itemIndex;
-			let item = elements.get(itemListParameters.results_per_page + ' .checkbox[index="' + itemIndex + '"]');
+			let item = elements.get(itemListParameters.selector + ' .checkbox[index="' + itemIndex + '"]');
 			let key = Math.floor(index / itemListGridLineSizeMaximum);
 
 			if (!itemListGrid[key]) {
@@ -386,7 +386,7 @@ const processItemList = function(itemListName, callback) {
 			elements.addClass(itemListParameters.selector + ' span.icon[item-function][process="downgrade"]', 'hidden');
 		}
 
-		let mergeRequestParameters = {};
+		var mergeRequestParameters = {};
 		mergeRequestParameters.items[itemListParameters.table] = itemListGrid;
 		api.setRequestParameters(mergeRequestParameters, true);
 	};
@@ -419,7 +419,7 @@ const processItemList = function(itemListName, callback) {
 		table: itemListParameters.table,
 		url: apiRequestParameters.current.settings.base_url + 'api/' + itemListParameters.table
 	});
-	let mergeRequestParameters = {
+	var mergeRequestParameters = {
 		items: [],
 		sort: {
 			field: 'modified'
@@ -430,6 +430,31 @@ const processItemList = function(itemListName, callback) {
 	api.sendRequest(function(response) {
 		// ..
 		callback(response, itemListParameters);
+		let lastResult = itemListParameters.page * itemListParameters.results_per_page;
+		elements.html(itemListParameters.selector + ' .first-result', itemListParameters.page === 1 ? itemListParameters.page : ((itemListParameters.page * itemListParameters.results_per_page) - itemListParameters.results_per_page) + 1);
+		elements.html(itemListParameters.selector + ' .last-result', lastResult >= response.count ? response.count : lastResult);
+		elements.html(itemListParameters.selector + ' .total-results', response.count);
+		pagination.setAttribute('current_page', itemListParameters.page);
+		pagination.querySelector('.next').setAttribute('page', +elements.html('.item-configuration .last-result') < response.count ? itemListParameters.page + 1 : 0);
+		pagination.querySelector('.previous').setAttribute('page', itemListParameters.page <= 0 ? 0 : itemListParameters.page - 1);
+		elements.loop('.item-configuration tbody tr', function(index, row) {
+			var item = row.querySelector('.checkbox');
+			item.removeEventListener('click', item.clickListener);
+			item.clickListener = function() {
+				itemToggle(item);
+			};
+			item.addEventListener('click', item.clickListener);
+		});
+		elements.removeClass(itemListParameters.selector + ' .item-controls, .item-table', 'hidden');
+
+		if (response.tokens[itemListParameters.table] !== 'undefined') {
+			var mergeRequestParameters = {
+				tokens: []
+			};
+			mergeRequestParameters.tokens[itemListParameters.table] = response.tokens[itemListParameters.table];
+			api.setRequestParameters(mergeRequestParameters, true);
+		}
+
 		// ..
 	});
 };

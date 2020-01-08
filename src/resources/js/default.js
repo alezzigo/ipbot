@@ -190,7 +190,6 @@ const openFrame = function(frameName, frameSelector) {
 	elements.removeClass(frameSelector, 'hidden');
 	window.scroll(0, 0);
 };
-
 const processItemList = function(itemListName, callback) {
 	let itemListParameters = apiRequestParameters.current[itemListName];
 

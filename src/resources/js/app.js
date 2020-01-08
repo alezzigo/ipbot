@@ -49,11 +49,6 @@ const processMethodForm = function(element) {
 			action: frameName,
 			data: frameData
 		}, true);
-
-		if (frameName == 'search') {
-			itemGrid = [];
-			itemGridCount = 0;
-		}
 	} else if (frameName) {
 		openFrame(frameName, frameSelector);
 	}
@@ -67,23 +62,6 @@ const processMethodForm = function(element) {
 	processWindowEvents('resize');
 };
 onLoad(function() {
-	if ((scrollableElements = selectAllElements('.scrollable')).length) {
-		scrollableElements.map(function(element) {
-			let event = function() {
-				const elementContainerDetails = element[1].parentNode.getBoundingClientRect();
-
-				if (elementContainerDetails.width) {
-					element[1].parentNode.querySelector('.item-body').setAttribute('style', 'padding-top: ' + (element[1].querySelector('.item-header').clientHeight + 1) + 'px');
-					element[1].setAttribute('style', 'width: ' + elementContainerDetails.width + 'px;');
-				}
-
-				element[1].setAttribute('scrolling', +(window.pageYOffset > (elementContainerDetails.top + window.pageYOffset)));
-			};
-			windowEvents.resize.push(event);
-			windowEvents.scroll.push(event);
-		});
-	}
-
 	selectAllElements('.frame-container').map(function(element) {
 		frameSelector = '.frame-container[frame="' + element[1].getAttribute('frame') + '"]';
 		selectAllElements(frameSelector + ' input[type="password"], ' + frameSelector + ' input[type="number"], ' + frameSelector + ' input[type="text"]').map(function(element) {
@@ -122,7 +100,7 @@ onLoad(function() {
 			}
 		});
 	});
-	selectAllElements('.button.frame-button, .frame .button.submit').map(function(element) {
+	selectAllElements('.frame .button.submit').map(function(element) {
 		element[1].addEventListener('click', function(element) {
 			processMethodForm(element.target);
 		});

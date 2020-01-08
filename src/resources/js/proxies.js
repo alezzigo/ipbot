@@ -1,7 +1,3 @@
-var itemGrid = [];
-var itemGridCount = 0;
-var orderMessageContainer = document.querySelector('main .message-container.order');
-var proxyMessageContainer = document.querySelector('main .message-container.proxies');
 var processActions = function(frameName, frameSelector) {
 	var orderId = document.querySelector('input[name="order_id"]').value;
 	api.setRequestParameters({
@@ -98,8 +94,8 @@ var processDowngrade = function() {
 
 		if (apiRequestParameters.current.data.confirm_downgrade) {
 			closeFrames(defaultTable);
-			document.querySelector('.order-name').innerHTML = response.data.downgraded.order.quantity_pending + ' ' + response.data.downgraded.order.name;
-			proxyMessageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+			elements.html('.message-container.proxies', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+			elements.html('.order-name', response.data.downgraded.order.quantity_pending + ' ' + response.data.downgraded.order.name);
 			api.setRequestParameters({
 				action: 'fetch'
 			});
@@ -136,7 +132,10 @@ var processDownload = function(frameName, frameSelector) {
 			'@'
 		],
 		formats: [
-			'txt',
+			{
+				name: '.txt file',
+				value: 'txt'
+			}
 			// ..
 		],
 		separators: [
@@ -176,7 +175,6 @@ var processDownload = function(frameName, frameSelector) {
 			}
 		]
 	};
-	var downloadContainer = document.querySelector('.download-container');
 	var downloadData = '';
 	var processDownloadFormat = function() {
 		var frameData = {};
@@ -189,13 +187,10 @@ var processDownload = function(frameName, frameSelector) {
 		});
 		api.setRequestParameters({
 			action: frameName,
-			data: frameData,
-			items: {
-				proxies: itemGrid
-			}
+			data: frameData
 		}, true);
 
-		if (itemGrid.length === 1) {
+		if (apiRequestParameters.current.items.proxies.length === 1) {
 			api.sendRequest(function(response) {
 				document.querySelector(frameSelector + ' textarea[name="copy"]').value = response.data;
 				elements.addClass(frameSelector + ' .loading', 'hidden');
@@ -271,15 +266,14 @@ var processDownload = function(frameName, frameSelector) {
 	downloadData += '<select class="download_format" name="download_format">';
 
 	for (var formatOptionKey in downloadOptions.formats) {
-		downloadData += '<option value="' + downloadOptions.formats[formatOptionKey] + '">' + downloadOptions.formats[formatOptionKey] + '</option>';
+		downloadData += '<option value="' + downloadOptions.formats[formatOptionKey].value + '">' + downloadOptions.formats[formatOptionKey].name + '</option>';
 	}
 
-	downloadData += '<option selected value="txt">.txt File</option>';
 	downloadData += '</select>';
 	downloadData += '</div>';
 	downloadData += '</div>';
 	downloadData += '<div class="clear"></div>';
-	downloadData += '<p class="message loading">Loading...</p>';
+	downloadData += '<p class="message loading">Loading</p>';
 	downloadData += '<div class="hidden item-controls">';
 	downloadData += '<label>Proxy List</label>';
 	downloadData += '<div class="copy-textarea-container">';
@@ -287,7 +281,7 @@ var processDownload = function(frameName, frameSelector) {
 	downloadData += '</div>';
 	downloadData += '</div>';
 	downloadData += '<div class="clear"></div>';
-	downloadContainer.innerHTML = downloadData;
+	elements.html('.download-container', downloadData);
 	elements.loop(frameSelector + ' select', function(index, element) {
 		element.removeEventListener('change', element.changeListener);
 		element.changeListener = function() {
@@ -314,10 +308,8 @@ var processEndpoint = function(frameName, frameSelector) {
 		url: apiRequestParameters.current.settings.base_url + 'api/orders'
 	}, true);
 	api.sendRequest(function(response) {
-		if (proxyMessageContainer) {
-			processWindowEvents('resize');
-			proxyMessageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
-		}
+		elements.html('.message-container.proxies', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		processWindowEvents('resize');
 
 		if (response.data) {
 			var endpointEnableCheckboxInput = document.querySelector('.endpoint-enable');
@@ -444,21 +436,19 @@ var processGroup = function(frameName, frameSelector) {
 		groupTable.setAttribute('previous_checked', button.getAttribute('index'));
 	};
 	var groupView = function(button, row) {
-		if (proxyMessageContainer) {
-			proxyMessageContainer.innerHTML = '<p class="message no-margin-top">Loading ...</p>';
-		}
-
 		elements.addClass('.item-configuration .item-controls', 'hidden');
+		elements.html('.message-container.proxies', '<p class="message no-margin-top">Loading</p>');
 		closeFrames();
 		api.setRequestParameters({
 			action: 'search',
 			data: {
 				groups: [button.getAttribute('group_id')]
 			},
+			items: {
+				proxies: []
+			},
 			table: 'proxies'
 		}, true);
-		itemGrid = [];
-		itemGridCount = 0;
 		api.sendRequest(function() {
 			processProxies(false, false, 1);
 		});
@@ -539,7 +529,7 @@ var processGroup = function(frameName, frameSelector) {
 	};
 	groupNameField.addEventListener('keydown', groupNameField.keydownListener);
 	groupNameButton.addEventListener('click', groupNameButton.clickListener);
-	groupTable.innerHTML = '<p class="message no-margin-bottom">Loading ...</p>';
+	groupTable.innerHTML = '<p class="message no-margin-bottom">Loading</p>';
 	api.setRequestParameters({
 		action: 'fetch',
 		sort: {
@@ -559,18 +549,18 @@ var processGroup = function(frameName, frameSelector) {
 	});
 };
 var processOrder = function() {
+	let orderId = document.querySelector('input[name="order_id"]').value;
 	api.setRequestParameters({
 		action: 'view',
 		conditions: {
-			id: document.querySelector('input[name="order_id"]').value
+			id: orderId
 		},
+		order_id: orderId,
 		table: 'orders',
 		url: apiRequestParameters.current.settings.base_url + 'api/orders'
 	});
 	api.sendRequest(function(response) {
-		if (orderMessageContainer) {
-			orderMessageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
-		}
+		elements.html('.message-container.order', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 
 		if (
 			typeof response.redirect === 'string' &&
@@ -582,24 +572,288 @@ var processOrder = function() {
 
 		if (response.data.order) {
 			api.setRequestParameters({
+				action: 'fetch',
 				table: 'proxies',
 				url: apiRequestParameters.current.settings.base_url + 'api/proxies'
 			});
+			api.setRequestParameters({
+				list_proxies: {
+					callback: function(response, itemListParameters) {
+						processProxies(response, itemListParameters);
+					},
+					initial: true,
+					messages: {
+						order: '',
+						proxies: '<p class="message no-margin-top">Loading</p>'
+					},
+					name: 'list_proxies',
+					options: [
+						{
+							attributes: [
+								{
+									name: 'checked',
+									value: '0'
+								},
+								{
+									name: 'class',
+									value: 'align-left checkbox no-margin-left'
+								},
+								{
+									name: 'index',
+									value: 'all-visible'
+								}
+							],
+							tag: 'span'
+						},
+						{
+							attributes: [
+								{
+									name: 'class',
+									value: 'button icon upgrade tooltip tooltip-bottom'
+								},
+								{
+									name: 'data-title',
+									value: 'Add more proxies to current order'
+								},
+								{
+									name: 'data-title',
+									value: 'Add more proxies to current order'
+								},
+								{
+									name: 'href',
+									value: apiRequestParameters.current.settings.base_url + 'orders?' + apiRequestParameters.current.order_id + '#upgrade'
+								},
+								{
+									name: 'frame',
+									value: 'upgrade'
+								}
+							],
+							tag: 'a'
+						},
+						{
+							attributes: [
+								{
+									name: 'class',
+									value: 'button frame-button icon tooltip tooltip-bottom'
+								},
+								{
+									name: 'data-title',
+									value: 'Downgrade current order to selected proxies'
+								},
+								{
+									name: 'frame',
+									value: 'downgrade'
+								},
+								{
+									name: 'item-function'
+								},
+								{
+									name: 'process',
+									value: 'downgrade'
+								}
+							],
+							tag: 'span'
+						},
+						{
+							attributes: [
+								{
+									name: 'class',
+									value: 'button frame-button icon tooltip tooltip-bottom'
+								},
+								{
+									name: 'data-title',
+									value: 'Configure proxy API endpoint settings'
+								},
+								{
+									name: 'frame',
+									value: 'endpoint'
+								},
+								{
+									name: 'item-function'
+								},
+								{
+									name: 'process',
+									value: 'endpoint'
+								}
+							],
+							tag: 'span'
+						},
+						{
+							attributes: [
+								{
+									name: 'class',
+									value: 'button frame-button icon tooltip tooltip-bottom'
+								},
+								{
+									name: 'data-title',
+									value: 'Proxy search and filter'
+								},
+								{
+									name: 'frame',
+									value: 'search'
+								}
+							],
+							tag: 'span'
+						},
+						{
+							attributes: [
+								{
+									name: 'class',
+									value: 'button frame-button icon tooltip tooltip-bottom'
+								},
+								{
+									name: 'data-title',
+									value: 'Manage proxy groups'
+								},
+								{
+									name: 'frame',
+									value: 'group'
+								},
+								{
+									name: 'process',
+									value: 'group'
+								}
+							],
+							tag: 'span'
+						},
+						{
+							attributes: [
+								{
+									name: 'class',
+									value: 'button frame-button icon tooltip tooltip-bottom'
+								},
+								{
+									name: 'data-title',
+									value: 'View log of recent order actions'
+								},
+								{
+									name: 'frame',
+									value: 'actions'
+								},
+								{
+									name: 'process',
+									value: 'actions'
+								}
+							],
+							tag: 'span'
+						},
+						{
+							attributes: [
+								{
+									name: 'class',
+									value: 'button frame-button hidden icon tooltip tooltip-bottom'
+								},
+								{
+									name: 'data-title',
+									value: 'Download proxy request logs'
+								},
+								{
+									name: 'frame',
+									value: 'requests'
+								},
+								{
+									name: 'item-function'
+								},
+								{
+									name: 'process',
+									value: 'requests'
+								}
+							],
+							tag: 'span'
+						},
+						{
+							attributes: [
+								{
+									name: 'class',
+									value: 'button frame-button hidden icon tooltip tooltip-bottom'
+								},
+								{
+									name: 'data-title',
+									value: 'Configure proxy replacement settings'
+								},
+								{
+									name: 'frame',
+									value: 'replace'
+								},
+								{
+									name: 'item-function'
+								}
+							],
+							tag: 'span'
+						},
+						{
+							attributes: [
+								{
+									name: 'class',
+									value: 'button frame-button hidden icon tooltip tooltip-bottom'
+								},
+								{
+									name: 'data-title',
+									value: 'Configure proxy gateway rotation settings'
+								},
+								{
+									name: 'frame',
+									value: 'rotate'
+								},
+								{
+									name: 'item-function'
+								}
+							],
+							tag: 'span'
+						},
+						{
+							attributes: [
+								{
+									name: 'class',
+									value: 'button frame-button hidden icon tooltip tooltip-bottom'
+								},
+								{
+									name: 'data-title',
+									value: 'Configure proxy authentication settings'
+								},
+								{
+									name: 'frame',
+									value: 'authenticate'
+								},
+								{
+									name: 'item-function'
+								}
+							],
+							tag: 'span'
+						},
+						{
+							attributes: [
+								{
+									name: 'class',
+									value: 'button frame-button hidden icon tooltip tooltip-bottom'
+								},
+								{
+									name: 'data-title',
+									value: 'Download list of selected proxies'
+								},
+								{
+									name: 'frame',
+									value: 'download'
+								},
+								{
+									name: 'item-function'
+								},
+								{
+									name: 'process',
+									value: 'download'
+								}
+							],
+							tag: 'span'
+						},
+					],
+					page: 1,
+					results_per_page: 100,
+					selector: '.item-list[table="proxies"]',
+					table: 'proxies'
+				}
+			});
 			elements.html('.order-name', (response.data.order.quantity_active ? response.data.order.quantity_active : response.data.order.quantity) + ' ' + response.data.order.name);
-
-			if (document.querySelector('.pagination')) {
-				api.setRequestParameters({
-					action: 'fetch'
-				});
-				processProxies();
-				selectAllElements('.pagination .button').map(function(element) {
-					element[1].addEventListener('click', function(element) {
-						if ((page = +element.target.getAttribute('page')) > 0) {
-							processProxies(false, false, page);
-						}
-					});
-				});
-			}
+			processItemList('list_proxies');
 
 			if (response.data.nodeLocations) {
 				var nodeLocationCityOptions = nodeLocationCountryOptions = nodeLocationRegionOptions = '<option value="">All</option>';
@@ -630,187 +884,19 @@ var processOrder = function() {
 		}
 	});
 };
-var processProxies = function(frameName, frameSelector, currentPage) {
-	var currentPage = currentPage || 1;
-	var items = document.querySelector('.item-configuration .item-table');
-	var orderId = document.querySelector('input[name="order_id"]').value;
-	var pagination = document.querySelector('.item-configuration .pagination');
-	var resultsPerPage = +pagination.getAttribute('results');
-	var itemToggle = function(item) {
-		items.setAttribute('current_checked', item.getAttribute('index'));
-		processItemGrid(window.event.shiftKey ? range(items.getAttribute('previous_checked'), item.getAttribute('index')) : [item.getAttribute('index')], window.event.shiftKey ? +document.querySelector('.item-configuration .checkbox[index="' + items.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +item.getAttribute('checked') === 0);
-		items.setAttribute('previous_checked', item.getAttribute('index'));
-	};
-	var itemAllVisible = document.querySelector('.item-configuration .checkbox[index="all-visible"]');
-	var itemToggleAllVisible = function(item) {
-		items.setAttribute('current_checked', 0);
-		items.setAttribute('previous_checked', 0);
-		processItemGrid(range(0, selectAllElements('.item-configuration tr .checkbox').length - 1), +item.getAttribute('checked') === 0);
-	};
-	var processItemGrid = function(itemIndexes, itemState) {
-		var itemCount = 0;
-		var itemGridLineSizeMaximum = +('1' + repeat(Math.min(elements.html('.item-configuration .total-results').length, 4), '0'));
-		var pageResultCount = (+elements.html('.item-configuration .last-result') - +elements.html('.item-configuration .first-result') + 1);
-		var totalResults = +elements.html('.item-configuration .total-results');
-		var itemGridLineSize = function(key) {
-			return Math.min(itemGridLineSizeMaximum, totalResults - (key * itemGridLineSizeMaximum)).toString();
-		};
-		var processItemGridSelection = function(item) {
-			var keyIndexes = range(0, Math.floor(totalResults / itemGridLineSizeMaximum));
-			elements.html('.total-checked', (selectionStatus = +item.getAttribute('status')) ? totalResults : 0);
-			keyIndexes.map(function(key) {
-				itemGrid[key] = selectionStatus + itemGridLineSize(key);
-			});
-			itemGrid = selectionStatus ? itemGrid : [];
-			processItemGrid(range(0, selectAllElements('.item-configuration tr .checkbox').length - 1));
-		};
-
-		if (
-			typeof itemIndexes[1] === 'number' &&
-			itemIndexes[1] < 0
-		) {
-			return;
+var processProxies = function(response, itemListParameters) {
+	if (typeof itemListParameters !== 'object') {
+		if (apiRequestParameters.current.action === 'search') {
+			var mergeRequestParameters = {
+				items: {}
+			};
+			mergeRequestParameters.items['proxies'] = [];
+			api.setRequestParameters(mergeRequestParameters, true);
 		}
 
-		if (!itemGrid.length) {
-			elements.html('.total-checked', 0);
-		}
-
-		itemIndexes.map(function(itemIndex) {
-			var encodeCount = 1;
-			var encodedGridLineItems = [];
-			var index = ((currentPage * resultsPerPage) - resultsPerPage) + +itemIndex;
-			var item = document.querySelector('.item-configuration .checkbox[index="' + itemIndex + '"]');
-			var key = Math.floor(index / itemGridLineSizeMaximum);
-
-			if (!itemGrid[key]) {
-				itemGrid[key] = repeat(itemGridLineSize(key), '0');
-			} else {
-				itemGrid[key] = itemGrid[key].split('_');
-				itemGrid[key].map(function(itemStatus, itemStatusIndex) {
-					itemStatusCount = itemStatus.substr(1);
-					itemStatus = itemStatus.substr(0, 1);
-					itemGrid[key][itemStatusIndex] = repeat(itemStatusCount, itemStatus);
-				});
-				itemGrid[key] = itemGrid[key].join("");
-			}
-
-			var itemGridLineIndex = index - (key * itemGridLineSizeMaximum);
-
-			if (typeof itemState === 'boolean') {
-				itemGrid[key] = itemGrid[key].substr(0, itemGridLineIndex) + +itemState + itemGrid[key].substr(itemGridLineIndex + Math.max(1, ('' + +itemState).length))
-			}
-
-			itemGrid[key] = itemGrid[key].split("");
-			itemGrid[key].map(function(itemStatus, itemStatusIndex) {
-				if (itemStatus != itemGrid[key][itemStatusIndex + 1]) {
-					encodedGridLineItems.push(itemStatus + encodeCount);
-					encodeCount = 0;
-				}
-
-				encodeCount++;
-			});
-			item.setAttribute('checked', +itemGrid[key][itemGridLineIndex]);
-			itemGrid[key] = encodedGridLineItems.join('_');
-		});
-
-		range(0, pageResultCount - 1).map(function(itemIndex) {
-			var item = document.querySelector('.item-configuration .checkbox[index="' + itemIndex + '"]');
-
-			if (+(item.getAttribute('checked'))) {
-				itemCount++;
-			}
-		});
-
-		if (typeof itemState === 'boolean') {
-			elements.html('.total-checked', +elements.html('.total-checked') + (itemCount - itemGridCount));
-		}
-
-		var itemAll = document.querySelector('.item-configuration .item-action[index="all"]');
-		itemAll.classList.add('hidden');
-		itemAll.removeEventListener('click', itemAll.clickListener);
-		itemAll.clickListener = function() {
-			processItemGridSelection(itemAll);
-		};
-		itemAll.addEventListener('click', itemAll.clickListener);
-		itemAllVisible.setAttribute('checked', +(allVisibleChecked = (itemCount === pageResultCount)));
-		itemAllVisible.removeEventListener('click', itemAllVisible.clickListener);
-		itemAllVisible.clickListener = function() {
-			itemToggleAllVisible(itemAllVisible);
-		};
-		itemAllVisible.addEventListener('click', itemAllVisible.clickListener);
-
-		if (
-			pageResultCount != totalResults &&
-			(
-				(
-					allVisibleChecked &&
-					+elements.html('.total-checked') < totalResults
-				) ||
-				+elements.html('.total-checked') === totalResults
-			)
-		) {
-			itemAll.classList.remove('hidden');
-			itemAll.querySelector('.action').innerText = (selectionStatus = +(+elements.html('.total-checked') === totalResults)) ? 'Unselect' : 'Select';
-			itemAll.setAttribute('status', +(selectionStatus === 0));
-		}
-
-		processWindowEvents('resize');
-		+elements.html('.total-checked') ? elements.removeClass('.item-configuration span.icon[item-function]', 'hidden') : elements.addClass('.item-configuration span.icon[item-function]', 'hidden');
-		itemGridCount = itemCount;
-
-		if (totalResults === +elements.html('.total-checked')) {
-			elements.addClass('.item-configuration span.icon[item-function][process="downgrade"]', 'hidden');
-		}
-
-		api.setRequestParameters({
-			items: {
-				proxies: itemGrid
-			}
-		}, true);
-	};
-	elements.addClass('.item-configuration .item-controls, .item-table', 'hidden');
-	pagination.querySelector('.next').setAttribute('page', 0);
-	pagination.querySelector('.previous').setAttribute('page', 0);
-
-	if (proxyMessageContainer) {
-		proxyMessageContainer.innerHTML = '<p class="message no-margin-top">Loading ...</p>';
-	}
-
-	if (!currentPage) {
-		currentPage = pagination.hasAttribute('current_page') ? Math.max(1, +pagination.getAttribute('current_page')) : 1;
-
-		if (
-			apiRequestParameters.current.action == 'search' &&
-			apiRequestParameters.previous.action == 'fetch'
-		) {
-			currentPage = 1;
-		}
-	}
-
-	api.setRequestParameters({
-		action: apiRequestParameters.current.action,
-		conditions: {
-			order_id: orderId
-		},
-		current_page: currentPage,
-		limit: resultsPerPage,
-		offset: ((currentPage * resultsPerPage) - resultsPerPage),
-		table: 'proxies',
-		url: apiRequestParameters.current.settings.base_url + 'api/proxies'
-	});
-	api.setRequestParameters({
-		items: {
-			proxies: itemGrid
-		},
-		sort: {
-			field: 'modified'
-		}
-	}, true);
-	api.sendRequest(function(response) {
-		if (proxyMessageContainer) {
-			proxyMessageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
-		}
+		processItemList('list_proxies');
+	} else {
+		elements.html('.message-container.proxies', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 
 		if (
 			apiRequestParameters.current.action == 'search' &&
@@ -834,10 +920,16 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 							table: 'proxies'
 						}
 					});
+					var mergeRequestParameters = {
+						items: {},
+						list_proxies: {
+							page: 1
+						}
+					};
+					mergeRequestParameters.items['proxies'] = [];
+					api.setRequestParameters(mergeRequestParameters, true);
 					closeFrames(apiRequestParameters.current.defaults);
-					itemGrid = [];
-					itemGridCount = 0;
-					processProxies(false, false, 1);
+					processItemList('list_proxies');
 				};
 				itemsClear.addEventListener('click', itemsClear.clickListener);
 			}, 100);
@@ -858,11 +950,10 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 				!response.processing
 			)
 		) {
-			return items.innerHTML = '';
+			return elements.html(itemListParameters.selector + ' .item-table', '');
 		}
 
 		if (response.processing) {
-			var itemProcessingContainer = document.querySelector('.item-processing-container');
 			var actionDetails = 'to ' + response.processing.parameters.action + ' ' + response.processing.parameters.item_count + ' ' + response.processing.parameters.table;
 			var itemProcessingData = '<p class="message">Your recent bulk action ' + actionDetails + ' is in progress.</p>';
 			var timeoutId = setTimeout(function() {}, 1);
@@ -911,15 +1002,22 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 					elements.removeClass('.item-configuration-container', 'hidden');
 
 					if (!response.processing.token_id) {
-						processProxies(false, false, 1);
+						var mergeRequestParameters = {
+							list_proxies: {
+								page: 1
+							}
+						};
+						api.setRequestParameters(mergeRequestParameters, true);
+						processItemList('list_proxies');
 					}
 
-					if (
-						proxyMessageContainer &&
-						actionProgress < 100
-					) {
-						proxyMessageContainer.innerHTML = '<p class="error message">Action ' + (response.processing.id ? '#' + response.processing.id + ' ' : '') + actionDetails + ' was interrupted at ' + actionProgress + '%, please try again.</p>';
-						processWindowEvents('resize');
+					if (response.processing.chunks > 1) {
+						elements.html('.message-container.proxies', '<p class="message success">Your recent bulk action ' + actionDetails + ' is completed.</p>');
+
+						if (actionProgress < 100) {
+							elements.html('.message-container.proxies', '<p class="error message">Action ' + (response.processing.id ? '#' + response.processing.id + ' ' : '') + actionDetails + ' was interrupted at ' + actionProgress + '%, please try again.</p>');
+							processWindowEvents('resize');
+						}
 					}
 				}
 			};
@@ -929,42 +1027,43 @@ var processProxies = function(frameName, frameSelector, currentPage) {
 			itemProcessingData += '</div>';
 			elements.addClass('.item-configuration-container', 'hidden');
 			elements.removeClass('.item-processing-container', 'hidden');
-			itemProcessingContainer.innerHTML = itemProcessingData;
+			elements.html('.item-processing-container', itemProcessingData);
 			processActionProgress(response);
 		}
 
-		items.innerHTML = '<table class="table"><thead><tr><th style="width: 35px;"></th><th>Proxy IP</th></tr></thead><tbody></tbody></table>';
-		response.data.map(function(item, index) {
-			items.querySelector('table tbody').innerHTML += '<tr page="' + currentPage + '" proxy_id="' + item.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" proxy_id="' + item.id + '"></span></td><td><span class="details-container"><span class="details"><span class="detail"><strong>Status:</strong> ' + capitalizeString(item.status) + '</span><span class="detail"><strong>Proxy IP:</strong> ' + item.ip + '</span><span class="detail"><strong>Location:</strong> ' + item.city + ', ' + item.region + ' ' + item.country_code + ' </span><span class="detail"><strong>ISP:</strong> ' + item.asn + ' </span><span class="detail"><strong>HTTP + HTTPS Port:</strong> ' + (item.disable_http == 1 ? 'Disabled' : '80') + '</span><span class="detail"><strong>Username:</strong> ' + (item.username ? item.username : 'N/A') + '</span><span class="detail"><strong>Password:</strong> ' + (item.password ? item.password : 'N/A') + '</span><span class="detail"><strong>Whitelisted IPs:</strong> ' + (item.whitelisted_ips ? '<textarea>' + item.whitelisted_ips + '</textarea>' : 'N/A') + '</span></span></span><span class="table-text">' + item.ip + '</span></td>';
-		});
-		elements.html('.item-configuration .first-result', currentPage === 1 ? currentPage : ((currentPage * resultsPerPage) - resultsPerPage) + 1);
-		elements.html('.item-configuration .last-result', (lastResult = currentPage * resultsPerPage) >= response.count ? response.count : lastResult);
-		elements.html('.item-configuration .total-results', response.count);
-		pagination.setAttribute('current_page', currentPage);
-		pagination.querySelector('.next').setAttribute('page', +elements.html('.item-configuration .last-result') < response.count ? currentPage + 1 : 0);
-		pagination.querySelector('.previous').setAttribute('page', currentPage <= 0 ? 0 : currentPage - 1);
-		elements.loop('.item-configuration tbody tr', function(index, row) {
-			var item = row.querySelector('.checkbox');
-			item.removeEventListener('click', item.clickListener);
-			item.clickListener = function() {
-				itemToggle(item);
-			};
-			item.addEventListener('click', item.clickListener);
-		});
-		elements.removeClass('.item-configuration .item-controls, .item-table', 'hidden');
-		itemGrid = response.items['proxies'];
+		elements.html(itemListParameters.selector + ' .item-table', '<table class="table"><thead><tr><th style="width: 35px;"></th><th>Proxy IP</th></tr></thead><tbody></tbody></table>');
+		let itemListData = '';
+
+		for (itemListDataKey in response.data) {
+			let item = response.data[itemListDataKey];
+			itemListData += '<tr page="' + apiRequestParameters.current.list_proxies.page + '" proxy_id="' + item.id + '" class="">';
+			itemListData += '<td style="width: 1px;">';
+			itemListData += '<span checked="0" class="checkbox" index="' + itemListDataKey + '" proxy_id="' + item.id + '">';
+			itemListData += '</span>';
+			itemListData += '</td>';
+			itemListData += '<td>';
+			itemListData += '<span class="details-container">';
+			itemListData += '<span class="details">';
+			itemListData += '<span class="detail"><strong>Status:</strong> ' + capitalizeString(item.status) + '</span>';
+			itemListData += '<span class="detail"><strong>Proxy IP:</strong> ' + item.ip + '</span>';
+			itemListData += '<span class="detail"><strong>Location:</strong> ' + item.city + ', ' + item.region + ' ' + item.country_code + ' </span>';
+			itemListData += '<span class="detail"><strong>ISP:</strong> ' + item.asn + ' </span>';
+			itemListData += '<span class="detail"><strong>HTTP + HTTPS Port:</strong> ' + (item.disable_http == 1 ? 'Disabled' : '80') + '</span>';
+			itemListData += '<span class="detail"><strong>Username:</strong> ' + (item.username ? item.username : 'N/A') + '</span>';
+			itemListData += '<span class="detail"><strong>Password:</strong> ' + (item.password ? item.password : 'N/A') + '</span>';
+			itemListData += '<span class="detail"><strong>Whitelisted IPs:</strong> ' + (item.whitelisted_ips ? '<textarea>' + item.whitelisted_ips + '</textarea>' : 'N/A') + '</span>';
+			itemListData += '</span>';
+			itemListData += '</span>';
+			itemListData += '<span class="table-text">' + item.ip + '</span>';
+			itemListData += '</td>';
+		}
+
+		elements.html(itemListParameters.selector + ' .item-table table tbody', itemListData);
 
 		if (apiRequestParameters.current.action != 'search') {
 			api.setRequestParameters(apiRequestParameters.current.defaults);
 		}
-
-		api.setRequestParameters({
-			tokens: {
-				proxies: response.tokens['proxies']
-			}
-		}, true);
-		processItemGrid(range(0, response.data.length - 1));
-	});
+	}
 };
 var processRequests = function(frameName, frameSelector) {
 	// ..

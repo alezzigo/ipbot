@@ -1156,11 +1156,11 @@
 				!is_array($parameters['items'][$table]['data']) ||
 				empty($parameters['items'][$table]['data'])
 			) {
-				$response['message']['text'] = 'There are no ' . $table . ' selected to ' . $parameters['action'] . '.';
+				$response['message']['text'] = 'The selected ' . $table . ' aren\'t available to ' . $parameters['action'] . '.';
 
 				if (
-					!empty($parameters['data']['order_id']) &&
-					!empty($parameters['data']['items'])
+					!empty($parameters['data']['items']) &&
+					!empty($parameters['data']['order_id'])
 				) {
 					$response = $this->_authenticateEndpoint('orders', $parameters, array(
 						'id' => ($orderId = $parameters['data']['order_id'])

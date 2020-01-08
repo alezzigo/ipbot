@@ -149,7 +149,13 @@ const elements = {
 		return hasClass;
 	},
 	html: function(selector, value) {
-		let html = value || document.querySelector(selector).innerHTML;
+		let element = document.querySelector(selector);
+
+		if (!element) {
+			return false;
+		}
+
+		let html = value || element.innerHTML;
 
 		if (typeof value !== 'undefined') {
 			selectAllElements(selector, function(selectedElementKey, selectedElement) {
@@ -439,7 +445,20 @@ const processItemList = function(itemListName, callback) {
 		}
 	};
 	mergeRequestParameters.items[itemListParameters.table] = itemListGrid;
+	api.setRequestParameters(mergeRequestParameters, true);
 	api.sendRequest(function(response) {
+		if (
+			typeof response.items[itemListParameters.table] === 'object' &&
+			response.items[itemListParameters.table].length === 0
+		) {
+			var mergeRequestParameters = {
+				items: {}
+			};
+			mergeRequestParameters.items[itemListParameters.table] = itemListGrid = [];
+			api.setRequestParameters(mergeRequestParameters, true);
+			itemListGridCount = 0;
+		}
+
 		if (typeof itemListParameters.callback === 'function') {
 			itemListParameters.callback(response, itemListParameters);
 		}
@@ -460,6 +479,7 @@ const processItemList = function(itemListName, callback) {
 						mergeRequestParameters[itemListName] = {};
 						mergeRequestParameters[itemListName].page = page;
 						api.setRequestParameters(mergeRequestParameters, true);
+						elements.html('.message-container.order', '<p class="message">Loading</p>');
 						processItemList(itemListParameters.name);
 					}
 				});
@@ -502,7 +522,15 @@ const processItemList = function(itemListName, callback) {
 					element.setAttribute('style', 'width: ' + element.details.width + 'px;');
 				}
 			});
+			selectAllElements(itemListParameters.selector + ' .button.frame-button', function(selectedElementKey, selectedElement) {
+				selectedElement.addEventListener('click', function() {
+					processMethodForm(selectedElement);
+				});
+			});
 		}
+
+		elements.html('.message-container.order', '');
+		processWindowEvents('resize');
 	});
 };
 const processWindowEvents = function(event) {

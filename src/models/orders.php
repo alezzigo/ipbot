@@ -1025,8 +1025,7 @@
 					}
 
 					$response = array(
-						'order_id' => $parameters['id'],
-						'results_per_page' => 50
+						'order_id' => $parameters['id']
 					);
 				}
 			}

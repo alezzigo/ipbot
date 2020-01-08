@@ -108,15 +108,9 @@
 											$parameters
 										)
 									));
-
-									if (
-										!empty($actionResponse) &&
-										$actionResponse['message']['status'] === 'success'
-									) {
-										$actionData = array(
-											$parameters['data']['action']
-										);
-									}
+									$actionData = array(
+										$parameters['data']['action']
+									);
 								} else {
 									$actionData = array(
 										array_merge($actionData[0], array(

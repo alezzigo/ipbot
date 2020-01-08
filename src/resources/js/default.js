@@ -193,85 +193,90 @@ const openFrame = function(frameName, frameSelector) {
 
 const processItemList = function(itemListName, callback) {
 	let itemListParameters = apiRequestParameters.current[itemListName];
-	let itemListData = '<div class="hidden item-container item-processing-container"></div>';
-	itemListData += '<div class="item-container item-configuration-container">';
-	itemListData += '<div class="item">';
-	itemListData += '<div class="item-configuration">';
-	itemListData += '<div class="item-controls-container controls-container scrollable">';
-	itemListData += '<div class="item-header">';
-	itemListData += '<div class="align-right">';
-	itemListData += '<span class="pagination" current_page="' + itemListParameters.page + '" results="' + itemListParameters.results_per_page + '">';
-	itemListData += '<span class="align-left hidden item-controls results">';
-	itemListData += '<span class="first-result"></span> - <span class="last-result"></span> of <span class="total-results"></span>';
-	itemListData += '</span>';
-	itemListData += '<span class="align-left button icon previous"></span>';
-	itemListData += '<span class="align-left button icon next"></span>';
-	itemListData += '</span>';
-	itemListData += '</div>';
 
-	if (
-		typeof itemListParameters.options === 'object' &&
-		itemListParameters.options
-	) {
-		itemListData += '<div class="align-left hidden item-controls">';
+	if (apiRequestParameters.current[itemListName].initial === true) {
+		let itemListData = '<div class="hidden item-container item-processing-container"></div>';
+		itemListData += '<div class="item-container item-configuration-container">';
+		itemListData += '<div class="item">';
+		itemListData += '<div class="item-configuration">';
+		itemListData += '<div class="item-controls-container controls-container scrollable">';
+		itemListData += '<div class="item-header">';
+		itemListData += '<div class="align-right">';
+		itemListData += '<span class="pagination" current_page="' + itemListParameters.page + '" results="' + itemListParameters.results_per_page + '">';
+		itemListData += '<span class="align-left hidden item-controls results">';
+		itemListData += '<span class="first-result"></span> - <span class="last-result"></span> of <span class="total-results"></span>';
+		itemListData += '</span>';
+		itemListData += '<span class="align-left button icon previous"></span>';
+		itemListData += '<span class="align-left button icon next"></span>';
+		itemListData += '</span>';
+		itemListData += '</div>';
 
-		for (let optionKey in itemListParameters.options) {
-			let option = itemListParameters.options[optionKey];
-			itemListData += '<' + option.tag;
+		if (
+			typeof itemListParameters.options === 'object' &&
+			itemListParameters.options
+		) {
+			itemListData += '<div class="align-left hidden item-controls">';
 
-			if (
-				typeof option.attributes === 'object' &&
-				option.attributes
-			) {
-				for (let attributeKey in option.attributes) {
-					let attribute = option.attributes[attributeKey];
-					itemListData += ' ' + attribute.name;
+			for (let optionKey in itemListParameters.options) {
+				let option = itemListParameters.options[optionKey];
+				itemListData += '<' + option.tag;
 
-					if (typeof attribute.value !== 'undefined') {
-						itemListData += '="' + attribute.value + '"';
+				if (
+					typeof option.attributes === 'object' &&
+					option.attributes
+				) {
+					for (let attributeKey in option.attributes) {
+						let attribute = option.attributes[attributeKey];
+						itemListData += ' ' + attribute.name;
+
+						if (typeof attribute.value !== 'undefined') {
+							itemListData += '="' + attribute.value + '"';
+						}
 					}
 				}
-			}
 
-			itemListData += '></' + option.tag + '>';
-		}
-
-		itemListData += '</div>';
-	}
-
-	itemListData += '<div class="clear"></div>';
-	itemListData += '<p class="hidden item-controls no-margin-bottom">';
-	itemListData += '<span class="checked-container">';
-	itemListData += '<span class="total-checked">0</span> of <span class="total-results"></span> selected.</span>';
-	itemListData += '<a class="item-action hidden" href="javascript:void(0);" index="all" status="1"><span class="action">Select</span> all results</a>';
-	itemListData += '<span class="clear"></span>';
-	itemListData += '</p>';
-
-	if (
-		typeof itemListParameters.messages === 'object' &&
-		itemListParameters.messages
-	) {
-		itemListData += '<div class="clear"></div>';
-
-		for (let messageKey in itemListParameters.messages) {
-			let message = itemListParameters.messages[messageKey];
-			itemListData += '<div class="message-container ' + messageKey + '">';
-
-			if (typeof message !== 'undefined') {
-				itemListData += message;
+				itemListData += '></' + option.tag + '>';
 			}
 
 			itemListData += '</div>';
 		}
+
+		itemListData += '<div class="clear"></div>';
+		itemListData += '<p class="hidden item-controls no-margin-bottom">';
+		itemListData += '<span class="checked-container">';
+		itemListData += '<span class="total-checked">0</span> of <span class="total-results"></span> selected.</span>';
+		itemListData += '<a class="item-action hidden" href="javascript:void(0);" index="all" status="1"><span class="action">Select</span> all results</a>';
+		itemListData += '<span class="clear"></span>';
+		itemListData += '</p>';
+
+		if (
+			typeof itemListParameters.messages === 'object' &&
+			itemListParameters.messages
+		) {
+			itemListData += '<div class="clear"></div>';
+
+			for (let messageKey in itemListParameters.messages) {
+				let message = itemListParameters.messages[messageKey];
+				itemListData += '<div class="message-container ' + messageKey + '">';
+
+				if (typeof message !== 'undefined') {
+					itemListData += message;
+				}
+
+				itemListData += '</div>';
+			}
+		}
+
+		itemListData += '</div>';
+		itemListData += '</div>';
+		itemListData += '<div class="item-body">';
+		itemListData += '<div class="item-table" previous_checked="0"></div>';
+		itemListData += '</div>';
+		elements.html(itemListParameters.selector, itemListData);
 	}
 
-	itemListData += '</div>';
-	itemListData += '</div>';
-	itemListData += '<div class="item-body">';
-	itemListData += '<div class="item-table" previous_checked="0"></div>';
-	itemListData += '</div>';
-	elements.html(itemListParameters.selector, itemListData);
 	let itemListGrid = apiRequestParameters.current.items[itemListParameters.table] || [];
+	let itemListGridCount = itemListGrid.length;
 	const itemToggle = function(itemListItem) {
 		let previousChecked = elements.getAttribute(itemListParameters.selector + ' .item-table', 'previous_checked');
 		elements.setAttribute(itemListParameters.selector + ' .item-table', 'current_checked', itemListItem.getAttribute('index'));
@@ -281,8 +286,8 @@ const processItemList = function(itemListName, callback) {
 	const itemAll = elements.get(itemListParameters.selector + ' .item-action[index="all"]');
 	const itemAllVisible = elements.get(itemListParameters.selector + ' .checkbox[index="all-visible"]');
 	const itemToggleAllVisible = function(item) {
-		items.setAttribute('current_checked', 0);
-		items.setAttribute('previous_checked', 0);
+		elements.setAttribute(itemListParameters.selector + ' .item-table', 'current_checked', 0);
+		elements.setAttribute(itemListParameters.selector + ' .item-table', 'previous_checked', 0);
 		processItemListGrid(range(0, selectAllElements(itemListParameters.selector + ' tr .checkbox').length - 1), +item.getAttribute('checked') === 0);
 	};
 	const processItemListGrid = function(itemListIndexes, itemState) {
@@ -398,7 +403,9 @@ const processItemList = function(itemListName, callback) {
 			elements.addClass(itemListParameters.selector + ' span.icon[item-function][process="downgrade"]', 'hidden');
 		}
 
-		var mergeRequestParameters = {};
+		var mergeRequestParameters = {
+			items: {}
+		};
 		mergeRequestParameters.items[itemListParameters.table] = itemListGrid;
 		api.setRequestParameters(mergeRequestParameters, true);
 	};
@@ -427,16 +434,17 @@ const processItemList = function(itemListName, callback) {
 		url: apiRequestParameters.current.settings.base_url + 'api/' + itemListParameters.table
 	});
 	var mergeRequestParameters = {
-		items: [],
+		items: {},
 		sort: {
 			field: 'modified'
 		}
 	};
 	mergeRequestParameters.items[itemListParameters.table] = itemListGrid;
-	api.setRequestParameters(mergeRequestParameters, true);
 	api.sendRequest(function(response) {
-		// ..
-		callback(response, itemListParameters);
+		if (typeof itemListParameters.callback === 'function') {
+			itemListParameters.callback(response, itemListParameters);
+		}
+
 		let lastResult = itemListParameters.page * itemListParameters.results_per_page;
 		elements.html(itemListParameters.selector + ' .first-result', itemListParameters.page === 1 ? itemListParameters.page : ((itemListParameters.page * itemListParameters.results_per_page) - itemListParameters.results_per_page) + 1);
 		elements.html(itemListParameters.selector + ' .last-result', lastResult >= response.count ? response.count : lastResult);

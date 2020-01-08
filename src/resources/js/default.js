@@ -480,7 +480,7 @@ const processItemList = function(itemListName, callback) {
 						mergeRequestParameters[itemListName].page = page;
 						api.setRequestParameters(mergeRequestParameters, true);
 						elements.html('.message-container.order', '<p class="message">Loading</p>');
-						processItemList(itemListParameters.name);
+						processItemList(itemListName);
 					}
 				});
 			});

@@ -586,7 +586,6 @@ var processOrder = function() {
 						order: '',
 						proxies: '<p class="message no-margin-top">Loading</p>'
 					},
-					name: 'list_proxies',
 					options: [
 						{
 							attributes: [

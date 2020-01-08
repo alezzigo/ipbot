@@ -452,6 +452,21 @@ const processItemList = function(itemListName, callback) {
 		elements.setAttribute(itemListParameters.selector + ' .pagination', 'current_page', itemListParameters.page);
 		elements.setAttribute(itemListParameters.selector + ' .pagination .next', 'page', +elements.html('.item-configuration .last-result') < response.count ? itemListParameters.page + 1 : 0);
 		elements.setAttribute(itemListParameters.selector + ' .pagination .previous', 'page', itemListParameters.page <= 0 ? 0 : itemListParameters.page - 1);
+
+		if (apiRequestParameters.current[itemListName].initial === true) {
+			elements.loop(itemListParameters.selector + ' .pagination .button', function(index, element) {
+				element.addEventListener('click', function(element) {
+					if ((page = +element.target.getAttribute('page')) > 0) {
+						var mergeRequestParameters = {};
+						mergeRequestParameters[itemListName] = {};
+						mergeRequestParameters[itemListName].page = page;
+						api.setRequestParameters(mergeRequestParameters, true);
+						processItemList(itemListParameters.name);
+					}
+				});
+			});
+		}
+
 		elements.loop('.item-configuration tbody tr', function(index, row) {
 			var item = row.querySelector('.checkbox');
 			item.removeEventListener('click', item.clickListener);

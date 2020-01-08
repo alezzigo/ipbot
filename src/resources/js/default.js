@@ -117,6 +117,19 @@ const elements = {
 			selectedElement.classList.add(className);
 		});
 	},
+	addScrollable: function(selector, callback) {
+		selectAllElements(selector, function(selectedElementKey, selectedElement) {
+			let event = function() {
+				const elementContainerDetails = selectedElement.parentNode.getBoundingClientRect();
+				selectedElement.details = elementContainerDetails;
+				callback(selectedElement);
+				selectedElement.setAttribute('scrolling', +(window.pageYOffset > (selectedElement.details.top + window.pageYOffset)));
+			};
+
+			windowEvents.resize.push(event);
+			windowEvents.scroll.push(event);
+		});
+	},
 	get: function(selector) {
 		return document.querySelector(selector);
 	},
@@ -449,7 +462,25 @@ const processItemList = function(itemListName, callback) {
 			api.setRequestParameters(mergeRequestParameters, true);
 		}
 
-		// ..
+		processItemListGrid(range(0, response.data.length - 1));
+
+		if (typeof callback === 'function') {
+			callback(response, itemListParameters);
+		}
+
+		if (apiRequestParameters.current[itemListName].initial === true) {
+			var mergeRequestParameters = {};
+			mergeRequestParameters[itemListName] = {
+				initial: false
+			};
+			api.setRequestParameters(mergeRequestParameters, true);
+			elements.addScrollable('.item-controls-container.scrollable', function(element) {
+				if (element.details.width) {
+					element.parentNode.querySelector('.item-body').setAttribute('style', 'padding-top: ' + (element.parentNode.querySelector('.item-header').clientHeight + 1) + 'px');
+					element.setAttribute('style', 'width: ' + element.details.width + 'px;');
+				}
+			});
+		}
 	});
 };
 const processWindowEvents = function(event) {

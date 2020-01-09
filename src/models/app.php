@@ -459,6 +459,33 @@
 		}
 
 	/**
+	 * Parsing helper method for parameter object case types
+	 *
+	 * @param array $parameters
+	 * @param string $caseType
+	 *
+	 * @return array $response
+	 */
+		protected function _parseParameters($parameters, $caseType) {
+			$response = array();
+			$parseMethod = '_parseParametersTo' . ucwords($caseType) . 'Case';
+
+			if (method_exists($this, $parseMethod)) {
+				foreach ($parameters as $parameterKey => $parameterValue) {
+					$parameter = array(
+						$parameterKey => $parameterValue
+					);
+					$parsedParameter = $this->$parseMethod($parameter);
+					unset($parameters[$parameterKey]);
+					$parameters = array_merge_recursive($parameters, $parsedParameter);
+				}
+			}
+
+			$response = $parameters;
+			return $response;
+		}
+
+	/**
 	 * Parsing helper method for a form data item if correct brackets exist
 	 *
 	 * @param string $formDataItemKey

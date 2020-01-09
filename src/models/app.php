@@ -942,8 +942,8 @@
 				!empty($_POST['json']) &&
 				is_string($_POST['json'])
 			) {
-				$parameters = json_decode($_POST['json'], true);
 				$response['message']['text'] = 'No results found, please try again.';
+				$parameters = $this->_parseParameters(json_decode($_POST['json'], true), 'snake');
 
 				if (
 					!isset($parameters['table']) ||
@@ -1006,11 +1006,6 @@
 							) {
 								$response['message']['text'] = 'Invalid request parameters, please try again.';
 							} else {
-								$parameters = array_merge($parameters, array(
-									'redirect' => '',
-									'session' => $this->_createTokenString($table, array(), sha1($parameters['keys']['users'])),
-									'user' => $this->_authenticate('users', $parameters)
-								));
 								$response = array(
 									'code' => 407,
 									'message' => array(
@@ -1020,6 +1015,11 @@
 									'redirect' => $this->settings['base_url'] . '#login',
 									'user' => false
 								);
+								$parameters = array_merge($parameters, array(
+									'redirect' => '',
+									'session' => $this->_createTokenString($table, array(), sha1($parameters['keys']['users'])),
+									'user' => $this->_authenticate('users', $parameters)
+								));
 								unset($parameters['conditions']['session_id']);
 								unset($parameters['conditions']['user_id']);
 								$userIdExists = (

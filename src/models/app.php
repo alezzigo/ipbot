@@ -459,6 +459,42 @@
 		}
 
 	/**
+	 * Parsing helper method for converting parameter keys from camelCase to snake_case
+	 *
+	 * @param array $parameters
+	 *
+	 * @return array $response
+	 */
+		protected function _parseParametersToSnakeCase($parameters) {
+			$response = array();
+
+			foreach ($parameters as $parameterKey => $parameterValue) {
+				unset($parameters[$parameterKey]);
+
+				if (strtolower($parameterKey) !== $parameterKey) {
+					$parameterKeyCharacters = str_split($parameterKey);
+					$parameterKeyCharacters[0] = strtolower($parameterKeyCharacters[0]);
+					$parameterKey = implode('', array_map(function($parameterKeyCharacter) {
+						if (ctype_upper($parameterKeyCharacter)) {
+							$parameterKeyCharacter = '_' . strtolower($parameterKeyCharacter);
+						}
+
+						return $parameterKeyCharacter;
+					}, $parameterKeyCharacters));
+				}
+
+				$parameters[$parameterKey] = $parameterValue;
+
+				if (is_array($parameterValue)) {
+					$parameters[$parameterKey] = $this->_parseParametersToSnakeCase($parameterValue);
+				}
+			}
+
+			$response = $parameters;
+			return $response;
+		}
+
+	/**
 	 * Parsing helper method for parameter object case types
 	 *
 	 * @param array $parameters

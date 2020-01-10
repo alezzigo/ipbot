@@ -48,20 +48,19 @@
 
 					if ($availableServerNodeLocation['count']) {
 						$key = strtolower($server['city'] . $server['region'] . $server['country_code'] . $server['country_name']);
-						$response['nodeLocations'][$key] = array(
+						$response['node_locations'][$key] = array(
 							'city' => $server['city'],
 							'count' => (!empty($response[$key]) ? $response[$key] : 0) + $availableServerNodeLocation['count'],
 							'country_code' => $server['country_code'],
 							'country_name' => $server['country_name'],
-							'region' => $server['region'],
+							'region' => $server['region']
 						);
 					}
-
-					$response['nodeLocations'] = array_values($response['nodeLocations']);
-					$response['nodeSubnets'] = array(); // TODO
 				}
 			}
 
+			$response['node_locations'] = array_values($response['node_locations']);
+			$response['node_subnets'] = array(); // TODO
 			return $response;
 		}
 

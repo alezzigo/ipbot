@@ -6,7 +6,7 @@ const processLogout = function() {
 	api.setRequestParameters({
 		action: 'logout',
 		table: 'users',
-		url: apiRequestParameters.current.settings.base_url + 'api/users'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/users'
 	});
 	api.sendRequest(function(response) {
 		if (
@@ -100,7 +100,7 @@ onLoad(function() {
 			}
 		});
 	});
-	selectAllElements('.frame .button.submit').map(function(element) {
+	selectAllElements('.button.frame-button, .frame .button.submit').map(function(element) {
 		element[1].addEventListener('click', function(element) {
 			processMethodForm(element.target);
 		});

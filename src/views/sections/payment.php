@@ -65,7 +65,7 @@
 							<label for="billing-name">Billing Name</label>
 							<input class="billing-name" id="billing-name" name="billing_name" placeholder="Enter your full name" type="text">
 							<label for="billing-name">Billing Address</label>
-							<input class="billing-address-1" id="billing-address-1" name="billing_address_1" placeholder="Enter billing address" type="text">
+							<input class="billing-address1" id="billing-address1" name="billing_address1" placeholder="Enter billing address" type="text">
 							<label for="billing-city">Billing City</label>
 							<input class="billing-city" id="billing-city" name="billing_city" placeholder="Enter your billing city" type="text">
 							<label for="billing-state">Billing State</label>

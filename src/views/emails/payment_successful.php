@@ -24,7 +24,7 @@
 
 	$message .= 'Billing Email: ' . ($templateParameters['transaction']['customer_email'] ? $templateParameters['transaction']['customer_email'] : 'N/A') . "\n";
 	$message .= 'Billing Name: ' . ($templateParameters['transaction']['billing_name'] ? $templateParameters['transaction']['billing_name'] : 'N/A') . "\n";
-	$message .= 'Billing Address: ' . ($templateParameters['transaction']['billing_address_1'] ? $templateParameters['transaction']['billing_address_1'] : 'N/A') . "\n";
+	$message .= 'Billing Address: ' . ($templateParameters['transaction']['billing_address1'] ? $templateParameters['transaction']['billing_address1'] : 'N/A') . "\n";
 	$message .= 'Billing City: ' . ($templateParameters['transaction']['billing_city'] ? $templateParameters['transaction']['billing_city'] : 'N/A') . "\n";
 	$message .= 'Billing State: ' . ($templateParameters['transaction']['billing_region'] ? $templateParameters['transaction']['billing_region'] : 'N/A') . "\n";
 	$message .= 'Billing Zip: ' . ($templateParameters['transaction']['billing_zip'] ? $templateParameters['transaction']['billing_zip'] : 'N/A') . "\n";

@@ -3,7 +3,7 @@ var messageContainer = document.querySelector('.item-configuration .message-cont
 var processCart = function() {
 	api.setRequestParameters({
 		action: 'cart',
-		url: apiRequestParameters.current.settings.base_url + 'api/carts'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/carts'
 	});
 	api.sendRequest(function(response) {
 		processCartItems(response);
@@ -12,7 +12,7 @@ var processCart = function() {
 var processConfirm = function() {
 	api.setRequestParameters({
 		action: 'complete',
-		url: apiRequestParameters.current.settings.base_url + 'api/carts'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/carts'
 	});
 	api.sendRequest(function(response) {
 		if (
@@ -55,9 +55,9 @@ var processCartItems = function(response) {
 	var processCartItemAdd = function(cartItemAddButton) {
 		api.setRequestParameters({
 			data: {
-				interval_type: cartItemAddButton.hasAttribute('interval_type') ? cartItemAddButton.getAttribute('interval_type') : 'month',
-				interval_value: cartItemAddButton.hasAttribute('interval_value') ? cartItemAddButton.getAttribute('interval_value') : 1,
-				product_id: cartItemAddButton.hasAttribute('product_id') ? cartItemAddButton.getAttribute('product_id') : 0,
+				intervalType: cartItemAddButton.hasAttribute('interval_type') ? cartItemAddButton.getAttribute('interval_type') : 'month',
+				intervalValue: cartItemAddButton.hasAttribute('interval_value') ? cartItemAddButton.getAttribute('interval_value') : 1,
+				productId: cartItemAddButton.hasAttribute('product_id') ? cartItemAddButton.getAttribute('product_id') : 0,
 				quantity: cartItemAddButton.hasAttribute('quantity') ? cartItemAddButton.getAttribute('quantity') : 0
 			}
 		}, true);
@@ -102,8 +102,8 @@ var processCartItems = function(response) {
 		api.setRequestParameters({
 			data: {
 				id: cartItemId,
-				interval_type: cartItem.querySelector('select.interval-type').value,
-				interval_value: cartItem.querySelector('select.interval-value').value,
+				intervalType: cartItem.querySelector('select.interval-type').value,
+				intervalValue: cartItem.querySelector('select.interval-value').value,
 				quantity: cartItem.querySelector('select.quantity').value
 			}
 		}, true);
@@ -143,30 +143,30 @@ var processCartItems = function(response) {
 		cartItemData.map(function(cartItem, index) {
 			var intervalSelectTypes = intervalSelectValues = quantitySelectValues = '';
 			var quantityIncrementValue = 1;
-			var quantityValueCount = cartItem[1].maximum_quantity - cartItem[1].minimum_quantity;
+			var quantityValueCount = cartItem[1].maximumQuantity - cartItem[1].minimumQuantity;
 
 			if (quantityValueCount > 1000) {
-				quantityIncrementValue = +(cartItem[1].minimum_quantity.toString().charAt(0) + repeat(Math.floor(Math.min(quantityValueCount.toString().length / 2, 8)), '0'));
+				quantityIncrementValue = +(cartItem[1].minimumQuantity.toString().charAt(0) + repeat(Math.floor(Math.min(quantityValueCount.toString().length / 2, 8)), '0'));
 			}
 
-			var quantityValues = range(cartItem[1].minimum_quantity, cartItem[1].maximum_quantity, quantityIncrementValue);
+			var quantityValues = range(cartItem[1].minimumQuantity, cartItem[1].maximumQuantity, quantityIncrementValue);
 			intervalTypes.map(function(intervalType, index) {
-				intervalSelectTypes += '<option ' + (intervalType == cartItem[1].interval_type ? 'selected ' : '') + 'value="' + intervalType + '">' + capitalizeString(intervalType) + (cartItem[1].interval_value > 1 ? 's' : '') + '</option>';
+				intervalSelectTypes += '<option ' + (intervalType == cartItem[1].intervalType ? 'selected ' : '') + 'value="' + intervalType + '">' + capitalizeString(intervalType) + (cartItem[1].intervalValue > 1 ? 's' : '') + '</option>';
 			});
 			intervalValues.map(function(intervalValue, index) {
-				intervalSelectValues += '<option ' + (intervalValue == cartItem[1].interval_value ? 'selected ' : '') + 'value="' + intervalValue + '">' + intervalValue + '</option>';
+				intervalSelectValues += '<option ' + (intervalValue == cartItem[1].intervalValue ? 'selected ' : '') + 'value="' + intervalValue + '">' + intervalValue + '</option>';
 			});
 			quantityValues.map(function(quantityValue, index) {
 				quantitySelectValues += '<option ' + (quantityValue == cartItem[1].quantity ? 'selected ' : '') + 'value="' + quantityValue + '">' + quantityValue + '</option>';
 			});
 			cartItems += '<div class="item-button item-button-selectable item-container" cart_item_id="' + cartItem[1].id + '">';
 			cartItems += '<span checked="' + +(typeof cartItemGrid['cartItem' + cartItem[1].id] !== 'undefined') + '" class="checkbox" index="' + index + '" cart_item_id="' + cartItem[1].id + '"></span>';
-			cartItems += '<p><a href="' + apiRequestParameters.current.settings.base_url + cartItem[1].uri + '">' + cartItem[1].name + '</a></p>';
+			cartItems += '<p><a href="' + apiRequestParameters.current.settings.baseUrl + cartItem[1].uri + '">' + cartItem[1].name + '</a></p>';
 			cartItems += '<div class="field-group">';
 			cartItems += '<span>Quantity:</span><select class="quantity" name="quantity">' + quantitySelectValues + '</select>';
 			cartItems += '</div>';
 			cartItems += '<div class="field-group no-margin">';
-			cartItems += '<span>Price:</span><span class="display">' + cartItem[1].price + ' ' + apiRequestParameters.current.settings.billing_currency + '</span><span>for</span>';
+			cartItems += '<span>Price:</span><span class="display">' + cartItem[1].price + ' ' + apiRequestParameters.current.settings.billingCurrency + '</span><span>for</span>';
 			cartItems += '<select class="interval-value" name="interval_value">' + intervalSelectValues + '</select>';
 			cartItems += '<select class="interval-type" name="interval_type">' + intervalSelectTypes + '</select>';
 			cartItems += '</div>';
@@ -208,7 +208,7 @@ var processCartItems = function(response) {
 		});
 		var cartItemGridLength = +(Object.entries(cartItemGrid).length);
 		var selectableItemsCount = selectAllElements('.cart-items-container .item-button-selectable').length;
-		elements.html('.item-configuration .cart-subtotal .total', (Math.round(cartSubtotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billing_currency);
+		elements.html('.item-configuration .cart-subtotal .total', (Math.round(cartSubtotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billingCurrency);
 		elements.html('.item-configuration .total-checked', cartItemGridLength);
 		elements.html('.item-configuration .total-results', cartItemData.length);
 		elements.removeAttribute('.button.checkout', 'disabled');
@@ -224,25 +224,25 @@ var processCartItems = function(response) {
 
 	if (checkoutItemContainer) {
 		if (!cartItemData.length) {
-			window.location.href = apiRequestParameters.current.settings.base_url + 'cart';
+			window.location.href = apiRequestParameters.current.settings.baseUrl + 'cart';
 			return false;
 		}
 
 		checkoutItems += '<h2>Order Items</h2>';
 		cartItemData.map(function(cartItem, index) {
-			checkoutItems += '<div class="item-container item-button"><p>' + cartItem[1].quantity + ' ' + cartItem[1].name + '</p><p class="no-margin-bottom">' + cartItem[1].price + ' ' + apiRequestParameters.current.settings.billing_currency + ' for ' + cartItem[1].interval_value + ' ' + cartItem[1].interval_type + (cartItem[1].interval_value !== 1 ? 's' : '') + '</p><div class="item-link-container"></div></div>';
+			checkoutItems += '<div class="item-container item-button"><p>' + cartItem[1].quantity + ' ' + cartItem[1].name + '</p><p class="no-margin-bottom">' + cartItem[1].price + ' ' + apiRequestParameters.current.settings.billingCurrency + ' for ' + cartItem[1].intervalValue + ' ' + cartItem[1].intervalType + (cartItem[1].intervalValue !== 1 ? 's' : '') + '</p><div class="item-link-container"></div></div>';
 			cartSubtotal += parseFloat(cartItem[1].price);
 		});
 		cartTotal = cartSubtotal;
 		checkoutItems += '<h2>Pricing Details</h2>';
 		checkoutItems += '<p class="no-margin-bottom"><label>Subtotal</label></p>';
-		checkoutItems += '<p>' + (Math.round(cartSubtotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billing_currency + '</p>';
+		checkoutItems += '<p>' + (Math.round(cartSubtotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billingCurrency + '</p>';
 		checkoutItems += '<p class="no-margin-bottom"><label>Cart Total</label></p>';
-		checkoutItems += '<p>' + (Math.round(cartTotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billing_currency + '</p>';
+		checkoutItems += '<p>' + (Math.round(cartTotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billingCurrency + '</p>';
 		checkoutItems += '<p class="message">Additional fees for shipping and/or tax may apply before submitting final payment.</p>';
-		checkoutItems += '<a class="button confirm main-button" disabled href="' + apiRequestParameters.current.settings.base_url + 'confirm">Proceed to Payment</a>';
+		checkoutItems += '<a class="button confirm main-button" disabled href="' + apiRequestParameters.current.settings.baseUrl + 'confirm">Proceed to Payment</a>';
 		checkoutItemContainer.innerHTML = checkoutItems;
-		elements.html('.item-configuration .cart-total .total', (Math.round(cartTotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billing_currency);
+		elements.html('.item-configuration .cart-total .total', (Math.round(cartTotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billingCurrency);
 		elements.removeAttribute('.button.confirm', 'disabled');
 	}
 
@@ -257,7 +257,7 @@ var processDelete = function() {
 		data: {
 			id: cartItemGrid
 		},
-		url: apiRequestParameters.current.settings.base_url + 'api/carts'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/carts'
 	});
 	api.sendRequest(function(response) {
 		processCartItems(response);

@@ -56,7 +56,7 @@ var processOrders = function() {
 			field: 'modified',
 			order: 'DESC'
 		},
-		url: apiRequestParameters.current.settings.base_url + 'api/orders'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/orders'
 	});
 	var ordersData = '';
 	api.sendRequest(function(response) {
@@ -64,7 +64,7 @@ var processOrders = function() {
 
 		if (messageContainer) {
 			if (response.user === false) {
-				window.location.href = apiRequestParameters.current.settings.base_url + '?#login';
+				window.location.href = apiRequestParameters.current.settings.baseUrl + '?#login';
 				return false;
 			}
 
@@ -76,8 +76,8 @@ var processOrders = function() {
 				elements.removeClass('.item-configuration .item-controls', 'hidden');
 				response.data.map(function(item, index) {
 					var pendingOrderChange = (
-						item.quantity_pending &&
-						item.quantity_pending !== item.quantity
+						item.quantityPending &&
+						item.quantityPending !== item.quantity
 					);
 					ordersData += '<div class="item-container item-button">';
 					ordersData += '<div class="item">';
@@ -86,8 +86,8 @@ var processOrders = function() {
 					ordersData += '</span>';
 					ordersData += '<div class="item-body item-checkbox">';
 					ordersData += '<p><strong>Order #' + item.id + '</strong></p>';
-					ordersData += '<p>' + (item.quantity_active ? item.quantity_active : item.quantity) + ' ' + item.name + '</p>';
-					ordersData += '<label class="label ' + (item.quantity_active ? 'active' : item.status) + '">' + (item.quantity_active ? 'active' : item.status) + '</label>' + (pendingOrderChange ? '<label class="label">Pending Order ' + (item.quantity_pending >= item.quantity ? 'Upgrade' : 'Downgrade') + '</label>' : '');
+					ordersData += '<p>' + (item.quantityActive ? item.quantityActive : item.quantity) + ' ' + item.name + '</p>';
+					ordersData += '<label class="label ' + (item.quantityActive ? 'active' : item.status) + '">' + (item.quantityActive ? 'active' : item.status) + '</label>' + (pendingOrderChange ? '<label class="label">Pending Order ' + (item.quantityPending >= item.quantity ? 'Upgrade' : 'Downgrade') + '</label>' : '');
 					ordersData += '</div>';
 					ordersData += '</div>';
 					ordersData += '<div class="item-link-container"><a class="item-link" href="/orders/' + item.id + '"></a></div>';
@@ -110,7 +110,7 @@ var processOrders = function() {
 				});
 				elements.html('.item-configuration .total-results', response.data.length);
 			} else {
-				messageContainer.innerHTML = '<p class="error message">No orders found, please <a href="' + apiRequestParameters.current.settings.base_url + 'static-proxies">create a new order</a>.</p>';
+				messageContainer.innerHTML = '<p class="error message">No orders found, please <a href="' + apiRequestParameters.current.settings.baseUrl + 'static-proxies">create a new order</a>.</p>';
 			}
 		}
 
@@ -131,15 +131,15 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue) {
 		data: {
 			orders: orderGrid,
 			products: productIdGrid,
-			upgrade_quantity: upgradeValue
+			upgradeQuantity: upgradeValue
 		},
-		url: apiRequestParameters.current.settings.base_url + 'api/orders'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/orders'
 	}, true);
 
-	if (apiRequestParameters.current.data.confirm_upgrade) {
+	if (apiRequestParameters.current.data.confirmUpgrade) {
 		api.setRequestParameters({
 			data: {
-				upgrade_quantity: upgradeContainer.querySelector('.upgrade-quantity').value
+				upgradeQuantity: upgradeContainer.querySelector('.upgrade-quantity').value
 			}
 		}, true);
 	}
@@ -182,9 +182,9 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue) {
 			upgradeData += '<label for="upgrade-quantity">Select Order Upgrade Quantity</label>';
 			upgradeData += '<div class="field-group no-margin">';
 			upgradeData += '<a class="button change-quantity-button decrease decrease-quantity"' + (upgradeValue <= upgradeValueMinimum ? ' disabled="disabled"' : '') + ' href="javascript:void(0);" event_step="-1">-</a>';
-			upgradeData += '<input class="change-quantity-field upgrade-quantity width-auto" event_step="0" id="upgrade-quantity" max="' + response.data.product.maximum_quantity + '" min="' + response.data.product.minimum_quantity + '" name="upgrade_quantity" step="1" type="number" value="' + response.data.upgrade_quantity + '">';
+			upgradeData += '<input class="change-quantity-field upgrade-quantity width-auto" event_step="0" id="upgrade-quantity" max="' + response.data.product.maximumQuantity + '" min="' + response.data.product.minimumQuantity + '" name="upgrade_quantity" step="1" type="number" value="' + response.data.upgradeQuantity + '">';
 			upgradeData += '<input class="hidden" name="confirm_upgrade" type="hidden" value="1">';
-			upgradeData += '<a class="button change-quantity-button increase increase-quantity"' + (upgradeValue >= response.data.product.maximum_quantity ? ' disabled="disabled"' : '') + ' href="javascript:void(0);" event_step="1">+</a>';
+			upgradeData += '<a class="button change-quantity-button increase increase-quantity"' + (upgradeValue >= response.data.product.maximumQuantity ? ' disabled="disabled"' : '') + ' href="javascript:void(0);" event_step="1">+</a>';
 			upgradeData += '</div>';
 			upgradeData += '</div>';
 			upgradeData += '<div class="clear"></div>';
@@ -192,17 +192,17 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue) {
 			upgradeData += '<p class="message no-margin-top success">The ' + orderGridCount + ' order' + (orderGridCount !== 1 ? 's' : '') + ' selected will merge into the following ' + (upgradeValue > 0 ? 'upgraded': '') + ' order and invoice:</p>';
 			upgradeData += '<div class="item-container item-button no-margin-bottom">';
 			upgradeData += '<p><strong>Merged Order</strong></p>';
-			upgradeData += '<p>' + response.data.merged.order.quantity_pending + ' ' + response.data.merged.order.name + '</p>';
-			upgradeData += '<p class="no-margin-bottom">' + response.data.merged.order.price_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + ' for ' + response.data.merged.order.interval_value_pending + ' ' + response.data.merged.order.interval_type_pending + (response.data.merged.order.interval_value_pending !== 1 ? 's' : '') + '</p>';
+			upgradeData += '<p>' + response.data.merged.order.quantityPending + ' ' + response.data.merged.order.name + '</p>';
+			upgradeData += '<p class="no-margin-bottom">' + response.data.merged.order.pricePending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + ' for ' + response.data.merged.order.intervalValuePending + ' ' + response.data.merged.order.intervalTypePending + (response.data.merged.order.intervalValuePending !== 1 ? 's' : '') + '</p>';
 			upgradeData += '<div class="item-link-container"></div>';
 			upgradeData += '</div>';
 			upgradeData += '<h2>' + (upgradeValue > 0 ? 'Upgraded': 'Merged') + ' Invoice Pricing Details</h2>';
-			upgradeData += '<p><strong>Subtotal</strong><br>' + response.data.merged.invoice.subtotal_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</p>';
-			upgradeData += '<p><strong>Shipping</strong><br>' + response.data.merged.invoice.shipping_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</p>';
-			upgradeData += '<p><strong>Tax</strong><br>' + response.data.merged.invoice.tax_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</p>';
-			upgradeData += '<p><strong>Total</strong><br>' + response.data.merged.invoice.total_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</p>';
-			upgradeData += '<p><strong>Amount Paid</strong><br><span' + (response.data.merged.invoice.amount_paid ? ' class="paid"' : '') + '>' + response.data.merged.invoice.amount_paid.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</span>' + (response.data.merged.invoice.amount_paid ? '<br><span class="note">The amount paid will be added to your account balance and won\'t automatically apply to the remaining amount due for the merged order.</span>' : '') + '</p>';
-			upgradeData += '<p><strong>Remaining Amount Due</strong><br>' + response.data.merged.invoice.remainder_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</p>';
+			upgradeData += '<p><strong>Subtotal</strong><br>' + response.data.merged.invoice.subtotalPending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</p>';
+			upgradeData += '<p><strong>Shipping</strong><br>' + response.data.merged.invoice.shippingPending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</p>';
+			upgradeData += '<p><strong>Tax</strong><br>' + response.data.merged.invoice.taxPending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</p>';
+			upgradeData += '<p><strong>Total</strong><br>' + response.data.merged.invoice.totalPending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</p>';
+			upgradeData += '<p><strong>Amount Paid</strong><br><span' + (response.data.merged.invoice.amountPaid ? ' class="paid"' : '') + '>' + response.data.merged.invoice.amountPaid.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</span>' + (response.data.merged.invoice.amountPaid ? '<br><span class="note">The amount paid will be added to your account balance and won\'t automatically apply to the remaining amount due for the merged order.</span>' : '') + '</p>';
+			upgradeData += '<p><strong>Remaining Amount Due</strong><br>' + response.data.merged.invoice.remainderPending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</p>';
 			upgradeData += '</div>';
 			upgradeContainer.innerHTML = upgradeData;
 			var decreaseButton = upgradeContainer.querySelector('.decrease-quantity');
@@ -214,7 +214,7 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue) {
 			upgradeField.removeEventListener('change', upgradeField.changeListener);
 			upgradeField.removeEventListener('keyup', upgradeField.changeListener);
 			decreaseButton.clickListener = increaseButton.clickListener = upgradeField.changeListener = function(button) {
-				upgradeValue = Math.min(response.data.product.maximum_quantity, Math.max(upgradeValueMinimum, parseInt(upgradeField.value) + parseInt(button.target.getAttribute('event_step'))));
+				upgradeValue = Math.min(response.data.product.maximumQuantity, Math.max(upgradeValueMinimum, parseInt(upgradeField.value) + parseInt(button.target.getAttribute('event_step'))));
 
 				if (upgradeValue <= upgradeValueMinimum) {
 					elements.setAttribute('.decrease-quantity', 'disabled', 'disabled');
@@ -222,9 +222,9 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue) {
 					return false;
 				}
 
-				if (upgradeValue >= response.data.product.maximum_quantity) {
+				if (upgradeValue >= response.data.product.maximumQuantity) {
 					elements.setAttribute('.increase-quantity', 'disabled', 'disabled');
-					processUpgrade(false, false, response.data.product.maximum_quantity);
+					processUpgrade(false, false, response.data.product.maximumQuantity);
 					return false;
 				}
 

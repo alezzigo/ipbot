@@ -9,9 +9,9 @@
 </footer>
 <?php
 	$settings = array(
-		'base_domain' => (!empty($config->settings['base_domain']) ? $config->settings['base_domain'] : ''),
-		'base_url' => (!empty($config->settings['base_url']) ? $config->settings['base_url'] : ''),
-		'billing_currency' => (!empty($config->settings['billing']['currency']) ? $config->settings['billing']['currency'] : ''),
+		'baseDomain' => (!empty($config->settings['base_domain']) ? $config->settings['base_domain'] : ''),
+		'baseUrl' => (!empty($config->settings['base_url']) ? $config->settings['base_url'] : ''),
+		'billingCurrency' => (!empty($config->settings['billing']['currency']) ? $config->settings['billing']['currency'] : ''),
 		'timezone' => (!empty($config->settings['timezone']) ? $config->settings['timezone'] : '')
 	);
 	echo '<div class="hidden settings">' . json_encode($settings) . '</div>';
@@ -28,7 +28,7 @@
 ?>
 </body>
 </html>
-<!-- Copyright (c) <?php echo date('Y'); ?> William (Will) S. Parsons
+<!-- Copyright (c) William (Will) S. Parsons
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

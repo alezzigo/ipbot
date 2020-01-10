@@ -773,9 +773,9 @@
 				($proxyCount = count($response['data']))
 			) {
 				$delimiters = array(
-					!empty($parameters['data']['ipv4_delimiter_1']) ? $parameters['data']['ipv4_delimiter_1'] : '',
-					!empty($parameters['data']['ipv4_delimiter_2']) ? $parameters['data']['ipv4_delimiter_2'] : '',
-					!empty($parameters['data']['ipv4_delimiter_3']) ? $parameters['data']['ipv4_delimiter_3'] : '',
+					!empty($parameters['data']['ipv4_delimiter1']) ? $parameters['data']['ipv4_delimiter1'] : '',
+					!empty($parameters['data']['ipv4_delimiter2']) ? $parameters['data']['ipv4_delimiter2'] : '',
+					!empty($parameters['data']['ipv4_delimiter3']) ? $parameters['data']['ipv4_delimiter3'] : '',
 					''
 				);
 				$delimiterMask = implode('', array_unique(array_filter($delimiters)));
@@ -800,7 +800,7 @@
 					$items[$key] = '';
 
 					for ($i = 1; $i < 5; $i++) {
-						$items[$key] .= !empty($column = $response['data'][$key][$parameters['data']['ipv4_column_' . $i]]) ? $column . $delimiters[($i - 1)] : '';
+						$items[$key] .= !empty($column = $response['data'][$key][$parameters['data']['ipv4_column' . $i]]) ? $column . $delimiters[($i - 1)] : '';
 					}
 
 					$items[$key] = rtrim($items[$key], $delimiterMask);

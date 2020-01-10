@@ -207,7 +207,7 @@ const processItemList = function(itemListName, callback) {
 		itemListData += '<div class="item-controls-container controls-container scrollable">';
 		itemListData += '<div class="item-header">';
 		itemListData += '<div class="align-right">';
-		itemListData += '<span class="pagination" current_page="' + itemListParameters.page + '" results="' + itemListParameters.results_per_page + '">';
+		itemListData += '<span class="pagination" current_page="' + itemListParameters.page + '" results="' + itemListParameters.resultsPerPage + '">';
 		itemListData += '<span class="align-left hidden item-controls results">';
 		itemListData += '<span class="first-result"></span> - <span class="last-result"></span> of <span class="total-results"></span>';
 		itemListData += '</span>';
@@ -327,7 +327,7 @@ const processItemList = function(itemListName, callback) {
 		itemListIndexes.map(function(itemIndex) {
 			let encodeCount = 1;
 			let encodedListGridLineItems = [];
-			let index = ((itemListParameters.page * itemListParameters.results_per_page) - itemListParameters.results_per_page) + +itemIndex;
+			let index = ((itemListParameters.page * itemListParameters.resultsPerPage) - itemListParameters.resultsPerPage) + +itemIndex;
 			let item = elements.get(itemListParameters.selector + ' .checkbox[index="' + itemIndex + '"]');
 			let key = Math.floor(index / itemListGridLineSizeMaximum);
 
@@ -431,12 +431,12 @@ const processItemList = function(itemListName, callback) {
 	api.setRequestParameters({
 		action: apiRequestParameters.current.action,
 		conditions: {
-			order_id: apiRequestParameters.current.order_id
+			orderId: apiRequestParameters.current.orderId
 		},
-		limit: itemListParameters.results_per_page,
-		offset: ((itemListParameters.page * itemListParameters.results_per_page) - itemListParameters.results_per_page),
+		limit: itemListParameters.resultsPerPage,
+		offset: ((itemListParameters.page * itemListParameters.resultsPerPage) - itemListParameters.resultsPerPage),
 		table: itemListParameters.table,
-		url: apiRequestParameters.current.settings.base_url + 'api/' + itemListParameters.table
+		url: apiRequestParameters.current.settings.baseUrl + 'api/' + itemListParameters.table
 	});
 	var mergeRequestParameters = {
 		items: {},
@@ -463,8 +463,8 @@ const processItemList = function(itemListName, callback) {
 			itemListParameters.callback(response, itemListParameters);
 		}
 
-		let lastResult = itemListParameters.page * itemListParameters.results_per_page;
-		elements.html(itemListParameters.selector + ' .first-result', itemListParameters.page === 1 ? itemListParameters.page : ((itemListParameters.page * itemListParameters.results_per_page) - itemListParameters.results_per_page) + 1);
+		let lastResult = itemListParameters.page * itemListParameters.resultsPerPage;
+		elements.html(itemListParameters.selector + ' .first-result', itemListParameters.page === 1 ? itemListParameters.page : ((itemListParameters.page * itemListParameters.resultsPerPage) - itemListParameters.resultsPerPage) + 1);
 		elements.html(itemListParameters.selector + ' .last-result', lastResult >= response.count ? response.count : lastResult);
 		elements.html(itemListParameters.selector + ' .total-results', response.count);
 		elements.setAttribute(itemListParameters.selector + ' .pagination', 'current_page', itemListParameters.page);
@@ -582,8 +582,8 @@ const repeat = function(count, pattern) {
 	return response + (count < 1 ? '' : pattern);
 };
 const selectAllElements = function(selector, callback) {
-	let nodeList = document.querySelectorAll(selector);
 	let response = [];
+	let nodeList = document.querySelectorAll(selector);
 
 	if (nodeList.length) {
 		response = Object.entries(nodeList);

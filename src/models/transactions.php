@@ -51,7 +51,7 @@
 				$foreignIds = explode('_', $parameters['item_number']);
 				$transactionData = array(
 					array(
-						'billing_address_1' => $parameters['address_street'],
+						'billing_address1' => $parameters['address_street'],
 						'billing_address_status' => $parameters['address_status'],
 						'billing_city' => $parameters['address_city'],
 						'billing_country_code' => $parameters['address_country_code'],
@@ -266,10 +266,10 @@
 				}
 
 				if (
-					empty($parameters['data']['billing_address_1']) ||
-					!is_string($parameters['data']['billing_address_1'])
+					empty($parameters['data']['billing_address1']) ||
+					!is_string($parameters['data']['billing_address1'])
 				) {
-					$response['data']['errors']['billing_address_1'] = 'Invalid billing address.';
+					$response['data']['errors']['billing_address1'] = 'Invalid billing address.';
 				}
 
 				if (
@@ -290,7 +290,7 @@
 					empty($parameters['data']['zip']) ||
 					!is_string($parameters['data']['zip'])
 				) {
-					$response['data']['errors']['zip'] = 'Invalid billing zip.';
+					$response['data']['errors']['zip'] = 'Invalid billing zip code.';
 				}
 
 				if (

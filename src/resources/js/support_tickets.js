@@ -8,7 +8,7 @@ var processSupportTicket = function() {
 			id: supportTicketId
 		},
 		table: 'support_tickets',
-		url: apiRequestParameters.current.settings.base_url + 'api/support_tickets'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/support_tickets'
 	});
 	api.sendRequest(function(response) {
 		var messageContainer = document.querySelector('main .message-container');
@@ -33,7 +33,7 @@ var processSupportTickets = function() {
 	api.setRequestParameters({
 		action: 'list',
 		table: 'support_tickets',
-		url: apiRequestParameters.current.settings.base_url + 'api/support_tickets'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/support_tickets'
 	});
 	api.sendRequest(function(response) {
 		var messageContainer = document.querySelector('main .message-container');

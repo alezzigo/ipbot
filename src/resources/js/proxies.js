@@ -3,13 +3,13 @@ var processActions = function(frameName, frameSelector) {
 	api.setRequestParameters({
 		action: 'fetch',
 		conditions: {
-			foreign_key: 'order_id',
-			foreign_value: orderId
+			foreignKey: 'order_id',
+			foreignValue: orderId
 		},
 		limit: 10,
 		offset: 0,
 		table: 'actions',
-		url: apiRequestParameters.current.settings.base_url + 'api/actions'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/actions'
 	});
 	api.sendRequest(function(response) {
 		var actionData = '<p class="error message">No recent order actions to list.</p>';
@@ -18,10 +18,10 @@ var processActions = function(frameName, frameSelector) {
 			actionData = '<p class="message">Your most-recent actions for order #' + orderId + ' are displayed below.</p>';
 			actionData += '<div class="details">';
 			response.data.map(function(action, index) {
-				var actionParameters = JSON.parse(action.encoded_parameters);
+				var actionParameters = JSON.parse(action.encodedParameters);
 				actionData += '<div class="item-button item-container">';
 				actionData += '<div class="item">';
-				actionData += '<p><strong>Request to ' + actionParameters.action + ' ' + actionParameters.item_count + ' ' + actionParameters.table + '</strong></p>';
+				actionData += '<p><strong>Request to ' + actionParameters.action + ' ' + actionParameters.itemCount + ' ' + actionParameters.table + '</strong></p>';
 
 				if (action.created != action.modified) {
 					actionData += '<p>Started at ' + action.created + ' ' + apiRequestParameters.current.settings.timezone.display + '</p>';
@@ -76,30 +76,30 @@ var processDowngrade = function() {
 			downgradeData += '<p class="message success">Your current order for ' + response.data.downgraded.order.quantity + ' ' + apiRequestParameters.current.table + ' will downgrade to the following order and invoice:</p>';
 			downgradeData += '<div class="item-container item-button no-margin-bottom">';
 			downgradeData += '<p><strong>Downgraded Order</strong></p>';
-			downgradeData += '<p>' + response.data.downgraded.order.quantity_pending + ' ' + response.data.downgraded.order.name + '</p>';
-			downgradeData += '<p class="no-margin-bottom">' + response.data.downgraded.order.price_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + ' for ' + response.data.downgraded.order.interval_value + ' ' + response.data.downgraded.order.interval_type + (response.data.downgraded.order.interval_value !== 1 ? 's' : '') + '</p>';
+			downgradeData += '<p>' + response.data.downgraded.order.quantityPending + ' ' + response.data.downgraded.order.name + '</p>';
+			downgradeData += '<p class="no-margin-bottom">' + response.data.downgraded.order.pricePending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + ' for ' + response.data.downgraded.order.intervalValue + ' ' + response.data.downgraded.order.intervalType + (response.data.downgraded.order.intervalValue !== 1 ? 's' : '') + '</p>';
 			downgradeData += '<div class="item-link-container"></div>';
 			downgradeData += '</div>';
 			downgradeData += '<div class="align-left item-container no-margin-top no-padding">';
 			downgradeData += '<h2>Downgraded Invoice Pricing Details</h2>';
-			downgradeData += '<p><strong>Subtotal</strong><br>' + response.data.downgraded.invoice.subtotal_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</p>';
-			downgradeData += '<p><strong>Shipping</strong><br>' + response.data.downgraded.invoice.shipping_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</p>';
-			downgradeData += '<p><strong>Tax</strong><br>' + response.data.downgraded.invoice.tax_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</p>';
-			downgradeData += '<p><strong>Total</strong><br>' + response.data.downgraded.invoice.total_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</p>';
-			downgradeData += '<p class="no-margin-bottom"><strong>Amount Paid</strong><br><span' + (response.data.downgraded.invoice.amount_paid ? ' class="paid"' : '') + '>' + response.data.downgraded.invoice.amount_paid.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</span>' + (response.data.downgraded.invoice.amount_paid ? '<br><span class="note">The amount paid will be added to your account balance and won\'t automatically apply to the remaining amount due for the downgraded order.</span>' : '') + '</p>';
+			downgradeData += '<p><strong>Subtotal</strong><br>' + response.data.downgraded.invoice.subtotalPending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</p>';
+			downgradeData += '<p><strong>Shipping</strong><br>' + response.data.downgraded.invoice.shippingPending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</p>';
+			downgradeData += '<p><strong>Tax</strong><br>' + response.data.downgraded.invoice.taxPending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</p>';
+			downgradeData += '<p><strong>Total</strong><br>' + response.data.downgraded.invoice.totalPending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</p>';
+			downgradeData += '<p class="no-margin-bottom"><strong>Amount Paid</strong><br><span' + (response.data.downgraded.invoice.amountPaid ? ' class="paid"' : '') + '>' + response.data.downgraded.invoice.amountPaid.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.downgraded.invoice.currency + '</span>' + (response.data.downgraded.invoice.amountPaid ? '<br><span class="note">The amount paid will be added to your account balance and won\'t automatically apply to the remaining amount due for the downgraded order.</span>' : '') + '</p>';
 			downgradeData += '</div>';
 			downgradeData += '</div>';
 			elements.removeAttribute('.button.submit', 'disabled');
 		}
 
-		if (apiRequestParameters.current.data.confirm_downgrade) {
+		if (apiRequestParameters.current.data.confirmDowngrade) {
 			closeFrames(defaultTable);
 			elements.html('.message-container.proxies', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
-			elements.html('.order-name', response.data.downgraded.order.quantity_pending + ' ' + response.data.downgraded.order.name);
+			elements.html('.order-name', response.data.downgraded.order.quantityPending + ' ' + response.data.downgraded.order.name);
 			api.setRequestParameters({
 				action: 'fetch'
 			});
-			delete apiRequestParameters.current.data.confirm_downgrade;
+			delete apiRequestParameters.current.data.confirmDowngrade;
 		}
 
 		downgradeContainer.innerHTML = downgradeData;
@@ -215,7 +215,7 @@ var processDownload = function(frameName, frameSelector) {
 	downloadData += '<div class="field-group list-format no-margin-top">';
 
 	for (var i = 1; i < 5; i++) {
-		downloadData += '<select class="ipv4-column-' + i + '" name="ipv4_column_' + i + '">';
+		downloadData += '<select class="ipv4-column' + i + '" name="ipv4_column' + i + '">';
 
 		for (var columnOptionKey in downloadOptions.columns) {
 			downloadData += '<option ' + ((+(columnOptionKey) + 1) === i ? 'selected' : '') + ' value="' + downloadOptions.columns[columnOptionKey].value + '">' + downloadOptions.columns[columnOptionKey].name + '</option>';
@@ -224,7 +224,7 @@ var processDownload = function(frameName, frameSelector) {
 		downloadData += '</select>';
 
 		if (i < 4) {
-			downloadData += '<select class="ipv4-delimiter-' + i + '" name="ipv4_delimiter_' + i + '">';
+			downloadData += '<select class="ipv4-delimiter' + i + '" name="ipv4_delimiter' + i + '">';
 
 			for (var delimiterOptionKey in downloadOptions.delimiters) {
 				downloadData += '<option value="' + downloadOptions.delimiters[delimiterOptionKey] + '">' + downloadOptions.delimiters[delimiterOptionKey] + '</option>';
@@ -302,10 +302,10 @@ var processEndpoint = function(frameName, frameSelector) {
 	api.setRequestParameters({
 		action: 'endpoint',
 		data: {
-			order_id: document.querySelector('input[name="order_id"]').value
+			orderId: document.querySelector('input[name="order_id"]').value
 		},
 		table: 'orders',
-		url: apiRequestParameters.current.settings.base_url + 'api/orders'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/orders'
 	}, true);
 	api.sendRequest(function(response) {
 		elements.html('.message-container.proxies', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
@@ -327,8 +327,8 @@ var processEndpoint = function(frameName, frameSelector) {
 			endpointEnableCheckboxLabel.addEventListener('click', endpointEnableCheckboxLabel.clickListener);
 			elements.addClass('.endpoint-enabled-container', 'hidden');
 
-			if (typeof response.data.endpoint_enable !== 'undefined') {
-				if (response.data.endpoint_enable) {
+			if (typeof response.data.endpointEnable !== 'undefined') {
+				if (response.data.endpointEnable) {
 					elements.removeClass('.endpoint-enabled-container', 'hidden');
 				}
 
@@ -341,18 +341,18 @@ var processEndpoint = function(frameName, frameSelector) {
 					}
 				};
 				endpointShowDocumentation.addEventListener('click', endpointShowDocumentation.clickListener);
-				elements.setAttribute('.endpoint-enable', 'checked', +response.data.endpoint_enable);
-				elements.setAttribute('.endpoint-password', 'value', response.data.endpoint_password ? response.data.endpoint_password : '');
-				elements.setAttribute('.endpoint-require-authentication', 'checked', +response.data.endpoint_require_authentication);
-				elements.setAttribute('.endpoint-require-match', 'checked', +response.data.endpoint_require_match);
-				elements.setAttribute('.endpoint-username', 'value', response.data.endpoint_username ? response.data.endpoint_username : '');
-				elements.html('.endpoint-whitelisted-ips', response.data.endpoint_whitelisted_ips ? response.data.endpoint_whitelisted_ips : '');
+				elements.setAttribute('.endpoint-enable', 'checked', +response.data.endpointEnable);
+				elements.setAttribute('.endpoint-password', 'value', response.data.endpointPassword ? response.data.endpointPassword : '');
+				elements.setAttribute('.endpoint-require-authentication', 'checked', +response.data.endpointRequireAuthentication);
+				elements.setAttribute('.endpoint-require-match', 'checked', +response.data.endpointRequireMatch);
+				elements.setAttribute('.endpoint-username', 'value', response.data.endpointUsername ? response.data.endpointUsername : '');
+				elements.html('.endpoint-whitelisted-ips', response.data.endpointWhitelistedIps ? response.data.endpointWhitelistedIps : '');
 			}
 		}
 
 		api.setRequestParameters({
 			table: 'proxies',
-			url: apiRequestParameters.current.settings.base_url + 'api/proxies'
+			url: apiRequestParameters.current.settings.baseUrl + 'api/proxies'
 		});
 	});
 };
@@ -363,14 +363,14 @@ var processGroup = function(frameName, frameSelector) {
 	var groupTable = document.querySelector(frameSelector + ' .group-table');
 	var orderId = document.querySelector('input[name="order_id"]').value;
 	api.setRequestParameters({
-		url: apiRequestParameters.current.settings.base_url + 'api/proxies'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/proxies'
 	});
 	var groupAdd = function(groupName) {
 		api.setRequestParameters({
 			action: frameName,
 			data: {
 				name: groupName,
-				order_id: orderId
+				orderId: orderId
 			}
 		}, true);
 		delete apiRequestParameters.current.data.id;
@@ -399,7 +399,7 @@ var processGroup = function(frameName, frameSelector) {
 				data: {
 					id: row.getAttribute('group_id'),
 					name: row.querySelector('.group-name-edit-field').value,
-					order_id: orderId
+					orderId: orderId
 				}
 			}, true);
 			api.sendRequest(function(response) {
@@ -466,7 +466,7 @@ var processGroup = function(frameName, frameSelector) {
 		});
 		api.setRequestParameters({
 			items: {
-				proxy_groups: groupGrid
+				proxyGroups: groupGrid
 			}
 		}, true);
 	};
@@ -536,7 +536,7 @@ var processGroup = function(frameName, frameSelector) {
 			field: 'created'
 		},
 		table: 'proxy_groups',
-		url: apiRequestParameters.current.settings.base_url + 'api/proxies'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/proxies'
 	}, true);
 	delete apiRequestParameters.current.limit;
 	delete apiRequestParameters.current.offset;
@@ -555,9 +555,9 @@ var processOrder = function() {
 		conditions: {
 			id: orderId
 		},
-		order_id: orderId,
+		orderId: orderId,
 		table: 'orders',
-		url: apiRequestParameters.current.settings.base_url + 'api/orders'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/orders'
 	});
 	api.sendRequest(function(response) {
 		elements.html('.message-container.order', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
@@ -574,10 +574,10 @@ var processOrder = function() {
 			api.setRequestParameters({
 				action: 'fetch',
 				table: 'proxies',
-				url: apiRequestParameters.current.settings.base_url + 'api/proxies'
+				url: apiRequestParameters.current.settings.baseUrl + 'api/proxies'
 			});
 			api.setRequestParameters({
-				list_proxies: {
+				listProxies: {
 					callback: function(response, itemListParameters) {
 						processProxies(response, itemListParameters);
 					},
@@ -620,7 +620,7 @@ var processOrder = function() {
 								},
 								{
 									name: 'href',
-									value: apiRequestParameters.current.settings.base_url + 'orders?' + apiRequestParameters.current.order_id + '#upgrade'
+									value: apiRequestParameters.current.settings.baseUrl + 'orders?' + apiRequestParameters.current.orderId + '#upgrade'
 								},
 								{
 									name: 'frame',
@@ -846,13 +846,13 @@ var processOrder = function() {
 						},
 					],
 					page: 1,
-					results_per_page: 100,
+					resultsPerPage: 100,
 					selector: '.item-list[table="proxies"]',
 					table: 'proxies'
 				}
 			});
-			elements.html('.order-name', (response.data.order.quantity_active ? response.data.order.quantity_active : response.data.order.quantity) + ' ' + response.data.order.name);
-			processItemList('list_proxies');
+			elements.html('.order-name', (response.data.order.quantityActive ? response.data.order.quantityActive : response.data.order.quantity) + ' ' + response.data.order.name);
+			processItemList('listProxies');
 
 			if (response.data.nodeLocations) {
 				var nodeLocationCityOptions = nodeLocationCountryOptions = nodeLocationRegionOptions = '<option value="">All</option>';
@@ -868,7 +868,7 @@ var processOrder = function() {
 				) {
 					response.data.nodeLocations.map(function(location) {
 						nodeLocationCityOptions += '<option value="' + location.city + '">' + location.city + '</option>';
-						nodeLocationCountryOptions += '<option value="' + location.country_code + '">' + location.country_name + '</option>';
+						nodeLocationCountryOptions += '<option value="' + location.countryCode + '">' + location.countryName + '</option>';
 						nodeLocationRegionOptions += '<option value="' + location.region + '">' + location.region + '</option>';
 					});
 					nodeLocationCitySelect.innerHTML = nodeLocationCityOptions;
@@ -893,7 +893,7 @@ var processProxies = function(response, itemListParameters) {
 			api.setRequestParameters(mergeRequestParameters, true);
 		}
 
-		processItemList('list_proxies');
+		processItemList('listProxies');
 	} else {
 		elements.html('.message-container.proxies', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 
@@ -921,14 +921,14 @@ var processProxies = function(response, itemListParameters) {
 					});
 					var mergeRequestParameters = {
 						items: {},
-						list_proxies: {
+						listProxies: {
 							page: 1
 						}
 					};
 					mergeRequestParameters.items['proxies'] = [];
 					api.setRequestParameters(mergeRequestParameters, true);
 					closeFrames(apiRequestParameters.current.defaults);
-					processItemList('list_proxies');
+					processItemList('listProxies');
 				};
 				itemsClear.addEventListener('click', itemsClear.clickListener);
 			}, 100);
@@ -953,7 +953,7 @@ var processProxies = function(response, itemListParameters) {
 		}
 
 		if (response.processing) {
-			var actionDetails = 'to ' + response.processing.parameters.action + ' ' + response.processing.parameters.item_count + ' ' + response.processing.parameters.table;
+			var actionDetails = 'to ' + response.processing.parameters.action + ' ' + response.processing.parameters.itemCount + ' ' + response.processing.parameters.table;
 			var itemProcessingData = '<p class="message">Your recent bulk action ' + actionDetails + ' is in progress.</p>';
 			var timeoutId = setTimeout(function() {}, 1);
 			var processActionProgress = function(response) {
@@ -974,12 +974,12 @@ var processProxies = function(response, itemListParameters) {
 						api.setRequestParameters({
 							action: 'fetch',
 							conditions: {
-								foreign_key: response.processing.foreign_key,
-								foreign_value: response.processing.foreign_value
+								foreignKey: response.processing.foreignKey,
+								foreignValue: response.processing.foreignValue
 							},
 							offset: 0,
 							table: 'actions',
-							url: apiRequestParameters.current.settings.base_url + 'api/actions'
+							url: apiRequestParameters.current.settings.baseUrl + 'api/actions'
 						});
 						api.sendRequest(function(response) {
 							if (response.data.length) {
@@ -1000,14 +1000,14 @@ var processProxies = function(response, itemListParameters) {
 					elements.addClass('.item-processing-container', 'hidden');
 					elements.removeClass('.item-configuration-container', 'hidden');
 
-					if (!response.processing.token_id) {
+					if (!response.processing.tokenId) {
 						var mergeRequestParameters = {
-							list_proxies: {
+							listProxies: {
 								page: 1
 							}
 						};
 						api.setRequestParameters(mergeRequestParameters, true);
-						processItemList('list_proxies');
+						processItemList('listProxies');
 					}
 
 					if (response.processing.chunks > 1) {
@@ -1035,7 +1035,7 @@ var processProxies = function(response, itemListParameters) {
 
 		for (itemListDataKey in response.data) {
 			let item = response.data[itemListDataKey];
-			itemListData += '<tr page="' + apiRequestParameters.current.list_proxies.page + '" proxy_id="' + item.id + '" class="">';
+			itemListData += '<tr page="' + apiRequestParameters.current.listProxies.page + '" proxy_id="' + item.id + '" class="">';
 			itemListData += '<td style="width: 1px;">';
 			itemListData += '<span checked="0" class="checkbox" index="' + itemListDataKey + '" proxy_id="' + item.id + '">';
 			itemListData += '</span>';
@@ -1045,12 +1045,12 @@ var processProxies = function(response, itemListParameters) {
 			itemListData += '<span class="details">';
 			itemListData += '<span class="detail"><strong>Status:</strong> ' + capitalizeString(item.status) + '</span>';
 			itemListData += '<span class="detail"><strong>Proxy IP:</strong> ' + item.ip + '</span>';
-			itemListData += '<span class="detail"><strong>Location:</strong> ' + item.city + ', ' + item.region + ' ' + item.country_code + ' </span>';
+			itemListData += '<span class="detail"><strong>Location:</strong> ' + item.city + ', ' + item.region + ' ' + item.countryCode + ' </span>';
 			itemListData += '<span class="detail"><strong>ISP:</strong> ' + item.asn + ' </span>';
-			itemListData += '<span class="detail"><strong>HTTP + HTTPS Port:</strong> ' + (item.disable_http == 1 ? 'Disabled' : '80') + '</span>';
+			itemListData += '<span class="detail"><strong>HTTP + HTTPS Port:</strong> ' + (item.disableHttp == 1 ? 'Disabled' : '80') + '</span>';
 			itemListData += '<span class="detail"><strong>Username:</strong> ' + (item.username ? item.username : 'N/A') + '</span>';
 			itemListData += '<span class="detail"><strong>Password:</strong> ' + (item.password ? item.password : 'N/A') + '</span>';
-			itemListData += '<span class="detail"><strong>Whitelisted IPs:</strong> ' + (item.whitelisted_ips ? '<textarea>' + item.whitelisted_ips + '</textarea>' : 'N/A') + '</span>';
+			itemListData += '<span class="detail"><strong>Whitelisted IPs:</strong> ' + (item.whitelistedIps ? '<textarea>' + item.whitelistedIps + '</textarea>' : 'N/A') + '</span>';
 			itemListData += '</span>';
 			itemListData += '</span>';
 			itemListData += '<span class="table-text">' + item.ip + '</span>';

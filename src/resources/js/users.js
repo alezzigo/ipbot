@@ -16,7 +16,7 @@ var processEmail = function() {
 	) {
 		api.setRequestParameters({
 			action: 'email',
-			url: apiRequestParameters.current.settings.base_url + 'api/users'
+			url: apiRequestParameters.current.settings.baseUrl + 'api/users'
 		});
 		api.sendRequest(function(response) {
 			var messageContainer = document.querySelector('.change-email .message-container');
@@ -32,7 +32,7 @@ var processEmail = function() {
 					elements.setAttribute('.change-email input.email', 'disabled', 'disabled');
 					response.message = {
 						status: 'error',
-						text: 'You\'re currently not logged in, please <a href="' + apiRequestParameters.current.settings.base_url + '?#login">log in</a> or <a href="' + apiRequestParameters.current.settings.base_url + '?#register">register an account</a>.'
+						text: 'You\'re currently not logged in, please <a href="' + apiRequestParameters.current.settings.baseUrl + '?#login">log in</a> or <a href="' + apiRequestParameters.current.settings.baseUrl + '?#register">register an account</a>.'
 					};
 				}
 
@@ -40,7 +40,7 @@ var processEmail = function() {
 					response.message.status === 'success' &&
 					typeof response.data !== 'undefined'
 				) {
-					document.querySelector('.change-email input.email').value = response.data.new_email;
+					document.querySelector('.change-email input.email').value = response.data.newEmail;
 					elements.setAttribute('.change-email input.email', 'disabled', 'disabled');
 					processUser();
 					elements.addClass('.change-email form-item', 'hidden');
@@ -54,7 +54,7 @@ var processEmail = function() {
 var processRemove = function() {
 	api.setRequestParameters({
 		action: 'remove',
-		url: apiRequestParameters.current.settings.base_url + 'api/users'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/users'
 	});
 	api.sendRequest(function(response) {
 		var messageContainer = document.querySelector('.request-removal .message-container');
@@ -77,7 +77,7 @@ var processReset = function() {
 		data: {
 			token: hash
 		},
-		url: apiRequestParameters.current.settings.base_url + 'api/users'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/users'
 	}, true);
 	api.sendRequest(function(response) {
 		var messageContainer = document.querySelector('.reset .message-container');
@@ -109,7 +109,7 @@ var processUser = function() {
 	elements.removeClass('.form-item', 'hidden');
 	api.setRequestParameters({
 		action: 'view',
-		url: apiRequestParameters.current.settings.base_url + 'api/users'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/users'
 	});
 	api.sendRequest(function(response) {
 		var messageContainer = document.querySelector('main .message-container');
@@ -120,7 +120,7 @@ var processUser = function() {
 				elements.removeClass('nav .guest', 'hidden');
 				response.message = {
 					status: 'error',
-					text: 'You\'re currently not logged in, please <a href="' + apiRequestParameters.current.settings.base_url + '?#login">log in</a> or <a href="' + apiRequestParameters.current.settings.base_url + '?#register">register an account</a>.'
+					text: 'You\'re currently not logged in, please <a href="' + apiRequestParameters.current.settings.baseUrl + '?#login">log in</a> or <a href="' + apiRequestParameters.current.settings.baseUrl + '?#register">register an account</a>.'
 				};
 			}
 
@@ -131,22 +131,22 @@ var processUser = function() {
 			if (response.user !== false) {
 				userData += '<h2>Account Details</h2>';
 				userData += '<p><strong>User ID</strong><br>' + response.user.id + '</p>';
-				userData += '<p><strong>Email Address</strong><br>' + response.user.email + '<br><a class="email" href="' + apiRequestParameters.current.settings.base_url + 'account/?#email">Change email address</a></p>';
-				userData += '<p><strong>Password</strong><br>********<br>Last changed: ' + response.user.password_modified + '<br><a class="password" href="' + apiRequestParameters.current.settings.base_url + 'account/?#reset">Change password</a></p>';
+				userData += '<p><strong>Email Address</strong><br>' + response.user.email + '<br><a class="email" href="' + apiRequestParameters.current.settings.baseUrl + 'account/?#email">Change email address</a></p>';
+				userData += '<p><strong>Password</strong><br>********<br>Last changed: ' + response.user.passwordModified + '<br><a class="password" href="' + apiRequestParameters.current.settings.baseUrl + 'account/?#reset">Change password</a></p>';
 				userData += '<h2>Account Balance</h2>';
 
 				if (
-					typeof response.user.test_account !== 'undefined' &&
-					response.user.test_account
+					typeof response.user.testAccount !== 'undefined' &&
+					response.user.testAccount
 				) {
 					userData += '<p class="message error">Invoices, payments and account balance are for testing purposes only.</p>';
 				}
 
-				userData += '<p><strong>Current Balance</strong><br>' + response.user.balance + ' ' + apiRequestParameters.current.settings.billing_currency + '</p>';
+				userData += '<p><strong>Current Balance</strong><br>' + response.user.balance + ' ' + apiRequestParameters.current.settings.billingCurrency + '</p>';
 				userData += '<div class="balance-message-container"></div>';
 				userData += '<p class="no-margin-bottom"><strong>Add to Account Balance</strong></p>';
 				userData += '<div class="clear"></div>';
-				userData += '<div class="align-left item-container no-margin-bottom"><div class="field-group no-margin"><input class="balance-amount billing-amount" id="balance-amount" max="10000" min="20" name="balance_amount" step="0.01" type="number" value="100.00"><span class="balance-currency-name">' + apiRequestParameters.current.settings.billing_currency + '</span><a class="add add-to-balance button" disabled href="javascript:void(0);">Add</a></div></div>';
+				userData += '<div class="align-left item-container no-margin-bottom"><div class="field-group no-margin"><input class="balance-amount billing-amount" id="balance-amount" max="10000" min="20" name="balance_amount" step="0.01" type="number" value="100.00"><span class="balance-currency-name">' + apiRequestParameters.current.settings.billingCurrency + '</span><a class="add add-to-balance button" disabled href="javascript:void(0);">Add</a></div></div>';
 				userData += '<div class="clear"></div>';
 
 				if (response.user.subscriptions) {
@@ -156,8 +156,8 @@ var processUser = function() {
 						userData += '<div class="item">';
 						userData += '<div class="item-body">';
 						userData += '<p><strong>Subscription #' + item.id + '</strong></p>';
-						userData += '<p>' + item.price + ' ' + apiRequestParameters.current.settings.billing_currency + ' per ' + item.interval_value + ' ' + item.interval_type + (item.interval_value !== 1 ? 's' : '') + '</p>';
-						userData += '<span class="label-container">'
+						userData += '<p>' + item.price + ' ' + apiRequestParameters.current.settings.billingCurrency + ' per ' + item.intervalValue + ' ' + item.intervalType + (item.intervalValue !== 1 ? 's' : '') + '</p>';
+						userData += '<span class="label-container">';
 						userData += '<label class="label ' + item.status + '">' + item.status.replace('_', ' ') + '</label>';
 						userData += '</span>';
 						userData += (item.status.indexOf('cancel') < 0 ? '<a class="cancel cancel-subscription" href="javascript:void(0);" subscription_id="' + item.id + '">Request Cancellation</a>' : '');
@@ -173,7 +173,7 @@ var processUser = function() {
 				if (response.user.removed) {
 					userData += '<p class="error message">Your account will be removed shortly as requested.</p>';
 				} else {
-					userData += '<a class="remove" href="' + apiRequestParameters.current.settings.base_url + 'account/?#request-removal">Request account removal</a>';
+					userData += '<a class="remove" href="' + apiRequestParameters.current.settings.baseUrl + 'account/?#request-removal">Request account removal</a>';
 				}
 			}
 
@@ -186,7 +186,7 @@ var processUser = function() {
 						api.setRequestParameters({
 							action: 'cancel',
 							data: {
-								subscription_id: subscriptionId
+								subscriptionId: subscriptionId
 							}
 						}, true);
 						api.sendRequest(function(response) {
@@ -251,7 +251,7 @@ var processUser = function() {
 var processUsers = function(frameName, frameSelector) {
 	api.setRequestParameters({
 		action: frameName,
-		url: apiRequestParameters.current.settings.base_url + 'api/users'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/users'
 	});
 	api.sendRequest(function(response) {
 		var messageContainer = document.querySelector('.' + frameName + ' .message-container');

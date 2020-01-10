@@ -1080,6 +1080,7 @@
 				}
 			}
 
+			$response = $this->_parseParameters($response, 'camel');
 			return $response;
 		}
 

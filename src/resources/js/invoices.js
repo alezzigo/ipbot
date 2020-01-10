@@ -5,7 +5,7 @@ var processInvoice = function() {
 			id: document.querySelector('input[name="invoice_id"]').value
 		},
 		table: 'invoices',
-		url: apiRequestParameters.current.settings.base_url + 'api/invoices'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/invoices'
 	});
 	var invoiceContainer = document.querySelector('.invoice-container');
 	var invoiceData = '';
@@ -25,17 +25,17 @@ var processInvoice = function() {
 		}
 
 		if (response.data.invoice) {
-			var amountDue = response.data.invoice.amount_due;
+			var amountDue = response.data.invoice.amountDue;
 			var billingAmountField = document.querySelector('.billing-amount');
 			var interval = '';
-			var pendingChange = (typeof response.data.invoice.amount_due_pending === 'number');
+			var pendingChange = (typeof response.data.invoice.amountDuePending === 'number');
 
 			if (pendingChange) {
-				amountDue = response.data.invoice.amount_due_pending;
-				response.data.invoice.shipping = response.data.invoice.shipping_pending;
-				response.data.invoice.subtotal = response.data.invoice.subtotal_pending;
-				response.data.invoice.tax = response.data.invoice.tax_pending;
-				response.data.invoice.total = response.data.invoice.total_pending;
+				amountDue = response.data.invoice.amountDuePending;
+				response.data.invoice.shipping = response.data.invoice.shippingPending;
+				response.data.invoice.subtotal = response.data.invoice.subtotalPending;
+				response.data.invoice.tax = response.data.invoice.taxPending;
+				response.data.invoice.total = response.data.invoice.totalPending;
 			}
 
 			billingAmountField.value = amountDue.toLocaleString(false, {minimumFractionDigits: 2}).replace(',', '');
@@ -50,7 +50,7 @@ var processInvoice = function() {
 			}
 
 			invoiceData += '<h2>Invoice Payment Details</h2>';
-			invoiceData += '<p><strong>Amount Paid to Invoice</strong><br><span' + (response.data.invoice.amount_paid ? ' class="paid"' : '') + '>' + response.data.invoice.amount_paid.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.currency + '</span></p>';
+			invoiceData += '<p><strong>Amount Paid to Invoice</strong><br><span' + (response.data.invoice.amountPaid ? ' class="paid"' : '') + '>' + response.data.invoice.amountPaid.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.currency + '</span></p>';
 			invoiceData += '<p><strong>Remaining Amount Due</strong><br>' + amountDue.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.currency + '</p>';
 
 			if (
@@ -61,24 +61,24 @@ var processInvoice = function() {
 			}
 
 			if (response.data.orders.length) {
-				interval = response.data.orders[0].interval_value + ' ' + response.data.orders[0].interval_type + (response.data.orders[0].interval_value !== 1 ? 's' : '');
+				interval = response.data.orders[0].intervalValue + ' ' + response.data.orders[0].intervalType + (response.data.orders[0].intervalValue !== 1 ? 's' : '');
 				invoiceData += '<h2>Invoice Order' + (response.data.orders.length !== 1 ? 's' : '') + '</h2>';
 				response.data.orders.map(function(order) {
 					var pendingOrderChange = (
 						pendingChange &&
-						order.quantity_pending &&
-						order.quantity_pending !== order.quantity
+						order.quantityPending &&
+						order.quantityPending !== order.quantity
 					);
 					invoiceData += '<div class="item-container item-button">';
 					invoiceData += '<div class="item">';
 					invoiceData += '<p><strong>Order #' + order.id + '</strong></p>';
 
 					if (pendingOrderChange) {
-						var pendingChangeType = (order.quantity_pending > order.quantity ? 'upgrade' : 'downgrade');
+						var pendingChangeType = (order.quantityPending > order.quantity ? 'upgrade' : 'downgrade');
 					}
 
-					invoiceData += '<p>' + order.quantity + ' ' + order.name + (pendingOrderChange ? ' to <span class="success">' + order.quantity_pending + ' ' + order.name + '</span>' : '') + '</p>';
-					invoiceData += '<p' + (!pendingOrderChange ? ' class="no-margin-bottom"' : '' ) + '>' + order.price.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + order.currency + ' for ' + interval + (pendingOrderChange ? ' to <span class="success">' + order.price_pending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + order.currency + ' for ' + order.interval_value_pending + ' ' + order.interval_type_pending + (order.interval_value_pending !== 1 ? 's' : '') + '</span>' : '') + '</p>';
+					invoiceData += '<p>' + order.quantity + ' ' + order.name + (pendingOrderChange ? ' to <span class="success">' + order.quantityPending + ' ' + order.name + '</span>' : '') + '</p>';
+					invoiceData += '<p' + (!pendingOrderChange ? ' class="no-margin-bottom"' : '' ) + '>' + order.price.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + order.currency + ' for ' + interval + (pendingOrderChange ? ' to <span class="success">' + order.pricePending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + order.currency + ' for ' + order.intervalValuePending + ' ' + order.intervalTypePending + (order.intervalValuePending !== 1 ? 's' : '') + '</span>' : '') + '</p>';
 
 					if (pendingOrderChange) {
 						invoiceData += '<label class="label">Pending Order ' + pendingChangeType + '</label><a class="cancel cancel-pending" href="javascript:void(0);" order_id="' + order.id + '">Cancel</a>';
@@ -114,21 +114,21 @@ var processInvoice = function() {
 
 			if (response.data.transactions.length) {
 				response.data.transactions.map(function(transaction) {
-					if (transaction.payment_status_message) {
-						invoiceData += '<label class="label ' + (typeof transaction.payment_amount === 'number' ? (Math.sign(transaction.payment_amount) >= 0 ? 'payment' : 'refund') : '') + '">' + transaction.payment_status_message + '</label>';
+					if (transaction.paymentStatusMessage) {
+						invoiceData += '<label class="label ' + (typeof transaction.paymentAmount === 'number' ? (Math.sign(transaction.paymentAmount) >= 0 ? 'payment' : 'refund') : '') + '">' + transaction.paymentStatusMessage + '</label>';
 						invoiceData += '<div class="transaction">';
 						invoiceData += '<p>';
-						invoiceData += '<strong>' + transaction.transaction_date + '</strong><br>';
-						invoiceData += (transaction.payment_amount ? 'Amount: ' + transaction.payment_amount.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + transaction.payment_currency + '<br>' : '');
-						invoiceData += (transaction.payment_method ? 'Payment Method: ' + transaction.payment_method + '<br>' : '');
-						invoiceData += (transaction.payment_transaction_id ? 'Transaction ID: ' + transaction.payment_transaction_id + '<br>' : '')
-						invoiceData += (transaction.billing_name ? '<strong>' + transaction.billing_name + '</strong><br>' : '');
-						invoiceData += (transaction.billing_address_1 ? ' ' + transaction.billing_address_1 + '<br>' : '');
-						invoiceData += (transaction.billing_address_2 ? ' ' + transaction.billing_address_2 + '<br>' : '');
-						invoiceData += (transaction.billing_city ? ' ' + transaction.billing_city : '');
-						invoiceData += (transaction.billing_region ? ' ' + transaction.billing_region : '');
-						invoiceData += (transaction.billing_zip ? ' ' + transaction.billing_zip : '');
-						invoiceData += (transaction.billing_country_code ? ' ' + transaction.billing_country_code : '');
+						invoiceData += '<strong>' + transaction.transactionDate + '</strong><br>';
+						invoiceData += (transaction.paymentAmount ? 'Amount: ' + transaction.paymentAmount.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + transaction.paymentCurrency + '<br>' : '');
+						invoiceData += (transaction.paymentMethod ? 'Payment Method: ' + transaction.paymentMethod + '<br>' : '');
+						invoiceData += (transaction.paymentTransactionId ? 'Transaction ID: ' + transaction.paymentTransactionId + '<br>' : '')
+						invoiceData += (transaction.billingName ? '<strong>' + transaction.billingName + '</strong><br>' : '');
+						invoiceData += (transaction.billingAddress1 ? ' ' + transaction.billingAddress1 + '<br>' : '');
+						invoiceData += (transaction.billingAddress2 ? ' ' + transaction.billingAddress2 + '<br>' : '');
+						invoiceData += (transaction.billingCity ? ' ' + transaction.billingCity : '');
+						invoiceData += (transaction.billingRegion ? ' ' + transaction.billingRegion : '');
+						invoiceData += (transaction.billingZip ? ' ' + transaction.billingZip : '');
+						invoiceData += (transaction.billingCountryCode ? ' ' + transaction.billingCountryCode : '');
 
 						if (transaction.details) {
 							invoiceData += transaction.details;
@@ -142,13 +142,13 @@ var processInvoice = function() {
 
 			if (
 				response.data.invoice.billing &&
-				response.data.invoice.billing.address_1 &&
+				response.data.invoice.billing.address1 &&
 				response.data.invoice.billing.company &&
-				response.data.invoice.billing.country_code &&
+				response.data.invoice.billing.countryCode &&
 				response.data.invoice.billing.zip
 			) {
 				invoiceData += '<h2>Invoiced From</h2>';
-				invoiceData += '<p><strong>' + response.data.invoice.billing.company + '</strong><br>' + response.data.invoice.billing.address_1 + '<br>' + response.data.invoice.billing.address_2 + '<br>' + response.data.invoice.billing.city + ', ' + response.data.invoice.billing.region + ' ' + response.data.invoice.billing.zip + ' ' + response.data.invoice.billing.country_code + '</p>';
+				invoiceData += '<p><strong>' + response.data.invoice.billing.company + '</strong><br>' + response.data.invoice.billing.address1 + '<br>' + response.data.invoice.billing.address2 + '<br>' + response.data.invoice.billing.city + ', ' + response.data.invoice.billing.region + ' ' + response.data.invoice.billing.zip + ' ' + response.data.invoice.billing.countryCode + '</p>';
 			}
 
 			invoiceData	+= '</div>';
@@ -175,7 +175,7 @@ var processInvoice = function() {
 			});
 			var paymentMessage = function(element) {
 				var intitialPaymentAmount = parseFloat(element.value ? element.value : element.target.value).toLocaleString(false, {minimumFractionDigits: 2});
-				document.querySelector('.recurring-message').innerHTML = '<p class="message">This <span class="recurring-message-item">first </span>payment will be ' + intitialPaymentAmount + ' ' + response.data.invoice.currency + '<span class="recurring-message-item"> and the recurring payments will be ' + (intitialPaymentAmount >= amountDue ? (response.data.invoice.total_pending ? response.data.invoice.total_pending : response.data.invoice.total) : intitialPaymentAmount).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.currency + ' every ' + interval + '</span>.</p>';
+				document.querySelector('.recurring-message').innerHTML = '<p class="message">This <span class="recurring-message-item">first </span>payment will be ' + intitialPaymentAmount + ' ' + response.data.invoice.currency + '<span class="recurring-message-item"> and the recurring payments will be ' + (intitialPaymentAmount >= amountDue ? (response.data.invoice.totalPending ? response.data.invoice.totalPending : response.data.invoice.total) : intitialPaymentAmount).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.currency + ' every ' + interval + '</span>.</p>';
 			};
 			billingAmountField.addEventListener('change', paymentMessage);
 			billingAmountField.addEventListener('keyup', paymentMessage);
@@ -189,8 +189,8 @@ var processInvoice = function() {
 				var balanceMessage = 'You have an available account balance of ' + response.user.balance.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.currency + '.';
 
 				if (
-					typeof response.user.test_account !== 'undefined' &&
-					response.user.test_account
+					typeof response.user.testAccount !== 'undefined' &&
+					response.user.testAccount
 				) {
 					balanceMessage += ' <strong>Account balance is for testing purposes only<strong>.';
 				}
@@ -214,7 +214,7 @@ var processInvoice = function() {
 			api.setRequestParameters({
 				action: 'cancel',
 				data: {
-					order_id: orderId
+					orderId: orderId
 				}
 			}, true);
 			api.sendRequest(function(response) {
@@ -241,14 +241,14 @@ var processInvoices = function() {
 	api.setRequestParameters({
 		action: 'fetch',
 		conditions: {
-			merged_invoice_id: null,
+			mergedInvoiceId: null,
 			payable: true
 		},
 		sort: {
 			field: 'created',
 			order: 'DESC'
 		},
-		url: apiRequestParameters.current.settings.base_url + 'api/invoices'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/invoices'
 	});
 	var invoiceData = '';
 	api.sendRequest(function(response) {
@@ -260,7 +260,7 @@ var processInvoices = function() {
 				elements.removeClass('nav .guest', 'hidden');
 				response.message = {
 					status: 'error',
-					text: 'You\'re currently not logged in, please <a href="' + apiRequestParameters.current.settings.base_url + '?#login">log in</a> or <a href="' + apiRequestParameters.current.settings.base_url + '?#register">register an account</a>.'
+					text: 'You\'re currently not logged in, please <a href="' + apiRequestParameters.current.settings.baseUrl + '?#login">log in</a> or <a href="' + apiRequestParameters.current.settings.baseUrl + '?#register">register an account</a>.'
 				};
 			}
 
@@ -281,7 +281,7 @@ var processInvoices = function() {
 				invoiceData += '<div class="item">';
 				invoiceData += '<div class="item-body">';
 				invoiceData += '<p><strong>Invoice #' + item.id + '</strong></p>';
-				invoiceData += '<label class="label ' + item.status + '">' + item.status + '</label>' + (item.remainder_pending && item.quantity_pending !== item.quantity ? '<label class="label">Pending Order Change</label>' : '');
+				invoiceData += '<label class="label ' + item.status + '">' + item.status + '</label>' + (item.remainderPending && item.quantityPending !== item.quantity ? '<label class="label">Pending Order Change</label>' : '');
 				invoiceData += '</div>';
 				invoiceData += '</div>';
 				invoiceData += '<div class="item-link-container"><a class="item-link" href="/invoices/' + item.id + '"></a></div>';
@@ -304,10 +304,10 @@ var processPayment = function(frameName, frameSelector) {
 	api.setRequestParameters({
 		action: 'payment',
 		data: {
-			invoice_id: document.querySelector('input[name="invoice_id"]').value
+			invoiceId: document.querySelector('input[name="invoice_id"]').value
 		},
 		table: 'transactions',
-		url: apiRequestParameters.current.settings.base_url + 'api/transactions'
+		url: apiRequestParameters.current.settings.baseUrl + 'api/transactions'
 	}, true);
 	api.sendRequest(function(response) {
 		var messageContainer = document.querySelector(frameSelector + ' .message-container');

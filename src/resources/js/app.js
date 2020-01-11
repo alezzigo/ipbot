@@ -85,16 +85,23 @@ onLoad(function() {
 	});
 	selectAllElements('.frame .checkbox, .frame label.custom-checkbox-label', function(selectedElementKey, selectedElement) {
 		selectedElement.addEventListener('click', function(element) {
-			let hiddenField = elements.get('div[field="' + element.target.getAttribute('name') + '"]');
-			let item = elements.get('.checkbox[name="' + element.target.getAttribute('name') + '"]');
-			hiddenField ? (hiddenField.classList.contains('hidden') ? hiddenField.classList.remove('hidden') : hiddenField.classList.add('hidden')) : null;
-			item.setAttribute('checked', +!+item.getAttribute('checked'));
+			let hiddenFieldSelector = 'div[field="' + element.target.getAttribute('name') + '"]';
+			let itemSelector = '.checkbox[name="' + element.target.getAttribute('name') + '"]';
 
-			if (item.hasAttribute('toggle-display')) {
-				let toggleSelector = '.' + item.getAttribute('toggle-display');
-				let toggleElement = elements.get(toggleSelector);
+			if (elements.get(hiddenFieldSelector)) {
+				if (elements.hasClass(hiddenFieldSelector, 'hidden')) {
+					elements.removeClass(hiddenFieldSelector, 'hidden');
+				} else {
+					elements.addClass(hiddenFieldSelector, 'hidden');
+				}
+			}
 
-				if (toggleElement) {
+			elements.setAttribute(itemSelector, 'checked', +!+elements.getAttribute(itemSelector, 'checked'));
+
+			if (elements.getAttribute(itemSelector, 'toggle-display')) {
+				let toggleSelector = '.' + elements.getAttribute(itemSelector, 'toggle-display');
+
+				if (elements.get(toggleSelector)) {
 					+item.getAttribute('checked') ? elements.removeClass(toggleSelector, 'hidden') : elements.addClass(toggleSelector, 'hidden');
 				}
 			}

@@ -398,7 +398,7 @@
 					)
 				),
 				'fields' => array(
-					'billing_address_1',
+					'billing_address1',
 					'billing_address_status',
 					'billing_city',
 					'billing_country_code',

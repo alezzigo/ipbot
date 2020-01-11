@@ -68,7 +68,7 @@ onLoad(function() {
 			selectedElement.removeEventListener('keydown', selectedElement.keydownListener);
 			selectedElement.keydownListener = function() {
 				if (event.key == 'Enter') {
-					let submitButton = document.querySelector(frameSelector + ' .button.submit');
+					let submitButton = elements.get(frameSelector + ' .button.submit');
 
 					if (submitButton) {
 						processMethodForm(submitButton);
@@ -85,14 +85,14 @@ onLoad(function() {
 	});
 	selectAllElements('.frame .checkbox, .frame label.custom-checkbox-label', function(selectedElementKey, selectedElement) {
 		selectedElement.addEventListener('click', function(element) {
-			let hiddenField = document.querySelector('div[field="' + element.target.getAttribute('name') + '"]');
-			let item = document.querySelector('.checkbox[name="' + element.target.getAttribute('name') + '"]');
+			let hiddenField = elements.get('div[field="' + element.target.getAttribute('name') + '"]');
+			let item = elements.get('.checkbox[name="' + element.target.getAttribute('name') + '"]');
 			hiddenField ? (hiddenField.classList.contains('hidden') ? hiddenField.classList.remove('hidden') : hiddenField.classList.add('hidden')) : null;
 			item.setAttribute('checked', +!+item.getAttribute('checked'));
 
 			if (item.hasAttribute('toggle-display')) {
 				let toggleSelector = '.' + item.getAttribute('toggle-display');
-				let toggleElement = document.querySelector(toggleSelector);
+				let toggleElement = elements.get(toggleSelector);
 
 				if (toggleElement) {
 					+item.getAttribute('checked') ? elements.removeClass(toggleSelector, 'hidden') : elements.addClass(toggleSelector, 'hidden');
@@ -112,15 +112,15 @@ onLoad(function() {
 		processWindowEvents('scroll');
 	};
 
-	if (document.querySelector('main[process]')) {
-		method = 'process' + capitalizeString(document.querySelector('main[process]').getAttribute('process'));
+	if (elements.get('main').hasAttribute('process')) {
+		method = 'process' + capitalizeString(elements.get('main').getAttribute('process'));
 	}
 
 	if (window.location.hash) {
 		frameName = window.location.hash.substr(1).toLowerCase();
 		frameSelector = '.frame-container[frame="' + frameName + '"]';
 
-		if (document.querySelector(frameSelector)) {
+		if (elements.get(frameSelector)) {
 			closeFrames(apiRequestParameters.current.defaults);
 			frameMethod = 'process' + capitalizeString(frameName);
 			openFrame(frameName, frameSelector);

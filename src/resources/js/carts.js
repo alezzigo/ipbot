@@ -1,15 +1,63 @@
 var cartItemGrid = {};
 var messageContainer = document.querySelector('.item-configuration .message-container');
-var processCart = function() {
+const processCart = function() {
 	api.setRequestParameters({
 		action: 'cart',
 		url: apiRequestParameters.current.settings.baseUrl + 'api/carts'
+	});
+	api.setRequestParameters({
+		listCartItems: {
+			initial: true,
+			options: [
+				{
+					attributes: [
+						{
+							name: 'checked',
+							value: '0'
+						},
+						{
+							name: 'class',
+							value: 'align-left checkbox no-margin-left'
+						},
+						{
+							name: 'index',
+							value: 'all-visible'
+						}
+					],
+					tag: 'span'
+				},
+				{
+					attributes: [
+						{
+							name: 'class',
+							value: 'button icon delete frame-button tooltip tooltip-bottom'
+						},
+						{
+							name: 'data-title',
+							value: 'Delete item from cart'
+						},
+						{
+							name: 'item-function'
+						},
+						{
+							name: 'process',
+							value: 'delete'
+						},
+					],
+					tag: 'span'
+				}
+			],
+			page: 1,
+			resultsPerPage: 100,
+			selector: '.item-list[table="carts"]',
+			table: 'carts'
+		}
 	});
 	api.sendRequest(function(response) {
 		processCartItems(response);
 	});
 };
-var processConfirm = function() {
+const processConfirm = function() {
 	api.setRequestParameters({
 		action: 'complete',
 		url: apiRequestParameters.current.settings.baseUrl + 'api/carts'
@@ -28,16 +76,16 @@ var processConfirm = function() {
 		}
 	});
 };
-var processCartItems = function(response) {
+const processCartItems = function(response) {
 	var cartItemAddButtons = selectAllElements('.button.add-to-cart');
 	var cartItemAllVisible = document.querySelector('.item-container .checkbox[index="all-visible"]');
 	var cartItemContainer = document.querySelector('.cart-items-container');
-	var cartItemToggle = function(button) {
+	const cartItemToggle = function(button) {
 		cartItemContainer.setAttribute('current_checked', button.getAttribute('index'));
 		processCartItemGrid(window.event.shiftKey ? range(cartItemContainer.getAttribute('previous_checked'), button.getAttribute('index')) : [button.getAttribute('index')], window.event.shiftKey ? +cartItemContainer.querySelector('.checkbox[index="' + cartItemContainer.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +button.getAttribute('checked') === 0);
 		cartItemContainer.setAttribute('previous_checked', button.getAttribute('index'));
 	};
-	var cartItemToggleAllVisible = function(button) {
+	const cartItemToggleAllVisible = function(button) {
 		var selectableItemsCount = selectAllElements('.cart-items-container .item-button-selectable').length;
 		cartItemContainer.setAttribute('current_checked', 0);
 		cartItemContainer.setAttribute('previous_checked', 0);
@@ -52,7 +100,7 @@ var processCartItems = function(response) {
 	var confirmContainer = document.querySelector('.confirm-items-container');
 	var intervalTypes = ['month', 'year'];
 	var intervalValues = range(1, 12);
-	var processCartItemAdd = function(cartItemAddButton) {
+	const processCartItemAdd = function(cartItemAddButton) {
 		api.setRequestParameters({
 			data: {
 				intervalType: cartItemAddButton.hasAttribute('interval_type') ? cartItemAddButton.getAttribute('interval_type') : 'month',
@@ -77,10 +125,10 @@ var processCartItems = function(response) {
 			}
 		});
 	};
-	var processCartItemGrid = function(cartItemIndexes, cartItemState) {
+	const processCartItemGrid = function(cartItemIndexes, cartItemState) {
 		cartItemIndexes.map(function(cartItemIndex) {
-			var cartItem = cartItemContainer.querySelector('.checkbox[index="' + cartItemIndex + '"]');
-			var cartItemId = cartItem.getAttribute('cart_item_id');
+			const cartItem = cartItemContainer.querySelector('.checkbox[index="' + cartItemIndex + '"]');
+			const cartItemId = cartItem.getAttribute('cart_item_id');
 			cartItem.setAttribute('checked', +cartItemState);
 			cartItemGrid['cartItem' + cartItemId] = cartItemId;
 
@@ -97,7 +145,7 @@ var processCartItems = function(response) {
 			}
 		});
 	};
-	var processCartItemUpdate = function(cartItemId) {
+	const processCartItemUpdate = function(cartItemId) {
 		var cartItem = document.querySelector('.item-container[cart_item_id="' + cartItemId + '"]');
 		api.setRequestParameters({
 			data: {
@@ -252,7 +300,7 @@ var processCartItems = function(response) {
 
 	processWindowEvents('resize');
 };
-var processDelete = function() {
+const processDelete = function() {
 	api.setRequestParameters({
 		data: {
 			id: cartItemGrid

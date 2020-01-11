@@ -62,11 +62,11 @@ const processMethodForm = function(element) {
 	processWindowEvents('resize');
 };
 onLoad(function() {
-	selectAllElements('.frame-container').map(function(element) {
-		frameSelector = '.frame-container[frame="' + element[1].getAttribute('frame') + '"]';
-		selectAllElements(frameSelector + ' input[type="password"], ' + frameSelector + ' input[type="number"], ' + frameSelector + ' input[type="text"]').map(function(element) {
-			element[1].removeEventListener('keydown', element[1].keydownListener);
-			element[1].keydownListener = function() {
+	selectAllElements('.frame-container', function(selectedElementKey, selectedElement) {
+		frameSelector = '.frame-container[frame="' + selectedElement.getAttribute('frame') + '"]';
+		selectAllElements(frameSelector + ' input[type="password"], ' + frameSelector + ' input[type="number"], ' + frameSelector + ' input[type="text"]', function(selectedElementKey, selectedElement) {
+			selectedElement.removeEventListener('keydown', selectedElement.keydownListener);
+			selectedElement.keydownListener = function() {
 				if (event.key == 'Enter') {
 					let submitButton = document.querySelector(frameSelector + ' .button.submit');
 
@@ -75,16 +75,16 @@ onLoad(function() {
 					}
 				}
 			};
-			element[1].addEventListener('keydown', element[1].keydownListener);
+			selectedElement.addEventListener('keydown', selectedElement.keydownListener);
 		});
 	});
-	selectAllElements('.frame .button.close').map(function(element) {
-		element[1].addEventListener('click', function(element) {
+	selectAllElements('.frame .button.close', function(selectedElementKey, selectedElement) {
+		selectedElement.addEventListener('click', function() {
 			closeFrames(apiRequestParameters.current.defaults);
 		});
 	});
-	selectAllElements('.frame .checkbox, .frame label.custom-checkbox-label').map(function(element) {
-		element[1].addEventListener('click', function(element) {
+	selectAllElements('.frame .checkbox, .frame label.custom-checkbox-label', function(selectedElementKey, selectedElement) {
+		selectedElement.addEventListener('click', function(element) {
 			let hiddenField = document.querySelector('div[field="' + element.target.getAttribute('name') + '"]');
 			let item = document.querySelector('.checkbox[name="' + element.target.getAttribute('name') + '"]');
 			hiddenField ? (hiddenField.classList.contains('hidden') ? hiddenField.classList.remove('hidden') : hiddenField.classList.add('hidden')) : null;
@@ -100,12 +100,11 @@ onLoad(function() {
 			}
 		});
 	});
-	selectAllElements('.button.frame-button, .frame .button.submit').map(function(element) {
-		element[1].addEventListener('click', function(element) {
+	selectAllElements('.button.frame-button, .frame .button.submit', function(selectedElementKey, selectedElement) {
+		selectedElement.addEventListener('click', function(element) {
 			processMethodForm(element.target);
 		});
 	});
-
 	window.onresize = function() {
 		processWindowEvents('resize');
 	};

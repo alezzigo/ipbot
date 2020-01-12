@@ -439,20 +439,28 @@ const processItemList = function(itemListName, callback) {
 
 	api.setRequestParameters({
 		action: apiRequestParameters.current.action,
-		conditions: {
-			orderId: apiRequestParameters.current.orderId
-		},
 		limit: itemListParameters.resultsPerPage,
 		offset: ((itemListParameters.page * itemListParameters.resultsPerPage) - itemListParameters.resultsPerPage),
 		table: itemListParameters.table,
 		url: apiRequestParameters.current.settings.baseUrl + 'api/' + itemListParameters.table
 	});
+
+	if (apiRequestParameters.current.orderId) {
+		api.setRequestParameters({
+			conditions: {
+				orderId: apiRequestParameters.current.orderId
+			}
+		});
+	}
+
 	var mergeRequestParameters = {
-		items: {},
-		sort: {
-			field: 'modified'
-		}
+		items: {}
 	};
+
+	if (mergeRequestParameters.sort) {
+		mergeRequestParameters.sort.field = 'modified';
+	}
+
 	mergeRequestParameters.items[itemListParameters.table] = itemListGrid;
 	api.setRequestParameters(mergeRequestParameters, true);
 	api.sendRequest(function(response) {

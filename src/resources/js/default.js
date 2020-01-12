@@ -135,7 +135,16 @@ const elements = {
 	},
 	getAttribute: function(selector, attribute) {
 		let element = document.querySelector(selector);
-		return element.getAttribute(attribute);
+		let value = false;
+
+		if (
+			element &&
+			element.hasAttribute(attribute)
+		) {
+			value = element.getAttribute(attribute);
+		}
+
+		return value;
 	},
 	hasClass: function(selector, className) {
 		let hasClass = false;

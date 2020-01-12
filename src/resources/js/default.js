@@ -302,7 +302,7 @@ const processItemList = function(itemListName, callback) {
 	const itemToggleAllVisible = function(item) {
 		elements.setAttribute(itemListParameters.selector + ' .items', 'current_checked', 0);
 		elements.setAttribute(itemListParameters.selector + ' .items', 'previous_checked', 0);
-		processItemListGrid(range(0, selectAllElements(itemListParameters.selector + ' tr .checkbox').length - 1), +item.getAttribute('checked') === 0);
+		processItemListGrid(range(0, selectAllElements(itemListParameters.selector + ' .items .checkbox').length - 1), +item.getAttribute('checked') === 0);
 	};
 	const processItemListGrid = function(itemListIndexes, itemState) {
 		let itemListCount = 0;
@@ -319,7 +319,7 @@ const processItemList = function(itemListName, callback) {
 				itemListGrid[key] = selectionStatus + itemListGridLineSize(key);
 			});
 			itemListGrid = selectionStatus ? itemListGrid : [];
-			processItemListGrid(range(0, selectAllElements(itemListParameters.selector + ' tr .checkbox').length - 1));
+			processItemListGrid(range(0, selectAllElements(itemListParameters.selector + ' .items .checkbox').length - 1));
 		};
 
 		if (
@@ -511,8 +511,7 @@ const processItemList = function(itemListName, callback) {
 			});
 		}
 
-		elements.loop('.item-configuration tbody tr', function(index, row) {
-			var item = row.querySelector('.checkbox');
+		elements.loop('.item-configuration .items .checkbox', function(index, item) {
 			item.removeEventListener('click', item.clickListener);
 			item.clickListener = function() {
 				itemToggle(item);

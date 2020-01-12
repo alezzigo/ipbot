@@ -2,7 +2,7 @@ let frameName;
 let frameMethod;
 let frameSelector;
 let method;
-const processLogout = function() {
+var processLogout = function() {
 	api.setRequestParameters({
 		action: 'logout',
 		table: 'users',

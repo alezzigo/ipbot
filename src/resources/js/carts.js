@@ -1,6 +1,6 @@
 var cartItemGrid = {};
 var messageContainer = document.querySelector('.item-configuration .message-container');
-const processCart = function() {
+var processCart = function() {
 	api.setRequestParameters({
 		action: 'cart',
 		url: apiRequestParameters.current.settings.baseUrl + 'api/carts'
@@ -57,7 +57,7 @@ const processCart = function() {
 		processCartItems(response);
 	});
 };
-const processConfirm = function() {
+var processConfirm = function() {
 	api.setRequestParameters({
 		action: 'complete',
 		url: apiRequestParameters.current.settings.baseUrl + 'api/carts'
@@ -300,7 +300,7 @@ const processCartItems = function(response) {
 
 	processWindowEvents('resize');
 };
-const processDelete = function() {
+var processDelete = function() {
 	api.setRequestParameters({
 		data: {
 			id: cartItemGrid

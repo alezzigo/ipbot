@@ -329,7 +329,10 @@
 						}
 					}
 
-					$response['data'] = $cartItems;
+					$response = array_merge($response, array(
+						'count' => count($cartItems),
+						'data' => $cartItems
+					));
 				}
 			}
 

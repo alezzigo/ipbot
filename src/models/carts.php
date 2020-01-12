@@ -18,7 +18,7 @@
 			if (!empty($parameters['session'])) {
 				$cartParameters = array(
 					'conditions' => array(
-						'id' => $parameters['session']
+						'user_id' => ($parameters['user']['id'] ? $parameters['user']['id'] : $parameters['session'])
 					),
 					'fields' => array(
 						'created',
@@ -32,14 +32,18 @@
 						'order' => 'DESC'
 					)
 				);
-				$cartData = array(
-					$cartParameters['conditions']
-				);
-				$this->save('carts', $cartData);
-				$cartData = $this->fetch('carts', $cartParameters);
+				$cart = $this->fetch('carts', $cartParameters);
 
-				if (!empty($cartData['count'])) {
-					$response = $cartData['data'][0];
+				if (empty($cart['count'])) {
+					$cartData = array(
+						$cartParameters['conditions']
+					);
+					$this->save('carts', $cartData);
+					$cart = $this->fetch('carts', $cartParameters);
+				}
+
+				if (!empty($cart['count'])) {
+					$response = $cart['data'][0];
 				}
 			}
 
@@ -252,7 +256,12 @@
 											$cartItemData[0]['quantity'] <= $cartProduct['maximum_quantity'] &&
 											$cartItemData[0]['quantity'] >= $cartProduct['minimum_quantity']
 										) {
-											$cartItemData[0]['cart_id'] = $parameters['session'];
+											$cartItemData = array(
+												array_merge($cartItemData[0], array(
+													'cart_id' => $cartData['id'],
+													'user_id' => $cartData['user_id']
+												))
+											);
 
 											if ($this->save('cart_items', $cartItemData)) {
 												$response = array(
@@ -277,8 +286,8 @@
 										'id'
 									),
 									'conditions' => array(
-										'id' => $cartItemIds,
-										'cart_id' => $parameters['session']
+										'cart_id' => $cartData['id'],
+										'id' => $cartItemIds
 									)
 								));
 								$response['message']['text'] = 'Error deleting cart items, please try again.';
@@ -370,7 +379,7 @@
 				$invoices = $orders = array();
 				$invoiceConditions = $orderConditions = array(
 					'currency' => $this->settings['billing']['currency'],
-					'session_id' => $cart['id']
+					'user_id' => $parameters['user']['id'] ? $parameters['user']['id'] : $parameters['session']
 				);
 				$invoiceConditions = array_merge($invoiceConditions, array(
 					'payable' => true,
@@ -434,7 +443,6 @@
 									'id',
 									'initial_invoice_id',
 									'modified',
-									'session_id',
 									'status',
 									'user_id'
 								),

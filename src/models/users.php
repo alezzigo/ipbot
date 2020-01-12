@@ -16,26 +16,25 @@
 		protected function _applySessionToUser($parameters, $user) {
 			$response = true;
 
-			if (!empty($this->defaultFields)) {
-				foreach ($this->defaultFields as $defaultFieldTable => $defaultFields) {
-					if (in_array('session_id', $defaultFields)) {
-						$sessionData = $this->fetch($defaultFieldTable, array(
-							'conditions' => array(
-								'session_id' => $parameters['session'],
-								'user_id' => null
-							),
-							'fields' => array(
-								'id',
-								'session_id',
-								'user_id'
-							)
-						));
+			if (
+				!empty($this->sessions) &&
+				is_array($this->sessions)
+			) {
+				foreach ($this->sessions as $table) {
+					$sessionData = $this->fetch($defaultFieldTable, array(
+						'conditions' => array(
+							'user_id' => $parameters['session']
+						),
+						'fields' => array(
+							'id',
+							'user_id'
+						)
+					));
 
-						if (!empty($sessionData['count'])) {
-							if (!$this->save($defaultFieldTable, array_replace_recursive($sessionData['data'], array_fill(0, $sessionData['count'], array('user_id' => $user['id']))))) {
-								$response = false;
-							}
-						}
+					if (!empty($sessionData['count'])) {
+						$this->save($defaultFieldTable, array_replace_recursive($sessionData['data'], array_fill(0, $sessionData['count'], array(
+							'user_id' => $user['id']
+						))));
 					}
 				}
 			}

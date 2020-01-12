@@ -714,7 +714,6 @@
 										'modified',
 										'payable',
 										'remainder_pending',
-										'session_id',
 										'shipping',
 										'shipping_pending',
 										'status',
@@ -778,7 +777,6 @@
 										$additionalDueInvoice,
 										!empty($pendingInvoices['reverted']) ? $pendingInvoices['reverted'] : array(),
 										array(
-											'session_id' => $parameters['session'],
 											'user_id' => $parameters['user']['id']
 										)
 									);
@@ -859,7 +857,6 @@
 										'currency' => $invoice['data']['invoice']['currency'],
 										'due' => null,
 										'payable' => true,
-										'session_id' => $parameters['session'],
 										'status' => 'paid',
 										'subtotal' => $amountToApplyToBalance,
 										'total' => $amountToApplyToBalance,
@@ -987,7 +984,6 @@
 					'modified',
 					'payable',
 					'remainder_pending',
-					'session_id',
 					'shipping',
 					'shipping_pending',
 					'status',
@@ -1204,7 +1200,6 @@
 						'quantity_active',
 						'quantity_allocated',
 						'quantity_pending',
-						'session_id',
 						'shipping',
 						'shipping_pending',
 						'status',
@@ -1358,7 +1353,6 @@
 					'modified',
 					'payable',
 					'remainder_pending',
-					'session_id',
 					'shipping',
 					'shipping_pending',
 					'status',

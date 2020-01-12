@@ -40,12 +40,15 @@
 					'id',
 					'user_id'
 				),
+				'cart_items' => array(
+					'id',
+					'user_id'
+				),
 				'invoices' => array(
 					'currency',
 					'due',
 					'id',
 					'remainder_pending',
-					'session_id',
 					'status',
 					'user_id'
 				),
@@ -67,18 +70,11 @@
 					'quantity_active',
 					'quantity_allocated',
 					'quantity_pending',
-					'session_id',
 					'shipping',
 					'shipping_pending',
 					'status',
 					'tax',
 					'tax_pending',
-					'user_id'
-				),
-				'proxy_groups' => array(
-					'id',
-					'name',
-					'order_id',
 					'user_id'
 				),
 				'proxies' => array(
@@ -97,6 +93,12 @@
 					'user_id',
 					'username',
 					'whitelisted_ips'
+				),
+				'proxy_groups' => array(
+					'id',
+					'name',
+					'order_id',
+					'user_id'
 				),
 				'support_tickets' => array(
 					'id',
@@ -372,6 +374,13 @@
 					'dynamic' => array(),
 					'static' => array()
 				)
+			);
+
+			$this->sessions = array(
+				'carts',
+				'cart_items',
+				'invoices',
+				'orders'
 			);
 
 			$this->serverConfigurations = array(

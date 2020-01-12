@@ -1017,7 +1017,7 @@
 								);
 								$parameters = array_merge($parameters, array(
 									'redirect' => '',
-									'session' => $this->_createTokenString($table, array(), sha1($parameters['keys']['users'])),
+									'session' => '_' . $this->_createTokenString($table, array(), sha1($parameters['keys']['users'])),
 									'user' => $this->_authenticate('users', $parameters)
 								));
 								unset($parameters['conditions']['session_id']);
@@ -1030,13 +1030,14 @@
 								if (
 									empty($this->permissions[$table][$action]['group']) ||
 									(
-										!empty($parameters['user']) &&
 										$userIdExists &&
-										($parameters['conditions']['user_id'] = $parameters['user']['id'])
-									) ||
-									(
-										in_array('session_id', $this->permissions[$table][$action]['fields']) &&
-										($parameters['conditions']['session_id'] = $parameters['session'])
+										(
+											(
+												!empty($parameters['user']) &&
+												($parameters['conditions']['user_id'] = $parameters['user']['id'])
+											) ||
+											($parameters['conditions']['user_id'] = $parameters['session'])
+										)
 									)
 								) {
 									if (array_search($parameters['user']['permissions'], $this->groups) > 1) {

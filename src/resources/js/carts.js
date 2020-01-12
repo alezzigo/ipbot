@@ -7,7 +7,13 @@ var processCart = function() {
 	});
 	api.setRequestParameters({
 		listCartItems: {
+			callback: function(response, itemListParameters) {
+				processCartItems(response, itemListParameters);
+			},
 			initial: true,
+			messages: {
+				carts: '<p class="message no-margin-top">Loading</p>'
+			},
 			options: [
 				{
 					attributes: [
@@ -75,6 +81,58 @@ var processConfirm = function() {
 			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		}
 	});
+};
+const _processCartItems = function(response, itemListParameters) {
+	if (typeof itemListParameters !== 'object') {
+		processItemList('listCartItems');
+	} else {
+		elements.html('.message-container.carts', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		const intervalTypes = ['month', 'year'];
+		const intervalValues = range(1, 12);
+		let itemListData = '';
+		let processPage = elements.getAttribute(itemListParameters.selector, 'page');
+
+		if (processPage === 'cart') {
+			for (itemListDataKey in response.data) {
+				let intervalSelectTypes = intervalSelectValues = quantitySelectValues = '';
+				let item = response.data[itemListDataKey];
+				let quantityIncrementValue = 1;
+				const quantityValueCount = item.maximumQuantity - item.minimumQuantity;
+
+				if (quantityValueCount > 1000) {
+					quantityIncrementValue = +(item.minimumQuantity.toString().charAt(0) + repeat(Math.floor(Math.min(quantityValueCount.toString().length / 2, 8)), '0'));
+				}
+
+				const quantityValues = range(item.minimumQuantity, item.maximumQuantity, quantityIncrementValue);
+				intervalTypes.map(function(intervalType, index) {
+					intervalSelectTypes += '<option ' + (intervalType == item.intervalType ? 'selected ' : '') + 'value="' + intervalType + '">' + capitalizeString(intervalType) + (item.intervalValue > 1 ? 's' : '') + '</option>';
+				});
+				intervalValues.map(function(intervalValue, index) {
+					intervalSelectValues += '<option ' + (intervalValue == item.intervalValue ? 'selected ' : '') + 'value="' + intervalValue + '">' + intervalValue + '</option>';
+				});
+				quantityValues.map(function(quantityValue, index) {
+					quantitySelectValues += '<option ' + (quantityValue == item.quantity ? 'selected ' : '') + 'value="' + quantityValue + '">' + quantityValue + '</option>';
+				});
+				itemListData += '<div class="item-button item-button-selectable item-container" cart_item_id="' + item.id + '">';
+				itemListData += '<span checked="' + +(typeof cartItemGrid['cartItem' + item.id] !== 'undefined') + '" class="checkbox" index="' + itemListDataKey + '" cart_item_id="' + item.id + '"></span>';
+				itemListData += '<p><a href="' + apiRequestParameters.current.settings.baseUrl + item.uri + '">' + item.name + '</a></p>';
+				itemListData += '<div class="field-group">';
+				itemListData += '<span>Quantity:</span><select class="quantity" name="quantity">' + quantitySelectValues + '</select>';
+				itemListData += '</div>';
+				itemListData += '<div class="field-group no-margin">';
+				itemListData += '<span>Price:</span><span class="display">' + item.price + ' ' + apiRequestParameters.current.settings.billingCurrency + '</span><span>for</span>';
+				itemListData += '<select class="interval-value" name="interval_value">' + intervalSelectValues + '</select>';
+				itemListData += '<select class="interval-type" name="interval_type">' + intervalSelectTypes + '</select>';
+				itemListData += '</div>';
+				itemListData += '<div class="clear"></div>';
+				itemListData += '</div>';
+				// ..
+			}
+		}
+
+		elements.html(itemListParameters.selector + '[page="' + processPage + '"] .items', itemListData);
+		// ..
+	}
 };
 const processCartItems = function(response) {
 	var cartItemAddButtons = selectAllElements('.button.add-to-cart');

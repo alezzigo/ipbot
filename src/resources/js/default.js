@@ -465,6 +465,14 @@ const processItemList = function(itemListName, callback) {
 	api.setRequestParameters(mergeRequestParameters, true);
 	api.sendRequest(function(response) {
 		if (
+			typeof response.redirect === 'string' &&
+			response.redirect
+		) {
+			window.location.href = response.redirect;
+			return false;
+		}
+
+		if (
 			typeof response.items[itemListParameters.table] === 'object' &&
 			response.items[itemListParameters.table].length === 0
 		) {

@@ -935,14 +935,6 @@ var processProxies = function(response, itemListParameters) {
 		}
 
 		if (
-			typeof response.redirect === 'string' &&
-			response.redirect
-		) {
-			window.location.href = response.redirect;
-			return false;
-		}
-
-		if (
 			response.code !== 200 ||
 			(
 				!response.data.length &&

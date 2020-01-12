@@ -941,7 +941,7 @@ var processProxies = function(response, itemListParameters) {
 				!response.processing
 			)
 		) {
-			return elements.html(itemListParameters.selector + ' .item-table', '');
+			return elements.html(itemListParameters.selector + ' .items', '');
 		}
 
 		if (response.processing) {
@@ -1022,7 +1022,7 @@ var processProxies = function(response, itemListParameters) {
 			processActionProgress(response);
 		}
 
-		elements.html(itemListParameters.selector + ' .item-table', '<table class="table"><thead><tr><th style="width: 35px;"></th><th>Proxy IP</th></tr></thead><tbody></tbody></table>');
+		elements.html(itemListParameters.selector + ' .items', '<table class="table"><thead><tr><th style="width: 35px;"></th><th>Proxy IP</th></tr></thead><tbody></tbody></table>');
 		let itemListData = '';
 
 		for (itemListDataKey in response.data) {
@@ -1049,7 +1049,7 @@ var processProxies = function(response, itemListParameters) {
 			itemListData += '</td>';
 		}
 
-		elements.html(itemListParameters.selector + ' .item-table table tbody', itemListData);
+		elements.html(itemListParameters.selector + ' .items table tbody', itemListData);
 
 		if (apiRequestParameters.current.action != 'search') {
 			api.setRequestParameters(apiRequestParameters.current.defaults);

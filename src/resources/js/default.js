@@ -284,7 +284,7 @@ const processItemList = function(itemListName, callback) {
 		itemListData += '</div>';
 		itemListData += '</div>';
 		itemListData += '<div class="item-body">';
-		itemListData += '<div class="item-table" previous_checked="0"></div>';
+		itemListData += '<div class="items" previous_checked="0"></div>';
 		itemListData += '</div>';
 		elements.html(itemListParameters.selector, itemListData);
 	}
@@ -292,16 +292,16 @@ const processItemList = function(itemListName, callback) {
 	let itemListGrid = apiRequestParameters.current.items[itemListParameters.table] || [];
 	let itemListGridCount = itemListGrid.length;
 	const itemToggle = function(itemListItem) {
-		let previousChecked = elements.getAttribute(itemListParameters.selector + ' .item-table', 'previous_checked');
-		elements.setAttribute(itemListParameters.selector + ' .item-table', 'current_checked', itemListItem.getAttribute('index'));
+		let previousChecked = elements.getAttribute(itemListParameters.selector + ' .items', 'previous_checked');
+		elements.setAttribute(itemListParameters.selector + ' .items', 'current_checked', itemListItem.getAttribute('index'));
 		processItemListGrid(window.event.shiftKey ? range(previousChecked, itemListItem.getAttribute('index')) : [itemListItem.getAttribute('index')], window.event.shiftKey ? +elements.getAttribute(itemListParameters.selector + ' .checkbox[index="' + previousChecked + '"]', 'checked') !== 0 : +itemListItem.getAttribute('checked') === 0);
-		elements.setAttribute(itemListParameters.selector + ' .item-table', 'previous_checked', itemListItem.getAttribute('index'));
+		elements.setAttribute(itemListParameters.selector + ' .items', 'previous_checked', itemListItem.getAttribute('index'));
 	};
 	const itemAll = elements.get(itemListParameters.selector + ' .item-action[index="all"]');
 	const itemAllVisible = elements.get(itemListParameters.selector + ' .checkbox[index="all-visible"]');
 	const itemToggleAllVisible = function(item) {
-		elements.setAttribute(itemListParameters.selector + ' .item-table', 'current_checked', 0);
-		elements.setAttribute(itemListParameters.selector + ' .item-table', 'previous_checked', 0);
+		elements.setAttribute(itemListParameters.selector + ' .items', 'current_checked', 0);
+		elements.setAttribute(itemListParameters.selector + ' .items', 'previous_checked', 0);
 		processItemListGrid(range(0, selectAllElements(itemListParameters.selector + ' tr .checkbox').length - 1), +item.getAttribute('checked') === 0);
 	};
 	const processItemListGrid = function(itemListIndexes, itemState) {
@@ -423,7 +423,7 @@ const processItemList = function(itemListName, callback) {
 		mergeRequestParameters.items[itemListParameters.table] = itemListGrid;
 		api.setRequestParameters(mergeRequestParameters, true);
 	};
-	elements.addClass(itemListParameters.selector + ' .item-controls, ' + itemListParameters.selector + ' .item-table', 'hidden');
+	elements.addClass(itemListParameters.selector + ' .item-controls, ' + itemListParameters.selector + ' .items', 'hidden');
 	elements.setAttribute(itemListParameters.selector + ' .pagination .next', 'page', 0);
 	elements.setAttribute(itemListParameters.selector + ' .pagination .previous', 'page', 0);
 
@@ -519,7 +519,7 @@ const processItemList = function(itemListName, callback) {
 			};
 			item.addEventListener('click', item.clickListener);
 		});
-		elements.removeClass(itemListParameters.selector + ' .item-controls, .item-table', 'hidden');
+		elements.removeClass(itemListParameters.selector + ' .item-controls, .items', 'hidden');
 
 		if (response.tokens[itemListParameters.table] !== 'undefined') {
 			var mergeRequestParameters = {

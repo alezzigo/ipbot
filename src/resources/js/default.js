@@ -456,11 +456,6 @@ const processItemList = function(itemListName, callback) {
 	var mergeRequestParameters = {
 		items: {}
 	};
-
-	if (mergeRequestParameters.sort) {
-		mergeRequestParameters.sort.field = 'modified';
-	}
-
 	mergeRequestParameters.items[itemListParameters.table] = itemListGrid;
 	api.setRequestParameters(mergeRequestParameters, true);
 	api.sendRequest(function(response) {

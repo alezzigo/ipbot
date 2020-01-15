@@ -324,8 +324,14 @@ const processItemList = function(itemListName, callback) {
 		};
 
 		if (
-			typeof itemListIndexes[1] === 'number' &&
-			itemListIndexes[1] < 0
+			(
+				typeof itemListIndexes[1] === 'number' &&
+				itemListIndexes[1] < 0
+			) ||
+			(
+				!itemAll &&
+				!itemAllVisible
+			)
 		) {
 			return;
 		}
@@ -371,7 +377,6 @@ const processItemList = function(itemListName, callback) {
 			item.setAttribute('checked', +itemListGrid[key][itemListGridLineIndex]);
 			itemListGrid[key] = encodedListGridLineItems.join('_');
 		});
-
 		range(0, itemListPageResultCount - 1).map(function(itemIndex) {
 			if (+(elements.getAttribute(itemListParameters.selector + ' .checkbox[index="' + itemIndex + '"]', 'checked'))) {
 				itemListCount++;
@@ -538,7 +543,7 @@ const processItemList = function(itemListName, callback) {
 			api.setRequestParameters(mergeRequestParameters, true);
 			elements.addScrollable('.item-controls-container.scrollable', function(element) {
 				if (element.details.width) {
-					element.parentNode.querySelector('.item-body').setAttribute('style', 'padding-top: ' + (element.parentNode.querySelector('.item-header').clientHeight + 1) + 'px');
+					element.parentNode.querySelector('.item-body').setAttribute('style', 'padding-top: ' + (element.parentNode.querySelector('.item-header').clientHeight + 2) + 'px');
 					element.setAttribute('style', 'width: ' + element.details.width + 'px;');
 				}
 			});

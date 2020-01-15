@@ -688,7 +688,13 @@
 			) {
 				if (
 					$encode &&
-					!in_array($action, array('fetch',  'search'))
+					(
+						empty($encode['exclude_actions']) ||
+						(
+							is_array($encode['exclude_actions']) &&
+							!in_array($action, $encode['exclude_actions'])
+						)
+					)
 				) {
 					$actionsProcessing = $this->fetch('actions', array(
 						'conditions' => array(
@@ -1142,13 +1148,20 @@
 						}
 
 						if ($decode) {
-							$itemIds = $this->fetch($table, array_merge($parameters, array(
+							$dataTable = !empty($this->encode[$table]['data_table']) ? $this->encode[$table]['data_table'] : $table;
+							$itemParameters = array_merge($parameters, array(
 								'fields' => array(
 									'id'
 								),
 								'limit' => $index,
 								'offset' => 0
-							)));
+							));
+
+							if (!empty($this->encode[$table]['sort'])) {
+								$itemParameters['sort'] = $this->encode[$table]['sort'];
+							}
+
+							$itemIds = $this->fetch($dataTable, $itemParameters);
 							$conditions = array(
 								'id' => !empty($itemIds['data']) ? array_values(array_intersect_key($itemIds['data'], $itemIndexes)) : array()
 							);
@@ -1166,7 +1179,7 @@
 								);
 							}
 
-							$response[$table] = $this->fetch($table, array(
+							$response[$table] = $this->fetch($dataTable, array(
 								'conditions' => $conditions,
 								'fields' => array(
 									'id'

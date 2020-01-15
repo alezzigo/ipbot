@@ -112,8 +112,28 @@
 			);
 
 			$this->encode = array(
+				'carts' => array(
+					'data_table' => 'cart_items',
+					'exclude_actions' => array(
+						'cart'
+					),
+					'foreign_key' => 'user_id',
+					'sort' => array(
+						'field' => 'created',
+						'order' => 'DESC'
+					)
+				),
 				'proxies' => array(
-					'foreign_key' => 'order_id'
+					'data_table' => 'proxies',
+					'exclude_actions' => array(
+						'fetch',
+						'search'
+					),
+					'foreign_key' => 'order_id',
+					'sort' => array(
+						'field' => 'modified',
+						'order' => 'DESC'
+					)
 				)
 			);
 

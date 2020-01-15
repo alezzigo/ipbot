@@ -8,32 +8,9 @@
 <main process="cart">
 	<div class="section">
 		<div class="container small">
+			<div class="item-controls-container controls-container scrollable"></div>
 			<h1>Shopping Cart</h1>
-			<div class="item-configuration-container item-container">
-				<div class="item">
-					<div class="item-configuration">
-						<div class="controls-container item-controls-container scrollable">
-							<div class="item-header">
-								<div class="hidden item-controls">
-									<a class="align-right button main-button checkout" href="/checkout">Checkout</a>
-									<span checked="0" class="align-left checkbox no-margin-left" index="all-visible"></span>
-									<span class="button icon delete frame-button hidden tooltip tooltip-bottom" data-title="Delete item from cart" item-function process="delete"></span>
-								</div>
-								<div class="clear"></div>
-								<p class="hidden item-controls no-margin-bottom">
-									<span class="align-right cart-subtotal">Cart Subtotal: <span class="total"></span></span>
-									<span class="align-left checked-container"><span class="total-checked">0</span> of <span class="total-results"></span> selected.</span><span class="clear"></span>
-								</p>
-								<div class="clear"></div>
-								<div class="message-container"><p class="message no-margin-top">Loading...</p></div>
-							</div>
-						</div>
-						<div class="item-body">
-							<div class="cart-items-container items-container"></div>
-						</div>
-					</div>
-				</div>
-			</div>
+			<div class="item-list" page="cart" table="carts"></div>
 		</div>
 	</div>
 </main>

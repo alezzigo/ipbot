@@ -6,6 +6,25 @@
 	class CartsModel extends AppModel {
 
 	/**
+	 * Calculate cart totals
+	 *
+	 * @param array $cartData
+	 * @param boolean $saveCalculations
+	 *
+	 * @return array $response
+	 */
+		protected function _calculateCartTotals($cartData, $saveCalculations = true) {
+			$response = array(
+				'total' => 0,
+				'shipping' => 0,
+				'subtotal' => 0,
+				'tax' => 0
+			);
+			// ..
+			return $response;
+		}
+
+	/**
 	 * Retrieve cart from session
 	 *
 	 * @param array $parameters
@@ -21,9 +40,9 @@
 						'user_id' => ($parameters['user']['id'] ? $parameters['user']['id'] : $parameters['session'])
 					),
 					'fields' => array(
-						'created',
 						'id',
-						'modified',
+						'subtotal',
+						'total',
 						'user_id'
 					),
 					'limit' => 1,
@@ -51,18 +70,47 @@
 		}
 
 	/**
-	 * Retrieve items for cart
+	 * Retrieve cart item IDs
 	 *
-	 * @param array $cartData
-	 * @param array $cartProducts
+	 * @param array $parameters
 	 *
-	 * @return array $response Response data
+	 * @return array $response
 	 */
-		protected function _retrieveCartItems($cartData, $cartProducts) {
-			$response = false;
+		protected function _retrieveCartItemIds($parameters) {
+			$response = array();
+			$cartItemParameters = array_merge($parameters, array(
+				'conditions' => array(
+					'cart_id' => $parameters['cart_id']
+				),
+				'fields' => array(
+					'id'
+				),
+				'sort' => array(
+					'field' => 'created',
+					'order' => 'DESC'
+				)
+			));
+			$cartItemIds = $this->fetch('cart_items', $cartItemParameters);
+
+			if (!empty($cartItemIds['count'])) {
+				$response = $cartItemIds;
+			}
+
+			return $response;
+		}
+
+	/**
+	 * Retrieve cart items
+	 *
+	 * @param array $parameters
+	 *
+	 * @return array $response
+	 */
+		protected function _retrieveCartItems($parameters) {
+			$response = array();
 			$cartItems = $this->fetch('cart_items', array(
 				'conditions' => array(
-					'cart_id' => $cartData['id']
+					'id' => $parameters['cart_item_ids']['data']
 				),
 				'fields' => array(
 					'cart_id',
@@ -81,38 +129,34 @@
 
 			if (!empty($cartItems['count'])) {
 				foreach ($cartItems['data'] as $key => $cartItem) {
-					if (!empty($cartProducts[$cartItem['product_id']])) {
-						$cartItem = array_merge($cartProducts[$cartItem['product_id']], $cartItem);
+					if (!empty($parameters['cart_products'][$cartItem['product_id']])) {
+						$cartItem = array_merge($parameters['cart_products'][$cartItem['product_id']], $cartItem);
 
 						if ($cartItem['quantity'] === 1) {
 							$cartItem['name'] = $this->_formatPluralToSingular($cartItem['name']);
 						}
 
 						$cartItem['price'] = $this->_calculateItemPrice($cartItem);
-						$cartItems[$cartItem['id']] = $cartItem;
+						$response[$cartItem['id']] = $cartItem;
 					}
 				}
-
-				unset($cartItems['count']);
-				unset($cartItems['data']);
-				$response = $cartItems;
 			}
 
 			return $response;
 		}
 
 	/**
-	 * Retrieve products for cart
+	 * Retrieve cart products
 	 *
-	 * @param array $cartData
+	 * @param array $parameters
 	 *
 	 * @return array $response
 	 */
-		protected function _retrieveProducts($cartData) {
-			$response = false;
+		protected function _retrieveCartProducts($parameters) {
+			$response = array();
 			$cartItemProductIds = $this->fetch('cart_items', array(
 				'conditions' => array(
-					'cart_id' => $cartData['id']
+					'id' => $parameters['cart_item_ids']['data']
 				),
 				'fields' => array(
 					'product_id'
@@ -128,6 +172,7 @@
 						'created',
 						'has_shipping',
 						'has_tax',
+						'id',
 						'ip_version',
 						'name',
 						'maximum_quantity',
@@ -180,13 +225,15 @@
 			if ($cartData = $this->_retrieveCart($parameters)) {
 				$response['message']['text'] = 'There are no items in your cart.';
 
-				if (!empty($cartData)) {
-					$cartProducts = $this->_retrieveProducts($cartData);
-					$cartItems = $this->_retrieveCartItems($cartData, $cartProducts);
+				if (!empty($cartData['id'])) {
+					$parameters['cart_id'] = $cartData['id'];
+					$parameters['cart_item_ids'] = $this->_retrieveCartItemIds($parameters);
+					$parameters['cart_products'] = $this->_retrieveCartProducts($parameters);
+					$parameters['cart_items'] = $this->_retrieveCartItems($parameters);
 
 					if (
-						$cartProducts &&
-						$cartItems
+						$parameters['cart_items'] &&
+						$parameters['cart_products']
 					) {
 						$response['message']['text'] = '';
 					}
@@ -230,40 +277,40 @@
 											'id' => $cartItemData[0]['product_id']
 										),
 										'fields' => array(
-											'created',
-											'has_shipping',
-											'has_tax',
-											'ip_version',
-											'name',
+											'id',
 											'maximum_quantity',
 											'minimum_quantity',
-											'modified',
-											'price_per',
-											'type',
-											'uri'
-										),
-										'sort' => array(
-											'field' => 'modified',
-											'modified' => 'DESC'
+											'price_per'
 										)
 									));
 
-									if (!empty($cartProduct['data'][0])) {
+									if (!empty($cartProduct['count'])) {
 										$response['message']['text'] = 'Invalid product quantity, please try again.';
-										$cartProduct = $cartProduct['data'][0];
 
 										if (
-											$cartItemData[0]['quantity'] <= $cartProduct['maximum_quantity'] &&
-											$cartItemData[0]['quantity'] >= $cartProduct['minimum_quantity']
+											$cartItemData[0]['quantity'] <= $cartProduct['data'][0]['maximum_quantity'] &&
+											$cartItemData[0]['quantity'] >= $cartProduct['data'][0]['minimum_quantity']
 										) {
+											$cartItem = array_merge($cartItemData[0], $cartProduct['data'][0]);
+											$cartItemPrice = $this->_calculateItemPrice($cartItem);
+											// ..
+											$cartData = array(
+												array_merge($cartData, array(
+													'subtotal' => $cartData['subtotal'] + $cartItemPrice,
+													'total' => $cartData['total'] + $cartItemPrice
+												))
+											);
 											$cartItemData = array(
 												array_merge($cartItemData[0], array(
-													'cart_id' => $cartData['id'],
-													'user_id' => $cartData['user_id']
+													'cart_id' => $cartData[0]['id'],
+													'user_id' => $cartData[0]['user_id']
 												))
 											);
 
-											if ($this->save('cart_items', $cartItemData)) {
+											if (
+												$this->save('carts', $cartData) &&
+												$this->save('cart_items', $cartItemData)
+											) {
 												$response = array(
 													'message' => array(
 														'status' => 'success',
@@ -276,62 +323,36 @@
 									}
 								}
 							}
-						} else {
+						} elseif (
+							!empty($parameters['cart_items'][$cartItemData[0]['id']]) &&
+							count($cartItemData[0]) === 4
+						) {
+							$cartItem = $parameters['cart_items'][$cartItemData[0]['id']];
+
 							if (
-								count($cartItemData[0]) === 1 &&
-								$cartItemIds = array_values($cartItemData[0]['id'])
+								!empty($cartItemData[0]['interval_type']) &&
+								in_array($cartItemData[0]['interval_type'], array('month', 'year')) &&
+								!empty($cartItemData[0]['interval_value']) &&
+								is_numeric($cartItemData[0]['interval_value']) &&
+								!empty($cartItemData[0]['quantity']) &&
+								is_numeric($cartItemData[0]['quantity']) &&
+								$cartItemData[0]['quantity'] <= $cartItem['maximum_quantity'] &&
+								$cartItemData[0]['quantity'] >= $cartItem['minimum_quantity'] &&
+								$this->save('cart_items', $cartItemData)
 							) {
-								$cartItemIds = $this->fetch('cart_items', array(
-									'fields' => array(
-										'id'
-									),
-									'conditions' => array(
-										'cart_id' => $cartData['id'],
-										'id' => $cartItemIds
-									)
-								));
-								$response['message']['text'] = 'Error deleting cart items, please try again.';
-
-								if (
-									!empty($cartItemIds['count']) &&
-									$this->delete('cart_items', array(
-										'id' => $cartItemIds['data']
-									))
-								) {
-									$cartItems = array_diff_key($cartItems, array_combine($cartItemIds['data'], array_fill(1, count($cartItemIds['data']), true)));
-									$response['message'] = array(
-										'status' => 'success',
-										'text' => 'Cart items deleted successfully.'
-									);
-								}
-							} elseif (
-								!empty($cartItems[$cartItemData[0]['id']]) &&
-								count($cartItemData[0]) === 4
-							) {
-								$cartItem = $cartItems[$cartItemData[0]['id']];
-
-								if (
-									!empty($cartItemData[0]['interval_type']) &&
-									in_array($cartItemData[0]['interval_type'], array('month', 'year')) &&
-									!empty($cartItemData[0]['interval_value']) &&
-									is_numeric($cartItemData[0]['interval_value']) &&
-									!empty($cartItemData[0]['quantity']) &&
-									is_numeric($cartItemData[0]['quantity']) &&
-									$cartItemData[0]['quantity'] <= $cartItem['maximum_quantity'] &&
-									$cartItemData[0]['quantity'] >= $cartItem['minimum_quantity'] &&
-									$this->save('cart_items', $cartItemData)
-								) {
-									$cartItems[$cartItemData[0]['id']] = $cartItem = array_merge($cartItem, $cartItemData[0]);
-									$cartItems[$cartItemData[0]['id']]['price'] = $this->_calculateItemPrice($cartItem);
-									$response['message']['text'] = '';
-								}
+								$cartItems[$cartItemData[0]['id']] = $cartItem = array_merge($cartItem, $cartItemData[0]);
+								$cartItems[$cartItemData[0]['id']]['price'] = $this->_calculateItemPrice($cartItem);
+								$response['message']['text'] = '';
 							}
 						}
 					}
 
 					$response = array_merge($response, array(
-						'count' => count($cartItems),
-						'data' => $cartItems
+						'count' => $parameters['cart_item_ids']['count'],
+						'data' => array(
+							'cart' => $cartData,
+							'cart_items' => array_values($parameters['cart_items'])
+						)
 					));
 				}
 			}
@@ -373,130 +394,55 @@
 				),
 				'redirect' => $this->settings['base_url'] . 'cart'
 			);
+			// ..
+			return $response;
+		}
 
-			if (
-				($cart = $this->_retrieveCart($parameters)) &&
-				($cartProducts = $this->_retrieveProducts($cart)) &&
-				($cartItems = $this->_retrieveCartItems($cart, $cartProducts))
-			) {
-				$invoices = $orders = array();
-				$invoiceConditions = $orderConditions = array(
-					'currency' => $this->settings['billing']['currency'],
-					'user_id' => $parameters['user']['id'] ? $parameters['user']['id'] : $parameters['session']
-				);
-				$invoiceConditions = array_merge($invoiceConditions, array(
-					'payable' => true,
-					'status' => 'unpaid'
-				));
-				$orderConditions['status'] = 'pending';
-				$parameters['user'] = $this->_authenticate('users', $parameters);
-				$total = 0;
+	/**
+	 * Remove cart items from cart
+	 *
+	 * @param string $table
+	 * @param array $parameters
+	 *
+	 * @return array $response
+	 */
+		public function remove($table, $parameters) {
+			$response = array(
+				'message' => array(
+					'status' => 'error',
+					'text' => 'Error removing cart items, please try again.'
+				)
+			);
 
-				if (!empty($parameters['user']['id'])) {
-					$invoiceConditions['user_id'] = $orderConditions['user_id'] = $parameters['user']['id'];
-				}
-
-				foreach ($cartItems as $cartItem) {
-					if (empty($cartProducts[$cartItem['product_id']])) {
-						continue;
-					}
-
-					$cartProduct = $cartProducts[$cartItem['product_id']];
-					$invoices[$cartItem['interval_value'] . '_' . $cartItem['interval_type']][] = $cartItem['id'];
-					$order = array_merge($orderConditions, array(
-						'cart_item_id' => $cartItem['id'],
-						'interval_type' => $cartItem['interval_type'],
-						'interval_value' => $cartItem['interval_value'],
-						'name' => $cartItem['name'],
-						'price' => $cartItem['price'],
-						'product_id' => $cartItem['product_id'],
-						'quantity' => $cartItem['quantity'],
-						'type' => $cartItem['type']
-					));
-					$item = array_merge($order, $cartProduct);
-					$order['shipping'] = $this->_calculateItemShippingPrice($item);
-					$order['tax'] = $this->_calculateItemTaxPrice($item);
-					$orders[] = $order;
-					$orderConditions['cart_item_id'][] = $cartItem['id'];
-					$total += $cartItem['price'];
-				}
-
-				$total = number_format(round($total * 100) / 100, 2, '.', '');
+			if ($cartData = $this->_retrieveCart($parameters)) {
+				$response['message']['text'] = 'There are no items in your cart to remove.';
 
 				if (
-					!empty($orders) &&
-					$this->save('orders', $orders)
+					!empty($cartData['id']) &&
+					!empty($parameters['items']['carts']['count'])
 				) {
-					foreach ($invoices as $interval => $cartItemIds) {
-						$interval = explode('_', $interval);
-						$intervalType = $interval[0];
-						$intervalValue = $interval[1];
-						$invoiceConditions['cart_items'] = sha1(json_encode($cartItemIds));
-						$invoiceData = array(
-							$invoiceConditions
-						);
-						$invoiceOrders = array();
-
-						if ($this->save('invoices', $invoiceData)) {
-							$invoice = $this->fetch('invoices', array(
-								'conditions' => $invoiceConditions,
-								'fields' => array(
-									'created',
-									'due',
-									'id',
-									'initial_invoice_id',
-									'modified',
-									'status',
-									'user_id'
-								),
-								'limit' => 1,
-								'sort' => array(
-									'field' => 'created',
-									'order' => 'DESC'
-								)
-							));
-							$orderIds = $this->fetch('orders', array(
-								'conditions' => array_merge($orderConditions, array(
-									'cart_item_id' => $cartItemIds
-								)),
-								'fields' => array(
-									'id'
-								)
-							));
-
-							if (
-								!empty($invoice['count']) &&
-								!empty($orderIds['count'])
-							) {
-								foreach ($orderIds['data'] as $orderId) {
-									$invoiceOrders[] = array(
-										'invoice_id' => $invoice['data'][0]['id'],
-										'order_id' => $orderId
-									);
-								}
-
-								if ($this->save('invoice_orders', $invoiceOrders)) {
-									$invoiceId = $invoice['data'][0]['id'];
-									$response = array(
-										'redirect' => $this->settings['base_url'] . 'invoices'
-									);
-								}
-							}
-						}
-					}
-
-					$this->delete('carts', array(
-						'id' => $cart['id']
-					));
-					$this->delete('cart_items', array(
-						'cart_id' => $cart['id']
+					$cartItemIds = $this->fetch('cart_items', array(
+						'fields' => array(
+							'id'
+						),
+						'conditions' => array(
+							'cart_id' => $cartData['id'],
+							'id' => $parameters['items']['carts']['data']
+						)
 					));
 
 					if (
-						count($invoices) === 1 &&
-						!empty($invoiceId)
+						!empty($cartItemIds['count']) &&
+						$this->delete('cart_items', array(
+							'id' => $cartItemIds['data']
+						))
 					) {
-						$response['redirect'] .= '/' . $invoiceId . '#payment';
+						$response['message'] = array(
+							'status' => 'success',
+							'text' => 'Cart items removed successfully.'
+						);
+
+						// ..
 					}
 				}
 			}

@@ -214,10 +214,10 @@ var processDownload = function(frameName, frameSelector) {
 	downloadData += '<label>Proxy List Format</label>';
 	downloadData += '<div class="field-group list-format no-margin-top">';
 
-	for (var i = 1; i < 5; i++) {
+	for (let i = 1; i < 5; i++) {
 		downloadData += '<select class="ipv4-column' + i + '" name="ipv4_column' + i + '">';
 
-		for (var columnOptionKey in downloadOptions.columns) {
+		for (let columnOptionKey in downloadOptions.columns) {
 			downloadData += '<option ' + ((+(columnOptionKey) + 1) === i ? 'selected' : '') + ' value="' + downloadOptions.columns[columnOptionKey].value + '">' + downloadOptions.columns[columnOptionKey].name + '</option>';
 		}
 
@@ -226,7 +226,7 @@ var processDownload = function(frameName, frameSelector) {
 		if (i < 4) {
 			downloadData += '<select class="ipv4-delimiter' + i + '" name="ipv4_delimiter' + i + '">';
 
-			for (var delimiterOptionKey in downloadOptions.delimiters) {
+			for (let delimiterOptionKey in downloadOptions.delimiters) {
 				downloadData += '<option value="' + downloadOptions.delimiters[delimiterOptionKey] + '">' + downloadOptions.delimiters[delimiterOptionKey] + '</option>';
 			}
 
@@ -241,7 +241,7 @@ var processDownload = function(frameName, frameSelector) {
 	downloadData += '<div class="field-group no-margin-top proxy-list-type">';
 	downloadData += '<select class="proxy-list-type" name="proxy_list_type">';
 
-	for (var protocolOptionKey in downloadOptions.protocols) {
+	for (let protocolOptionKey in downloadOptions.protocols) {
 		downloadData += '<option value="' + downloadOptions.protocols[protocolOptionKey].value + '">' + downloadOptions.protocols[protocolOptionKey].name + '</option>';
 	}
 
@@ -253,7 +253,7 @@ var processDownload = function(frameName, frameSelector) {
 	downloadData += '<div class="field-group no-margin-top separated-by">';
 	downloadData += '<select class="separated-by" name="separated_by">';
 
-	for (var separatorOptionKey in downloadOptions.separators) {
+	for (let separatorOptionKey in downloadOptions.separators) {
 		downloadData += '<option value="' + downloadOptions.separators[separatorOptionKey].value + '">' + downloadOptions.separators[separatorOptionKey].name + '</option>';
 	}
 
@@ -265,7 +265,7 @@ var processDownload = function(frameName, frameSelector) {
 	downloadData += '<div class="field-group no-margin-top download-format">';
 	downloadData += '<select class="download_format" name="download_format">';
 
-	for (var formatOptionKey in downloadOptions.formats) {
+	for (let formatOptionKey in downloadOptions.formats) {
 		downloadData += '<option value="' + downloadOptions.formats[formatOptionKey].value + '">' + downloadOptions.formats[formatOptionKey].name + '</option>';
 	}
 
@@ -1025,7 +1025,7 @@ var processProxies = function(response, itemListParameters) {
 		elements.html(itemListParameters.selector + ' .items', '<table class="table"><thead><tr><th style="width: 35px;"></th><th>Proxy IP</th></tr></thead><tbody></tbody></table>');
 		let itemListData = '';
 
-		for (itemListDataKey in response.data) {
+		for (let itemListDataKey in response.data) {
 			let item = response.data[itemListDataKey];
 			itemListData += '<tr page="' + apiRequestParameters.current.listProxies.page + '" proxy_id="' + item.id + '" class="">';
 			itemListData += '<td style="width: 1px;">';

@@ -583,8 +583,8 @@ var processOrder = function() {
 					},
 					initial: true,
 					messages: {
-						order: '',
-						proxies: '<p class="message no-margin-top">Loading</p>'
+						proxies: '<p class="message no-margin-top">Loading</p>',
+						status: ''
 					},
 					options: [
 						{

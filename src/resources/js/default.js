@@ -505,7 +505,7 @@ const processItemList = function(itemListName, callback) {
 						mergeRequestParameters[itemListName] = {};
 						mergeRequestParameters[itemListName].page = page;
 						api.setRequestParameters(mergeRequestParameters, true);
-						elements.html('.message-container.order', '<p class="message">Loading</p>');
+						elements.html('.message-container.status', '<p class="message">Loading</p>');
 						processItemList(itemListName);
 					}
 				});
@@ -554,7 +554,7 @@ const processItemList = function(itemListName, callback) {
 			});
 		}
 
-		elements.html('.message-container.order', '');
+		elements.html('.message-container.status', '');
 		processWindowEvents('resize');
 	});
 };

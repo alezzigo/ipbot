@@ -418,7 +418,7 @@
 					!empty($cartData['id']) &&
 					!empty($parameters['items']['carts']['count'])
 				) {
-					$cartItemIds = $this->fetch('cart_items', array(
+					$parameters['cart_item_ids'] = $cartItemIds = $this->fetch('cart_items', array(
 						'fields' => array(
 							'id'
 						),
@@ -427,19 +427,27 @@
 							'id' => $parameters['items']['carts']['data']
 						)
 					));
+					$parameters['cart_products'] = $this->_retrieveCartProducts($parameters);
+					$parameters['cart_items'] = $this->_retrieveCartItems($parameters);
+					$cartData = array(
+						$cartData
+					);
+
+					foreach ($parameters['cart_items'] as $cartItem) {
+						$cartData[0]['subtotal'] -= $cartItem['price'];
+						$cartData[0]['total'] -= $cartItem['price'];
+					}
 
 					if (
-						!empty($cartItemIds['count']) &&
 						$this->delete('cart_items', array(
 							'id' => $cartItemIds['data']
-						))
+						)) &&
+						$this->save('carts', $cartData)
 					) {
 						$response['message'] = array(
 							'status' => 'success',
 							'text' => 'Cart items removed successfully.'
 						);
-
-						// ..
 					}
 				}
 			}

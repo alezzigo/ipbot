@@ -8,6 +8,7 @@ var processCart = function() {
 			callback: function(response, itemListParameters) {
 				processCartItems(response, itemListParameters);
 			},
+			data: 'cartItems',
 			initial: true,
 			messages: {
 				carts: '<p class="message no-margin-top">Loading</p>'

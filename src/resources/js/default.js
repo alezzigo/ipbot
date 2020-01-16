@@ -519,7 +519,21 @@ const processItemList = function(itemListName, callback) {
 			};
 			item.addEventListener('click', item.clickListener);
 		});
-		elements.removeClass(itemListParameters.selector + ' .item-controls, .items', 'hidden');
+
+		if (
+			(
+				typeof response.data.length !== 'undefined' &&
+				response.data.length
+			) ||
+			(
+				typeof itemListParameters.data !== 'undefined' &&
+				response.data[itemListParameters.data].length
+			)
+		) {
+			elements.removeClass(itemListParameters.selector + ' .item-controls, ' + itemListParameters.selector + ' .items', 'hidden');
+		} else {
+			elements.addClass(itemListParameters.selector + ' .item-controls, ' + itemListParameters.selector + ' .items', 'hidden');
+		}
 
 		if (response.tokens[itemListParameters.table] !== 'undefined') {
 			var mergeRequestParameters = {

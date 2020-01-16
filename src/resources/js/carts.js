@@ -118,7 +118,7 @@ const processCartItems = function(response, itemListParameters) {
 
 		if (
 			processPage === 'cart' &&
-			response.data.cartItems
+			response.data.cartItems.length
 		) {
 			for (itemListDataKey in response.data.cartItems) {
 				let intervalSelectTypes = intervalSelectValues = quantitySelectValues = '';

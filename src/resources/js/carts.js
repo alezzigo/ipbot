@@ -39,7 +39,7 @@ var processCart = function() {
 						},
 						{
 							name: 'data-title',
-							value: 'Remove item from cart'
+							value: 'Remove selected items from cart'
 						},
 						{
 							name: 'item-function'

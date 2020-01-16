@@ -6,25 +6,6 @@
 	class CartsModel extends AppModel {
 
 	/**
-	 * Calculate cart totals
-	 *
-	 * @param array $cartData
-	 * @param boolean $saveCalculations
-	 *
-	 * @return array $response
-	 */
-		protected function _calculateCartTotals($cartData, $saveCalculations = true) {
-			$response = array(
-				'total' => 0,
-				'shipping' => 0,
-				'subtotal' => 0,
-				'tax' => 0
-			);
-			// ..
-			return $response;
-		}
-
-	/**
 	 * Retrieve cart from session
 	 *
 	 * @param array $parameters

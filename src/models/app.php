@@ -146,7 +146,7 @@
 	 */
 		protected function _calculateItemPrice($item) {
 			$interval = ($item['interval_value'] * ($item['interval_type'] == 'year' ? 12 : 1));
-			$response = number_format(((max((100 - ($interval)) + 1, 80) / 100) * ($item['quantity'] * $item['price_per'])) * ($item['interval_value'] * $interval), 2, '.', '');
+			$response = number_format(((max((100 - ($interval)) + 1, 80) / 100) * ($item['quantity'] * $item['price_per'])) * $interval, 2, '.', '');
 			return $response;
 		}
 

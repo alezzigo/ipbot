@@ -550,8 +550,8 @@ main {
 }
 .item-container {
 	box-sizing: border-box;
-	margin-bottom: 15px;
-	margin-top: 5px;
+	margin-bottom: 5px;
+	margin-top: 15px;
 	position: relative;
 	width: 100%;
 }
@@ -947,8 +947,10 @@ main {
 	top: 22px;
 }
 .item-configuration-container .item-controls-container .item-header .main-button {
-	padding-top: 11px;
-	padding-bottom: 10px;
+	padding: 5px 20px;
+	position: absolute;
+	right: 0;
+	top: 56px;
 }
 .item-configuration-container .item-controls-container .item-header .alternate-button {
 	padding-top: 10px;
@@ -965,7 +967,7 @@ main {
 	margin-bottom: 6px;
 	margin-right: 6px;
 }
-.cart-items-container .item-button-selectable {
+.item-list[page="cart"] .item-button-selectable {
 	padding-left: 51px !important;
 }
 .transactions .label {

@@ -52,7 +52,7 @@ var processCart = function() {
 				}
 			],
 			page: 1,
-			resultsPerPage: 2,
+			resultsPerPage: 10,
 			selector: '.item-list[table="carts"]',
 			table: 'carts'
 		}

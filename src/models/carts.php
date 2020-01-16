@@ -337,12 +337,28 @@
 								!empty($cartItemData[0]['quantity']) &&
 								is_numeric($cartItemData[0]['quantity']) &&
 								$cartItemData[0]['quantity'] <= $cartItem['maximum_quantity'] &&
-								$cartItemData[0]['quantity'] >= $cartItem['minimum_quantity'] &&
-								$this->save('cart_items', $cartItemData)
+								$cartItemData[0]['quantity'] >= $cartItem['minimum_quantity']
 							) {
-								$cartItems[$cartItemData[0]['id']] = $cartItem = array_merge($cartItem, $cartItemData[0]);
-								$cartItems[$cartItemData[0]['id']]['price'] = $this->_calculateItemPrice($cartItem);
-								$response['message']['text'] = '';
+								$cartItemPriceDifference = $this->_calculateItemPrice(array_merge($cartItem, $cartItemData[0])) - $cartItem['price'];
+								$cartData = array(
+									array_merge($cartData, array(
+										'subtotal' => $cartData['subtotal'] + $cartItemPriceDifference,
+										'total' => $cartData['total'] + $cartItemPriceDifference
+									))
+								);
+
+								if (
+									$this->save('carts', $cartData) &&
+									$this->save('cart_items', $cartItemData)
+								) {
+									$response = array(
+										'message' => array(
+											'status' => 'success',
+											'text' => 'Cart item updated successfully.'
+										)
+									);
+									$cartData = $cartData[0];
+								}
 							}
 						}
 					}

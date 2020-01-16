@@ -489,6 +489,15 @@ const processItemList = function(itemListName, callback) {
 			itemListParameters.callback(response, itemListParameters);
 		}
 
+		let data = response.data;
+
+		if (
+			typeof itemListParameters.data !== 'undefined' &&
+			response.data[itemListParameters.data]
+		) {
+			data = response.data[itemListParameters.data];
+		}
+
 		let lastResult = itemListParameters.page * itemListParameters.resultsPerPage;
 		elements.html(itemListParameters.selector + ' .first-result', itemListParameters.page === 1 ? itemListParameters.page : ((itemListParameters.page * itemListParameters.resultsPerPage) - itemListParameters.resultsPerPage) + 1);
 		elements.html(itemListParameters.selector + ' .last-result', lastResult >= response.count ? response.count : lastResult);
@@ -521,14 +530,8 @@ const processItemList = function(itemListName, callback) {
 		});
 
 		if (
-			(
-				typeof response.data.length !== 'undefined' &&
-				response.data.length
-			) ||
-			(
-				typeof itemListParameters.data !== 'undefined' &&
-				response.data[itemListParameters.data].length
-			)
+			typeof data.length !== 'undefined' &&
+			data.length
 		) {
 			elements.removeClass(itemListParameters.selector + ' .item-controls, ' + itemListParameters.selector + ' .items', 'hidden');
 		} else {
@@ -543,7 +546,7 @@ const processItemList = function(itemListName, callback) {
 			api.setRequestParameters(mergeRequestParameters, true);
 		}
 
-		processItemListGrid(range(0, response.data.length - 1));
+		processItemListGrid(range(0, data.length - 1));
 
 		if (typeof callback === 'function') {
 			callback(response, itemListParameters);

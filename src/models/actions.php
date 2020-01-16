@@ -83,10 +83,11 @@
 										'id' => $actionToProcess['id']
 									)
 								);
+								$encode = $this->encode[$table] ? $this->encode[$table] : false;
 
 								if (
 									empty($itemsToProcess) ||
-									$parameters['tokens'][$actionTable] === $this->_getToken($actionTable, $parameters, $actionToProcess['foreign_key'], $actionToProcess['foreign_value'])
+									$parameters['tokens'][$actionTable] === $this->_getToken($actionTable, $parameters, $actionToProcess['foreign_key'], $actionToProcess['foreign_value'], false, false, false, $encode)
 								) {
 									$actionProgress = min(100, $actionToProcess['progress'] + ceil(100 / $actionToProcess['chunks']));
 

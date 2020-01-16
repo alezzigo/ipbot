@@ -114,6 +114,7 @@
 			$this->encode = array(
 				'carts' => array(
 					'data_table' => 'cart_items',
+					'default_action' => 'cart',
 					'exclude_actions' => array(
 						'cart'
 					),
@@ -125,6 +126,7 @@
 				),
 				'proxies' => array(
 					'data_table' => 'proxies',
+					'default_action' => 'fetch',
 					'exclude_actions' => array(
 						'fetch',
 						'search'

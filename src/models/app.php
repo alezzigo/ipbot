@@ -217,27 +217,43 @@
 	 * @param array $parameters
 	 * @param string $sessionId
 	 * @param string $salt
+	 * @param array $encode
 	 *
 	 * @return array $response
 	 */
-		protected function _createTokenString($table, $parameters, $sessionId = false, $salt = false) {
+		protected function _createTokenString($table, $parameters, $sessionId = false, $salt = false, $encode = false) {
 			$response = array(
 				$this->keys['start']
 			);
+			$tokenStringParameters = array(
+				'fields' => array(
+					'id'
+				),
+				'limit' => 1,
+				'sort' => array(
+					'field' => 'modified',
+					'order' => 'DESC'
+				)
+			);
 
 			if (!empty($parameters['conditions'])) {
-				$response[] = $this->fetch($table, array(
-					'conditions' => $parameters['conditions'],
-					'fields' => array(
-						'id'
-					),
-					'limit' => 1,
-					'sort' => array(
-						'field' => 'modified',
-						'order' => 'DESC'
-					)
-				));
-				$response[] = $response[1]['count'];
+				$tokenStringParameters['conditions'] = $parameters['conditions'];
+			}
+
+			if (!empty($encode)) {
+				$table = $encode['data_table'];
+				$tokenStringParameters['sort'] = $encode['sort'];
+
+				if (empty($tokenStringParameters['conditions'])) {
+					$tokenStringParameters['conditions'] = array(
+						'user_id' => $parameters['user']['id']
+					);
+				}
+			}
+
+			if (!empty($tokenStringParameters['conditions'])) {
+				$data = $this->fetch($table, $tokenStringParameters);
+				$response[] = $data['count'] . $data['data'][0];
 			}
 
 			if ($sessionId !== false) {
@@ -370,16 +386,17 @@
 	 * @param string $sessionId
 	 * @param string $salt
 	 * @param integer $expirationMinutes
+	 * @param array $encode
 	 *
 	 * @return array $response
 	 */
-		protected function _getToken($table, $parameters, $foreignKey, $foreignValue, $sessionId = false, $salt = false, $expirationMinutes = false) {
+		protected function _getToken($table, $parameters, $foreignKey, $foreignValue, $sessionId = false, $salt = false, $expirationMinutes = false, $encode = false) {
 			$tokenParameters = array(
 				'conditions' => array(
 					'foreign_key' => $foreignKey,
 					'foreign_table' => $table,
 					'foreign_value' => $foreignValue,
-					'string' => $this->_createTokenString($table, $parameters, $sessionId, $salt)
+					'string' => $this->_createTokenString($table, $parameters, $sessionId, $salt, $encode)
 				),
 				'fields' => array(
 					'id'
@@ -650,10 +667,10 @@
 	 * @return array $response
 	 */
 		protected function _processAction($table, $parameters) {
-			$message = array();
 			$response = array(
 				'user' => $parameters['user']
 			);
+			$message = array();
 
 			if (
 				!method_exists($this, $action = $parameters['action']) ||
@@ -661,9 +678,12 @@
 					isset($this->encode[$table]) &&
 					($encode = $this->encode[$table]) &&
 					($foreignKey = $encode['foreign_key']) &&
-					isset($parameters['conditions'][$foreignKey]) &&
-					($foreignValue = $parameters['conditions'][$foreignKey]) &&
-					($token = $this->_getToken($table, $parameters, $foreignKey, $foreignValue)) === false
+					(
+						isset($parameters['conditions'][$foreignKey]) ||
+						$foreignKey == 'user_id'
+					) &&
+					($foreignValue = $foreignKey == 'user_id' ? $parameters['user']['id'] : $parameters['conditions'][$foreignKey]) &&
+					($token = $this->_getToken($table, $parameters, $foreignKey, $foreignValue, false, false, false, $encode)) === false
 				)
 			) {
 				return false;
@@ -672,6 +692,7 @@
 			$clearItems = array(
 				$table => array()
 			);
+			$defaultAction = !empty($encode['default_action']) ? $encode['default_action'] : 'fetch';
 			$response['items'] = $parameters['items'] = isset($parameters['items']) ? $parameters['items'] : $clearItems;
 			$response['tokens'][$table] = $token;
 
@@ -754,26 +775,37 @@
 						}
 
 						if ($this->save('actions', $actionData)) {
-							$response['message'] = array(
-								'status' => 'success',
-								'text' => 'Your action to ' . $action . ' ' . $items[$table]['count'] . ' selected ' . $table . ' is currently processing.'
-							);
 							$response['processing'] = $actionData[0];
-						}
 
-						if ($itemIndexLineCount > 1) {
-							$action = 'fetch';
+							if ($itemIndexLineCount > 1) {
+								$action = $defaultAction;
+								$message = array(
+									'status' => 'success',
+									'text' => 'Your action to ' . $action . ' ' . $items[$table]['count'] . ' selected ' . $table . ' is currently processing.'
+								);
+							}
+						} else {
+							$message = array(
+								'status' => 'error',
+								'text' => 'Error processing action to ' . $action . ' ' . $items[$table]['count'] . ' selected ' . $table . ', please try again.'
+							);
 						}
 					}
 				}
 			} else {
-				$action = 'fetch';
+				$action = $defaultAction;
 				$response['items'] = $clearItems;
 
 				if (!empty($parameters['items'][$table])) {
-					$response['message'] = array(
+					$dataTable = $table;
+
+					if (!empty($encode['data_table'])) {
+						$dataTable = str_replace('_', ' ', $encode['data_table']);
+					}
+
+					$message = array(
 						'status' => 'error',
-						'text' => 'Your ' . $table . ' have been recently modified and your previously-selected results have been deselected automatically.'
+						'text' => 'Your ' . $dataTable . ' have been recently modified and your previously-selected results have been deselected automatically.'
 					);
 				}
 			}
@@ -816,6 +848,11 @@
 			}
 
 			$response = array_merge($response, $this->$action($table, $parameters));
+
+			if (!empty($message)) {
+				$response['message'] = $message;
+			}
+
 			return $response;
 		}
 

@@ -327,7 +327,7 @@
 					}
 				}
 
-				$response['items'][$table] = array();
+				$response['items'][$table] = $response['tokens'][$table] = array();
 			}
 
 			$response = array_merge($this->fetch($table, $parameters), $response);
@@ -1329,7 +1329,7 @@
 
 								if (
 									$endpoint ||
-									$parameters['tokens'][$table] === $this->_getToken($table, $parameters, 'order_id', $orderId)
+									$parameters['tokens'][$table] === $this->_getToken($table, $parameters, 'order_id', $orderId, false, false, false, $this->encode[$table])
 								) {
 									if (!empty($parameters['data']['transfer_authentication'])) {
 										$oldItemAuthentication = $this->fetch($table, array(

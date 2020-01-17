@@ -947,9 +947,13 @@ main {
 	top: 22px;
 }
 .item-configuration-container .item-controls-container .item-header .main-button {
-	margin-top: 6px;
-	padding: 5px 20px;
+	margin-top: 1px;
+	padding: 10px 20px;
 }
+	.item-configuration-container .item-controls-container .item-header .additional-item-controls .main-button {
+		margin-top: 6px;
+		padding: 5px 20px;
+	}
 .item-configuration-container .item-controls-container .item-header .alternate-button {
 	padding-top: 10px;
 	padding-bottom: 9px;

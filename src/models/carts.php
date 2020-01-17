@@ -381,7 +381,123 @@
 					'text' => 'Error processing your request, please <a href="' . $this->settings['base_url'] . 'cart">review your shopping cart</a> and try again.'
 				)
 			);
-			// ..
+
+			if ($cartData = $this->_retrieveCart($parameters)) {
+				$parameters['cart_id'] = $cartData['id'];
+				$parameters['cart_item_ids'] = $this->_retrieveCartItemIds($parameters);
+				$parameters['cart_products'] = $this->_retrieveCartProducts($parameters);
+				$parameters['cart_items'] = $this->_retrieveCartItems($parameters);
+				$invoices = $orders = array();
+				$invoiceConditions = $orderConditions = array(
+					'currency' => $this->settings['billing']['currency'],
+					'user_id' => $cartData['user_id']
+				);
+				$invoiceConditions = array_merge($invoiceConditions, array(
+					'payable' => true,
+					'status' => 'unpaid'
+				));
+				$orderConditions['status'] = 'pending';
+				$parameters['user'] = $this->_authenticate('users', $parameters);
+
+				if (!empty($parameters['user']['id'])) {
+					$invoiceConditions['user_id'] = $orderConditions['user_id'] = $parameters['user']['id'];
+				}
+
+				foreach ($parameters['cart_items'] as $cartItem) {
+					$invoices[$cartItem['interval_value'] . '_' . $cartItem['interval_type']][] = $cartItem['id'];
+					$order = array_merge($orderConditions, array(
+						'cart_item_id' => $cartItem['id'],
+						'interval_type' => $cartItem['interval_type'],
+						'interval_value' => $cartItem['interval_value'],
+						'name' => $cartItem['name'],
+						'price' => $cartItem['price'],
+						'product_id' => $cartItem['product_id'],
+						'quantity' => $cartItem['quantity'],
+						'type' => $cartItem['type']
+					));
+					$order['shipping'] = $this->_calculateItemShippingPrice($order);
+					$order['tax'] = $this->_calculateItemTaxPrice($order);
+					$orders[] = $order;
+				}
+
+				if (
+					!empty($orders) &&
+					$this->save('orders', $orders)
+				) {
+					foreach ($invoices as $interval => $cartItemIds) {
+						$interval = explode('_', $interval);
+						$intervalType = $interval[0];
+						$intervalValue = $interval[1];
+						$invoiceConditions['cart_items'] = sha1(json_encode($cartItemIds));
+						$invoiceData = array(
+							$invoiceConditions
+						);
+						$invoiceOrders = array();
+
+						if ($this->save('invoices', $invoiceData)) {
+							$invoice = $this->fetch('invoices', array(
+								'conditions' => $invoiceConditions,
+								'fields' => array(
+									'created',
+									'due',
+									'id',
+									'initial_invoice_id',
+									'modified',
+									'status',
+									'user_id'
+								),
+								'limit' => 1,
+								'sort' => array(
+									'field' => 'created',
+									'order' => 'DESC'
+								)
+							));
+							$orderIds = $this->fetch('orders', array(
+								'conditions' => array_merge($orderConditions, array(
+									'cart_item_id' => $cartItemIds
+								)),
+								'fields' => array(
+									'id'
+								)
+							));
+
+							if (
+								!empty($invoice['count']) &&
+								!empty($orderIds['count'])
+							) {
+								foreach ($orderIds['data'] as $orderId) {
+									$invoiceOrders[] = array(
+										'invoice_id' => $invoice['data'][0]['id'],
+										'order_id' => $orderId
+									);
+								}
+
+								if ($this->save('invoice_orders', $invoiceOrders)) {
+									$invoiceId = $invoice['data'][0]['id'];
+									$response = array(
+										'redirect' => $this->settings['base_url'] . 'invoices'
+									);
+								}
+							}
+						}
+					}
+
+					$this->delete('carts', array(
+						'id' => $parameters['cart_id']
+					));
+					$this->delete('cart_items', array(
+						'cart_id' => $parameters['cart_id']
+					));
+
+					if (
+						count($invoices) === 1 &&
+						!empty($invoiceId)
+					) {
+						$response['redirect'] .= '/' . $invoiceId . '#payment';
+					}
+				}
+			}
+
 			return $response;
 		}
 

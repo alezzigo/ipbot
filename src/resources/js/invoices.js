@@ -235,6 +235,13 @@ var processInvoice = function() {
 			};
 			cancelPendingButton.addEventListener('click', cancelPendingButton.clickListener);
 		}
+
+		elements.addScrollable('.item-controls-container.scrollable', function(element) {
+			if (element.details.width) {
+				element.parentNode.querySelector('.item-body').setAttribute('style', 'padding-top: ' + (element.parentNode.querySelector('.item-header').clientHeight + 2) + 'px');
+				element.setAttribute('style', 'width: ' + element.details.width + 'px;');
+			}
+		});
 	});
 };
 var processInvoices = function() {

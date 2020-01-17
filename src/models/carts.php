@@ -502,7 +502,7 @@
 		}
 
 	/**
-	 * Remove cart items from cart
+	 * Process cart item removal
 	 *
 	 * @param string $table
 	 * @param array $parameters
@@ -513,7 +513,7 @@
 			$response = array(
 				'message' => array(
 					'status' => 'error',
-					'text' => 'Error removing selectec cart items, please try again.'
+					'text' => 'Error removing selected cart items, please try again.'
 				)
 			);
 

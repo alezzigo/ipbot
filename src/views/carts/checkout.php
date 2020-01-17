@@ -8,30 +8,9 @@
 <main process="cart">
 	<div class="section">
 		<div class="container small">
+			<div class="item-controls-container controls-container scrollable"></div>
 			<h1>Checkout</h1>
-			<div class="item-configuration-container item-container">
-				<div class="item">
-					<div class="item-configuration">
-						<div class="controls-container item-controls-container scrollable">
-							<div class="item-header">
-								<div class="hidden item-controls">
-									<a class="align-right button confirm main-button" disabled href="<?php echo $config->settings['base_url']; ?>confirm">Proceed to Payment</a>
-									<a class="alternate-button button cart" href="<?php echo $config->settings['base_url']; ?>cart">Return to Cart</a>
-								</div>
-								<div class="clear"></div>
-								<p class="hidden item-controls no-margin-bottom">
-									<span class="align-right cart-total">Cart Total: <span class="total"></span></span>
-								</p>
-								<div class="clear"></div>
-								<div class="message-container"><p class="message">Loading...</p></div>
-							</div>
-						</div>
-						<div class="item-body">
-							<div class="checkout-items-container items-container no-padding-top"></div>
-						</div>
-					</div>
-				</div>
-			</div>
+			<div class="item-list" page="checkout" table="carts"></div>
 		</div>
 	</div>
 </main>

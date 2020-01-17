@@ -60,9 +60,6 @@ var processCart = function() {
 	});
 	processItemList('listCartItems');
 };
-var processConfirm = function() {
-	// ..
-};
 const processCartItems = function(response, itemListParameters) {
 	if (typeof itemListParameters !== 'object') {
 		processItemList('listCartItems');
@@ -89,6 +86,24 @@ const processCartItems = function(response, itemListParameters) {
 					window.location.href = response.redirect;
 					return false;
 				}
+			});
+		};
+		const processCartItemConfirm = function(cartItemConfirmButton) {
+			api.setRequestParameters({
+				action: 'confirm',
+				url: apiRequestParameters.current.settings.baseUrl + 'api/carts'
+			});
+			api.sendRequest(function(response) {
+				if (
+					typeof response.redirect === 'string' &&
+					response.redirect
+				) {
+					window.location.href = response.redirect;
+					return false;
+				}
+
+				elements.html('.message-container', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+				processWindowEvents('resize');
 			});
 		};
 		const processCartItemUpdate = function(cartItemId) {
@@ -156,34 +171,67 @@ const processCartItems = function(response, itemListParameters) {
 				itemListData += '</div>';
 			}
 
-			additionalItemControlData += '<div class="clear"></div>';
 			additionalItemControlData += '<p class="item-controls no-margin-bottom">';
-			additionalItemControlData += '<a class="align-right button main-button checkout" href="/checkout">Checkout</a>';
-			additionalItemControlData += '<span class="align-left cart-subtotal">Cart Subtotal: <span class="total">' + (Math.round(response.data.cart.subtotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billingCurrency + '</span></span>';
+			additionalItemControlData += '<a class="align-right button main-button checkout" href="/checkout">Checkout</a><br>';
+			additionalItemControlData += '<span class="cart-subtotal">Subtotal: <span class="total">' + (Math.round(response.data.cart.subtotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billingCurrency + '</span></span>';
 			additionalItemControlData += '</p>';
 		}
 
 		if (processPage === 'checkout') {
-			// ..
+			if (!response.data.cartItems.length) {
+				window.location.href = apiRequestParameters.current.settings.baseUrl + 'cart';
+				return false;
+			}
+
+			for (itemListDataKey in response.data.cartItems) {
+				let item = response.data.cartItems[itemListDataKey];
+				itemListData += '<div class="item-container item-button"><p>' + item.quantity + ' ' + item.name + '</p><p class="no-margin-bottom">' + item.price + ' ' + apiRequestParameters.current.settings.billingCurrency + ' for ' + item.intervalValue + ' ' + item.intervalType + (item.intervalValue !== 1 ? 's' : '') + '</p><div class="item-link-container"></div></div>';
+			}
+
+			itemListData += '<h2>Pricing Details</h2>';
+			itemListData += '<p class="no-margin-bottom"><label>Subtotal</label></p>';
+			itemListData += '<p>' + (Math.round(response.data.cart.subtotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billingCurrency + '</p>';
+			itemListData += '<p class="no-margin-bottom"><label>Cart Total</label></p>';
+			itemListData += '<p>' + (Math.round(response.data.cart.total * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billingCurrency + '</p>';
+			itemListData += '<p class="message">Additional fees for shipping and/or tax may apply before submitting final payment.</p>';
+			additionalItemControlData += '<p class="item-controls no-margin-bottom">';
+			additionalItemControlData += '<a class="align-right button main-button confirm" href="javascript:void(0);">Proceed to Payment</a>';
+			additionalItemControlData += '<span class="align-left cart-total">Total: <span class="total">' + (Math.round(response.data.cart.total * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billingCurrency + '</span></span><br>';
+			additionalItemControlData += '<a class="align-left button return" href="' + apiRequestParameters.current.settings.baseUrl + 'cart">Return to Cart</a>';
+			additionalItemControlData += '</p>';
 		}
 
 		elements.html(itemListParameters.selector + '[page="' + processPage + '"] .items', itemListData);
 		elements.html(itemListParameters.selector + '[page="' + processPage + '"] .additional-item-controls', additionalItemControlData);
-		elements.loop(itemListParameters.selector + ' .item-button-selectable', function(index, row) {
-			let cartItemUpdateIntervalTypeSelect = row.querySelector('select.interval-type');
-			let cartItemUpdateIntervalValueSelect = row.querySelector('select.interval-value');
-			let cartItemUpdateQuantitySelect = row.querySelector('select.quantity');
-			cartItemUpdateIntervalTypeSelect.removeEventListener('change', cartItemUpdateIntervalTypeSelect.changeListener);
-			cartItemUpdateIntervalValueSelect.removeEventListener('change', cartItemUpdateIntervalValueSelect.changeListener);
-			cartItemUpdateQuantitySelect.removeEventListener('change', cartItemUpdateQuantitySelect.changeListener);
-			let cartItemId = row.getAttribute('cart_item_id');
-			cartItemUpdateIntervalTypeSelect.changeListener = cartItemUpdateIntervalValueSelect.changeListener = cartItemUpdateQuantitySelect.changeListener = function() {
-				processCartItemUpdate(cartItemId);
-			};
-			cartItemUpdateIntervalTypeSelect.addEventListener('change', cartItemUpdateIntervalTypeSelect.changeListener);
-			cartItemUpdateIntervalValueSelect.addEventListener('change', cartItemUpdateIntervalValueSelect.changeListener);
-			cartItemUpdateQuantitySelect.addEventListener('change', cartItemUpdateQuantitySelect.changeListener);
-		});
+
+		if (processPage === 'cart') {
+			elements.loop(itemListParameters.selector + ' .item-button-selectable', function(index, row) {
+				let cartItemUpdateIntervalTypeSelect = row.querySelector('select.interval-type');
+				let cartItemUpdateIntervalValueSelect = row.querySelector('select.interval-value');
+				let cartItemUpdateQuantitySelect = row.querySelector('select.quantity');
+				cartItemUpdateIntervalTypeSelect.removeEventListener('change', cartItemUpdateIntervalTypeSelect.changeListener);
+				cartItemUpdateIntervalValueSelect.removeEventListener('change', cartItemUpdateIntervalValueSelect.changeListener);
+				cartItemUpdateQuantitySelect.removeEventListener('change', cartItemUpdateQuantitySelect.changeListener);
+				let cartItemId = row.getAttribute('cart_item_id');
+				cartItemUpdateIntervalTypeSelect.changeListener = cartItemUpdateIntervalValueSelect.changeListener = cartItemUpdateQuantitySelect.changeListener = function() {
+					processCartItemUpdate(cartItemId);
+				};
+				cartItemUpdateIntervalTypeSelect.addEventListener('change', cartItemUpdateIntervalTypeSelect.changeListener);
+				cartItemUpdateIntervalValueSelect.addEventListener('change', cartItemUpdateIntervalValueSelect.changeListener);
+				cartItemUpdateQuantitySelect.addEventListener('change', cartItemUpdateQuantitySelect.changeListener);
+			});
+		}
+
+		if (processPage === 'checkout') {
+			selectAllElements('.button.confirm', function(selectedElementKey, selectedElement) {
+				selectedElement.removeEventListener('click', selectedElement.clickListener);
+				selectedElement.clickListener = function() {
+					processCartItemConfirm(selectedElement);
+				};
+				selectedElement.addEventListener('click', selectedElement.clickListener);
+			});
+		}
+
 		api.setRequestParameters({
 			data: {}
 		});

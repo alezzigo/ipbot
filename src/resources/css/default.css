@@ -947,10 +947,8 @@ main {
 	top: 22px;
 }
 .item-configuration-container .item-controls-container .item-header .main-button {
+	margin-top: 6px;
 	padding: 5px 20px;
-	position: absolute;
-	right: 0;
-	top: 56px;
 }
 .item-configuration-container .item-controls-container .item-header .alternate-button {
 	padding-top: 10px;

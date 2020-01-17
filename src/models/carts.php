@@ -358,7 +358,7 @@
 		}
 
 	/**
-	 * Checkout
+	 * Process cart item checkout
 	 *
 	 * @return array
 	 */
@@ -367,29 +367,19 @@
 		}
 
 	/**
-	 * Confirm order
-	 *
-	 * @return array
-	 */
-		public function confirm() {
-			return array();
-		}
-
-	/**
-	 * Complete order
+	 * Process cart item confirmation
 	 *
 	 * @param string $table
 	 * @param array $parameters
 	 *
 	 * @return array $response
 	 */
-		public function complete($table, $parameters) {
+		public function confirm($table, $parameters) {
 			$response = array(
 				'message' => array(
 					'status' => 'error',
-					'text' => 'Error processing your order completion request, please try again.'
-				),
-				'redirect' => $this->settings['base_url'] . 'cart'
+					'text' => 'Error processing your request, please <a href="' . $this->settings['base_url'] . 'cart">review your shopping cart</a> and try again.'
+				)
 			);
 			// ..
 			return $response;
@@ -407,7 +397,7 @@
 			$response = array(
 				'message' => array(
 					'status' => 'error',
-					'text' => 'Error removing cart items, please try again.'
+					'text' => 'Error removing selectec cart items, please try again.'
 				)
 			);
 
@@ -446,7 +436,7 @@
 					) {
 						$response['message'] = array(
 							'status' => 'success',
-							'text' => 'Cart items removed successfully.'
+							'text' => 'Selected cart items removed successfully.'
 						);
 					}
 				}

@@ -229,7 +229,7 @@ const processItemList = function(itemListName, callback) {
 			typeof itemListParameters.options === 'object' &&
 			itemListParameters.options
 		) {
-			itemListData += '<div class="align-left hidden item-controls">';
+			itemListData += '<div class="align-left hidden item-controls selectable-item-controls">';
 
 			for (let optionKey in itemListParameters.options) {
 				let option = itemListParameters.options[optionKey];
@@ -256,7 +256,7 @@ const processItemList = function(itemListName, callback) {
 		}
 
 		itemListData += '<div class="clear"></div>';
-		itemListData += '<p class="hidden item-controls no-margin-bottom">';
+		itemListData += '<p class="align-left hidden item-controls no-margin-bottom selectable-item-controls">';
 		itemListData += '<span class="checked-container">';
 		itemListData += '<span class="total-checked">0</span> of <span class="total-results"></span> selected.</span>';
 		itemListData += '<a class="item-action hidden" href="javascript:void(0);" index="all" status="1"><span class="action">Select</span> all results</a>';
@@ -546,7 +546,11 @@ const processItemList = function(itemListName, callback) {
 			api.setRequestParameters(mergeRequestParameters, true);
 		}
 
-		processItemListGrid(range(0, data.length - 1));
+		if (elements.get(itemListParameters.selector + ' .items .checkbox[index]')) {
+			processItemListGrid(range(0, data.length - 1));
+		} else {
+			elements.addClass(itemListParameters.selector + ' .selectable-item-controls', 'hidden');
+		}
 
 		if (typeof callback === 'function') {
 			callback(response, itemListParameters);

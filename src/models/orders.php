@@ -251,7 +251,6 @@
 						'modified',
 						'payable',
 						'remainder_pending',
-						'session_id',
 						'shipping',
 						'shipping_pending',
 						'status',
@@ -320,7 +319,6 @@
 						'quantity_active',
 						'quantity_allocated',
 						'quantity_pending',
-						'session_id',
 						'shipping',
 						'shipping_pending',
 						'status',
@@ -451,6 +449,7 @@
 									false
 								)
 							)));
+
 							$mergedData['invoice']['remainder_pending'] = $mergedData['invoice']['total_pending'];
 							$orderMergeParameters = array(
 								'conditions' => array(
@@ -788,7 +787,6 @@
 												'currency' => $mergedData['invoice']['currency'],
 												'due' => null,
 												'payable' => true,
-												'session_id' => $parameters['session'],
 												'status' => 'paid',
 												'subtotal' => $amountToApplyToBalance,
 												'total' => $amountToApplyToBalance,

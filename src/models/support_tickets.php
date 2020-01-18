@@ -25,15 +25,13 @@
 				$supportTicketData = array();
 				$supportTicketParameters = array(
 					'conditions' => array(
-						'session_id' => $parameters['session'],
-						'user_id' => null
+						'user_id' => ($parameters['user']['id'] ? $parameters['user']['id'] : $parameters['session'])
 					),
 					'fields' => array(
 						'created',
 						'id',
 						'message',
 						'modified',
-						'session_id',
 						'subject',
 						'user_id'
 					),

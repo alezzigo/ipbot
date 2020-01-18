@@ -379,7 +379,6 @@
 						'quantity',
 						'quantity_active',
 						'quantity_pending',
-						'session_id',
 						'shipping',
 						'shipping_pending',
 						'status',
@@ -1388,8 +1387,8 @@
 				}
 			}
 
-			if (($response['tokens'][$table] = $this->_getToken($table, $parameters, 'order_id', $orderId)) !== $parameters['tokens'][$table]) {
-				$response['items'][$table] = array();
+			if (($response['tokens'][$table] = $this->_getToken($table, $parameters, 'order_id', $orderId, false, false, false, $this->encode[$table])) !== $parameters['tokens'][$table]) {
+				$response['items'][$table] = $response['tokens'][$table] = array();
 			}
 
 			$response = array_merge($this->fetch($table, $parameters), $response);

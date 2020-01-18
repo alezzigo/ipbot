@@ -810,7 +810,6 @@
 										'currency' => $invoice['data']['invoice']['currency'],
 										'due' => date('Y-m-d H:i:s', strtotime($invoice['data']['invoice']['due'] . ' +' . $intervalValue . ' ' . $intervalType)),
 										'initial_invoice_id' => !empty($invoice['data']['invoice']['initial_invoice_id']) ? $invoice['data']['invoice']['initial_invoice_id'] : $invoice['data']['invoice']['id'],
-										'session_id' => $invoice['data']['invoice']['session_id'],
 										'shipping' => $invoice['data']['invoice']['shipping'],
 										'status' => 'unpaid',
 										'subtotal' => $invoice['data']['invoice']['subtotal'],

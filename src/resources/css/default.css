@@ -673,6 +673,11 @@ main {
 			line-height: 21px;
 			margin-bottom: -1px;
 		}
+			.item-container .item-header .additional-item-controls {
+				border-top: 1px solid #ddd;
+				margin-top: 15px;
+				padding-top: 15px;
+			}
 			.item-container .item-header .message {
 				margin-bottom: 8px;
 				margin-top: 15px;

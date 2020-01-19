@@ -256,7 +256,7 @@ const processItemList = function(itemListName, callback) {
 		}
 
 		itemListData += '<div class="clear"></div>';
-		itemListData += '<p class="align-left hidden item-controls no-margin-bottom selectable-item-controls">';
+		itemListData += '<p class="hidden item-controls no-margin-bottom selectable-item-controls">';
 		itemListData += '<span class="checked-container">';
 		itemListData += '<span class="total-checked">0</span> of <span class="total-results"></span> selected.</span>';
 		itemListData += '<a class="item-action hidden" href="javascript:void(0);" index="all" status="1"><span class="action">Select</span> all results</a>';

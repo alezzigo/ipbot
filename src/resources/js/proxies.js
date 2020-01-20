@@ -18,7 +18,7 @@ var processActions = function(frameName, frameSelector) {
 			actionData = '<p class="message">Your most-recent actions for order #' + orderId + ' are displayed below.</p>';
 			actionData += '<div class="details">';
 			response.data.map(function(action, index) {
-				var actionParameters = JSON.parse(action.encodedParameters);
+				var actionParameters = action.encodedParameters;
 				actionData += '<div class="item-button item-container">';
 				actionData += '<div class="item">';
 				actionData += '<p><strong>Request to ' + actionParameters.action + ' ' + actionParameters.itemCount + ' ' + actionParameters.table + '</strong></p>';

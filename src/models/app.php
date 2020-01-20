@@ -496,10 +496,30 @@
 					}, $parameterKeyChunks));
 				}
 
+				if (
+					is_string($parameterValue) &&
+					($jsonStringLength = strlen($parameterValue)) &&
+					(
+						(
+							stripos($parameterValue, '{') === 0 &&
+							strripos($parameterValue, '}', -1) === ($jsonStringLength - 1)
+						) ||
+						(
+							stripos($parameterValue, '[{') === 0 &&
+							strripos($parameterValue, '}]', -1) === ($jsonStringLength - 2)
+						)
+					) &&
+					($decodedParameterValue = json_decode($parameterValue, true)) &&
+					is_array($decodedParameterValue)
+				) {
+					$parameterValue = $decodedParameterValue;
+				}
+
 				$parameters[$parameterKey] = $parameterValue;
 
 				if (is_array($parameterValue)) {
 					$parameters[$parameterKey] = $this->_parseParametersToCamelCase($parameterValue);
+
 				}
 			}
 

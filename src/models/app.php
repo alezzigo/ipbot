@@ -498,18 +498,19 @@
 
 				if (
 					is_string($parameterValue) &&
-					($jsonStringLength = strlen($parameterValue)) &&
+					($jsonString = trim($parameterValue)) &&
+					($jsonStringLength = strlen($jsonString)) &&
 					(
 						(
-							stripos($parameterValue, '{') === 0 &&
-							strripos($parameterValue, '}', -1) === ($jsonStringLength - 1)
+							stripos($jsonString, '{') === 0 &&
+							strripos($jsonString, '}', -1) === ($jsonStringLength - 1)
 						) ||
 						(
-							stripos($parameterValue, '[{') === 0 &&
-							strripos($parameterValue, '}]', -1) === ($jsonStringLength - 2)
+							stripos($jsonString, '[{') === 0 &&
+							strripos($jsonString, '}]', -1) === ($jsonStringLength - 2)
 						)
 					) &&
-					($decodedParameterValue = json_decode($parameterValue, true)) &&
+					($decodedParameterValue = json_decode($jsonString, true)) &&
 					is_array($decodedParameterValue)
 				) {
 					$parameterValue = $decodedParameterValue;

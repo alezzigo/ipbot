@@ -510,10 +510,10 @@
 							stripos($jsonString, '}]', -1) === ($jsonStringLength - 2)
 						)
 					) &&
-					($decodedParameterValue = json_decode($jsonString, true)) &&
-					is_array($decodedParameterValue)
+					($decodedJsonString = json_decode($jsonString, true)) &&
+					is_array($decodedJsonString)
 				) {
-					$parameterValue = $decodedParameterValue;
+					$parameterValue = $decodedJsonString;
 				}
 
 				$parameters[$parameterKey] = $parameterValue;

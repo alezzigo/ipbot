@@ -935,8 +935,8 @@ main {
 	left: 0;
 	position: absolute;
 	right: 0;
-	top: 0;
-	z-index: 3;
+	top: -1;
+	z-index: 4;
 }
 .scrollable[scrolling="1"] {
 	margin: auto;

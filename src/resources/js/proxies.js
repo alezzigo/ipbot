@@ -289,11 +289,11 @@ var processDownload = function(frameName, frameSelector) {
 		};
 		element.addEventListener('change', element.changeListener);
 	});
-	var itemsCopy = document.querySelector(frameSelector + ' .button.copy');
+	var itemsCopy = elements.get(frameSelector + ' .button.copy');
 	itemsCopy.removeEventListener('click', itemsCopy.clickListener);
 	itemsCopy.clickListener = function() {
-		document.querySelector('[name="copy"]').select();
-		document.execCommand(frameName);
+		elements.get('[name="copy"]').select();
+		document.execCommand('copy');
 	};
 	itemsCopy.addEventListener('click', itemsCopy.clickListener);
 	processDownloadFormat();

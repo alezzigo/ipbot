@@ -503,11 +503,11 @@
 					(
 						(
 							stripos($jsonString, '{') === 0 &&
-							stripos($jsonString, '}', -1) === ($jsonStringLength - 1)
+							(stripos($jsonString, '}', -1) + 1) === $jsonStringLength
 						) ||
 						(
 							stripos($jsonString, '[{') === 0 &&
-							stripos($jsonString, '}]', -1) === ($jsonStringLength - 2)
+							(stripos($jsonString, '}]', -1) + 2) === $jsonStringLength
 						)
 					) &&
 					($decodedJsonString = json_decode($jsonString, true)) &&

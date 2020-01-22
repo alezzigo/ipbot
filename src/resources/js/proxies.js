@@ -548,6 +548,71 @@ var processGroup = function(frameName, frameSelector) {
 		processGroupTable(response);
 	});
 };
+var _processGroup = function() {
+	api.setRequestParameters({
+		listProxyGroups: {
+			action: 'fetch',
+			callback: function(response, itemListParameters) {
+				processGroupItems(response, itemListParameters);
+			},
+			initial: true,
+			messages: {
+				groups: '<p class="message no-margin-top">Loading</p>'
+			},
+			options: [
+				{
+					attributes: [
+						{
+							name: 'checked',
+							value: '0'
+						},
+						{
+							name: 'class',
+							value: 'align-left checkbox no-margin-left'
+						},
+						{
+							name: 'index',
+							value: 'all-visible'
+						}
+					],
+					tag: 'span'
+				},
+				{
+					attributes: [
+						{
+							name: 'class',
+							value: 'button icon delete frame-button tooltip tooltip-bottom'
+						},
+						{
+							name: 'data-title',
+							value: 'Remove selected proxy groups'
+						},
+						{
+							name: 'item-function'
+						},
+						{
+							name: 'process',
+							value: 'remove'
+						},
+					],
+					tag: 'span'
+				}
+			],
+			page: 1,
+			resultsPerPage: 10,
+			selector: '.item-list[table="proxy_groups"]',
+			table: 'proxy_groups'
+		}
+	});
+	processItemList('listProxyGroups');
+};
+const processGroupItems = function(response, itemListParameters) {
+	if (typeof itemListParameters !== 'object') {
+		processItemList('listProxyGroups');
+	} else {
+		// ..
+	}
+};
 var processOrder = function() {
 	let orderId = document.querySelector('input[name="order_id"]').value;
 	api.setRequestParameters({

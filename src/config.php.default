@@ -136,6 +136,19 @@
 						'field' => 'modified',
 						'order' => 'DESC'
 					)
+				),
+				'proxy_groups' => array(
+					'data_table' => 'proxy_groups',
+					'default_action' => 'fetch',
+					'exclude_actions' => array(
+						'fetch',
+						'group'
+					),
+					'foreign_key' => 'order_id',
+					'sort' => array(
+						'field' => 'modified',
+						'order' => 'DESC'
+					)
 				)
 			);
 
@@ -228,19 +241,6 @@
 						'group' => 'user'
 					)
 				),
-				'proxy_groups' => array(
-					'fetch' => array(
-						'fields' => array_merge($defaultFields['proxy_groups'], array(
-							'created',
-							'modified'
-						)),
-						'group' => 'user'
-					),
-					'group' => array(
-						'fields' => $defaultFields['proxy_groups'],
-						'group' => 'user'
-					)
-				),
 				'proxies' => array(
 					'authenticate' => array(
 						'fields' => $defaultFields['proxies'],
@@ -286,6 +286,19 @@
 					),
 					'search' => array(
 						'fields' => $defaultFields['proxies'],
+						'group' => 'user'
+					)
+				),
+				'proxy_groups' => array(
+					'fetch' => array(
+						'fields' => array_merge($defaultFields['proxy_groups'], array(
+							'created',
+							'modified'
+						)),
+						'group' => 'user'
+					),
+					'group' => array(
+						'fields' => $defaultFields['proxy_groups'],
 						'group' => 'user'
 					)
 				),

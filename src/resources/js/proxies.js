@@ -572,12 +572,8 @@ var processOrder = function() {
 
 		if (response.data.order) {
 			api.setRequestParameters({
-				action: 'fetch',
-				table: 'proxies',
-				url: apiRequestParameters.current.settings.baseUrl + 'api/proxies'
-			});
-			api.setRequestParameters({
 				listProxies: {
+					action: 'fetch',
 					callback: function(response, itemListParameters) {
 						processProxies(response, itemListParameters);
 					},
@@ -909,7 +905,7 @@ var processProxies = function(response, itemListParameters) {
 				}
 			});
 			setTimeout(function() {
-				var itemsClear = document.querySelector('.item-configuration a.clear');
+				var itemsClear = elements.get('.item-configuration a.clear');
 				itemsClear.removeEventListener('click', itemsClear.clickListener);
 				itemsClear.clickListener = function() {
 					api.setRequestParameters({

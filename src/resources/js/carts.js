@@ -1,10 +1,7 @@
 var processCart = function() {
 	api.setRequestParameters({
-		action: 'cart',
-		url: apiRequestParameters.current.settings.baseUrl + 'api/carts'
-	});
-	api.setRequestParameters({
 		listCartItems: {
+			action: 'cart',
 			callback: function(response, itemListParameters) {
 				processCartItems(response, itemListParameters);
 			},
@@ -235,7 +232,6 @@ const processCartItems = function(response, itemListParameters) {
 		api.setRequestParameters({
 			data: {}
 		});
-
 		selectAllElements('.button.add-to-cart', function(selectedElementKey, selectedElement) {
 			selectedElement.removeEventListener('click', selectedElement.clickListener);
 			selectedElement.clickListener = function() {
@@ -250,8 +246,7 @@ const processCartItems = function(response, itemListParameters) {
 };
 var processRemove = function() {
 	api.setRequestParameters({
-		action: 'remove',
-		url: apiRequestParameters.current.settings.baseUrl + 'api/carts'
+		action: 'remove'
 	});
 	api.sendRequest(function(response) {
 		api.setRequestParameters({

@@ -444,11 +444,11 @@ const processItemList = function(itemListName, callback) {
 	}
 
 	api.setRequestParameters({
-		action: apiRequestParameters.current.action,
+		action: itemListParameters.action || apiRequestParameters.current.action,
 		limit: itemListParameters.resultsPerPage,
 		offset: ((itemListParameters.page * itemListParameters.resultsPerPage) - itemListParameters.resultsPerPage),
 		table: itemListParameters.table,
-		url: apiRequestParameters.current.settings.baseUrl + 'api/' + itemListParameters.table
+		url: itemListParameters.url || apiRequestParameters.current.settings.baseUrl + 'api/' + itemListParameters.table
 	});
 
 	if (apiRequestParameters.current.orderId) {
@@ -564,7 +564,7 @@ const processItemList = function(itemListName, callback) {
 			api.setRequestParameters(mergeRequestParameters, true);
 			elements.addScrollable('.item-controls-container.scrollable', function(element) {
 				if (element.details.width) {
-					element.parentNode.querySelector('.item-body').setAttribute('style', 'padding-top: ' + (element.parentNode.querySelector('.item-header').clientHeight + 2) + 'px');
+					elements.get(itemListParameters.selector + ' .item-body').setAttribute('style', 'padding-top: ' + (elements.get(itemListParameters.selector + ' .item-header').clientHeight + 2) + 'px');
 					element.setAttribute('style', 'width: ' + element.details.width + 'px;');
 				}
 			});

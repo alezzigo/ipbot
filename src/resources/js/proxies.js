@@ -610,6 +610,31 @@ const processGroupItems = function(response, itemListParameters) {
 	if (typeof itemListParameters !== 'object') {
 		processItemList('listProxyGroups');
 	} else {
+		let itemListData = '';
+		// ..
+		elements.html(itemListParameters.selector + ' .items', '<table class="table"><thead><th style="width: 35px;"></th><th>Group Name</th></thead><tbody></tbody></table>');
+
+		if (response.data.length) {
+			for (itemListDataKey in response.data) {
+				let intervalSelectTypes = intervalSelectValues = quantitySelectValues = '';
+				let item = response.data[itemListDataKey];
+				itemListData += '<tr group_id="' + item.id + '" class="">';
+				itemListData += '<td style="width: 1px;">';
+				itemListData += '<span checked="0" class="checkbox" index="' + itemListDataKey + '" group_id="' + item.id + '"></span>';
+				itemListData += '</td>';
+				itemListData += '<td>';
+				itemListData += '<span class="table-text">';
+				itemListData += '<a class="view" group_id="' + item.id + '" href="javascript:void(0);">' + item.name + '</a>';
+				itemListData += '</span>';
+				itemListData += '<span class="table-actions">';
+				itemListData += '<span class="button edit icon" group_id="' + item.id + '"></span>';
+				itemListData += '<span class="button delete icon" group_id="' + item.id + '"></span>';
+				itemListData += '</span>';
+				itemListData += '</td>';
+			}
+		}
+
+		elements.html(itemListParameters.selector + ' .items tbody', itemListData);
 		// ..
 	}
 };

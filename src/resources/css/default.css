@@ -866,6 +866,9 @@ main {
 			.frame-container .item-container {
 				padding: 47px 0 88px;
 			}
+				.frame-container .item-list .item-container {
+					padding: 0;
+				}
 			.frame-container .frame .checkbox-container {
 				float: left;
 				margin-bottom: 10px;

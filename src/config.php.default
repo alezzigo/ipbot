@@ -297,7 +297,7 @@
 						)),
 						'group' => 'user'
 					),
-					'group' => array(
+					'remove' => array(
 						'fields' => $defaultFields['proxy_groups'],
 						'group' => 'user'
 					)

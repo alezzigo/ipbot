@@ -929,6 +929,9 @@ main {
 					display: block;
 					width: 100%;
 				}
+					.frame-container .frame .item-body .frame-button.icon {
+						width: 18px;
+					}
 			.frame-container .frame .item-footer {
 				border-top: 1px solid #ddd;
 				padding-top: 34px;

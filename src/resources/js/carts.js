@@ -191,15 +191,17 @@ const processCartItems = function(response, itemListParameters) {
 			itemListData += '<p class="no-margin-bottom"><label>Cart Total</label></p>';
 			itemListData += '<p>' + (Math.round(response.data.cart.total * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billingCurrency + '</p>';
 			itemListData += '<p class="message">Additional fees for shipping and/or tax may apply before submitting final payment.</p>';
+			additionalItemControlData += '<div class="additional-item-controls">';
 			additionalItemControlData += '<p class="item-controls no-margin-bottom">';
 			additionalItemControlData += '<a class="align-right button main-button confirm" href="javascript:void(0);">Proceed to Payment</a>';
 			additionalItemControlData += '<span class="align-left cart-total">Total: <span class="total">' + (Math.round(response.data.cart.total * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billingCurrency + '</span></span><br>';
 			additionalItemControlData += '<a class="align-left button return" href="' + apiRequestParameters.current.settings.baseUrl + 'cart">Return to Cart</a>';
 			additionalItemControlData += '</p>';
+			additionalItemControlData += '</div>';
 		}
 
 		elements.html(itemListParameters.selector + '[page="' + processPage + '"] .items', itemListData);
-		elements.html(itemListParameters.selector + '[page="' + processPage + '"] .additional-item-controls', additionalItemControlData);
+		elements.html(itemListParameters.selector + '[page="' + processPage + '"] .additional-item-controls-container', additionalItemControlData);
 
 		if (processPage === 'cart') {
 			elements.loop(itemListParameters.selector + ' .item-button-selectable', function(index, row) {

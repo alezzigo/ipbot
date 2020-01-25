@@ -262,7 +262,7 @@ const processItemList = function(itemListName, callback) {
 		itemListData += '<a class="item-action hidden" href="javascript:void(0);" index="all" status="1"><span class="action">Select</span> all results</a>';
 		itemListData += '<span class="clear"></span>';
 		itemListData += '</p>';
-		itemListData += '<div class="additional-item-controls"></div>';
+		itemListData += '<div class="additional-item-controls-container"></div>';
 
 		if (
 			typeof itemListParameters.messages === 'object' &&

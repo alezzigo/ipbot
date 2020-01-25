@@ -1142,6 +1142,22 @@ var processProxies = function(response, itemListParameters) {
 		}
 	}
 };
+var processRemove = function() {
+	api.setRequestParameters({
+		action: 'remove'
+	});
+	api.sendRequest(function(response) {
+		api.setRequestParameters({
+			action: 'fetch',
+			items: {
+				proxy_groups: {}
+			}
+		}, true);
+		processItemList('listProxyGroups', function() {
+			elements.html('.message-container.groups', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		});
+	});
+};
 var processRequests = function(frameName, frameSelector) {
 	// ..
 };

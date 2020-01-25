@@ -1150,7 +1150,7 @@ var processRemove = function() {
 		api.setRequestParameters({
 			action: 'fetch',
 			items: {
-				proxy_groups: {}
+				proxyGroups: {}
 			}
 		}, true);
 		processItemList('listProxyGroups', function() {

@@ -28,7 +28,10 @@ const processMethodForm = function(element) {
 		apiRequestParameters.current.action !== 'search' &&
 		(
 			element.classList.contains('close') ||
-			!element.classList.contains('submit')
+			(
+				!element.hasAttribute('item-function') &&
+				!element.classList.contains('submit')
+			)
 		)
 	) {
 		closeFrames(apiRequestParameters.current.defaults);

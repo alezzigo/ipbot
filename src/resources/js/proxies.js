@@ -581,7 +581,7 @@ var _processGroup = function() {
 					attributes: [
 						{
 							name: 'class',
-							value: 'button icon delete frame-button tooltip tooltip-bottom'
+							value: 'button icon delete tooltip tooltip-bottom'
 						},
 						{
 							name: 'data-title',

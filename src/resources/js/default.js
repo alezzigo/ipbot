@@ -444,7 +444,7 @@ const processItemList = function(itemListName, callback) {
 	}
 
 	api.setRequestParameters({
-		action: itemListParameters.action || apiRequestParameters.current.action,
+		action: apiRequestParameters.current[itemListName].initial === true ? itemListParameters.action : apiRequestParameters.current.action,
 		limit: itemListParameters.resultsPerPage,
 		offset: ((itemListParameters.page * itemListParameters.resultsPerPage) - itemListParameters.resultsPerPage),
 		table: itemListParameters.table,

@@ -503,7 +503,7 @@ const processItemList = function(itemListName, callback) {
 		elements.html(itemListParameters.selector + ' .last-result', lastResult >= response.count ? response.count : lastResult);
 		elements.html(itemListParameters.selector + ' .total-results', response.count);
 		elements.setAttribute(itemListParameters.selector + ' .pagination', 'current_page', itemListParameters.page);
-		elements.setAttribute(itemListParameters.selector + ' .pagination .next', 'page', +elements.html('.item-configuration .last-result') < response.count ? itemListParameters.page + 1 : 0);
+		elements.setAttribute(itemListParameters.selector + ' .pagination .next', 'page', +elements.html(itemListParameters.selector + ' .item-configuration .last-result') < response.count ? itemListParameters.page + 1 : 0);
 		elements.setAttribute(itemListParameters.selector + ' .pagination .previous', 'page', itemListParameters.page <= 0 ? 0 : itemListParameters.page - 1);
 
 		if (apiRequestParameters.current[itemListName].initial === true) {

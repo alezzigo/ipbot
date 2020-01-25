@@ -290,6 +290,14 @@
 					)
 				),
 				'proxy_groups' => array(
+					'add' => array(
+						'fields' => $defaultFields['proxy_groups'],
+						'group' => 'user'
+					),
+					'edit' => array(
+						'fields' => $defaultFields['proxy_groups'],
+						'group' => 'user'
+					),
 					'fetch' => array(
 						'fields' => array_merge($defaultFields['proxy_groups'], array(
 							'created',

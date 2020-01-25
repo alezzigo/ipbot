@@ -562,7 +562,7 @@ const processItemList = function(itemListName, callback) {
 				initial: false
 			};
 			api.setRequestParameters(mergeRequestParameters, true);
-			elements.addScrollable('.item-controls-container.scrollable', function(element) {
+			elements.addScrollable(itemListParameters.selector + ' .item-controls-container.scrollable', function(element) {
 				if (element.details.width) {
 					elements.get(itemListParameters.selector + ' .item-body').setAttribute('style', 'padding-top: ' + (elements.get(itemListParameters.selector + ' .item-header').clientHeight + 2) + 'px');
 					element.setAttribute('style', 'width: ' + element.details.width + 'px;');

@@ -315,7 +315,7 @@ const processItemList = function(itemListName, callback) {
 		};
 		const processItemListGridSelection = function(item) {
 			let keyIndexes = range(0, Math.floor(itemListTotalResults / itemListGridLineSizeMaximum));
-			elements.html('.total-checked', (selectionStatus = +item.getAttribute('status')) ? itemListTotalResults : 0);
+			elements.html(itemListParameters.selector + ' .total-checked', (selectionStatus = +item.getAttribute('status')) ? itemListTotalResults : 0);
 			keyIndexes.map(function(key) {
 				itemListGrid[key] = selectionStatus + itemListGridLineSize(key);
 			});
@@ -337,7 +337,7 @@ const processItemList = function(itemListName, callback) {
 		}
 
 		if (!itemListGrid.length) {
-			elements.html('.total-checked', 0);
+			elements.html(itemListParameters.selector + ' .total-checked', 0);
 		}
 
 		itemListIndexes.map(function(itemIndex) {
@@ -384,7 +384,7 @@ const processItemList = function(itemListName, callback) {
 		});
 
 		if (typeof itemState === 'boolean') {
-			elements.html('.total-checked', +elements.html('.total-checked') + (itemListCount - itemListGridCount));
+			elements.html(itemListParameters.selector + ' .total-checked', +elements.html(itemListParameters.selector + ' .total-checked') + (itemListCount - itemListGridCount));
 		}
 
 		itemAll.classList.add('hidden');
@@ -405,21 +405,21 @@ const processItemList = function(itemListName, callback) {
 			(
 				(
 					allVisibleChecked &&
-					+elements.html('.total-checked') < itemListTotalResults
+					+elements.html(itemListParameters.selector + ' .total-checked') < itemListTotalResults
 				) ||
-				+elements.html('.total-checked') === itemListTotalResults
+				+elements.html(itemListParameters.selector + ' .total-checked') === itemListTotalResults
 			)
 		) {
 			itemAll.classList.remove('hidden');
-			itemAll.querySelector('.action').innerText = (selectionStatus = +(+elements.html('.total-checked') === itemListTotalResults)) ? 'Unselect' : 'Select';
+			itemAll.querySelector('.action').innerText = (selectionStatus = +(+elements.html(itemListParameters.selector + ' .total-checked') === itemListTotalResults)) ? 'Unselect' : 'Select';
 			itemAll.setAttribute('status', +(selectionStatus === 0));
 		}
 
 		processWindowEvents('resize');
-		+elements.html('.total-checked') ? elements.removeClass(itemListParameters.selector + ' span.icon[item-function]', 'hidden') : elements.addClass(itemListParameters.selector + ' span.icon[item-function]', 'hidden');
+		+elements.html(itemListParameters.selector + ' .total-checked') ? elements.removeClass(itemListParameters.selector + ' span.icon[item-function]', 'hidden') : elements.addClass(itemListParameters.selector + ' span.icon[item-function]', 'hidden');
 		itemListGridCount = itemListCount;
 
-		if (itemListTotalResults === +elements.html('.total-checked')) {
+		if (itemListTotalResults === +elements.html(itemListParameters.selector + ' .total-checked')) {
 			elements.addClass(itemListParameters.selector + ' span.icon[item-function][process="downgrade"]', 'hidden');
 		}
 
@@ -514,14 +514,14 @@ const processItemList = function(itemListName, callback) {
 						mergeRequestParameters[itemListName] = {};
 						mergeRequestParameters[itemListName].page = page;
 						api.setRequestParameters(mergeRequestParameters, true);
-						elements.html('.message-container.status', '<p class="message">Loading</p>');
+						elements.html(itemListParameters.selector + ' .message-container.status', '<p class="message">Loading</p>');
 						processItemList(itemListName);
 					}
 				});
 			});
 		}
 
-		elements.loop('.item-configuration .items .checkbox', function(index, item) {
+		elements.loop(itemListParameters.selector + ' .item-configuration .items .checkbox', function(index, item) {
 			item.removeEventListener('click', item.clickListener);
 			item.clickListener = function() {
 				itemToggle(item);
@@ -575,7 +575,7 @@ const processItemList = function(itemListName, callback) {
 			});
 		}
 
-		elements.html('.message-container.status', '');
+		elements.html(itemListParameters.selector + ' .message-container.status', '');
 		processWindowEvents('resize');
 	});
 };

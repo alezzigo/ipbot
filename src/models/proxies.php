@@ -836,136 +836,55 @@
 			$response = array(
 				'message' => array(
 					'status' => 'error',
-					'text' => 'Error processing your group request, please try again.'
+					'text' => 'Error processing your proxy group request, please try again.'
 				)
 			);
 
 			if (
-				$table === 'proxy_groups' &&
-				!empty($parameters['data'])
+				!empty($parameters['items']['proxies']['count']) &&
+				!empty($parameters['items']['proxy_groups']['count'])
 			) {
-				$groupData = array(
-					array_intersect_key($parameters['data'], array(
-						'id' => true,
-						'name' => true,
-						'order_id' => true
-					))
-				);
+				$groups = $proxyIds = array();
+				$existingProxyGroupProxies = $this->fetch('proxy_group_proxies', array(
+					'conditions' => array(
+						'proxy_id' => $parameters['items']['proxies']['data'],
+						'proxy_group_id' => array_values($parameters['items']['proxy_groups']['data'])
+					),
+					'fields' => array(
+						'id',
+						'proxy_group_id',
+						'proxy_id'
+					)
+				));
 
-				if (!empty($groupData[0])) {
-					if (!empty($parameters['conditions'])) {
-						$groupData = array(
-							array_merge($groupData[0], $parameters['conditions'])
+				foreach ($parameters['items']['proxies']['data'] as $key => $proxyId) {
+					foreach ($parameters['items']['proxy_groups']['data'] as $key => $proxyGroupId) {
+						$groups[$proxyGroupId . '_' . $proxyId] = array(
+							'proxy_group_id' => $proxyGroupId,
+							'proxy_id' => $proxyId
 						);
 					}
+				}
 
-					$groupParameters = array(
-						'conditions' => $groupData[0],
-						'fields' => array(
-							'created',
-							'id',
-							'modified',
-							'name',
-							'order_id',
-							'user_id'
-						),
-						'limit' => 1
+				if (!empty($existingProxyGroupProxies['count'])) {
+					foreach ($existingProxyGroupProxies['data'] as $existingProxyGroupProxy) {
+						if (!empty($groups[$key = $existingProxyGroupProxy['proxy_group_id'] . '_' . $existingProxyGroupProxy['proxy_id']])) {
+							$groups[$key]['id'] = $existingProxyGroupProxy['id'];
+						}
+					}
+				}
+
+				$response['message']['text'] = 'Error adding selected proxies to selected proxy groups.';
+
+				if ($this->save('proxy_group_proxies', array_values($groups))) {
+					$response['message'] = array(
+						'status' => 'success',
+						'text' => 'Selected proxies added to selected proxy groups successfully.'
 					);
-
-					if (
-						!empty($groupData[0]['name']) &&
-						!empty($groupData[0]['order_id'])
-					) {
-						$response['message']['text'] = 'Group "' . $groupData[0]['name'] . '" already exists for this order.';
-						unset($groupParameters['conditions']['id']);
-						$existingGroup = $this->fetch('proxy_groups', $groupParameters);
-
-						if (empty($existingGroup['count'])) {
-							$response['message']['text'] = 'Error creating new group, please try again.';
-
-							if ($this->save('proxy_groups', $groupData)) {
-								$response['message'] = array(
-									'status' => 'success',
-									'text' => 'Group "' . $groupData[0]['name'] . '" saved successfully.'
-								);
-							}
-						}
-					}
-
-					if (
-						!empty($groupData[0]['id']) &&
-						!isset($groupData[0]['name'])
-					) {
-						$response['message']['text'] = 'Error deleting group, please try again.';
-						$existingGroup = $this->fetch('proxy_groups', $groupParameters);
-
-						if (
-							!empty($existingGroup['count']) &&
-							$this->delete('proxy_groups', $groupData[0]) &&
-							$this->delete('proxy_group_proxies', array(
-								'proxy_group_id' => $groupData[0]['id']
-							))
-						) {
-							$response['message'] = array(
-								'status' => 'success',
-								'text' => 'Group deleted successfully.'
-							);
-						}
-					}
 				}
 			}
 
-			if ($table === 'proxies') {
-				if (
-					!empty($parameters['items']['proxies']['count']) &&
-					!empty($parameters['items']['proxy_groups']['count'])
-				) {
-					$groups = $proxyIds = array();
-					$existingProxyGroupProxies = $this->fetch('proxy_group_proxies', array(
-						'conditions' => array(
-							'proxy_id' => $parameters['items']['proxies']['data'],
-							'proxy_group_id' => array_values($parameters['items']['proxy_groups']['data'])
-						),
-						'fields' => array(
-							'id',
-							'proxy_group_id',
-							'proxy_id'
-						)
-					));
-
-					foreach ($parameters['items']['proxies']['data'] as $key => $proxyId) {
-						foreach ($parameters['items']['proxy_groups']['data'] as $key => $proxyGroupId) {
-							$groups[$proxyGroupId . '_' . $proxyId] = array(
-								'proxy_group_id' => $proxyGroupId,
-								'proxy_id' => $proxyId
-							);
-						}
-					}
-
-					if (!empty($existingProxyGroupProxies['count'])) {
-						foreach ($existingProxyGroupProxies['data'] as $existingProxyGroupProxy) {
-							if (!empty($groups[$key = $existingProxyGroupProxy['proxy_group_id'] . '_' . $existingProxyGroupProxy['proxy_id']])) {
-								$groups[$key]['id'] = $existingProxyGroupProxy['id'];
-							}
-						}
-					}
-
-					$response['message']['text'] = 'Error adding selected items to groups.';
-
-					if ($this->save('proxy_group_proxies', array_values($groups))) {
-						$response['message'] = array(
-							'status' => 'success',
-							'text' => 'Items added to selected groups successfully.'
-						);
-					}
-				}
-
-				$response['items'][$table] = array();
-			} else {
-				unset($parameters['limit']);
-				unset($parameters['offset']);
-			}
-
+			$response['items'][$table] = array();
 			$parameters['fields'] = $this->permissions[$table]['fetch']['fields'];
 			$response = array_merge($this->fetch($table, $parameters), $response);
 			return $response;

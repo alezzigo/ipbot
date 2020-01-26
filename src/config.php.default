@@ -141,8 +141,7 @@
 					'data_table' => 'proxy_groups',
 					'default_action' => 'fetch',
 					'exclude_actions' => array(
-						'fetch',
-						'group'
+						'fetch'
 					),
 					'foreign_key' => 'order_id',
 					'sort' => array(

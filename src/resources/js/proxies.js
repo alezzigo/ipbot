@@ -356,199 +356,7 @@ var processEndpoint = function(frameName, frameSelector) {
 		});
 	});
 };
-var processGroup = function(frameName, frameSelector) {
-	var groupGrid = {};
-	var groupNameButton = document.querySelector(frameSelector + ' .group-name-button');
-	var groupNameField = document.querySelector(frameSelector + ' .group-name-field');
-	var groupTable = document.querySelector(frameSelector + ' .group-table');
-	var orderId = document.querySelector('input[name="order_id"]').value;
-	api.setRequestParameters({
-		url: apiRequestParameters.current.settings.baseUrl + 'api/proxies'
-	});
-	var groupAdd = function(groupName) {
-		api.setRequestParameters({
-			action: frameName,
-			data: {
-				name: groupName,
-				orderId: orderId
-			}
-		}, true);
-		delete apiRequestParameters.current.data.id;
-		api.sendRequest(function(response) {
-			processGroupTable(response);
-		});
-	};
-	var groupDelete = function(button, row) {
-		var groupId = row.getAttribute('group_id');
-		api.setRequestParameters({
-			action: frameName,
-			data: {
-				id: [groupId]
-			}
-		}, true);
-		delete apiRequestParameters.current.data.name;
-		api.sendRequest(function(response) {
-			delete groupGrid[frameName + groupId];
-			processGroupTable(response);
-		});
-	};
-	var groupEdit = function(button, row) {
-		var processGroupEdit = function(row) {
-			api.setRequestParameters({
-				action: frameName,
-				data: {
-					id: row.getAttribute('group_id'),
-					name: row.querySelector('.group-name-edit-field').value,
-					orderId: orderId
-				}
-			}, true);
-			api.sendRequest(function(response) {
-				processGroupTable(response);
-			});
-		};
-		var originalRow = row.querySelector('.table-text').innerHTML;
-		row.querySelector('.table-text').innerHTML = '<div class="field-group no-margin"><input class="group-name-edit-field no-margin" id="group-name-edit" name="group_name" type="text" value="' + row.querySelector('.view').innerText + '"><button class="button group-name-save-edit-button">Save</button><button class="button group-name-cancel-edit-button">Cancel</button></div>';
-		row = document.querySelector(frameSelector + ' tbody tr[group_id="' + row.getAttribute('group_id') + '"]');
-		var groupNameCancelEditButton = row.querySelector('.group-name-cancel-edit-button');
-		var groupNameEditField = row.querySelector('.group-name-edit-field');
-		var groupNameSaveEditButton = row.querySelector('.group-name-save-edit-button');
-		groupNameCancelEditButton.removeEventListener('click', groupNameCancelEditButton.clickListener);
-		groupNameEditField.removeEventListener('keydown', groupNameEditField.keydownListener);
-		groupNameSaveEditButton.removeEventListener('click', groupNameSaveEditButton.clickListener);
-		groupNameCancelEditButton.clickListener = function() {
-			row.querySelector('.table-text').innerHTML = originalRow;
-		};
-		groupNameEditField.keydownListener = function() {
-			if (event.key == 'Enter') {
-				processGroupEdit(row);
-			}
-		};
-		groupNameSaveEditButton.clickListener = function() {
-			processGroupEdit(row);
-		};
-		groupNameCancelEditButton.addEventListener('click', groupNameCancelEditButton.clickListener);
-		groupNameEditField.addEventListener('keydown', groupNameEditField.keydownListener);
-		groupNameSaveEditButton.addEventListener('click', groupNameSaveEditButton.clickListener);
-	};
-	var groupToggle = function(button) {
-		groupTable.setAttribute('current_checked', button.getAttribute('index'));
-		processGroupGrid(window.event.shiftKey ? range(groupTable.getAttribute('previous_checked'), button.getAttribute('index')) : [button.getAttribute('index')], window.event.shiftKey ? +document.querySelector(frameSelector + ' .checkbox[index="' + groupTable.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +button.getAttribute('checked') === 0);
-		groupTable.setAttribute('previous_checked', button.getAttribute('index'));
-	};
-	var groupView = function(button, row) {
-		elements.addClass('.item-configuration .item-controls', 'hidden');
-		elements.html('.message-container.proxies', '<p class="message no-margin-top">Loading</p>');
-		closeFrames();
-		api.setRequestParameters({
-			action: 'search',
-			data: {
-				groups: [button.getAttribute('group_id')]
-			},
-			items: {
-				proxies: []
-			},
-			table: 'proxies'
-		}, true);
-		api.sendRequest(function() {
-			processProxies(false, false, 1);
-		});
-	};
-	var processGroupGrid = function(groupIndexes, groupState) {
-		groupIndexes.map(function(groupIndex) {
-			var group = document.querySelector(frameSelector + ' .checkbox[index="' + groupIndex + '"]');
-			var groupId = group.getAttribute('group_id');
-			group.setAttribute('checked', +groupState);
-			groupGrid[frameName + groupId] = groupId;
-
-			if (!+groupState) {
-				delete groupGrid[frameName + groupId];
-			}
-		});
-		api.setRequestParameters({
-			items: {
-				proxyGroups: groupGrid
-			}
-		}, true);
-	};
-	var processGroupTable = function(response) {
-		groupTable.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
-
-		if (
-			response.code !== 200 ||
-			!response.data.length
-		) {
-			return;
-		}
-
-		groupTable.innerHTML += '<table class="table"><thead><th style="width: 35px;"></th><th>Group Name</th></thead><tbody></tbody></table>';
-		response.data.map(function(group, index) {
-			groupTable.querySelector('table tbody').innerHTML += '<tr group_id="' + group.id + '" class=""><td style="width: 1px;"><span checked="0" class="checkbox" index="' + index + '" group_id="' + group.id + '"></span></td><td><span class="table-text"><a class="view" group_id="' + group.id + '" href="javascript:void(0);">' + group.name + '</a></span><span class="table-actions"><span class="button edit icon" group_id="' + group.id + '"></span><span class="button delete icon" group_id="' + group.id + '"></span></span></td>';
-		});
-		elements.loop(frameSelector + ' tbody tr', function(index, row) {
-			var groupDeleteButton = row.querySelector('.delete'),
-				groupEditButton = row.querySelector('.edit'),
-				groupToggleButton = row.querySelector('.checkbox'),
-				groupViewButton = row.querySelector('.view');
-			groupDeleteButton.removeEventListener('click', groupDeleteButton.clickListener);
-			groupEditButton.removeEventListener('click', groupEditButton.clickListener);
-			groupToggleButton.removeEventListener('click', groupToggleButton.clickListener);
-			groupViewButton.removeEventListener('click', groupViewButton.clickListener);
-			groupDeleteButton.clickListener = function() {
-				groupDelete(groupDeleteButton, row);
-			};
-			groupEditButton.clickListener = function() {
-				groupEdit(groupEditButton, row);
-			};
-			groupToggleButton.clickListener = function() {
-				groupToggle(groupToggleButton);
-			};
-			groupViewButton.clickListener = function() {
-				groupView(groupViewButton);
-			};
-			groupDeleteButton.addEventListener('click', groupDeleteButton.clickListener);
-			groupEditButton.addEventListener('click', groupEditButton.clickListener);
-			groupToggleButton.addEventListener('click', groupToggleButton.clickListener);
-			groupViewButton.addEventListener('click', groupViewButton.clickListener);
-		});
-		groupNameField.value = '';
-		Object.entries(groupGrid).map(function(groupId) {
-			var group = document.querySelector(frameSelector + ' .checkbox[group_id="' + groupId[1] + '"]');
-			processGroupGrid([group.getAttribute('index')], true);
-		});
-	};
-	+elements.html('.total-checked') ? elements.removeClass(frameSelector + ' .submit', 'hidden') : elements.addClass(frameSelector + ' .submit', 'hidden');
-	groupNameField.removeEventListener('keydown', groupNameField.keydownListener);
-	groupNameButton.removeEventListener('click', groupNameButton.clickListener);
-	groupNameField.keydownListener = function(event) {
-		if (event.key == 'Enter') {
-			groupAdd(groupNameField.value);
-		}
-	};
-	groupNameButton.clickListener = function() {
-		groupAdd(groupNameField.value);
-	};
-	groupNameField.addEventListener('keydown', groupNameField.keydownListener);
-	groupNameButton.addEventListener('click', groupNameButton.clickListener);
-	groupTable.innerHTML = '<p class="message no-margin-bottom">Loading</p>';
-	api.setRequestParameters({
-		action: 'fetch',
-		sort: {
-			field: 'created'
-		},
-		table: 'proxy_groups',
-		url: apiRequestParameters.current.settings.baseUrl + 'api/proxies'
-	}, true);
-	delete apiRequestParameters.current.limit;
-	delete apiRequestParameters.current.offset;
-	api.sendRequest(function(response) {
-		api.setRequestParameters({
-			limit: apiRequestParameters.previous.limit,
-			offset: apiRequestParameters.previous.offset
-		});
-		processGroupTable(response);
-	});
-};
-var _processGroup = function() {
+var processGroup = function() {
 	api.setRequestParameters({
 		listProxyGroups: {
 			action: 'fetch',
@@ -611,8 +419,108 @@ const processGroupItems = function(response, itemListParameters) {
 		processItemList('listProxyGroups');
 	} else {
 		let itemListData = '';
-		// ..
+		let groupNameButton = elements.get('.group-name-button');
+		let groupNameField = elements.get('.group-name-field');
+		const processGroupAdd = function(groupName) {
+			api.setRequestParameters({
+				action: 'add',
+				data: {
+					name: groupName,
+					orderId: apiRequestParameters.current.orderId
+				}
+			});
+			api.sendRequest(function(response) {
+				api.setRequestParameters({
+					action: 'fetch',
+					items: {
+						proxy_groups: [] // ..
+					},
+				}, true);
+				processItemList('listProxyGroups', function() {
+					elements.html('.message-container.groups', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+				});
+			});
+		};
+		const processGroupEdit = function(button, row) {
+			const processGroupEdit = function(row) {
+				api.setRequestParameters({
+					action: 'edit',
+					data: {
+						id: row.getAttribute('group_id'),
+						name: row.querySelector('.group-name-edit-field').value,
+						orderId: apiRequestParameters.current.orderId
+					}
+				}, true);
+				api.sendRequest(function(response) {
+					api.setRequestParameters({
+						action: 'fetch'
+					});
+					processItemList('listProxyGroups', function() {
+						elements.html('.message-container.groups', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+					});
+				});
+			};
+			let originalRow = row.querySelector('.table-text').innerHTML;
+			let groupNameEditData = '<div class="field-group no-margin">';
+			groupNameEditData += '<input class="group-name-edit-field no-margin" id="group-name-edit" name="group_name" type="text" value="' + row.querySelector('.view').innerText + '">';
+			groupNameEditData += '<button class="button group-name-save-edit-button">Save</button>';
+			groupNameEditData += '<button class="button group-name-cancel-edit-button">Cancel</button>';
+			groupNameEditData += '</div>';
+			row.querySelector('.table-text').innerHTML = groupNameEditData;
+			row = elements.get(itemListParameters.selector + ' tbody tr[group_id="' + row.getAttribute('group_id') + '"]');
+			let groupNameCancelEditButton = row.querySelector('.group-name-cancel-edit-button');
+			let groupNameEditField = row.querySelector('.group-name-edit-field');
+			let groupNameSaveEditButton = row.querySelector('.group-name-save-edit-button');
+			groupNameCancelEditButton.removeEventListener('click', groupNameCancelEditButton.clickListener);
+			groupNameEditField.removeEventListener('keydown', groupNameEditField.keydownListener);
+			groupNameSaveEditButton.removeEventListener('click', groupNameSaveEditButton.clickListener);
+			groupNameCancelEditButton.clickListener = function() {
+				row.querySelector('.table-text').innerHTML = originalRow;
+			};
+			groupNameEditField.keydownListener = function() {
+				if (event.key == 'Enter') {
+					processGroupEdit(row);
+				}
+			};
+			groupNameSaveEditButton.clickListener = function() {
+				processGroupEdit(row);
+			};
+			groupNameCancelEditButton.addEventListener('click', groupNameCancelEditButton.clickListener);
+			groupNameEditField.addEventListener('keydown', groupNameEditField.keydownListener);
+			groupNameSaveEditButton.addEventListener('click', groupNameSaveEditButton.clickListener);
+		};
+		const processGroupView = function(groupId) {
+			closeFrames();
+			api.setRequestParameters({
+				action: 'search',
+				data: {
+					groups: [groupId]
+				},
+				items: {
+					proxies: []
+				},
+				listProxyGroups: {
+					initial: true
+				},
+				table: 'proxies'
+			}, true);
+			api.sendRequest(function() {
+				processItemList('listProxies');
+			});
+		};
 		elements.html(itemListParameters.selector + ' .items', '<table class="table"><thead><th style="width: 35px;"></th><th>Group Name</th></thead><tbody></tbody></table>');
+		groupNameField.removeEventListener('keydown', groupNameField.keydownListener);
+		groupNameButton.removeEventListener('click', groupNameButton.clickListener);
+		groupNameField.keydownListener = function(event) {
+			if (event.key == 'Enter') {
+				processGroupAdd(groupNameField.value);
+			}
+		};
+		groupNameButton.clickListener = function() {
+			processGroupAdd(groupNameField.value);
+		};
+		groupNameField.addEventListener('keydown', groupNameField.keydownListener);
+		groupNameButton.addEventListener('click', groupNameButton.clickListener);
 
 		if (response.data.length) {
 			for (itemListDataKey in response.data) {
@@ -628,14 +536,34 @@ const processGroupItems = function(response, itemListParameters) {
 				itemListData += '</span>';
 				itemListData += '<span class="table-actions">';
 				itemListData += '<span class="button edit icon" group_id="' + item.id + '"></span>';
-				itemListData += '<span class="button delete icon" group_id="' + item.id + '"></span>';
 				itemListData += '</span>';
 				itemListData += '</td>';
 			}
+
+			elements.html(itemListParameters.selector + ' .items tbody', itemListData);
+			selectAllElements(itemListParameters.selector + ' .items tbody tr', function(selectedElementKey, selectedElement) {
+				let groupEditButton = selectedElement.querySelector('.edit');
+				let groupViewButton = selectedElement.querySelector('.view');
+				groupEditButton.removeEventListener('click', groupEditButton.clickListener);
+				groupViewButton.removeEventListener('click', groupViewButton.clickListener);
+				groupEditButton.clickListener = function() {
+					processGroupEdit(groupEditButton, selectedElement);
+				};
+				groupViewButton.clickListener = function() {
+					processGroupView(groupViewButton.getAttribute('group_id'));
+				};
+				groupEditButton.addEventListener('click', groupEditButton.clickListener);
+				groupViewButton.addEventListener('click', groupViewButton.clickListener);
+			});
 		}
 
-		elements.html(itemListParameters.selector + ' .items tbody', itemListData);
-		// ..
+		elements.addClass('.submit[frame="group"]', 'hidden');
+
+		if (+elements.html('.item-list[table="proxies"] .total-checked')) {
+			elements.removeClass('.submit[frame="group"]', 'hidden');
+		};
+
+		elements.html('.message-container.groups', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 	}
 };
 var processOrder = function() {
@@ -1150,8 +1078,11 @@ var processRemove = function() {
 		api.setRequestParameters({
 			action: 'fetch',
 			items: {
-				proxyGroups: {}
-			}
+				proxy_groups: [] // ..
+			},
+			listProxyGroups: {
+				page: 1
+			},
 		}, true);
 		processItemList('listProxyGroups', function() {
 			elements.html('.message-container.groups', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');

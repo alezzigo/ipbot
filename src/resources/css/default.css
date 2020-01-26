@@ -369,6 +369,7 @@ main {
 					float: left;
 					padding-right: 66px;
 					word-break: break-word;
+					z-index: 1;
 				}
 			.table tr td .group-name-edit-field {
 				padding-right: 149px;

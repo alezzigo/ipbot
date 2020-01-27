@@ -8,7 +8,7 @@
 						<h1>Request Upgrade and Merge</h1>
 					</div>
 					<div class="item-body">
-						<div class="message-container"></div>
+						<div class="message-container upgrade"></div>
 						<div class="upgrade-container"></div>
 						<div class="clear"></div>
 					</div>

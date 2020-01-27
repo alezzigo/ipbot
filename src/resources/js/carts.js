@@ -44,7 +44,7 @@ var processCart = function() {
 						{
 							name: 'process',
 							value: 'remove'
-						},
+						}
 					],
 					tag: 'span'
 				}

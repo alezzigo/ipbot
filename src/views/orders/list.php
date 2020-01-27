@@ -19,29 +19,7 @@
 	<div class="section">
 		<div class="container small">
 			<h1>Orders</h1>
-			<div class="item-configuration-container item-container">
-				<div class="item">
-					<div class="item-configuration">
-						<div class="controls-container item-controls-container scrollable">
-							<div class="item-header">
-								<div class="hidden item-controls">
-									<span checked="0" class="align-left checkbox no-margin-left" index="all-visible"></span>
-									<span class="button frame-button hidden icon tooltip tooltip-bottom upgrade" data-title="Request upgrade and/or merge for selected orders" frame="upgrade" item-function process="upgrade"></span>
-								</div>
-								<div class="clear"></div>
-								<p class="hidden item-controls no-margin-bottom">
-									<span class="align-left checked-container"><span class="total-checked">0</span> of <span class="total-results"></span> selected.</span><span class="clear"></span>
-								</p>
-								<div class="clear"></div>
-								<div class="message-container"><p class="message no-margin-top">Loading...</p></div>
-							</div>
-						</div>
-						<div class="item-body">
-							<div class="orders-container items-container"></div>
-						</div>
-					</div>
-				</div>
-			</div>
+			<div class="item-list" table="orders"></div>
 		</div>
 	</div>
 </main>

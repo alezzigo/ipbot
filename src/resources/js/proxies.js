@@ -401,7 +401,7 @@ var processGroup = function() {
 						{
 							name: 'process',
 							value: 'remove'
-						},
+						}
 					],
 					tag: 'span'
 				}

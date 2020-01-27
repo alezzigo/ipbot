@@ -98,7 +98,7 @@ const browserDetails = function() {
 	};
 };
 const camelCaseString = function(string) {
-	stringParts = string.split('_');
+	let stringParts = string.split('_');
 
 	for (let stringPartKey in stringParts) {
 		let stringPart = stringParts[stringPartKey];
@@ -323,7 +323,7 @@ const processItemList = function(itemListName, callback) {
 		processItemListGrid(range(0, selectAllElements(itemListParameters.selector + ' .items .checkbox').length - 1), +item.getAttribute('checked') === 0);
 	};
 	const processItemListGrid = function(itemListIndexes, itemState) {
-		let itemListCount = 0;
+		let itemListCount = itemListSelectedCount = 0;
 		const itemListGridLineSizeMaximum = +('1' + repeat(Math.min(elements.html(itemListParameters.selector + ' .total-results').length, 4), '0'));
 		const itemListPageResultCount = (+elements.html(itemListParameters.selector + ' .last-result') - +elements.html(itemListParameters.selector + ' .first-result') + 1);
 		const itemListTotalResults = +elements.html(itemListParameters.selector + ' .total-results');
@@ -354,7 +354,7 @@ const processItemList = function(itemListName, callback) {
 		}
 
 		if (!itemListGrid.length) {
-			elements.html(itemListParameters.selector + ' .total-checked', 0);
+			elements.html(itemListParameters.selector + ' .total-checked', itemListSelectedCount);
 		}
 
 		itemListIndexes.map(function(itemIndex) {
@@ -404,6 +404,7 @@ const processItemList = function(itemListName, callback) {
 			elements.html(itemListParameters.selector + ' .total-checked', +elements.html(itemListParameters.selector + ' .total-checked') + (itemListCount - itemListGridCount));
 		}
 
+		itemListSelectedCount = +elements.html(itemListParameters.selector + ' .total-checked');
 		itemAll.classList.add('hidden');
 		itemAll.removeEventListener('click', itemAll.clickListener);
 		itemAll.clickListener = function() {
@@ -422,21 +423,21 @@ const processItemList = function(itemListName, callback) {
 			(
 				(
 					allVisibleChecked &&
-					+elements.html(itemListParameters.selector + ' .total-checked') < itemListTotalResults
+					itemListSelectedCount < itemListTotalResults
 				) ||
-				+elements.html(itemListParameters.selector + ' .total-checked') === itemListTotalResults
+				itemListSelectedCount === itemListTotalResults
 			)
 		) {
 			itemAll.classList.remove('hidden');
-			itemAll.querySelector('.action').innerText = (selectionStatus = +(+elements.html(itemListParameters.selector + ' .total-checked') === itemListTotalResults)) ? 'Unselect' : 'Select';
+			itemAll.querySelector('.action').innerText = (selectionStatus = +(itemListSelectedCount === itemListTotalResults)) ? 'Unselect' : 'Select';
 			itemAll.setAttribute('status', +(selectionStatus === 0));
 		}
 
 		processWindowEvents('resize');
-		+elements.html(itemListParameters.selector + ' .total-checked') ? elements.removeClass(itemListParameters.selector + ' span.icon[item-function]', 'hidden') : elements.addClass(itemListParameters.selector + ' span.icon[item-function]', 'hidden');
+		itemListSelectedCount ? elements.removeClass(itemListParameters.selector + ' span.icon[item-function]', 'hidden') : elements.addClass(itemListParameters.selector + ' span.icon[item-function]', 'hidden');
 		itemListGridCount = itemListCount;
 
-		if (itemListTotalResults === +elements.html(itemListParameters.selector + ' .total-checked')) {
+		if (itemListTotalResults === itemListSelectedCount) {
 			elements.addClass(itemListParameters.selector + ' span.icon[item-function][process="downgrade"]', 'hidden');
 		}
 
@@ -444,6 +445,9 @@ const processItemList = function(itemListName, callback) {
 			items: {}
 		};
 		mergeRequestParameters.items[itemListTable] = itemListGrid;
+		mergeRequestParameters[itemListName] = {
+			selectedItemCount: itemListSelectedCount
+		};
 		api.setRequestParameters(mergeRequestParameters, true);
 	};
 	elements.addClass(itemListParameters.selector + ' .item-controls, ' + itemListParameters.selector + ' .items', 'hidden');

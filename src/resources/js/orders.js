@@ -1,136 +1,119 @@
-var orderGrid = {};
-var productIdGrid = {};
 var processOrders = function() {
-	var ordersAllVisible = document.querySelector('.item-container .checkbox[index="all-visible"]');
-	var ordersContainer = document.querySelector('.orders-container');
-	var orderToggle = function(button) {
-		ordersContainer.setAttribute('current_checked', button.getAttribute('index'));
-		processOrderGrid(window.event.shiftKey ? range(ordersContainer.getAttribute('previous_checked'), button.getAttribute('index')) : [button.getAttribute('index')], window.event.shiftKey ? +ordersContainer.querySelector('.checkbox[index="' + ordersContainer.getAttribute('previous_checked') + '"]').getAttribute('checked') !== 0 : +button.getAttribute('checked') === 0);
-		ordersContainer.setAttribute('previous_checked', button.getAttribute('index'));
-	};
-	var orderToggleAllVisible = function(button) {
-		var selectableItemsCount = selectAllElements('.orders-container .item-button').length;
-		ordersContainer.setAttribute('current_checked', 0);
-		ordersContainer.setAttribute('previous_checked', 0);
-
-		if (selectableItemsCount) {
-			processOrderGrid(range(0, selectableItemsCount - 1), +button.getAttribute('checked') === 0);
-		}
-	};
-	var processOrderGrid = function(orderIndexes, orderState) {
-		productIdGrid = {};
-		orderIndexes.map(function(orderIndex) {
-			var order = ordersContainer.querySelector('.checkbox[index="' + orderIndex + '"]');
-			var orderId = order.getAttribute('order_id');
-			var productId = order.getAttribute('product_id');
-			order.setAttribute('checked', +orderState);
-			orderGrid['order' + orderId] = orderId;
-			productIdGrid['product' + productId] = productId;
-
-			if (!+orderState) {
-				delete orderGrid['order' + orderId];
-			}
-		});
-		elements.html('.item-configuration .total-checked', +(allVisibleChecked = Object.entries(orderGrid).length));
-
-		if (Object.entries(productIdGrid).length === 1) {
-			allVisibleChecked ? elements.removeClass('.item-configuration span.icon[item-function]', 'hidden') : elements.addClass('.item-configuration span.icon[item-function]', 'hidden');
-		}
-
-		ordersAllVisible.setAttribute('checked', +(allVisibleChecked === selectAllElements('.orders-container .item-button').length));
-		api.setRequestParameters({
-			items: {
-				orders: orderGrid
-			}
-		}, true);
-	};
 	api.setRequestParameters({
-		action: apiRequestParameters.previous.action,
 		conditions: {
 			'status !=': 'merged'
 		},
-		items: {
-			orders: orderGrid
+		listOrderItems: {
+			action: 'fetch',
+			callback: function(response, itemListParameters) {
+				processOrderItems(response, itemListParameters);
+			},
+			initial: true,
+			messages: {
+				orders: '<p class="message no-margin-top">Loading</p>'
+			},
+			options: [
+				{
+					attributes: [
+						{
+							name: 'checked',
+							value: '0'
+						},
+						{
+							name: 'class',
+							value: 'align-left checkbox no-margin-left'
+						},
+						{
+							name: 'index',
+							value: 'all-visible'
+						}
+					],
+					tag: 'span'
+				},
+				{
+					attributes: [
+						{
+							name: 'class',
+							value: 'button frame-button icon tooltip tooltip-bottom upgrade'
+						},
+						{
+							name: 'data-title',
+							value: 'Request upgrade and/or merge for selected orders'
+						},
+						{
+							name: 'frame',
+							value: 'upgrade'
+						},
+						{
+							name: 'item-function'
+						},
+						{
+							name: 'process',
+							value: 'upgrade'
+						}
+					],
+					tag: 'span'
+				}
+			],
+			page: 1,
+			resultsPerPage: 10,
+			selector: '.item-list[table="orders"]',
+			table: 'orders'
 		},
 		sort: {
-			field: 'modified',
+			field: 'created',
 			order: 'DESC'
 		},
 		url: apiRequestParameters.current.settings.baseUrl + 'api/orders'
 	});
-	var ordersData = '';
-	api.sendRequest(function(response) {
-		var messageContainer = document.querySelector('main .message-container');
+	processItemList('listOrderItems');
+};
+const processOrderItems = function(response, itemListParameters) {
+	if (typeof itemListParameters !== 'object') {
+		processItemList('listOrderItems');
+	} else {
+		elements.html('.message-container.orders', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		let itemListData = '';
 
-		if (messageContainer) {
-			if (response.user === false) {
-				window.location.href = apiRequestParameters.current.settings.baseUrl + '?#login';
-				return false;
-			}
-
-			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
-		}
-
-		if (ordersContainer) {
-			if (response.data.length) {
-				elements.removeClass('.item-configuration .item-controls', 'hidden');
-				response.data.map(function(item, index) {
-					var pendingOrderChange = (
-						item.quantityPending &&
-						item.quantityPending !== item.quantity
-					);
-					ordersData += '<div class="item-container item-button">';
-					ordersData += '<div class="item">';
-					ordersData += '<span class="checkbox-container">';
-					ordersData += '<span checked="0" class="checkbox" index="' + index + '" order_id="' + item.id + '" product_id="' + item.product_id + '"></span>';
-					ordersData += '</span>';
-					ordersData += '<div class="item-body item-checkbox">';
-					ordersData += '<p><strong>Order #' + item.id + '</strong></p>';
-					ordersData += '<p>' + (item.quantityActive ? item.quantityActive : item.quantity) + ' ' + item.name + '</p>';
-					ordersData += '<label class="label ' + (item.quantityActive ? 'active' : item.status) + '">' + (item.quantityActive ? 'active' : item.status) + '</label>' + (pendingOrderChange ? '<label class="label">Pending Order ' + (item.quantityPending >= item.quantity ? 'Upgrade' : 'Downgrade') + '</label>' : '');
-					ordersData += '</div>';
-					ordersData += '</div>';
-					ordersData += '<div class="item-link-container"><a class="item-link" href="/orders/' + item.id + '"></a></div>';
-					ordersData += '</div>';
-				});
-				ordersContainer.innerHTML = ordersData;
-				ordersAllVisible.removeEventListener('click', ordersAllVisible.clickListener);
-				ordersAllVisible.clickListener = function() {
-					orderToggleAllVisible(ordersAllVisible);
-				};
-				ordersAllVisible.addEventListener('click', ordersAllVisible.clickListener);
-				elements.loop('.orders-container .item-button', function(index, row) {
-					var orderToggleButton = row.querySelector('.checkbox');
-					var orderId = orderToggleButton.getAttribute('order_id');
-					orderToggleButton.removeEventListener('click', orderToggleButton.clickListener);
-					orderToggleButton.clickListener = function() {
-						orderToggle(orderToggleButton);
-					};
-					orderToggleButton.addEventListener('click', orderToggleButton.clickListener);
-				});
-				elements.html('.item-configuration .total-results', response.data.length);
-			} else {
-				messageContainer.innerHTML = '<p class="error message">No orders found, please <a href="' + apiRequestParameters.current.settings.baseUrl + 'static-proxies">create a new order</a>.</p>';
+		if (response.data.length) {
+			for (itemListDataKey in response.data) {
+				let item = response.data[itemListDataKey];
+				let pendingOrderChange = (
+					item.quantityPending &&
+					item.quantityPending !== item.quantity
+				);
+				itemListData += '<div class="item-container item-button">';
+				itemListData += '<div class="item">';
+				itemListData += '<span class="checkbox-container">';
+				itemListData += '<span checked="0" class="checkbox" index="' + itemListDataKey + '" order_id="' + item.id + '" product_id="' + item.product_id + '"></span>';
+				itemListData += '</span>';
+				itemListData += '<div class="item-body item-checkbox">';
+				itemListData += '<p><strong>Order #' + item.id + '</strong></p>';
+				itemListData += '<p>' + (item.quantityActive ? item.quantityActive : item.quantity) + ' ' + item.name + '</p>';
+				itemListData += '<label class="label ' + (item.quantityActive ? 'active' : item.status) + '">' + (item.quantityActive ? 'active' : item.status) + '</label>' + (pendingOrderChange ? '<label class="label">Pending Order ' + (item.quantityPending >= item.quantity ? 'Upgrade' : 'Downgrade') + '</label>' : '');
+				itemListData += '</div>';
+				itemListData += '</div>';
+				itemListData += '<div class="item-link-container"><a class="item-link" href="/orders/' + item.id + '"></a></div>';
+				itemListData += '</div>';
 			}
 		}
 
-		processWindowEvents('resize');
-	});
+		elements.html(itemListParameters.selector + ' .items', itemListData);
+	}
+
+	elements.html('.message-container.orders', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 };
 var processUpgrade = function(frameName, frameSelector, upgradeValue) {
-	if (!document.querySelector('.orders-container .checkbox[index="0"]')) {
+	if (!elements.get('.item-list[table="orders"] .checkbox[index="0"]')) {
 		processOrders();
 	}
 
-	var orderId = parseInt(window.location.search.substr(1));
-	var upgradeContainer = document.querySelector('.upgrade-container');
-	var upgradeData = '';
+	let orderId = parseInt(window.location.search.substr(1));
+	let orderItemCount = apiRequestParameters.current.listOrderItems.selectedItemCount;
 	upgradeValue = upgradeValue || 1;
 	api.setRequestParameters({
 		action: 'upgrade',
 		data: {
-			orders: orderGrid,
-			products: productIdGrid,
 			upgradeQuantity: upgradeValue
 		},
 		url: apiRequestParameters.current.settings.baseUrl + 'api/orders'
@@ -139,19 +122,17 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue) {
 	if (apiRequestParameters.current.data.confirmUpgrade) {
 		api.setRequestParameters({
 			data: {
-				upgradeQuantity: upgradeContainer.querySelector('.upgrade-quantity').value
+				upgradeQuantity: elements.get('.upgrade-container .upgrade-quantity').value
 			}
 		}, true);
 	}
 
-	var orderGridCount = Object.entries(apiRequestParameters.current.data.orders).length;
-
 	if (
-		!orderGridCount &&
+		!orderItemCount &&
 		orderId &&
 		typeof orderId === 'number'
 	) {
-		orderGridCount = 1;
+		orderItemCount = 1;
 		api.setRequestParameters({
 			data: {
 				orders: {
@@ -162,12 +143,6 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue) {
 	}
 
 	api.sendRequest(function(response) {
-		var messageContainer = document.querySelector('.upgrade-configuration .message-container');
-
-		if (messageContainer) {
-			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
-		}
-
 		if (
 			typeof response.redirect === 'string' &&
 			response.redirect
@@ -177,7 +152,8 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue) {
 		}
 
 		if (response.message.status === 'success') {
-			var upgradeValueMinimum = (orderGridCount === 1 ? 1 : 0);
+			let upgradeData = '';
+			let upgradeValueMinimum = (orderItemCount === 1 ? 1 : 0);
 			upgradeData += '<div class="align-left item-container no-margin-top no-padding">';
 			upgradeData += '<label for="upgrade-quantity">Select Order Upgrade Quantity</label>';
 			upgradeData += '<div class="field-group no-margin">';
@@ -189,7 +165,7 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue) {
 			upgradeData += '</div>';
 			upgradeData += '<div class="clear"></div>';
 			upgradeData += '<div class="details merged-order-details">';
-			upgradeData += '<p class="message no-margin-top success">The ' + orderGridCount + ' order' + (orderGridCount !== 1 ? 's' : '') + ' selected will merge into the following ' + (upgradeValue > 0 ? 'upgraded': '') + ' order and invoice:</p>';
+			upgradeData += '<p class="message no-margin-top success">The ' + orderItemCount + ' order' + (orderItemCount !== 1 ? 's' : '') + ' selected will merge into the following ' + (upgradeValue > 0 ? 'upgraded': '') + ' order and invoice:</p>';
 			upgradeData += '<div class="item-container item-button no-margin-bottom">';
 			upgradeData += '<p><strong>Merged Order</strong></p>';
 			upgradeData += '<p>' + response.data.merged.order.quantityPending + ' ' + response.data.merged.order.name + '</p>';
@@ -204,10 +180,10 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue) {
 			upgradeData += '<p><strong>Amount Paid</strong><br><span' + (response.data.merged.invoice.amountPaid ? ' class="paid"' : '') + '>' + response.data.merged.invoice.amountPaid.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</span>' + (response.data.merged.invoice.amountPaid ? '<br><span class="note">The amount paid will be added to your account balance and won\'t automatically apply to the remaining amount due for the merged order.</span>' : '') + '</p>';
 			upgradeData += '<p><strong>Remaining Amount Due</strong><br>' + response.data.merged.invoice.remainderPending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.merged.invoice.currency + '</p>';
 			upgradeData += '</div>';
-			upgradeContainer.innerHTML = upgradeData;
-			var decreaseButton = upgradeContainer.querySelector('.decrease-quantity');
-			var increaseButton = upgradeContainer.querySelector('.increase-quantity');
-			var upgradeField = upgradeContainer.querySelector('.upgrade-quantity');
+			elements.html('.upgrade-container', upgradeData);
+			let decreaseButton = elements.get('.upgrade-container .decrease-quantity');
+			let increaseButton = elements.get('.upgrade-container .increase-quantity');
+			let upgradeField = elements.get('.upgrade-container .upgrade-quantity');
 			upgradeValue = parseInt(upgradeField.value);
 			decreaseButton.removeEventListener('click', decreaseButton.clickListener);
 			increaseButton.removeEventListener('click', increaseButton.clickListener);
@@ -228,16 +204,16 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue) {
 					return false;
 				}
 
+				elements.html('.upgrade-container .merged-order-details', '<p class="message">Loading ...</p>');
 				elements.removeAttribute('.decrease-quantity', 'disabled', 'disabled');
 				elements.removeAttribute('.increase-quantity', 'disabled', 'disabled');
-				upgradeContainer.querySelector('.merged-order-details').innerHTML = '<p class="message">Loading ...</p>';
-				var timeoutId = setTimeout(function() {}, 1);
+				let timeoutId = setTimeout(function() {}, 1);
 
 				while (timeoutId--) {
 					clearTimeout(timeoutId);
 				}
 
-				var timeoutId = setTimeout(function() {
+				timeoutId = setTimeout(function() {
 					processUpgrade(false, false, upgradeValue);
 				}, 400);
 				upgradeField.value = upgradeValue;
@@ -254,6 +230,8 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue) {
 			upgradeField.addEventListener('change', upgradeField.changeListener);
 			upgradeField.addEventListener('keyup', upgradeField.changeListener);
 		}
+
+		elements.html('.message-container.upgrade', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 	});
 };
 api.setRequestParameters({

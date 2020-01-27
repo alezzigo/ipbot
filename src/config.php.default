@@ -124,6 +124,18 @@
 						'order' => 'DESC'
 					)
 				),
+				'orders' => array(
+					'data_table' => 'orders',
+					'default_action' => 'fetch',
+					'exclude_actions' => array(
+						'fetch'
+					),
+					'foreign_key' => 'user_id',
+					'sort' => array(
+						'field' => 'created',
+						'order' => 'DESC'
+					)
+				),
 				'proxies' => array(
 					'data_table' => 'proxies',
 					'default_action' => 'fetch',

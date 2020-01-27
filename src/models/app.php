@@ -520,7 +520,6 @@
 
 				if (is_array($parameterValue)) {
 					$parameters[$parameterKey] = $this->_parseParametersToCamelCase($parameterValue);
-
 				}
 			}
 
@@ -755,7 +754,10 @@
 						)
 					));
 
-					if (empty($actionsProcessing['count'])) {
+					if (
+						empty($actionsProcessing['count']) &&
+						!empty($parameters['items'][$table])
+					) {
 						$itemIndexLineCount = count($parameters['items'][$table]);
 						$items = $this->_retrieveItems($parameters);
 						$parametersToEncode = array_intersect_key($parameters, array(

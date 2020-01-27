@@ -433,7 +433,7 @@ const processGroupItems = function(response, itemListParameters) {
 				api.setRequestParameters({
 					action: 'fetch',
 					items: {
-						proxy_groups: [] // ..
+						proxyGroups: []
 					},
 				}, true);
 				processItemList('listProxyGroups', function() {
@@ -1078,7 +1078,7 @@ var processRemove = function() {
 		api.setRequestParameters({
 			action: 'fetch',
 			items: {
-				proxy_groups: [] // ..
+				proxyGroups: []
 			},
 			listProxyGroups: {
 				page: 1

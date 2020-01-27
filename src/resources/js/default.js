@@ -97,11 +97,27 @@ const browserDetails = function() {
 		vendor: browserDetails.vendor ? browserDetails.vendor : false
 	};
 };
+const camelCaseString = function(string) {
+	stringParts = string.split('_');
+
+	for (let stringPartKey in stringParts) {
+		let stringPart = stringParts[stringPartKey];
+
+		if (stringPartKey > 0) {
+			stringParts[stringPartKey] = stringPart.charAt(0).toUpperCase() + stringPart.substr(1);
+		}
+	}
+
+	return stringParts.join('');
+};
 const capitalizeString = function(string) {
-	stringParts = string.split(' ');
-	stringParts.map(function(stringPart, stringPartIndex) {
-		stringParts[stringPartIndex] = stringPart.charAt(0).toUpperCase() + stringPart.substr(1);
-	});
+	let stringParts = string.split(' ');
+
+	for (let stringPartKey in stringParts) {
+		let stringPart = stringParts[stringPartKey];
+		stringParts[stringPartKey] = stringPart.charAt(0).toUpperCase() + stringPart.substr(1);
+	}
+
 	return stringParts.join(' ');
 };
 const closeFrames = function(closeFrameApiRequestParameters) {
@@ -207,6 +223,7 @@ const openFrame = function(frameName, frameSelector) {
 };
 const processItemList = function(itemListName, callback) {
 	let itemListParameters = apiRequestParameters.current[itemListName];
+	const itemListTable = camelCaseString(itemListParameters.table);
 
 	if (apiRequestParameters.current[itemListName].initial === true) {
 		let itemListData = '<div class="hidden item-container item-processing-container"></div>';
@@ -290,7 +307,7 @@ const processItemList = function(itemListName, callback) {
 		elements.html(itemListParameters.selector, itemListData);
 	}
 
-	let itemListGrid = apiRequestParameters.current.items[itemListParameters.table] || [];
+	let itemListGrid = apiRequestParameters.current.items[itemListTable] || [];
 	let itemListGridCount = itemListGrid.length;
 	const itemToggle = function(itemListItem) {
 		let previousChecked = elements.getAttribute(itemListParameters.selector + ' .items', 'previous_checked');
@@ -426,7 +443,7 @@ const processItemList = function(itemListName, callback) {
 		var mergeRequestParameters = {
 			items: {}
 		};
-		mergeRequestParameters.items[itemListParameters.table] = itemListGrid;
+		mergeRequestParameters.items[itemListTable] = itemListGrid;
 		api.setRequestParameters(mergeRequestParameters, true);
 	};
 	elements.addClass(itemListParameters.selector + ' .item-controls, ' + itemListParameters.selector + ' .items', 'hidden');
@@ -462,7 +479,7 @@ const processItemList = function(itemListName, callback) {
 	var mergeRequestParameters = {
 		items: {}
 	};
-	mergeRequestParameters.items[itemListParameters.table] = itemListGrid;
+	mergeRequestParameters.items[itemListTable] = itemListGrid;
 	api.setRequestParameters(mergeRequestParameters, true);
 	api.sendRequest(function(response) {
 		if (
@@ -474,13 +491,13 @@ const processItemList = function(itemListName, callback) {
 		}
 
 		if (
-			typeof response.items[itemListParameters.table] === 'object' &&
-			response.items[itemListParameters.table].length === 0
+			typeof response.items[itemListTable] === 'object' &&
+			response.items[itemListTable].length === 0
 		) {
 			var mergeRequestParameters = {
 				items: {}
 			};
-			mergeRequestParameters.items[itemListParameters.table] = itemListGrid = [];
+			mergeRequestParameters.items[itemListTable] = itemListGrid = [];
 			api.setRequestParameters(mergeRequestParameters, true);
 			itemListGridCount = 0;
 		}
@@ -538,11 +555,11 @@ const processItemList = function(itemListName, callback) {
 			elements.addClass(itemListParameters.selector + ' .item-controls, ' + itemListParameters.selector + ' .items', 'hidden');
 		}
 
-		if (response.tokens[itemListParameters.table] !== 'undefined') {
+		if (response.tokens[itemListTable] !== 'undefined') {
 			var mergeRequestParameters = {
 				tokens: []
 			};
-			mergeRequestParameters.tokens[itemListParameters.table] = response.tokens[itemListParameters.table];
+			mergeRequestParameters.tokens[itemListTable] = response.tokens[itemListTable];
 			api.setRequestParameters(mergeRequestParameters, true);
 		}
 

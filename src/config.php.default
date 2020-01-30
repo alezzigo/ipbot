@@ -124,6 +124,21 @@
 						'order' => 'DESC'
 					)
 				),
+				'invoices' => array(
+					'data_table' => 'invoices',
+					'default_action' => 'fetch',
+					'exclude_actions' => array(
+						'cancel',
+						'fetch',
+						'invoices',
+						'list'
+					),
+					'foreign_key' => 'user_id',
+					'sort' => array(
+						'field' => 'created',
+						'order' => 'DESC'
+					)
+				),
 				'orders' => array(
 					'data_table' => 'orders',
 					'default_action' => 'fetch',

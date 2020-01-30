@@ -28,7 +28,7 @@
 		<div class="container small">
 			<div class="item-controls-container controls-container scrollable"></div>
 			<h1 class="order-name"></h1>
-			<div class="item-list" table="proxies"></div>
+			<div class="item-list" page="all" table="proxies"></div>
 			<input name="order_id" type="hidden" value="<?php echo $data['order_id']; ?>">
 		</div>
 	</div>

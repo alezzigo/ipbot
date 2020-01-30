@@ -861,7 +861,7 @@ var processOrder = function() {
 					],
 					page: 1,
 					resultsPerPage: 100,
-					selector: '.item-list[table="proxies"]',
+					selector: '.item-list[page="all"][table="proxies"]',
 					table: 'proxies'
 				}
 			});

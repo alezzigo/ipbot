@@ -35,11 +35,11 @@ var processCart = function() {
 							value: 'button icon delete frame-button tooltip tooltip-bottom'
 						},
 						{
-							name: 'data-title',
-							value: 'Remove selected items from cart'
+							name: 'item_function'
 						},
 						{
-							name: 'item-function'
+							name: 'item_title',
+							value: 'Remove selected items from cart'
 						},
 						{
 							name: 'process',

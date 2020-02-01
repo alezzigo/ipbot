@@ -37,15 +37,15 @@ var processOrders = function() {
 							value: 'button frame-button icon tooltip tooltip-bottom upgrade'
 						},
 						{
-							name: 'data-title',
-							value: 'Request upgrade and/or merge for selected orders'
-						},
-						{
 							name: 'frame',
 							value: 'upgrade'
 						},
 						{
-							name: 'item-function'
+							name: 'item_function'
+						},
+						{
+							name: 'item_title',
+							value: 'Request upgrade and/or merge for selected orders'
 						},
 						{
 							name: 'process',

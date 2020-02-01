@@ -434,11 +434,11 @@ const processItemList = function(itemListName, callback) {
 		}
 
 		processWindowEvents('resize');
-		itemListSelectedCount ? elements.removeClass(itemListParameters.selector + ' span.icon[item-function]', 'hidden') : elements.addClass(itemListParameters.selector + ' span.icon[item-function]', 'hidden');
+		itemListSelectedCount ? elements.removeClass(itemListParameters.selector + ' span.icon[item_function]', 'hidden') : elements.addClass(itemListParameters.selector + ' span.icon[item_function]', 'hidden');
 		itemListGridCount = itemListCount;
 
 		if (itemListTotalResults === itemListSelectedCount) {
-			elements.addClass(itemListParameters.selector + ' span.icon[item-function][process="downgrade"]', 'hidden');
+			elements.addClass(itemListParameters.selector + ' span.icon[item_function][process="downgrade"]', 'hidden');
 		}
 
 		var mergeRequestParameters = {
@@ -587,7 +587,7 @@ const processItemList = function(itemListName, callback) {
 				if (element.details.width) {
 					elements.get(itemListParameters.selector + ' .item-body').setAttribute('style', 'padding-top: ' + (elements.get(itemListParameters.selector + ' .item-header').clientHeight + 2) + 'px');
 					element.setAttribute('style', 'width: ' + element.details.width + 'px;');
-					element.setAttribute('scrolled-to-the-bottom', +(window.pageYOffset > (element.details.bottom + window.pageYOffset - +(elements.get(itemListParameters.selector + ' .item-header').clientHeight))));
+					element.setAttribute('scrolled_to_the_bottom', +(window.pageYOffset > (element.details.bottom + window.pageYOffset - +(elements.get(itemListParameters.selector + ' .item-header').clientHeight))));
 				}
 			});
 			selectAllElements(itemListParameters.selector + ' .button.frame-button', function(selectedElementKey, selectedElement) {

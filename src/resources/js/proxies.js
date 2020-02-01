@@ -263,7 +263,7 @@ var processDownload = function(frameName, frameSelector) {
 	downloadData += '<div class="align-left">';
 	downloadData += '<label class="clear">Download Format</label>';
 	downloadData += '<div class="field-group no-margin-top download-format">';
-	downloadData += '<select class="download_format" name="download_format">';
+	downloadData += '<select class="download-format" name="download_format">';
 
 	for (let formatOptionKey in downloadOptions.formats) {
 		downloadData += '<option value="' + downloadOptions.formats[formatOptionKey].value + '">' + downloadOptions.formats[formatOptionKey].name + '</option>';
@@ -392,11 +392,11 @@ var processGroup = function() {
 							value: 'button icon delete frame-button tooltip tooltip-bottom'
 						},
 						{
-							name: 'data-title',
-							value: 'Remove selected proxy groups'
+							name: 'item_function'
 						},
 						{
-							name: 'item-function'
+							name: 'item_title',
+							value: 'Remove selected proxy groups'
 						},
 						{
 							name: 'process',
@@ -505,7 +505,7 @@ const processGroupItems = function(response, itemListParameters) {
 				table: 'proxies'
 			}, true);
 			api.sendRequest(function() {
-				processItemList('listProxies');
+				processItemList('listProxyItems');
 			});
 		};
 		elements.html(itemListParameters.selector + ' .items', '<table class="table"><thead><th style="width: 35px;"></th><th>Group Name</th></thead><tbody></tbody></table>');
@@ -590,10 +590,10 @@ var processOrder = function() {
 
 		if (response.data.order) {
 			api.setRequestParameters({
-				listProxies: {
+				listProxyItems: {
 					action: 'fetch',
 					callback: function(response, itemListParameters) {
-						processProxies(response, itemListParameters);
+						processProxyItems(response, itemListParameters);
 					},
 					initial: true,
 					messages: {
@@ -625,11 +625,7 @@ var processOrder = function() {
 									value: 'button icon upgrade tooltip tooltip-bottom'
 								},
 								{
-									name: 'data-title',
-									value: 'Add more proxies to current order'
-								},
-								{
-									name: 'data-title',
+									name: 'item_title',
 									value: 'Add more proxies to current order'
 								},
 								{
@@ -650,17 +646,17 @@ var processOrder = function() {
 									value: 'button frame-button icon tooltip tooltip-bottom'
 								},
 								{
-									name: 'data-title',
+									name: 'frame',
+									value: 'downgrade'
+								},
+								{
+									name: 'item_function'
+								},
+								{
+									name: 'item_title',
 									value: 'Downgrade current order to selected proxies'
 								},
 								{
-									name: 'frame',
-									value: 'downgrade'
-								},
-								{
-									name: 'item-function'
-								},
-								{
 									name: 'process',
 									value: 'downgrade'
 								}
@@ -674,17 +670,17 @@ var processOrder = function() {
 									value: 'button frame-button icon tooltip tooltip-bottom'
 								},
 								{
-									name: 'data-title',
+									name: 'frame',
+									value: 'endpoint'
+								},
+								{
+									name: 'item_function'
+								},
+								{
+									name: 'item_title',
 									value: 'Configure proxy API endpoint settings'
 								},
 								{
-									name: 'frame',
-									value: 'endpoint'
-								},
-								{
-									name: 'item-function'
-								},
-								{
 									name: 'process',
 									value: 'endpoint'
 								}
@@ -696,14 +692,14 @@ var processOrder = function() {
 								{
 									name: 'class',
 									value: 'button frame-button icon tooltip tooltip-bottom'
-								},
-								{
-									name: 'data-title',
-									value: 'Proxy search and filter'
 								},
 								{
 									name: 'frame',
 									value: 'search'
+								},
+								{
+									name: 'item_title',
+									value: 'Proxy search and filter'
 								}
 							],
 							tag: 'span'
@@ -715,14 +711,14 @@ var processOrder = function() {
 									value: 'button frame-button icon tooltip tooltip-bottom'
 								},
 								{
-									name: 'data-title',
+									name: 'frame',
+									value: 'group'
+								},
+								{
+									name: 'item_title',
 									value: 'Manage proxy groups'
 								},
 								{
-									name: 'frame',
-									value: 'group'
-								},
-								{
 									name: 'process',
 									value: 'group'
 								}
@@ -736,14 +732,14 @@ var processOrder = function() {
 									value: 'button frame-button icon tooltip tooltip-bottom'
 								},
 								{
-									name: 'data-title',
+									name: 'frame',
+									value: 'actions'
+								},
+								{
+									name: 'item_title',
 									value: 'View log of recent order actions'
 								},
 								{
-									name: 'frame',
-									value: 'actions'
-								},
-								{
 									name: 'process',
 									value: 'actions'
 								}
@@ -757,17 +753,17 @@ var processOrder = function() {
 									value: 'button frame-button hidden icon tooltip tooltip-bottom'
 								},
 								{
-									name: 'data-title',
+									name: 'frame',
+									value: 'requests'
+								},
+								{
+									name: 'item_function'
+								},
+								{
+									name: 'item_title',
 									value: 'Download proxy request logs'
 								},
 								{
-									name: 'frame',
-									value: 'requests'
-								},
-								{
-									name: 'item-function'
-								},
-								{
 									name: 'process',
 									value: 'requests'
 								}
@@ -779,18 +775,18 @@ var processOrder = function() {
 								{
 									name: 'class',
 									value: 'button frame-button hidden icon tooltip tooltip-bottom'
-								},
-								{
-									name: 'data-title',
-									value: 'Configure proxy replacement settings'
 								},
 								{
 									name: 'frame',
 									value: 'replace'
 								},
 								{
-									name: 'item-function'
-								}
+									name: 'item_function'
+								},
+								{
+									name: 'item_title',
+									value: 'Configure proxy replacement settings'
+								},
 							],
 							tag: 'span'
 						},
@@ -799,17 +795,21 @@ var processOrder = function() {
 								{
 									name: 'class',
 									value: 'button frame-button hidden icon tooltip tooltip-bottom'
-								},
-								{
-									name: 'data-title',
-									value: 'Configure proxy gateway rotation settings'
 								},
 								{
 									name: 'frame',
 									value: 'rotate'
 								},
 								{
-									name: 'item-function'
+									name: 'item_function'
+								},
+								{
+									name: 'item_title',
+									value: 'Configure proxy gateway rotation settings'
+								},
+								{
+									name: 'process',
+									value: 'rotate'
 								}
 							],
 							tag: 'span'
@@ -819,17 +819,17 @@ var processOrder = function() {
 								{
 									name: 'class',
 									value: 'button frame-button hidden icon tooltip tooltip-bottom'
-								},
-								{
-									name: 'data-title',
-									value: 'Configure proxy authentication settings'
 								},
 								{
 									name: 'frame',
 									value: 'authenticate'
 								},
 								{
-									name: 'item-function'
+									name: 'item_function'
+								},
+								{
+									name: 'item_title',
+									value: 'Configure proxy authentication settings'
 								}
 							],
 							tag: 'span'
@@ -841,15 +841,15 @@ var processOrder = function() {
 									value: 'button frame-button hidden icon tooltip tooltip-bottom'
 								},
 								{
-									name: 'data-title',
-									value: 'Download list of selected proxies'
-								},
-								{
 									name: 'frame',
 									value: 'download'
 								},
 								{
-									name: 'item-function'
+									name: 'item_function'
+								},
+								{
+									name: 'item_title',
+									value: 'Download list of selected proxies'
 								},
 								{
 									name: 'process',
@@ -866,7 +866,7 @@ var processOrder = function() {
 				}
 			});
 			elements.html('.order-name', (response.data.order.quantityActive ? response.data.order.quantityActive : response.data.order.quantity) + ' ' + response.data.order.name);
-			processItemList('listProxies');
+			processItemList('listProxyItems');
 
 			if (response.data.nodeLocations) {
 				var nodeLocationCityOptions = nodeLocationCountryOptions = nodeLocationRegionOptions = '<option value="">All</option>';
@@ -897,7 +897,7 @@ var processOrder = function() {
 		}
 	});
 };
-var processProxies = function(response, itemListParameters) {
+var processProxyItems = function(response, itemListParameters) {
 	if (typeof itemListParameters !== 'object') {
 		if (apiRequestParameters.current.action === 'search') {
 			var mergeRequestParameters = {
@@ -907,7 +907,7 @@ var processProxies = function(response, itemListParameters) {
 			api.setRequestParameters(mergeRequestParameters, true);
 		}
 
-		processItemList('listProxies');
+		processItemList('listProxyItems');
 	} else {
 		elements.html('.message-container.proxies', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 
@@ -935,14 +935,14 @@ var processProxies = function(response, itemListParameters) {
 					});
 					var mergeRequestParameters = {
 						items: {},
-						listProxies: {
+						listProxyItems: {
 							page: 1
 						}
 					};
 					mergeRequestParameters.items['proxies'] = [];
 					api.setRequestParameters(mergeRequestParameters, true);
 					closeFrames(apiRequestParameters.current.defaults);
-					processItemList('listProxies');
+					processItemList('listProxyItems');
 				};
 				itemsClear.addEventListener('click', itemsClear.clickListener);
 			}, 100);
@@ -1008,12 +1008,12 @@ var processProxies = function(response, itemListParameters) {
 
 					if (!response.processing.tokenId) {
 						var mergeRequestParameters = {
-							listProxies: {
+							listProxyItems: {
 								page: 1
 							}
 						};
 						api.setRequestParameters(mergeRequestParameters, true);
-						processItemList('listProxies');
+						processItemList('listProxyItems');
 					}
 
 					if (response.processing.chunks > 1) {
@@ -1041,7 +1041,7 @@ var processProxies = function(response, itemListParameters) {
 
 		for (let itemListDataKey in response.data) {
 			let item = response.data[itemListDataKey];
-			itemListData += '<tr page="' + apiRequestParameters.current.listProxies.page + '" proxy_id="' + item.id + '" class="">';
+			itemListData += '<tr page="' + apiRequestParameters.current.listProxyItems.page + '" proxy_id="' + item.id + '" class="">';
 			itemListData += '<td style="width: 1px;">';
 			itemListData += '<span checked="0" class="checkbox" index="' + itemListDataKey + '" proxy_id="' + item.id + '">';
 			itemListData += '</span>';

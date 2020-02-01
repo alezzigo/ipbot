@@ -139,7 +139,7 @@ const elements = {
 				const elementContainerDetails = selectedElement.parentNode.getBoundingClientRect();
 				selectedElement.details = elementContainerDetails;
 				callback(selectedElement);
-				selectedElement.setAttribute('scrolling', +(window.pageYOffset > (selectedElement.details.top + window.pageYOffset)));
+				selectedElement.setAttribute('scrolling', +(window.pageYOffset > (elementContainerDetails.top + window.pageYOffset)));
 			};
 
 			windowEvents.resize.push(event);
@@ -587,6 +587,7 @@ const processItemList = function(itemListName, callback) {
 				if (element.details.width) {
 					elements.get(itemListParameters.selector + ' .item-body').setAttribute('style', 'padding-top: ' + (elements.get(itemListParameters.selector + ' .item-header').clientHeight + 2) + 'px');
 					element.setAttribute('style', 'width: ' + element.details.width + 'px;');
+					element.setAttribute('scrolled-to-the-bottom', +(window.pageYOffset > (element.details.bottom + window.pageYOffset - +(elements.get(itemListParameters.selector + ' .item-header').clientHeight))));
 				}
 			});
 			selectAllElements(itemListParameters.selector + ' .button.frame-button', function(selectedElementKey, selectedElement) {

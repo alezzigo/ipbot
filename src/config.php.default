@@ -234,8 +234,7 @@
 						'fields' => array_merge($defaultFields['invoices'], array(
 							'created',
 							'modified'
-						)),
-						'group' => 'user'
+						))
 					),
 					'list' => array(
 						'fields' => array(),

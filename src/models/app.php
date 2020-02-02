@@ -1102,19 +1102,31 @@
 												!empty($parameters['user']) &&
 												($parameters['conditions']['user_id'] = $parameters['user']['id'])
 											) ||
-											($parameters['conditions']['user_id'] = $parameters['session'])
+											(
+												empty($this->permissions[$table][$action]['group']) &&
+												($parameters['conditions']['user_id'] = $parameters['session'])
+											)
 										)
 									)
 								) {
-									if (array_search($parameters['user']['permissions'], $this->groups) > 1) {
+									if (
+										!empty($parameters['user']['permissions']) &&
+										array_search($parameters['user']['permissions'], $this->groups) > 1
+									) {
 										$foreignId = $this->_formatPluralToSingular($table);
 										unset($parameters['conditions']['user_id']);
 
 										if (
 											$userIdExists &&
 											(
-												!empty($id = $parameters['conditions'][$foreignId]) ||
-												!empty($id = $parameters['conditions']['id'])
+												(
+													!empty($parameters['conditions'][$foreignId]) &&
+													($id = $parameters['conditions'][$foreignId])
+												) ||
+												(
+													!empty($parameters['conditions']['id']) &&
+													($id = $parameters['conditions']['id'])
+												)
 											)
 										) {
 											$userData = $this->fetch($table, array(

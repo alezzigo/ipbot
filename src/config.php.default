@@ -143,6 +143,7 @@
 					'data_table' => 'orders',
 					'default_action' => 'fetch',
 					'exclude_actions' => array(
+						'endpoint',
 						'fetch'
 					),
 					'foreign_key' => 'user_id',

@@ -733,18 +733,18 @@
 			}
 
 			if (
-				empty($parameters['tokens'][$itemListName]) ||
-				$parameters['tokens'][$itemListName] === $token
+				$encode &&
+				(
+					empty($encode['exclude_actions']) ||
+					(
+						is_array($encode['exclude_actions']) &&
+						!in_array($action, $encode['exclude_actions'])
+					)
+				)
 			) {
 				if (
-					$encode &&
-					(
-						empty($encode['exclude_actions']) ||
-						(
-							is_array($encode['exclude_actions']) &&
-							!in_array($action, $encode['exclude_actions'])
-						)
-					)
+					empty($parameters['tokens'][$itemListName]) ||
+					$parameters['tokens'][$itemListName] === $token
 				) {
 					$actionsProcessing = $this->fetch('actions', array(
 						'conditions' => array(
@@ -826,22 +826,22 @@
 							);
 						}
 					}
-				}
-			} elseif ($encode) {
-				$action = $defaultAction;
-				$response['items'] = $clearItems;
+				} else {
+					$action = $defaultAction;
+					$response['items'] = $clearItems;
 
-				if (!empty($parameters['items'][$itemListName])) {
-					$dataTable = $table;
+					if (!empty($parameters['items'][$itemListName])) {
+						$dataTable = $table;
 
-					if (!empty($encode['data_table'])) {
-						$dataTable = str_replace('_', ' ', $encode['data_table']);
+						if (!empty($encode['data_table'])) {
+							$dataTable = str_replace('_', ' ', $encode['data_table']);
+						}
+
+						$message = array(
+							'status' => 'error',
+							'text' => 'Your ' . $dataTable . ' have been recently modified and your previously-selected results have been deselected automatically.'
+						);
 					}
-
-					$message = array(
-						'status' => 'error',
-						'text' => 'Your ' . $dataTable . ' have been recently modified and your previously-selected results have been deselected automatically.'
-					);
 				}
 			}
 

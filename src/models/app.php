@@ -773,6 +773,7 @@
 							'action' => true,
 							'conditions' => true,
 							'data' => true,
+							'item_list_name' => true,
 							'limit' => true,
 							'sort' => true,
 							'table' => true,

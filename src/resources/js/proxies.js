@@ -1108,6 +1108,80 @@ var processRemove = function() {
 var processRequests = function(frameName, frameSelector) {
 	// ..
 };
+var processRotate = function(frameName, frameSelector) {
+	api.setRequestParameters({
+		listForwardingProxyItems: {
+			action: 'fetch',
+			callback: function(response, itemListParameters) {
+				processProxyItems(response, itemListParameters);
+			},
+			initial: true,
+			messages: {
+				forwarding: '',
+				status: '<p class="message no-margin-top">Loading</p>'
+			},
+			options: [
+				{
+					attributes: [
+						{
+							name: 'checked',
+							value: '0'
+						},
+						{
+							name: 'class',
+							value: 'align-left checkbox no-margin-left'
+						},
+						{
+							name: 'index',
+							value: 'all-visible'
+						}
+					],
+					tag: 'span'
+				}
+			],
+			page: 1,
+			resultsPerPage: 10,
+			selector: '.item-list[page="forwarding"][table="proxies"]',
+			table: 'proxies'
+		},
+		listStaticProxyItems: {
+			action: 'fetch',
+			callback: function(response, itemListParameters) {
+				processProxyItems(response, itemListParameters);
+			},
+			initial: true,
+			messages: {
+				static: '',
+				status: '<p class="message no-margin-top">Loading</p>'
+			},
+			options: [
+				{
+					attributes: [
+						{
+							name: 'checked',
+							value: '0'
+						},
+						{
+							name: 'class',
+							value: 'align-left checkbox no-margin-left'
+						},
+						{
+							name: 'index',
+							value: 'all-visible'
+						}
+					],
+					tag: 'span'
+				}
+			],
+			page: 1,
+			resultsPerPage: 10,
+			selector: '.item-list[page="static"][table="proxies"]',
+			table: 'proxies'
+		}
+	});
+	processItemList('listForwardingProxyItems');
+	processItemList('listStaticProxyItems');
+};
 api.setRequestParameters({
 	action: 'fetch',
 	defaults: {

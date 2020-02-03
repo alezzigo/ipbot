@@ -522,7 +522,7 @@
 
 				if (
 					!empty($cartData['id']) &&
-					!empty($parameters['items']['carts']['count'])
+					!empty($parameters['items'][$parameters['item_list_name']]['count'])
 				) {
 					$parameters['cart_item_ids'] = $cartItemIds = $this->fetch('cart_items', array(
 						'fields' => array(
@@ -530,7 +530,7 @@
 						),
 						'conditions' => array(
 							'cart_id' => $cartData['id'],
-							'id' => $parameters['items']['carts']['data']
+							'id' => $parameters['items'][$parameters['item_list_name']]['data']
 						)
 					));
 					$parameters['cart_products'] = $this->_retrieveCartProducts($parameters);

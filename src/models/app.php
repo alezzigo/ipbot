@@ -690,7 +690,7 @@
 			$response = array(
 				'user' => $parameters['user']
 			);
-			$message = array();
+			$clearItems = $message = array();
 
 			if (
 				!method_exists($this, $action = $parameters['action']) ||
@@ -709,12 +709,21 @@
 				return false;
 			}
 
-			$clearItems = array(
-				$table => array()
-			);
+			if (!empty($parameters['item_list_name'])) {
+				$clearItems = array(
+					$parameters['item_list_name'] => array(
+						'count' => 0,
+						'data' => array(),
+						'name' => $parameters['item_list_name'],
+						'table' => $table
+					)
+				);
+			}
+
 			$defaultAction = !empty($encode['default_action']) ? $encode['default_action'] : 'fetch';
+			$itemListName = $parameters['item_list_name'] = !empty($parameters['item_list_name']) ? $parameters['item_list_name'] : $table;
 			$response['items'] = $parameters['items'] = isset($parameters['items']) ? $parameters['items'] : $clearItems;
-			$response['tokens'][$table] = $token;
+			$response['tokens'][$itemListName] = $token;
 
 			if (
 				!empty($parameters['data']) &&
@@ -724,8 +733,8 @@
 			}
 
 			if (
-				empty($parameters['tokens'][$table]) ||
-				$parameters['tokens'][$table] === $token
+				empty($parameters['tokens'][$itemListName]) ||
+				$parameters['tokens'][$itemListName] === $token
 			) {
 				if (
 					$encode &&
@@ -756,9 +765,9 @@
 
 					if (
 						empty($actionsProcessing['count']) &&
-						!empty($parameters['items'][$table])
+						!empty($parameters['items'][$itemListName])
 					) {
-						$itemIndexLineCount = count($parameters['items'][$table]);
+						$itemIndexLineCount = count($parameters['items'][$itemListName]['data']);
 						$items = $this->_retrieveItems($parameters);
 						$parametersToEncode = array_intersect_key($parameters, array(
 							'action' => true,
@@ -769,7 +778,7 @@
 							'table' => true,
 							'tokens' => true
 						));
-						$parametersToEncode['item_count'] = $items[$table]['count'];
+						$parametersToEncode['item_count'] = $items[$itemListName]['count'];
 
 						if ($parametersToEncode['item_count'] === 1) {
 							$parametersToEncode['table'] = $this->_formatPluralToSingular($parametersToEncode['table']);
@@ -778,7 +787,7 @@
 						$actionData = array(
 							array(
 								'chunks' => $itemIndexLineCount,
-								'encoded_items_to_process' => json_encode($items[$table]['data']),
+								'encoded_items_to_process' => json_encode($items[$itemListName]['data']),
 								'encoded_parameters' => json_encode($parametersToEncode),
 								'foreign_key' => $foreignKey,
 								'foreign_value' => $foreignValue,
@@ -790,7 +799,10 @@
 						);
 
 						if ($itemIndexLineCount === 1) {
-							$parameters['items'] = $this->_retrieveItems($parameters, true);
+							if (is_string($parameters['items'][$itemListName]['data'][0])) {
+								$parameters['items'] = $this->_retrieveItems($parameters, true);
+							}
+
 							$actionData[0] = array_merge($actionData[0], array(
 								'processed' => true,
 								'progress' => 100
@@ -804,22 +816,22 @@
 								$action = $defaultAction;
 								$message = array(
 									'status' => 'success',
-									'text' => 'Your action to ' . $action . ' ' . $items[$table]['count'] . ' selected ' . $table . ' is currently processing.'
+									'text' => 'Your action to ' . $action . ' ' . $items[$itemListName]['count'] . ' selected ' . $table . ' is currently processing.'
 								);
 							}
 						} else {
 							$message = array(
 								'status' => 'error',
-								'text' => 'Error processing action to ' . $action . ' ' . $items[$table]['count'] . ' selected ' . $table . ', please try again.'
+								'text' => 'Error processing action to ' . $action . ' ' . $items[$itemListName]['count'] . ' selected ' . $table . ', please try again.'
 							);
 						}
 					}
 				}
-			} else {
+			} elseif ($encode) {
 				$action = $defaultAction;
 				$response['items'] = $clearItems;
 
-				if (!empty($parameters['items'][$table])) {
+				if (!empty($parameters['items'][$itemListName])) {
 					$dataTable = $table;
 
 					if (!empty($encode['data_table'])) {
@@ -1175,18 +1187,20 @@
 			$response = array();
 
 			if (!empty($parameters['items'])) {
-				foreach ($parameters['items'] as $table => $items) {
-					$response[$table] = array(
-						'count' => count($items),
-						'data' => $items
+				foreach ($parameters['items'] as $itemListName => $items) {
+					$response[$itemListName] = array(
+						'count' => count($items['data']),
+						'data' => $items['data'],
+						'name' => $itemListName,
+						'table' => $items['table']
 					);
 
 					if (
-						!empty($items) &&
-						!empty($this->encode[$table])
+						!empty($items['data']) &&
+						!empty($this->encode[$items['table']])
 					) {
 						$itemIndexes = array();
-						$itemIndexLines = $items;
+						$itemIndexLines = $items['data'];
 						$index = $itemCount = 0;
 
 						foreach ($itemIndexLines as $offsetIndex => $itemIndexLine) {
@@ -1210,7 +1224,7 @@
 							}
 						}
 
-						$response[$table]['count'] = $itemCount;
+						$response[$itemListName]['count'] = $itemCount;
 
 						if (
 							empty($itemIndexes) ||
@@ -1220,7 +1234,7 @@
 						}
 
 						if ($decode) {
-							$dataTable = !empty($this->encode[$table]['data_table']) ? $this->encode[$table]['data_table'] : $table;
+							$dataTable = !empty($this->encode[$items['table']]['data_table']) ? $this->encode[$items['table']]['data_table'] : $items['table'];
 							$itemParameters = array_merge($parameters, array(
 								'fields' => array(
 									'id'
@@ -1229,8 +1243,8 @@
 								'offset' => 0
 							));
 
-							if (!empty($this->encode[$table]['sort'])) {
-								$itemParameters['sort'] = $this->encode[$table]['sort'];
+							if (!empty($this->encode[$items['table']]['sort'])) {
+								$itemParameters['sort'] = $this->encode[$items['table']]['sort'];
 							}
 
 							$itemIds = $this->fetch($dataTable, $itemParameters);
@@ -1251,12 +1265,12 @@
 								);
 							}
 
-							$response[$table] = $this->fetch($dataTable, array(
+							$response[$itemListName] = array_merge($response[$itemListName], $this->fetch($dataTable, array(
 								'conditions' => $conditions,
 								'fields' => array(
 									'id'
 								)
-							));
+							)));
 						}
 					}
 				}

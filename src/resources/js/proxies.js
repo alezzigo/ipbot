@@ -1,3 +1,4 @@
+// ..
 var processActions = function(frameName, frameSelector) {
 	var orderId = document.querySelector('input[name="order_id"]').value;
 	api.setRequestParameters({
@@ -21,7 +22,7 @@ var processActions = function(frameName, frameSelector) {
 				var actionParameters = action.encodedParameters;
 				actionData += '<div class="item-button item-container">';
 				actionData += '<div class="item">';
-				actionData += '<p><strong>Request to ' + actionParameters.action + ' ' + actionParameters.itemCount + ' ' + actionParameters.table + '</strong></p>';
+				actionData += '<p><strong>Request to ' + actionParameters.action + ' ' + actionParameters.itemCount + ' ' + actionParameters.table.replace('_', ' ') + '</strong></p>';
 
 				if (action.created != action.modified) {
 					actionData += '<p>Started at ' + action.created + ' ' + apiRequestParameters.current.settings.timezone.display + '</p>';
@@ -190,7 +191,7 @@ var processDownload = function(frameName, frameSelector) {
 			data: frameData
 		}, true);
 
-		if (apiRequestParameters.current.items.proxies.length === 1) {
+		if (apiRequestParameters.current.items.listProxyItems.data.length === 1) {
 			api.sendRequest(function(response) {
 				document.querySelector(frameSelector + ' textarea[name="copy"]').value = response.data;
 				elements.addClass(frameSelector + ' .loading', 'hidden');
@@ -358,7 +359,7 @@ var processEndpoint = function(frameName, frameSelector) {
 };
 var processGroup = function() {
 	api.setRequestParameters({
-		listProxyGroups: {
+		listProxyGroupItems: {
 			action: 'fetch',
 			callback: function(response, itemListParameters) {
 				processGroupItems(response, itemListParameters);
@@ -412,11 +413,11 @@ var processGroup = function() {
 			table: 'proxy_groups'
 		}
 	});
-	processItemList('listProxyGroups');
+	processItemList('listProxyGroupItems');
 };
 const processGroupItems = function(response, itemListParameters) {
 	if (typeof itemListParameters !== 'object') {
-		processItemList('listProxyGroups');
+		processItemList('listProxyGroupItems');
 	} else {
 		let itemListData = '';
 		let groupNameButton = elements.get('.group-name-button');
@@ -433,10 +434,13 @@ const processGroupItems = function(response, itemListParameters) {
 				api.setRequestParameters({
 					action: 'fetch',
 					items: {
-						proxyGroups: []
+						listProxyGroupItems : {
+							data: [],
+							table: 'proxy_groups'
+						}
 					},
 				}, true);
-				processItemList('listProxyGroups', function() {
+				processItemList('listProxyGroupItems', function() {
 					elements.html('.message-container.groups', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 				});
 			});
@@ -455,7 +459,7 @@ const processGroupItems = function(response, itemListParameters) {
 					api.setRequestParameters({
 						action: 'fetch'
 					});
-					processItemList('listProxyGroups', function() {
+					processItemList('listProxyGroupItems', function() {
 						elements.html('.message-container.groups', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 					});
 				});
@@ -497,9 +501,12 @@ const processGroupItems = function(response, itemListParameters) {
 					groups: [groupId]
 				},
 				items: {
-					proxies: []
+					listProxyItems: {
+						data: [],
+						table: 'proxies'
+					}
 				},
-				listProxyGroups: {
+				listProxyGroupItems: {
 					initial: true
 				},
 				table: 'proxies'
@@ -903,7 +910,10 @@ var processProxyItems = function(response, itemListParameters) {
 			var mergeRequestParameters = {
 				items: {}
 			};
-			mergeRequestParameters.items['proxies'] = [];
+			mergeRequestParameters.items.listProxyItems = {
+				data: [],
+				table: 'proxies'
+			};
 			api.setRequestParameters(mergeRequestParameters, true);
 		}
 
@@ -939,7 +949,10 @@ var processProxyItems = function(response, itemListParameters) {
 							page: 1
 						}
 					};
-					mergeRequestParameters.items['proxies'] = [];
+					mergeRequestParameters.items.listProxyItems = {
+						data: [],
+						table: 'proxies'
+					};
 					api.setRequestParameters(mergeRequestParameters, true);
 					closeFrames(apiRequestParameters.current.defaults);
 					processItemList('listProxyItems');
@@ -1078,13 +1091,16 @@ var processRemove = function() {
 		api.setRequestParameters({
 			action: 'fetch',
 			items: {
-				proxyGroups: []
+				listProxyGroupItems: {
+					data: [],
+					table: 'proxy_groups'
+				}
 			},
-			listProxyGroups: {
+			listProxyGroupItems: {
 				page: 1
 			},
 		}, true);
-		processItemList('listProxyGroups', function() {
+		processItemList('listProxyGroupItems', function() {
 			elements.html('.message-container.groups', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
 		});
 	});

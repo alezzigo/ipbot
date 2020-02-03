@@ -133,13 +133,14 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue) {
 		typeof orderId === 'number'
 	) {
 		orderItemCount = 1;
-		api.setRequestParameters({
-			data: {
-				orders: {
-					orderId: orderId
-				}
-			}
-		}, true);
+		var mergeRequestParameters = {
+			items: {}
+		};
+		mergeRequestParameters.items.listOrderItems = {
+			data: [orderId],
+			table: 'orders'
+		};
+		api.setRequestParameters(mergeRequestParameters, true);
 	}
 
 	api.sendRequest(function(response) {

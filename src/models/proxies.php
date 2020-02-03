@@ -195,8 +195,8 @@
 			);
 
 			if (
-				!is_array($parameters['items'][$table]['data']) ||
-				empty($parameters['items'][$table]['data'])
+				!is_array($parameters['items'][$parameters['item_list_name']]['data']) ||
+				empty($parameters['items'][$parameters['item_list_name']]['data'])
 			) {
 				$response['message']['text'] = 'There are no ' . $table . ' selected to ' . $parameters['action'] . '.';
 
@@ -224,9 +224,11 @@
 								$parameters = array_merge($parameters, array(
 									'conditions' => $response['conditions'],
 									'items' => array(
-										$table => array(
+										$parameters['item_list_name'] => array(
 											'count' => count($response['items']),
-											'data' => $response['items']
+											'data' => $response['items'],
+											'item_list_name' => $parameters['item_list_name'],
+											'table' => $table
 										)
 									)
 								));
@@ -236,7 +238,7 @@
 					}
 				}
 			} else {
-				$proxies = $parameters['items'][$table]['data'];
+				$proxies = $parameters['items'][$parameters['item_list_name']]['data'];
 
 				if (
 					empty($parameters['data']['generate_unique']) &&
@@ -327,7 +329,13 @@
 					}
 				}
 
-				$response['items'][$table] = $response['tokens'][$table] = array();
+				$response['items'][$parameters['item_list_name']] = array(
+					'count' => 0,
+					'data' => array(),
+					'name' => $parameters['item_list_name'],
+					'table' => $table
+				);
+				$response['tokens'][$parameters['item_list_name']] = array();
 			}
 
 			$response = array_merge($this->fetch($table, $parameters), $response);
@@ -352,11 +360,11 @@
 			);
 
 			if (
-				!empty($parameters['items'][$table]['count']) &&
+				!empty($parameters['items'][$parameters['item_list_name']]['count']) &&
 				!empty($parameters['conditions']['order_id'])
 			) {
-				$downgradeQuantity = $parameters['items'][$table]['count'];
-				$itemIds = array_values($parameters['items'][$table]['data']);
+				$downgradeQuantity = $parameters['items'][$parameters['item_list_name']]['count'];
+				$itemIds = array_values($parameters['items'][$parameters['item_list_name']]['data']);
 				$orderId = $parameters['conditions']['order_id'];
 				$order = $this->fetch('orders', array(
 					'conditions' => array(
@@ -753,7 +761,7 @@
 		public function download($table, $parameters) {
 			$response = $this->fetch($table, array(
 				'conditions' => array(
-					'id' => $parameters['items'][$table]['data']
+					'id' => $parameters['items'][$parameters['item_list_name']]['data']
 				),
 				'fields' => $this->permissions[$table]['copy']['fields']
 			));
@@ -841,14 +849,14 @@
 			);
 
 			if (
-				!empty($parameters['items']['proxies']['count']) &&
-				!empty($parameters['items']['proxy_groups']['count'])
+				!empty($parameters['items']['list_proxy_items']['count']) &&
+				!empty($parameters['items']['list_proxy_group_items']['count'])
 			) {
 				$groups = $proxyIds = array();
 				$existingProxyGroupProxies = $this->fetch('proxy_group_proxies', array(
 					'conditions' => array(
-						'proxy_id' => $parameters['items']['proxies']['data'],
-						'proxy_group_id' => array_values($parameters['items']['proxy_groups']['data'])
+						'proxy_id' => $parameters['items']['list_proxy_items']['data'],
+						'proxy_group_id' => array_values($parameters['items']['list_proxy_group_items']['data'])
 					),
 					'fields' => array(
 						'id',
@@ -857,8 +865,8 @@
 					)
 				));
 
-				foreach ($parameters['items']['proxies']['data'] as $key => $proxyId) {
-					foreach ($parameters['items']['proxy_groups']['data'] as $key => $proxyGroupId) {
+				foreach ($parameters['items']['list_proxy_items']['data'] as $key => $proxyId) {
+					foreach ($parameters['items']['list_proxy_group_items']['data'] as $key => $proxyGroupId) {
 						$groups[$proxyGroupId . '_' . $proxyId] = array(
 							'proxy_group_id' => $proxyGroupId,
 							'proxy_id' => $proxyId
@@ -884,7 +892,7 @@
 				}
 			}
 
-			$response['items'][$table] = array();
+			$response['items']['list_proxy_items'] = array();
 			$parameters['fields'] = $this->permissions[$table]['fetch']['fields'];
 			$response = array_merge($this->fetch($table, $parameters), $response);
 			return $response;
@@ -1071,8 +1079,8 @@
 			);
 
 			if (
-				!is_array($parameters['items'][$table]['data']) ||
-				empty($parameters['items'][$table]['data'])
+				!is_array($parameters['items'][$parameters['item_list_name']]['data']) ||
+				empty($parameters['items'][$parameters['item_list_name']]['data'])
 			) {
 				$response['message']['text'] = 'The selected ' . $table . ' aren\'t available to ' . $parameters['action'] . '.';
 
@@ -1100,9 +1108,11 @@
 								$parameters = array_merge($parameters, array(
 									'conditions' => $response['conditions'],
 									'items' => array(
-										$table => array(
+										$parameters['item_list_name'] => array(
 											'count' => count($response['items']),
-											'data' => $response['items']
+											'data' => $response['items'],
+											'item_list_name' => $parameters['item_list_name'],
+											'table' => $table
 										)
 									)
 								));
@@ -1153,9 +1163,9 @@
 				}
 
 				if (($orderId = !empty($parameters['conditions']['order_id']) ? $parameters['conditions']['order_id'] : 0)) {
-					$oldItemData = array_fill(0, $parameters['items'][$table]['count'], $oldItemData);
+					$oldItemData = array_fill(0, $parameters['items'][$parameters['item_list_name']]['count'], $oldItemData);
 
-					foreach ($parameters['items'][$table]['data'] as $key => $itemId) {
+					foreach ($parameters['items'][$parameters['item_list_name']]['data'] as $key => $itemId) {
 						$oldItemData[$key]['id'] = $itemId;
 					}
 
@@ -1163,7 +1173,7 @@
 						if ($this->save($table, $oldItemData)) {
 							$response['message'] = array(
 								'status' => 'success',
-								'text' => 'Replacement settings applied to ' . $parameters['items'][$table]['count'] . ' of your selected ' . $table . ' successfully.'
+								'text' => 'Replacement settings applied to ' . $parameters['items'][$parameters['item_list_name']]['count'] . ' of your selected ' . $table . ' successfully.'
 							);
 						}
 					} else {
@@ -1197,7 +1207,7 @@
 								'isp',
 								'region'
 							),
-							'limit' => $parameters['items'][$table]['count'],
+							'limit' => $parameters['items'][$parameters['item_list_name']]['count'],
 							'sort' => 'random'
 						);
 
@@ -1211,13 +1221,13 @@
 
 						$processingNodes = $this->fetch('nodes', $processingNodeParameters);
 
-						if (count($processingNodes['data']) !== $parameters['items'][$table]['count']) {
-							$response['message']['text'] = 'There aren\'t enough ' . $table . ' available to replace your ' . $parameters['items'][$table]['count'] . ' selected ' . $table . ', please try again in a few minutes.';
+						if (count($processingNodes['data']) !== $parameters['items'][$parameters['item_list_name']]['count']) {
+							$response['message']['text'] = 'There aren\'t enough ' . $table . ' available to replace your ' . $parameters['items'][$parameters['item_list_name']]['count'] . ' selected ' . $table . ', please try again in a few minutes.';
 						} else {
 							$allocatedNodes = array();
 							$oldItems = $this->fetch($table, array(
 								'conditions' => array(
-									'id' => $parameters['items'][$table]['data']
+									'id' => $parameters['items'][$parameters['item_list_name']]['data']
 								),
 								'fields' => array(
 									'id',
@@ -1247,12 +1257,12 @@
 
 								if (
 									$endpoint ||
-									$parameters['tokens'][$table] === $this->_getToken($table, $parameters, 'order_id', $orderId, false, false, false, $this->encode[$table])
+									$parameters['tokens'][$parameters['item_list_name']] === $this->_getToken($table, $parameters, 'order_id', $orderId, false, false, false, $this->encode[$table])
 								) {
 									if (!empty($parameters['data']['transfer_authentication'])) {
 										$oldItemAuthentication = $this->fetch($table, array(
 											'conditions' => array(
-												'id' => $parameters['items'][$table]['data']
+												'id' => $parameters['items'][$parameters['item_list_name']]['data']
 											),
 											'fields' => array(
 												'disable_http',
@@ -1265,7 +1275,7 @@
 
 										if (
 											!empty($oldItemAuthentication['count']) &&
-											count($oldItemAuthentication['data']) === count($parameters['items'][$table]['data'])
+											count($oldItemAuthentication['data']) === count($parameters['items'][$parameters['item_list_name']]['data'])
 										) {
 											$processingNodes['data'] = array_replace_recursive($processingNodes['data'], $oldItemAuthentication['data']);
 										}
@@ -1277,10 +1287,10 @@
 										$this->save($table, $processingNodes['data']) &&
 										!empty($oldItems['count'])
 									) {
-										$response['items'][$table] = array();
+										$response['items'][$parameters['item_list_name']] = array();
 										$response['message'] = array(
 											'status' => 'success',
-											'text' => $parameters['items'][$table]['count'] . ' of your selected ' . $table . ' replaced successfully.'
+											'text' => $parameters['items'][$parameters['item_list_name']]['count'] . ' of your selected ' . $table . ' replaced successfully.'
 										);
 										$mailParameters = array(
 											'from' => $this->settings['from_email'],
@@ -1306,11 +1316,33 @@
 				}
 			}
 
-			if (($response['tokens'][$table] = $this->_getToken($table, $parameters, 'order_id', $orderId, false, false, false, $this->encode[$table])) !== $parameters['tokens'][$table]) {
-				$response['items'][$table] = $response['tokens'][$table] = array();
+			$token = $this->_getToken($table, $parameters, 'order_id', $orderId, false, false, false, $this->encode[$table]);
+
+			if (($response['tokens'][$parameters['item_list_name']] = $token) !== $parameters['tokens'][$parameters['item_list_name']]) {
+				$response['items'][$parameters['item_list_name']] = array(
+					'count' => 0,
+					'data' => array(),
+					'name' => $parameters['item_list_name'],
+					'table' => $table
+				);
+				$response['tokens'][$parameters['item_list_name']] = array();
 			}
 
 			$response = array_merge($this->fetch($table, $parameters), $response);
+			return $response;
+		}
+
+	/**
+	 * Process rotate requests
+	 *
+	 * @param string $table
+	 * @param array $parameters
+	 *
+	 * @return array $response
+	 */
+		public function rotate($table, $parameters) {
+			$response = array();
+			// ..
 			return $response;
 		}
 

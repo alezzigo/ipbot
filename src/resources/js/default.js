@@ -307,7 +307,10 @@ const processItemList = function(itemListName, callback) {
 		elements.html(itemListParameters.selector, itemListData);
 	}
 
-	let itemListGrid = apiRequestParameters.current.items[itemListTable] || [];
+	let itemListGrid = (
+		typeof apiRequestParameters.current.items[itemListName] !== 'undefined' &&
+		typeof apiRequestParameters.current.items[itemListName].data === 'object'
+	) ? apiRequestParameters.current.items[itemListName].data : [];
 	let itemListGridCount = itemListGrid.length;
 	const itemToggle = function(itemListItem) {
 		let previousChecked = elements.getAttribute(itemListParameters.selector + ' .items', 'previous_checked');
@@ -444,7 +447,10 @@ const processItemList = function(itemListName, callback) {
 		var mergeRequestParameters = {
 			items: {}
 		};
-		mergeRequestParameters.items[itemListTable] = itemListGrid;
+		mergeRequestParameters.items[itemListName] = {
+			data: itemListGrid,
+			table: itemListParameters.table
+		};
 		mergeRequestParameters[itemListName] = {
 			selectedItemCount: itemListSelectedCount
 		};
@@ -466,6 +472,7 @@ const processItemList = function(itemListName, callback) {
 
 	api.setRequestParameters({
 		action: apiRequestParameters.current[itemListName].initial === true ? itemListParameters.action : apiRequestParameters.current.action,
+		itemListName: snakeCaseString(itemListName),
 		limit: itemListParameters.resultsPerPage,
 		offset: ((itemListParameters.page * itemListParameters.resultsPerPage) - itemListParameters.resultsPerPage),
 		table: itemListParameters.table,
@@ -483,7 +490,10 @@ const processItemList = function(itemListName, callback) {
 	var mergeRequestParameters = {
 		items: {}
 	};
-	mergeRequestParameters.items[itemListTable] = itemListGrid;
+	mergeRequestParameters.items[itemListName] = {
+		data: itemListGrid,
+		table: itemListParameters.table
+	};
 	api.setRequestParameters(mergeRequestParameters, true);
 	api.sendRequest(function(response) {
 		if (
@@ -495,15 +505,19 @@ const processItemList = function(itemListName, callback) {
 		}
 
 		if (
-			typeof response.items[itemListTable] === 'object' &&
-			response.items[itemListTable].length === 0
+			typeof response.items[itemListName] === 'object' &&
+			response.items[itemListName].data.length === 0
 		) {
 			var mergeRequestParameters = {
 				items: {}
 			};
-			mergeRequestParameters.items[itemListTable] = itemListGrid = [];
+			mergeRequestParameters.items[itemListName] = {
+				data: [],
+				table: itemListParameters.table
+			};
 			api.setRequestParameters(mergeRequestParameters, true);
 			itemListGridCount = 0;
+			itemListGrid = [];
 		}
 
 		if (typeof itemListParameters.callback === 'function') {
@@ -559,11 +573,11 @@ const processItemList = function(itemListName, callback) {
 			elements.addClass(itemListParameters.selector + ' .item-controls, ' + itemListParameters.selector + ' .items', 'hidden');
 		}
 
-		if (response.tokens[itemListTable] !== 'undefined') {
+		if (response.tokens[itemListName] !== 'undefined') {
 			var mergeRequestParameters = {
 				tokens: []
 			};
-			mergeRequestParameters.tokens[itemListTable] = response.tokens[itemListTable];
+			mergeRequestParameters.tokens[itemListName] = response.tokens[itemListName];
 			api.setRequestParameters(mergeRequestParameters, true);
 		}
 

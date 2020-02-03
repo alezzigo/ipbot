@@ -138,8 +138,8 @@
 			);
 
 			if (
-				!empty($parameters['items'][$table]['data']) &&
-				($proxyGroupIds = $parameters['items'][$table]['data']) &&
+				!empty($parameters['items'][$parameters['item_list_name']]['data']) &&
+				($proxyGroupIds = $parameters['items'][$parameters['item_list_name']]['data']) &&
 				$this->delete('proxy_groups', array(
 					'id' => $proxyGroupIds
 				)) &&

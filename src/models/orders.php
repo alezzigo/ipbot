@@ -295,8 +295,8 @@
 				)
 			);
 
-			if (!empty($parameters['items']['orders']['data'])) {
-				$orderIds = array_values($parameters['items']['orders']['data']);
+			if (!empty($parameters['items'][$parameters['item_list_name']]['data'])) {
+				$orderIds = array_values($parameters['items'][$parameters['item_list_name']]['data']);
 				$orders = $this->fetch('orders', array(
 					'conditions' => array(
 						'id' => $orderIds,

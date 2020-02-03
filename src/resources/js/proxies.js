@@ -1,4 +1,3 @@
-// ..
 var processActions = function(frameName, frameSelector) {
 	var orderId = document.querySelector('input[name="order_id"]').value;
 	api.setRequestParameters({
@@ -366,7 +365,8 @@ var processGroup = function() {
 			},
 			initial: true,
 			messages: {
-				groups: '<p class="message no-margin-top">Loading</p>'
+				groups: '',
+				status: '<p class="message no-margin-top">Loading</p>'
 			},
 			options: [
 				{
@@ -604,8 +604,8 @@ var processOrder = function() {
 					},
 					initial: true,
 					messages: {
-						proxies: '<p class="message no-margin-top">Loading</p>',
-						status: ''
+						proxies: '',
+						status: '<p class="message no-margin-top">Loading</p>'
 					},
 					options: [
 						{

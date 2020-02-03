@@ -8,7 +8,8 @@ var processCart = function() {
 			data: 'cartItems',
 			initial: true,
 			messages: {
-				carts: '<p class="message no-margin-top">Loading</p>'
+				carts: '',
+				status: '<p class="message no-margin-top">Loading</p>'
 			},
 			options: [
 				{

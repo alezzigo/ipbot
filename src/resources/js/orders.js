@@ -10,7 +10,8 @@ var processOrders = function() {
 			},
 			initial: true,
 			messages: {
-				orders: '<p class="message no-margin-top">Loading</p>'
+				orders: '',
+				status: '<p class="message no-margin-top">Loading</p>'
 			},
 			options: [
 				{

@@ -761,9 +761,9 @@
 		public function download($table, $parameters) {
 			$response = $this->fetch($table, array(
 				'conditions' => array(
-					'id' => $parameters['items'][$parameters['item_list_name']]['data']
+					'id' => $parameters['items']['list_proxy_items']['data']
 				),
-				'fields' => $this->permissions[$table]['copy']['fields']
+				'fields' => $this->permissions[$table]['download']['fields']
 			));
 			$items = array();
 

@@ -66,8 +66,8 @@
 
 					foreach ($actionsToProcess['data'] as $actionToProcess) {
 						$actionData[] = array(
-							'processing' => true,
-							'id ' => $actionToProcess['id']
+							'id ' => $actionToProcess['id'],
+							'processing' => true
 						);
 					}
 
@@ -87,13 +87,16 @@
 
 								if (
 									empty($itemsToProcess) ||
-									$parameters['tokens'][$actionTable] === $this->_getToken($actionTable, $parameters, $actionToProcess['foreign_key'], $actionToProcess['foreign_value'], false, false, false, $encode)
+									$parameters['tokens'][$parameters['item_list_name']] === $this->_getToken($actionTable, $parameters, $actionToProcess['foreign_key'], $actionToProcess['foreign_value'], false, false, false, $encode)
 								) {
 									$actionProgress = min(100, $actionToProcess['progress'] + ceil(100 / $actionToProcess['chunks']));
 
 									if (!empty($itemsToProcess)) {
-										$parameters['items'][$actionTable] = array_splice($itemsToProcess, count($itemsProcessed), 1);
-										$actionData[0]['encoded_items_processed'] = json_encode(array_merge($itemsProcessed, $parameters['items'][$actionTable]));
+										$parameters['items'][$parameters['item_list_name']] = array(
+											'data' => array_splice($itemsToProcess, count($itemsProcessed), 1),
+											'table' => $actionTable
+										);
+										$actionData[0]['encoded_items_processed'] = json_encode(array_merge($itemsProcessed, $parameters['items'][$parameters['item_list_name']]['data']));
 										$parameters['items'] = $this->_retrieveItems($parameters, true);
 									}
 

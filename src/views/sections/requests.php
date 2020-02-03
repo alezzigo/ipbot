@@ -7,7 +7,7 @@
 					<h1>Download Proxy Request Logs</h1>
 				</div>
 				<div class="item-body">
-					<div class="message-container"></div>
+					<div class="message-container"><p class="error message">New proxy HTTP request log features are currently in development.</p></div>
 					<div class="requests-container"></div>
 					<div class="clear"></div>
 				</div>

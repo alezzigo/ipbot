@@ -665,6 +665,26 @@ const selectAllElements = function(selector, callback) {
 
 	return response;
 };
+const snakeCaseString = function(string) {
+	let stringParts = string.split('');
+
+	for (let stringPartKey in stringParts) {
+		let stringPart = stringParts[stringPartKey];
+
+		if (stringPartKey > 0) {
+			let lowerCaseStringPart = stringPart.toLowerCase();
+
+			if (
+				!parseInt(stringPart) &&
+				lowerCaseStringPart !== stringPart
+			) {
+				stringParts[stringPartKey] = '_' + lowerCaseStringPart;
+			}
+		}
+	}
+
+	return stringParts.join('');
+};
 const unique = function(value, index, self) {
 	return self.indexOf(value) === index;
 };

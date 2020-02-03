@@ -681,9 +681,6 @@ var processOrder = function() {
 									value: 'endpoint'
 								},
 								{
-									name: 'item_function'
-								},
-								{
 									name: 'item_title',
 									value: 'Configure proxy API endpoint settings'
 								},

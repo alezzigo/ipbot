@@ -89,7 +89,7 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button close main-button submit" frame="replace" process="proxies">Apply Configuration</button>
+						<button class="button close main-button submit" frame="replace" process="proxyItems">Apply Configuration</button>
 					</div>
 				</div>
 			</div>

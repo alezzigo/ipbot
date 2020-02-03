@@ -15,7 +15,7 @@
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
 						<button class="button copy item-controls main-button" field="copy">Copy to Clipboard</button>
-						<button class="button download item-controls main-button submit" disabled frame="download" process="proxies">Download List</button>
+						<button class="button download item-controls main-button submit" disabled frame="download" process="proxyItems">Download List</button>
 					</div>
 				</div>
 			</div>

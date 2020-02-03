@@ -46,7 +46,7 @@
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button close main-button submit" frame="search" process="proxies">Search</button>
+						<button class="button close main-button submit" frame="search" process="proxyItems">Search</button>
 					</div>
 				</div>
 			</div>

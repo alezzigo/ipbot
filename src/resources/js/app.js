@@ -29,7 +29,7 @@ const processMethodForm = function(element) {
 		(
 			element.classList.contains('close') ||
 			(
-				!element.hasAttribute('item-function') &&
+				!element.hasAttribute('item_function') &&
 				!element.classList.contains('submit')
 			)
 		)

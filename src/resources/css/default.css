@@ -1072,6 +1072,9 @@ main {
 .field-group.separated-by {
 	margin-right: 18px;
 }
+.field-group.rotation-interval input {
+	width: 100px;
+}
 .endpoint-documentation {
 	padding-top: 7px;
 }

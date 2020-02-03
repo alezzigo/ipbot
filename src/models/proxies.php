@@ -892,7 +892,12 @@
 				}
 			}
 
-			$response['items']['list_proxy_items'] = array();
+			$response['items']['list_proxy_items'] = array(
+				'count' => 0,
+				'data' => array(),
+				'name' => 'list_proxy_items',
+				'table' => $table
+			);
 			$parameters['fields'] = $this->permissions[$table]['fetch']['fields'];
 			$response = array_merge($this->fetch($table, $parameters), $response);
 			return $response;

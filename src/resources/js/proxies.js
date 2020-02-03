@@ -412,7 +412,7 @@ var processGroup = function() {
 			selector: '.item-list[table="proxy_groups"]',
 			table: 'proxy_groups'
 		}
-	});
+	}, true);
 	processItemList('listProxyGroupItems');
 };
 const processGroupItems = function(response, itemListParameters) {
@@ -1178,7 +1178,7 @@ var processRotate = function(frameName, frameSelector) {
 			selector: '.item-list[page="static"][table="proxies"]',
 			table: 'proxies'
 		}
-	});
+	}, true);
 	processItemList('listForwardingProxyItems');
 	processItemList('listStaticProxyItems');
 };

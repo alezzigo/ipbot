@@ -305,6 +305,7 @@ const processItemList = function(itemListName, callback) {
 		itemListData += '<div class="items" previous_checked="0"></div>';
 		itemListData += '</div>';
 		elements.html(itemListParameters.selector, itemListData);
+		elements.html(itemListParameters.selector + ' .total-checked', (apiRequestParameters.current[itemListName].selectedItemCount || 0));
 	}
 
 	let itemListGrid = (

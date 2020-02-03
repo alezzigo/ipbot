@@ -991,6 +991,10 @@ main {
 .item-list[page="cart"] .item-button-selectable {
 	padding-left: 51px !important;
 }
+.item-list[page="forwarding"] .item-container,
+.item-list[page="static"] .item-container {
+	margin-top: 0;
+}
 .transactions .label {
 	display: block;
 	margin-bottom: 2px;

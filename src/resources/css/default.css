@@ -954,7 +954,7 @@ main {
 	bottom: 0;
 	left: auto;
 	position: absolute;
-	right: auto;
+	right: auto !important;
 	top: auto;
 }
 .item-configuration-container .checked-container {

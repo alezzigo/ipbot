@@ -600,8 +600,9 @@ const processItemList = function(itemListName, callback) {
 			api.setRequestParameters(mergeRequestParameters, true);
 			elements.addScrollable(itemListParameters.selector + ' .item-controls-container.scrollable', function(element) {
 				if (element.details.width) {
+					const selectorContainerDetails = elements.get(itemListParameters.selector).parentNode.getBoundingClientRect();
 					elements.get(itemListParameters.selector + ' .item-body').setAttribute('style', 'padding-top: ' + (elements.get(itemListParameters.selector + ' .item-header').clientHeight + 2) + 'px');
-					element.setAttribute('style', 'width: ' + element.details.width + 'px;');
+					element.setAttribute('style', 'width: ' + element.details.width + 'px; right: ' + (element.details.width - selectorContainerDetails.width) + 'px');
 					element.setAttribute('scrolled_to_the_bottom', +(window.pageYOffset > (element.details.bottom + window.pageYOffset - +(elements.get(itemListParameters.selector + ' .item-header').clientHeight))));
 				}
 			});

@@ -312,6 +312,10 @@
 						'fields' => $defaultFields['proxies'],
 						'group' => 'user'
 					),
+					'rotate' => array(
+						'fields' => $defaultFields['proxies'],
+						'group' => 'user'
+					),
 					'search' => array(
 						'fields' => $defaultFields['proxies'],
 						'group' => 'user'

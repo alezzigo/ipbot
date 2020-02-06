@@ -1346,8 +1346,67 @@
 	 * @return array $response
 	 */
 		public function rotate($table, $parameters) {
-			$response = array();
+			$response = array(
+				'message' => array(
+					'status' => 'error',
+					'text' => ($defaultMessage = 'Error processing your rotation settings request, please try again.')
+				)
+			);
+
+			if (!empty($parameters['items']['list_proxy_items']['count'])) {
+				$proxyData = array();
+				$rotateData = array(
+					'allow_direct' => true,
+					'previous_rotation_proxy_id' => null,
+					'previous_rotation_proxy_ip' => null,
+					'rotation_frequency' => null,
+					'type' => 'static'
+				);
+
+				if (!empty($parameters['data']['gateway_enable'])) {
+					$response['message']['text'] = 'A minimum of 1 static proxy is required for the selected gateway proxies, please try again.';
+
+					if (!empty($parameters['items']['list_static_proxy_items']['count'])) {
+						$response['message']['text'] = 'A minimum of 1 minute is required for the selected gateway proxy rotation frequency, please try again.';
+
+						if (
+							!empty($parameters['data']['rotation_frequency']) &&
+							$parameters['data']['rotation_frequency'] >= 1
+						) {
+							$rotateData = array(
+								'allow_direct' => false,
+								'rotation_frequency' => (!empty($parameters['data']['rotation_on_every_request']) ? null : $parameters['data']['rotation_frequency']),
+								'type' => 'gateway'
+							);
+
+							foreach ($parameters['items']['list_proxy_items']['data'] as $proxyId) {
+								$rotateData['id'] = $proxyId;
+								$proxyData[] = $rotateData;
+							}
+						}
+
+						// ..
+					}
+				} else {
+					foreach ($parameters['items']['list_proxy_items']['data'] as $proxyId) {
+						$rotateData['id'] = $proxyId;
+						$proxyData[] = $rotateData;
+					}
+				}
+
+				if (
+					!empty($proxyData) &&
+					$this->save($table, $proxyData)
+				) {
+					$response['message'] = array(
+						'status' => 'success',
+						'text' => 'Rotation settings saved successfully.'
+					);
+				}
+			}
+
 			// ..
+			$response = array_merge($this->fetch($table, $parameters), $response);
 			return $response;
 		}
 

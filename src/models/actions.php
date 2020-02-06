@@ -6,6 +6,30 @@
 	class ActionsModel extends AppModel {
 
 	/**
+	 * Retrieve order IDs with processing actions
+	 *
+	 * @return array $response
+	 */
+		public function retrieveOrderIdsWithProcessingActions() {
+			$response = array();
+			$orderIdsWithProcessingActions = $this->fetch('actions', array(
+				'conditions' => array(
+					'foreign_key' => 'order_id',
+					'processed' => false
+				),
+				'fields' => array(
+					'foreign_value'
+				)
+			));
+
+			if (!empty($orderIdsWithProcessingActions['count'])) {
+				$response = $orderIdsWithProcessingActions['data'];
+			}
+
+			return $response;
+		}
+
+	/**
 	 * Shell method for processing bulk actions
 	 *
 	 * @param string $table

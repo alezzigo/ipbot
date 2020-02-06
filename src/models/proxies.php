@@ -1497,7 +1497,12 @@
 			$proxies = $this->fetch('proxies', array(
 				'conditions' => array(
 					'replacement_removal_date <' => date('Y-m-d H:i:s', time()),
-					'status' => 'replaced'
+					'status' => 'replaced',
+					'NOT' => array(
+						'order_id' => $this->_call('actions', array(
+							'methodName' => 'retrieveOrderIdsWithProcessingActions'
+						))
+					)
 				),
 				'fields' => array(
 					'id',
@@ -1559,6 +1564,9 @@
 					'rotation_frequency >=' => 1,
 					'type' => 'gateway',
 					'NOT' => array(
+						'order_id' => $this->_call('actions', array(
+							'methodName' => 'retrieveOrderIdsWithProcessingActions'
+						)),
 						'status' => 'offline'
 					)
 				),
@@ -1664,6 +1672,9 @@
 				'conditions' => array(
 					'next_replacement_available <' => date('Y-m-d H:i:s', time()),
 					'NOT' => array(
+						'order_id' => $this->_call('actions', array(
+							'methodName' => 'retrieveOrderIdsWithProcessingActions'
+						)),
 						'status' => 'replaced'
 					)
 				),

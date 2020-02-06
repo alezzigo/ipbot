@@ -1031,10 +1031,11 @@ var processProxyItems = function(response, itemListParameters) {
 
 						if (actionProgress < 100) {
 							elements.html('.message-container.proxies', '<p class="error message">Action ' + (response.processing.id ? '#' + response.processing.id + ' ' : '') + actionDetails + ' was interrupted at ' + actionProgress + '%, please try again.</p>');
-							processWindowEvents('resize');
 						}
 					}
 				}
+
+				processWindowEvents('resize');
 			};
 			itemProcessingData += '<p class="progress-text"></p>';
 			itemProcessingData += '<div class="progress-container">';

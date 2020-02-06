@@ -810,21 +810,35 @@
 							));
 						}
 
-						if ($this->save('actions', $actionData)) {
-							$response['processing'] = $actionData[0];
+						$unprocessedOrderTransactions = $this->_call('orders', array(
+							'methodName' => 'retrieveUnprocessedOrderTransactions',
+							'methodParameters' => array(
+								($foreignKey === 'order_id' ? $foreignValue : false)
+							)
+						));
 
-							if ($itemIndexLineCount > 1) {
-								$action = $defaultAction;
-								$message = array(
-									'status' => 'success',
-									'text' => 'Your action to ' . $action . ' ' . $items[$itemListName]['count'] . ' selected ' . $table . ' is currently processing.'
-								);
-							}
-						} else {
+						if ($unprocessedOrderTransactions) {
 							$message = array(
 								'status' => 'error',
-								'text' => 'Error processing action to ' . $action . ' ' . $items[$itemListName]['count'] . ' selected ' . $table . ', please try again.'
+								'text' => 'Error processing action, order #' . $foreignValue . ' currently has ' . ($countUnprocessedOrderTransactions = count($unprocessedOrderTransactions)) . ' unprocessed transaction' . ($countUnprocessedOrderTransactions !== 1 ? 's' : '') . ', please try again in a few minutes.'
 							);
+						} else {
+							if ($this->save('actions', $actionData)) {
+								$response['processing'] = $actionData[0];
+
+								if ($itemIndexLineCount > 1) {
+									$action = $defaultAction;
+									$message = array(
+										'status' => 'success',
+										'text' => 'Your action to ' . $action . ' ' . $items[$itemListName]['count'] . ' selected ' . $table . ' is currently processing.'
+									);
+								}
+							} else {
+								$message = array(
+									'status' => 'error',
+									'text' => 'Error processing action to ' . $action . ' ' . $items[$itemListName]['count'] . ' selected ' . $table . ', please try again.'
+								);
+							}
 						}
 					}
 				} else {

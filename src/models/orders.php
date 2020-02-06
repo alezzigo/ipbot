@@ -279,6 +279,52 @@
 		}
 
 	/**
+	 * Retrieve unprocessed order transactions
+	 *
+	 * @param integer $orderId
+	 *
+	 * @return array $response
+	 */
+		public function retrieveUnprocessedOrderTransactions($orderId) {
+			$response = array();
+
+			if (!empty($orderId)) {
+				$mostRecentOrderInvoice = $this->retrieveMostRecentOrderInvoice(array(
+					'id' => $orderId
+				));
+
+				if (!empty($mostRecentOrderInvoice['id'])) {
+					$invoiceIds = $this->_call('invoices', array(
+						'methodName' => 'retrieveInvoiceIds',
+						'methodParameters' => array(
+							array(
+								$mostRecentOrderInvoice['id']
+							)
+						)
+					));
+
+					if (!empty($invoiceIds)) {
+						$unprocessedTransactions = $this->fetch('transactions', array(
+							'conditions' => array(
+								'invoice_id' => $invoiceIds,
+								'processed' => false
+							),
+							'fields' => array(
+								'id'
+							)
+						));
+
+						if (!empty($unprocessedTransactions['count'])) {
+							$response = $unprocessedTransactions['data'];
+						}
+					}
+				}
+			}
+
+			return $response;
+		}
+
+	/**
 	 * Process order upgrade requests
 	 *
 	 * @param string $table

@@ -1441,14 +1441,14 @@
 				});
 			}
 
-			if (!empty($parameters['data']['filter_proxy_types'])) {
-				$conditions['type'] = array_keys(array_filter($parameters['data']['type']));
-			}
-
 			if (!empty($conditions)) {
 				$conditions = array(
 					($parameters['data']['match_all_search'] ? 'AND' : 'OR') => $conditions
 				);
+			}
+
+			if (!empty($parameters['data']['filter_proxy_types'])) {
+				$conditions['type'] = array_keys(array_filter($parameters['data']['type']));
 			}
 
 			if (!empty($parameters['data']['exclude_search'])) {

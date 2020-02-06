@@ -238,7 +238,7 @@
 					}
 				}
 			} else {
-				$proxies = $parameters['items'][$parameters['item_list_name']]['data'];
+				$proxyData = $parameters['items'][$parameters['item_list_name']]['data'];
 
 				if (
 					empty($parameters['data']['generate_unique']) &&
@@ -277,7 +277,7 @@
 						$usernames = array();
 
 						if (!empty($parameters['data']['username'])) {
-							$existingUsernames = $this->fetch('proxies', array(
+							$existingUsernames = $this->fetch($table, array(
 								'conditions' => array(
 									'NOT' => array(
 										'username' => ''
@@ -295,10 +295,10 @@
 
 						$whitelistedIps = implode("\n", (!empty($parameters['data']['whitelisted_ips']) ? $this->_parseIps($parameters['data']['whitelisted_ips']) : array()));
 
-						foreach ($proxies as $key => $proxy) {
+						foreach ($proxyData as $key => $proxyId) {
 							$proxy = array(
 								'disable_http' => (isset($parameters['data']['disable_http']) && $parameters['data']['disable_http']),
-								'id' => $proxy,
+								'id' => $proxyId,
 								'username' => $parameters['data']['username'],
 								'password' => $parameters['data']['password'],
 								'whitelisted_ips' => $whitelistedIps
@@ -308,7 +308,7 @@
 								$proxy = $this->_generateRandomAuthentication($proxy);
 							}
 
-							$proxies[$key] = $proxy;
+							$proxyData[$key] = $proxy;
 						}
 
 						if (
@@ -319,7 +319,7 @@
 						} else {
 							$response['message']['text'] = $defaultMessage;
 
-							if ($this->save('proxies', $proxies)) {
+							if ($this->save($table, $proxyData)) {
 								$response['message'] = array(
 									'status' => 'success',
 									'text' => 'Authentication saved successfully.'

@@ -295,10 +295,10 @@
 
 						$whitelistedIps = implode("\n", (!empty($parameters['data']['whitelisted_ips']) ? $this->_parseIps($parameters['data']['whitelisted_ips']) : array()));
 
-						foreach ($proxyData as $key => $proxyId) {
+						foreach ($proxyData as $key => $proxy) {
 							$proxy = array(
 								'disable_http' => (isset($parameters['data']['disable_http']) && $parameters['data']['disable_http']),
-								'id' => $proxyId,
+								'id' => $item,
 								'username' => $parameters['data']['username'],
 								'password' => $parameters['data']['password'],
 								'whitelisted_ips' => $whitelistedIps
@@ -1260,60 +1260,55 @@
 									unset($processingNodes['data'][$key]['processing']);
 								}
 
-								if (
-									$endpoint ||
-									$parameters['tokens'][$parameters['item_list_name']] === $this->_getToken($table, $parameters, 'order_id', $orderId, false, false, false, $this->encode[$table])
-								) {
-									if (!empty($parameters['data']['transfer_authentication'])) {
-										$oldItemAuthentication = $this->fetch($table, array(
-											'conditions' => array(
-												'id' => $parameters['items'][$parameters['item_list_name']]['data']
-											),
-											'fields' => array(
-												'disable_http',
-												'password',
-												'require_authentication',
-												'username',
-												'whitelisted_ips'
-											)
-										));
-
-										if (
-											!empty($oldItemAuthentication['count']) &&
-											count($oldItemAuthentication['data']) === count($parameters['items'][$parameters['item_list_name']]['data'])
-										) {
-											$processingNodes['data'] = array_replace_recursive($processingNodes['data'], $oldItemAuthentication['data']);
-										}
-									}
+								if (!empty($parameters['data']['transfer_authentication'])) {
+									$oldItemAuthentication = $this->fetch($table, array(
+										'conditions' => array(
+											'id' => $parameters['items'][$parameters['item_list_name']]['data']
+										),
+										'fields' => array(
+											'disable_http',
+											'password',
+											'require_authentication',
+											'username',
+											'whitelisted_ips'
+										)
+									));
 
 									if (
-										$this->save('nodes', $allocatedNodes) &&
-										$this->save($table, $oldItemData) &&
-										$this->save($table, $processingNodes['data']) &&
-										!empty($oldItems['count'])
+										!empty($oldItemAuthentication['count']) &&
+										count($oldItemAuthentication['data']) === count($parameters['items'][$parameters['item_list_name']]['data'])
 									) {
-										$response['items'][$parameters['item_list_name']] = array();
-										$response['message'] = array(
-											'status' => 'success',
-											'text' => $parameters['items'][$parameters['item_list_name']]['count'] . ' of your selected ' . $table . ' replaced successfully.'
-										);
-										$mailParameters = array(
-											'from' => $this->settings['from_email'],
-											'subject' => count($processingNodes['data']) . ' ' . $table . ' replaced successfully',
-											'template' => array(
-												'name' => 'items_replaced',
-												'parameters' => array(
-													'link' => 'https://' . $this->settings['base_domain'] . '/orders/' . $orderId,
-													'new_items' => $processingNodes['data'],
-													'old_items' => $oldItems['data'],
-													'table' => str_replace('_', ' ', $table),
-													'user' => $parameters['user']
-												)
-											),
-											'to' => $parameters['user']['email']
-										);
-										$this->_sendMail($mailParameters);
+										$processingNodes['data'] = array_replace_recursive($processingNodes['data'], $oldItemAuthentication['data']);
 									}
+								}
+
+								if (
+									$this->save('nodes', $allocatedNodes) &&
+									$this->save($table, $oldItemData) &&
+									$this->save($table, $processingNodes['data']) &&
+									!empty($oldItems['count'])
+								) {
+									$response['items'][$parameters['item_list_name']] = array();
+									$response['message'] = array(
+										'status' => 'success',
+										'text' => $parameters['items'][$parameters['item_list_name']]['count'] . ' of your selected ' . $table . ' replaced successfully.'
+									);
+									$mailParameters = array(
+										'from' => $this->settings['from_email'],
+										'subject' => count($processingNodes['data']) . ' ' . $table . ' replaced successfully',
+										'template' => array(
+											'name' => 'items_replaced',
+											'parameters' => array(
+												'link' => 'https://' . $this->settings['base_domain'] . '/orders/' . $orderId,
+												'new_items' => $processingNodes['data'],
+												'old_items' => $oldItems['data'],
+												'table' => str_replace('_', ' ', $table),
+												'user' => $parameters['user']
+											)
+										),
+										'to' => $parameters['user']['email']
+									);
+									$this->_sendMail($mailParameters);
 								}
 							}
 						}
@@ -1321,18 +1316,13 @@
 				}
 			}
 
-			$token = $this->_getToken($table, $parameters, 'order_id', $orderId, false, false, false, $this->encode[$table]);
-
-			if (($response['tokens'][$parameters['item_list_name']] = $token) !== $parameters['tokens'][$parameters['item_list_name']]) {
-				$response['items'][$parameters['item_list_name']] = array(
-					'count' => 0,
-					'data' => array(),
-					'name' => $parameters['item_list_name'],
-					'table' => $table
-				);
-				$response['tokens'][$parameters['item_list_name']] = array();
-			}
-
+			$response['items'][$parameters['item_list_name']] = array(
+				'count' => 0,
+				'data' => array(),
+				'name' => $parameters['item_list_name'],
+				'table' => $table
+			);
+			$response['tokens'][$parameters['item_list_name']] = array();
 			$response = array_merge($this->fetch($table, $parameters), $response);
 			return $response;
 		}
@@ -1383,6 +1373,8 @@
 								$rotateData['id'] = $proxyId;
 								$proxyData[] = $rotateData;
 							}
+
+							// ..
 						}
 
 						// ..
@@ -1405,7 +1397,6 @@
 				}
 			}
 
-			// ..
 			$response = array_merge($this->fetch($table, $parameters), $response);
 			return $response;
 		}

@@ -238,7 +238,8 @@
 					}
 				}
 			} else {
-				$proxyData = $parameters['items'][$parameters['item_list_name']]['data'];
+				$proxyData = array();
+				$proxyIds = $parameters['items'][$parameters['item_list_name']]['data'];
 
 				if (
 					empty($parameters['data']['generate_unique']) &&
@@ -295,10 +296,10 @@
 
 						$whitelistedIps = implode("\n", (!empty($parameters['data']['whitelisted_ips']) ? $this->_parseIps($parameters['data']['whitelisted_ips']) : array()));
 
-						foreach ($proxyData as $key => $proxy) {
+						foreach ($proxyIds as $proxyId) {
 							$proxy = array(
 								'disable_http' => (isset($parameters['data']['disable_http']) && $parameters['data']['disable_http']),
-								'id' => $item,
+								'id' => $proxyId,
 								'username' => $parameters['data']['username'],
 								'password' => $parameters['data']['password'],
 								'whitelisted_ips' => $whitelistedIps
@@ -308,7 +309,7 @@
 								$proxy = $this->_generateRandomAuthentication($proxy);
 							}
 
-							$proxyData[$key] = $proxy;
+							$proxyData[] = $proxy;
 						}
 
 						if (

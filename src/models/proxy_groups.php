@@ -22,7 +22,7 @@
 			);
 
 			if (
-				!empty($parameters['data']['name']) &&
+				!empty(trim($parameters['data']['name'])) &&
 				!empty($parameters['data']['order_id']) &&
 				is_string($parameters['data']['name']) &&
 				is_string($parameters['data']['order_id'])

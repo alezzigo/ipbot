@@ -115,14 +115,14 @@ const processCartItems = function(response, itemListParameters) {
 					quantity: elements.get(cartItemSelector + ' select.quantity').value
 				},
 				items: {
-					carts: {}
+					listCartItems: {}
 				}
 			}, true);
 			elements.setAttribute('.button.checkout', 'disabled');
 			api.sendRequest(function(response) {
 				api.setRequestParameters({
 					items: {
-						carts: selectedCartItems
+						listCartItems: selectedCartItems
 					}
 				}, true);
 				processCartItems(response);
@@ -255,7 +255,7 @@ var processRemove = function() {
 		api.setRequestParameters({
 			action: 'cart',
 			items: {
-				carts: {}
+				listCartItems: {}
 			}
 		}, true);
 		processItemList('listCartItems', function() {

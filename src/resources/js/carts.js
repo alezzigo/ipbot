@@ -134,7 +134,7 @@ const processCartItems = function(response, itemListParameters) {
 			processPage === 'cart' &&
 			response.data.cartItems.length
 		) {
-			for (itemListDataKey in response.data.cartItems) {
+			for (let itemListDataKey in response.data.cartItems) {
 				let intervalSelectTypes = intervalSelectValues = quantitySelectValues = '';
 				let item = response.data.cartItems[itemListDataKey];
 				let quantityIncrementValue = 1;
@@ -181,7 +181,7 @@ const processCartItems = function(response, itemListParameters) {
 				return false;
 			}
 
-			for (itemListDataKey in response.data.cartItems) {
+			for (let itemListDataKey in response.data.cartItems) {
 				let item = response.data.cartItems[itemListDataKey];
 				itemListData += '<div class="item-container item-button"><p>' + item.quantity + ' ' + item.name + '</p><p class="no-margin-bottom">' + item.price + ' ' + apiRequestParameters.current.settings.billingCurrency + ' for ' + item.intervalValue + ' ' + item.intervalType + (item.intervalValue !== 1 ? 's' : '') + '</p><div class="item-link-container"></div></div>';
 			}

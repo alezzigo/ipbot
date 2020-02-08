@@ -2,19 +2,14 @@ var processInvoice = function() {
 	api.setRequestParameters({
 		action: 'invoice',
 		conditions: {
-			id: document.querySelector('input[name="invoice_id"]').value
+			id: elements.get('input[name="invoice_id"]').value
 		},
 		table: 'invoices',
 		url: apiRequestParameters.current.settings.baseUrl + 'api/invoices'
 	});
-	var invoiceContainer = document.querySelector('.invoice-container');
-	var invoiceData = '';
+	let invoiceData = '';
 	api.sendRequest(function(response) {
-		var messageContainer = document.querySelector('main .message-container');
-
-		if (messageContainer) {
-			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
-		}
+		elements.html('main .message-container', (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : ''));
 
 		if (
 			typeof response.redirect === 'string' &&
@@ -25,10 +20,11 @@ var processInvoice = function() {
 		}
 
 		if (response.data.invoice) {
-			var amountDue = response.data.invoice.amountDue;
-			var billingAmountField = document.querySelector('.billing-amount');
-			var interval = '';
-			var pendingChange = (typeof response.data.invoice.amountDuePending === 'number');
+			let amountDue = response.data.invoice.amountDue;
+			let billingAmountField = elements.get('.billing-amount');
+			let billingViewDetails = elements.get('.billing-view-details');
+			let interval = '';
+			let pendingChange = (typeof response.data.invoice.amountDuePending === 'number');
 
 			if (pendingChange) {
 				amountDue = response.data.invoice.amountDuePending;
@@ -39,11 +35,13 @@ var processInvoice = function() {
 			}
 
 			billingAmountField.value = amountDue.toLocaleString(false, {minimumFractionDigits: 2}).replace(',', '');
-			document.querySelector('.invoice-name').innerHTML = '<label class="label ' + response.data.invoice.status + '">' + response.data.invoice.status + '</label> Invoice #' + response.data.invoice.id;
-			document.querySelector('.billing-currency').innerHTML = response.data.invoice.currency;
-			document.querySelector('.billing-view-details').addEventListener('click', function(element) {
+			elements.html('.invoice-name', '<label class="label ' + response.data.invoice.status + '">' + response.data.invoice.status + '</label> Invoice #' + response.data.invoice.id);
+			elements.html('.billing-currency', response.data.invoice.currency);
+			billingViewDetails.removeEventListener('click', billingViewDetails.clickListener);
+			billingViewDetails.clickListener = function() {
 				closeFrames();
-			});
+			};
+			billingViewDetails.addEventListener('click', billingViewDetails.clickListener);
 
 			if (response.data.items.length) {
 				response.data.orders = response.data.items;
@@ -63,20 +61,22 @@ var processInvoice = function() {
 			if (response.data.orders.length) {
 				interval = response.data.orders[0].intervalValue + ' ' + response.data.orders[0].intervalType + (response.data.orders[0].intervalValue !== 1 ? 's' : '');
 				invoiceData += '<h2>Invoice Order' + (response.data.orders.length !== 1 ? 's' : '') + '</h2>';
-				response.data.orders.map(function(order) {
-					var pendingOrderChange = (
+
+				for (let orderKey in response.data.orders) {
+					let order = response.data.orders[orderKey];
+					const pendingOrderChange = (
 						pendingChange &&
 						order.quantityPending &&
 						order.quantityPending !== order.quantity
 					);
-					invoiceData += '<div class="item-container item-button">';
-					invoiceData += '<div class="item">';
-					invoiceData += '<p><strong>Order #' + order.id + '</strong></p>';
 
 					if (pendingOrderChange) {
 						var pendingChangeType = (order.quantityPending > order.quantity ? 'upgrade' : 'downgrade');
 					}
 
+					invoiceData += '<div class="item-container item-button">';
+					invoiceData += '<div class="item">';
+					invoiceData += '<p><strong>Order #' + order.id + '</strong></p>';
 					invoiceData += '<p>' + order.quantity + ' ' + order.name + (pendingOrderChange ? ' to <span class="success">' + order.quantityPending + ' ' + order.name + '</span>' : '') + '</p>';
 					invoiceData += '<p' + (!pendingOrderChange ? ' class="no-margin-bottom"' : '' ) + '>' + order.price.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + order.currency + ' for ' + interval + (pendingOrderChange ? ' to <span class="success">' + order.pricePending.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + order.currency + ' for ' + order.intervalValuePending + ' ' + order.intervalTypePending + (order.intervalValuePending !== 1 ? 's' : '') + '</span>' : '') + '</p>';
 
@@ -87,7 +87,7 @@ var processInvoice = function() {
 					invoiceData += '<div class="item-link-container"><a class="item-link" href="/orders/' + order.id + '"></a></div>';
 					invoiceData += '</div>';
 					invoiceData += '</div>';
-				});
+				};
 			} else {
 				invoiceData += '<h2>Invoice Order</h2>';
 				invoiceData += '<div class="item-container item-button"><p><strong>Add to Account Balance</strong></p><p class="no-margin-bottom">' + parseFloat(response.data.invoice.subtotal) + ' ' + response.data.invoice.currency + '</p>';
@@ -95,7 +95,7 @@ var processInvoice = function() {
 				invoiceData += '</div>';
 			}
 
-			var hasBalance = (
+			const hasBalance = (
 				response.user !== false &&
 				response.user.balance > 0
 			);
@@ -113,7 +113,9 @@ var processInvoice = function() {
 			invoiceData += '<div class="invoice-section-container transactions"><label class="label">Invoice created.</label><div class="transaction"><p><strong>' + response.data.invoice.created + '</strong></p></div>';
 
 			if (response.data.transactions.length) {
-				response.data.transactions.map(function(transaction) {
+				for (let transactionKey in response.data.transactions) {
+					let transaction = response.data.transactions[transactionKey];
+
 					if (transaction.paymentStatusMessage) {
 						invoiceData += '<label class="label ' + (typeof transaction.paymentAmount === 'number' ? (Math.sign(transaction.paymentAmount) >= 0 ? 'payment' : 'refund') : '') + '">' + transaction.paymentStatusMessage + '</label>';
 						invoiceData += '<div class="transaction">';
@@ -137,7 +139,7 @@ var processInvoice = function() {
 						invoiceData += '</p>';
 						invoiceData += '</div>';
 					}
-				});
+				};
 			}
 
 			if (
@@ -153,9 +155,10 @@ var processInvoice = function() {
 
 			invoiceData	+= '</div>';
 			elements.removeClass('.item-configuration .item-controls', 'hidden');
-			selectAllElements('.payment-methods input').map(function(element) {
-				element[1].addEventListener('change', function(element) {
-					var paymentMethod = element.target.getAttribute('id');
+			selectAllElements('.payment-methods input', function(selectedElementKey, selectedElement) {
+				selectedElement.removeEventListener('change', selectedElement.changeListener);
+				selectedElement.changeListener = function() {
+					let paymentMethod = selectedElement.getAttribute('id');
 					elements.addClass('.payment-method', 'hidden');
 					elements.removeClass('.payment-method.' + paymentMethod, 'hidden');
 
@@ -171,11 +174,12 @@ var processInvoice = function() {
 						elements.removeClass('.recurring-checkbox-container', 'hidden');
 						elements.removeClass('.recurring-message', 'hidden');
 					}
-				});
+				};
+				selectedElement.addEventListener('change', selectedElement.changeListener);
 			});
-			var paymentMessage = function(element) {
-				var intitialPaymentAmount = parseFloat(element.value ? element.value : element.target.value).toLocaleString(false, {minimumFractionDigits: 2});
-				document.querySelector('.recurring-message').innerHTML = '<p class="message">This <span class="recurring-message-item">first </span>payment will be ' + intitialPaymentAmount + ' ' + response.data.invoice.currency + '<span class="recurring-message-item"> and the recurring payments will be ' + (intitialPaymentAmount >= amountDue ? (response.data.invoice.totalPending ? response.data.invoice.totalPending : response.data.invoice.total) : intitialPaymentAmount).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.currency + ' every ' + interval + '</span>.</p>';
+			const paymentMessage = function(element) {
+				let intitialPaymentAmount = parseFloat(element.value ? element.value : element.target.value).toLocaleString(false, {minimumFractionDigits: 2});
+				elements.html('.recurring-message', '<p class="message">This <span class="recurring-message-item">first </span>payment will be ' + intitialPaymentAmount + ' ' + response.data.invoice.currency + '<span class="recurring-message-item"> and the recurring payments will be ' + (intitialPaymentAmount >= amountDue ? (response.data.invoice.totalPending ? response.data.invoice.totalPending : response.data.invoice.total) : intitialPaymentAmount).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.currency + ' every ' + interval + '</span>.</p>');
 			};
 			billingAmountField.addEventListener('change', paymentMessage);
 			billingAmountField.addEventListener('keyup', paymentMessage);
@@ -186,7 +190,7 @@ var processInvoice = function() {
 				hasBalance &&
 				response.data.orders.length
 			) {
-				var balanceMessage = 'You have an available account balance of ' + response.user.balance.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.currency + '.';
+				let balanceMessage = 'You have an available account balance of ' + response.user.balance.toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + response.data.invoice.currency + '.';
 
 				if (
 					typeof response.user.testAccount !== 'undefined' &&
@@ -208,9 +212,9 @@ var processInvoice = function() {
 			}
 		}
 
-		invoiceContainer.innerHTML = invoiceData;
-		var cancelPendingButton = document.querySelector('.item-button .cancel-pending');
-		var cancelPending = function(orderId) {
+		elements.html('.invoice-container', invoiceData);
+		const cancelPendingButton = elements.get('.item-button .cancel-pending');
+		const cancelPending = function(orderId) {
 			api.setRequestParameters({
 				action: 'cancel',
 				data: {
@@ -257,22 +261,18 @@ var processInvoices = function() {
 		},
 		url: apiRequestParameters.current.settings.baseUrl + 'api/invoices'
 	});
-	var invoiceData = '';
+	let invoiceData = '';
 	api.sendRequest(function(response) {
-		var messageContainer = document.querySelector('main .message-container');
-
-		if (messageContainer) {
-			if (response.user === false) {
-				elements.addClass('nav .user', 'hidden');
-				elements.removeClass('nav .guest', 'hidden');
-				response.message = {
-					status: 'error',
-					text: 'You\'re currently not logged in, please <a href="' + apiRequestParameters.current.settings.baseUrl + '?#login">log in</a> or <a href="' + apiRequestParameters.current.settings.baseUrl + '?#register">register an account</a>.'
-				};
-			}
-
-			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		if (response.user === false) {
+			elements.addClass('nav .user', 'hidden');
+			elements.removeClass('nav .guest', 'hidden');
+			response.message = {
+				status: 'error',
+				text: 'You\'re currently not logged in, please <a href="' + apiRequestParameters.current.settings.baseUrl + '?#login">log in</a> or <a href="' + apiRequestParameters.current.settings.baseUrl + '?#register">register an account</a>.'
+			};
 		}
+
+		elements.html('main .message-container', (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : ''));
 
 		if (
 			typeof response.redirect === 'string' &&
@@ -283,7 +283,8 @@ var processInvoices = function() {
 		}
 
 		if (response.data.length) {
-			response.data.map(function(item, index) {
+			for (let itemKey in response.data) {
+				let item = response.data[itemKey];
 				invoiceData += '<div class="item-container item-button">';
 				invoiceData += '<div class="item">';
 				invoiceData += '<div class="item-body">';
@@ -293,8 +294,8 @@ var processInvoices = function() {
 				invoiceData += '</div>';
 				invoiceData += '<div class="item-link-container"><a class="item-link" href="/invoices/' + item.id + '"></a></div>';
 				invoiceData += '</div>';
-			});
-			document.querySelector('.invoices-container').innerHTML = invoiceData;
+			};
+			elements.html('.invoices-container', invoiceData);
 		}
 	});
 };
@@ -303,7 +304,7 @@ var processLoginVerification = function(response) {
 		response.user !== false &&
 		response.user.email
 	) {
-		document.querySelector('.account-details').innerHTML = '<p class="message">You\'re currently logged in as ' + response.user.email + '.</p>';
+		elements.html('.account-details', '<p class="message">You\'re currently logged in as ' + response.user.email + '.</p>');
 	}
 };
 var processPayment = function(frameName, frameSelector) {
@@ -311,18 +312,13 @@ var processPayment = function(frameName, frameSelector) {
 	api.setRequestParameters({
 		action: 'payment',
 		data: {
-			invoiceId: document.querySelector('input[name="invoice_id"]').value
+			invoiceId: elements.get('input[name="invoice_id"]').value
 		},
 		table: 'transactions',
 		url: apiRequestParameters.current.settings.baseUrl + 'api/transactions'
 	}, true);
 	api.sendRequest(function(response) {
-		var messageContainer = document.querySelector(frameSelector + ' .message-container');
-
-		if (messageContainer) {
-			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message payment-message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
-		}
-
+		elements.html(frameSelector + ' .message-container', (typeof response.message !== 'undefined' && response.message.text ? '<p class="message payment-message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : ''));
 		processInvoice();
 		processLoginVerification(response);
 		window.scroll(0, 0);

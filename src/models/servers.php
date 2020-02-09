@@ -73,27 +73,25 @@
 						$gatewayAcls[] = 'never_direct allow ip' . $serverData['proxy_ips'][$proxy['ip']];
 					}
 
+					$forwardingSources = array(
+						$proxy['ip']
+					);
+
 					if (!empty($proxy['local_forwarding_proxies'])) {
-						$localForwardingSources = array();
-
 						foreach ($proxy['local_forwarding_proxies'] as $localForwardingProxy) {
-							// TODO: Try forwarding proxies with firewall instead of cache_peer
-							$gatewayAcls[] = 'cache_peer ' . $localForwardingProxy['ip'] . ' parent ' . $localForwardingProxy['http_port'] . ' 4827 htcp=no-clr allow-miss no-query no-digest no-tproxy proxy-only no-netdb-exchange round-robin connect-timeout=8 connect-fail-limit=88888 name=' . $localForwardingProxy['id'];
+							$gatewayAcls[] = 'cache_peer ' . $localForwardingProxy['ip'] . ' parent ' . $localForwardingProxy['http_port'] . ' 4827 htcp=no-clr allow-miss no-query no-digest no-tproxy originserver proxy-only no-netdb-exchange round-robin connect-timeout=8 connect-fail-limit=88888 name=' . $localForwardingProxy['id'];
 							$gatewayAcls[] = 'cache_peer_access ' . $localForwardingProxy['id'] . ' allow ip' . $serverData['proxy_ips'][$proxy['ip']];
-							$localForwardingSources[] = $localForwardingProxy['ip'];
+							$formattedProxies['whitelist'][json_encode($forwardingSources)] = $localForwardingProxy['ip'];
 						}
-
-						$localForwardingSources = json_encode(array_filter($localForwardingSources));
-						$formattedProxies['whitelist'][$localForwardingSources][] = $proxy['ip'];
 					}
 
 					if (!empty($proxy['static_proxies'])) {
 						foreach ($proxy['static_proxies'] as $staticProxyChunkKey => $staticProxies) {
 							$gatewayIp = $proxy['ip'];
-							$staticProxySources = array();
+							$staticProxyIps = array();
 
 							if (!empty($proxy['local_forwarding_proxies'])) {
-								$gatewayIp = $proxy['local_forwarding_proxies'][$staticProxyChunkKey]['ip'];
+								$forwardingSources[] = $gatewayIp = $proxy['local_forwarding_proxies'][$staticProxyChunkKey]['ip'];
 
 								if (empty($proxy['local_forwarding_proxies'][$staticProxyChunkKey]['allow_direct'])) {
 									$gatewayAcls[] = 'always_direct deny ip' . $serverData['proxy_ips'][$gatewayIp];
@@ -104,13 +102,10 @@
 							$loadBalanceMethod = empty($staticProxies[1]) ? 'default' : 'round-robin';
 
 							foreach ($staticProxies as $staticProxy) {
-								$gatewayAcls[] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxy['http_port'] . ' 4827 htcp=no-clr allow-miss no-query no-digest no-tproxy proxy-only no-netdb-exchange ' . $loadBalanceMethod . ' connect-timeout=8 connect-fail-limit=88888 name=' . $staticProxy['id'];
+								$gatewayAcls[] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxy['http_port'] . ' 4827 htcp=no-clr allow-miss no-query no-digest no-tproxy originserver proxy-only no-netdb-exchange ' . $loadBalanceMethod . ' connect-timeout=8 connect-fail-limit=88888 name=' . $staticProxy['id'];
 								$gatewayAcls[] = 'cache_peer_access ' . $staticProxy['id'] . ' allow ip' . $serverData['proxy_ips'][$gatewayIp];
-								$staticProxySources[] = $staticProxy['ip'];
+								$formattedProxies['whitelist'][json_encode($forwardingSources)][] = $staticProxy['ip'];
 							}
-
-							$staticProxySources = json_encode(array_filter($staticProxySources));
-							$formattedProxies['whitelist'][$staticProxySources][] = $gatewayIp;
 						}
 					}
 

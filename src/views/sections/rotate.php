@@ -8,7 +8,6 @@
 						<h1>Proxy IP Rotation Configuration</h1>
 					</div>
 					<div class="item-body">
-						<p class="error message">Gateway proxy and forwarding proxy IP/DNS rotation config options are currently in development.</p>
 						<div class="checkbox-container">
 							<span checked="0" class="checkbox gateway-enable" id="gateway-enable" name="gateway_enable"></span>
 							<label class="custom-checkbox-label" for="gateway-enable" name="gateway_enable">Convert Selected Proxies to Gateway Proxies</label>

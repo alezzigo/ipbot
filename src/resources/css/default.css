@@ -1073,7 +1073,7 @@ main {
 .field-group.separated-by {
 	margin-right: 18px;
 }
-.field-group.rotation-interval input {
+.field-group.rotation-frequency input {
 	width: 100px;
 }
 .endpoint-documentation {

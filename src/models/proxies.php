@@ -1345,7 +1345,7 @@
 			);
 
 			if (!empty($parameters['items']['list_proxy_items']['count'])) {
-				$proxyData = array();
+				$forwardingProxyData = $proxyData = $staticProxyData = array();
 				$rotateData = array(
 					'allow_direct' => true,
 					'previous_rotation_proxy_id' => null,
@@ -1369,16 +1369,29 @@
 								'rotation_frequency' => (!empty($parameters['data']['rotation_on_every_request']) ? null : $parameters['data']['rotation_frequency']),
 								'type' => 'gateway'
 							);
+							$listGatewayProxyIds = $parameters['items']['list_proxy_items']['data'];
+							$listStaticProxyIds = array_diff($parameters['items']['list_static_proxy_items']['data'], $listGatewayProxyIds);
+							$listForwardingProxyIds = array_diff($parameters['items']['list_forwarding_proxy_items']['data'], array_merge($listGatewayProxyIds, $listStaticProxyIds));
 
-							foreach ($parameters['items']['list_proxy_items']['data'] as $proxyId) {
-								$rotateData['id'] = $proxyId;
+							foreach ($listGatewayProxyIds as $gatewayProxyId) {
+								$rotateData['id'] = $gatewayProxyId;
 								$proxyData[] = $rotateData;
+
+								foreach ($listForwardingProxyIds as $forwardingProxyId) {
+									$forwardingProxyData[] = array(
+										'gateway_proxy_id' => $gatewayProxyId,
+										'proxy_id' => $forwardingProxyId
+									);
+								}
+
+								foreach ($listStaticProxyIds as $staticProxyId) {
+									$staticProxyData[] = array(
+										'gateway_proxy_id' => $gatewayProxyId,
+										'proxy_id' => $staticProxyId
+									);
+								}
 							}
-
-							// ..
 						}
-
-						// ..
 					}
 				} else {
 					foreach ($parameters['items']['list_proxy_items']['data'] as $proxyId) {
@@ -1389,7 +1402,9 @@
 
 				if (
 					!empty($proxyData) &&
-					$this->save($table, $proxyData)
+					$this->save($this->_formatPluralToSingular($table) . '_forwarding_' . $table, $forwardingProxyData) &&
+					$this->save($table, $proxyData) &&
+					$this->save($this->_formatPluralToSingular($table) . '_static_' . $table, $staticProxyData)
 				) {
 					$response['message'] = array(
 						'status' => 'success',

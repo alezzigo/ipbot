@@ -12,15 +12,15 @@
 						<div class="checkbox-container">
 							<span checked="0" class="checkbox gateway-enable" id="gateway-enable" name="gateway_enable"></span>
 							<label class="custom-checkbox-label" for="gateway-enable" name="gateway_enable">Convert Selected Proxies to Gateway Proxies</label>
-							<p class="message"><strong>Gateway proxies</strong> will route HTTP requests to a list of selected static proxies at a specific rotation interval. Leave this option blank to allow direct access without IP rotation.</p>
+							<p class="message"><strong>Gateway proxies</strong> will route HTTP requests to a list of selected static proxies at a specific rotation frequency. Leave this option blank to allow direct access without IP rotation.</p>
 						</div>
 						<div class="clear"></div>
 						<div class="checkbox-option-container hidden" field="gateway_enable">
 							<label>Configure Static IP Rotation Interval for Gateway Proxies</label>
 							<div class="clear"></div>
-							<div class="field-group rotation-interval no-margin-bottom width-auto">
+							<div class="field-group rotation-frequency no-margin-bottom width-auto">
 								<span>Every</span>
-								<input min="1" name="rotation_interval" type="number" width="88" value="1">
+								<input min="1" name="rotation_frequency" type="number" width="88" value="1">
 								<span>Minute(s)</span>
 							</div>
 							<div class="align-left checkbox-container">
@@ -30,19 +30,19 @@
 							<div class="clear"></div>
 							<label>Select Forwarding Proxies for Gateway Proxies</label>
 							<div class="clear"></div>
-							<p class="message no-margin-bottom">Select a list of <strong>forwarding proxies</strong> which will forward HTTP requests from the gateway proxy to the selected list of static proxies below. It's highly recommended to enable forwarding proxies for larger static proxy lists to decrease request time.</p>
+							<p class="message no-margin-bottom">Select a list of <strong>forwarding proxies</strong> below which will forward HTTP requests from the gateway proxy to the selected list of static proxies below. It's highly recommended to enable forwarding proxies for larger static proxy lists to decrease request time.</p>
 							<div class="item-list" page="forwarding" table="proxies"></div>
 							<div class="clear"></div>
 							<label>Select Static Proxies for Gateway Proxies</label>
 							<div class="clear"></div>
-							<p class="message no-margin-bottom">Select a list of <strong>static proxies</strong> which will be accessible through the selected gateway proxies. This selection will override any forwarding proxy selections for the same IP.</p>
+							<p class="message no-margin-bottom">Select a list of <strong>static proxies</strong> below which will be accessible through the selected gateway proxies. This selection will override any forwarding proxy selections for the same IP.</p>
 							<div class="item-list" page="static" table="proxies"></div>
 						</div>
 						<div class="clear"></div>
 					</div>
 					<div class="item-footer">
 						<button class="button close alternate-button">Close</button>
-						<button class="button close main-button submit" disabled frame="rotate" process="proxyItems">Apply Configuration</button>
+						<button class="button close main-button submit" frame="rotate" process="proxyItems">Apply Configuration</button>
 					</div>
 				</div>
 			</div>

@@ -79,7 +79,7 @@
 
 					if (!empty($proxy['local_forwarding_proxies'])) {
 						foreach ($proxy['local_forwarding_proxies'] as $localForwardingProxy) {
-							$gatewayAcls[] = 'cache_peer ' . $localForwardingProxy['ip'] . ' parent ' . $localForwardingProxy['http_rotation_port'] . ' 4827 allow-miss connect-timeout=5 htcp=no-clr name=' . $localForwardingProxy['id'] . ' no-digest no-netdb-exchange no-query proxy-only';
+							$gatewayAcls[] = 'cache_peer ' . $localForwardingProxy['ip'] . ' parent ' . $localForwardingProxy['http_rotation_port'] . ' 4827 allow-miss connect-timeout=5 htcp=no-clr name=' . $localForwardingProxy['id'] . ' no-digest no-netdb-exchange no-query proxy-only round-robin';
 							$gatewayAcls[] = 'cache_peer_access ' . $localForwardingProxy['id'] . ' allow ip' . $serverData['proxy_ips'][$proxy['ip']];
 							$formattedProxies['whitelist'][json_encode($forwardingSources)] = $localForwardingProxy['ip'];
 						}

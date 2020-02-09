@@ -351,15 +351,17 @@
 						!empty($gatewayProxy['rotation_proxy_id']) &&
 						!empty($gatewayProxy['rotation_proxy_ip'])
 					) {
-						$rotationIntervalProxy = array(
-							array(
-								'id' => $gatewayProxy['rotation_proxy_id'],
-								'ip' => $gatewayProxy['rotation_proxy_ip']
-							)
+						$rotationIntervalProxyParameters = $proxyParameters;
+						$rotationIntervalProxyParameters['conditions'] = array(
+							'id' => $gatewayProxy['rotation_proxy_id']
 						);
-						$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array(
-							$rotationIntervalProxy
-						);
+						$rotationIntervalProxy = $this->fetch('proxies', $rotationIntervalProxyParameters);
+
+						if (!empty($rotationIntervalProxy['count'])) {
+							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array(
+								$rotationIntervalProxy['data']
+							);
+						}
 					}
 				}
 			}

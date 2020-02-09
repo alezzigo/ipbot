@@ -77,11 +77,17 @@
 						$proxy['ip']
 					);
 
-					if (!empty($proxy['local_forwarding_proxies'])) {
-						foreach ($proxy['local_forwarding_proxies'] as $localForwardingProxy) {
-							$gatewayAcls[] = 'cache_peer ' . $localForwardingProxy['ip'] . ' parent ' . $localForwardingProxy['http_rotation_port'] . ' 4827 allow-miss connect-timeout=5 htcp=no-clr name=' . $localForwardingProxy['id'] . ' no-digest no-netdb-exchange no-query proxy-only round-robin';
-							$gatewayAcls[] = 'cache_peer_access ' . $localForwardingProxy['id'] . ' allow ip' . $serverData['proxy_ips'][$proxy['ip']];
-							$formattedProxies['whitelist'][json_encode($forwardingSources)][] = $localForwardingProxy['ip'];
+					if (!empty($proxy['global_forwarding_proxies'])) {
+						foreach ($proxy['global_forwarding_proxies'] as $globalForwardingProxy) {
+							$gatewayAcls[] = 'cache_peer ' . $globalForwardingProxy['ip'] . ' parent ' . $globalForwardingProxy['http_rotation_port'] . ' 4827 allow-miss connect-timeout=5 htcp=no-clr name=' . $globalForwardingProxy['id'] . ' no-digest no-netdb-exchange no-query proxy-only round-robin';
+							$gatewayAcls[] = 'cache_peer_access ' . $globalForwardingProxy['id'] . ' allow ip' . $serverData['proxy_ips'][$proxy['ip']];
+
+							if (
+								!empty($proxy['local_forwarding_proxies']) &&
+								in_array($globalForwardingProxy['id'], $proxy['local_forwarding_proxies'])
+							) {
+								$formattedProxies['whitelist'][json_encode($forwardingSources)][] = $globalForwardingProxy['ip'];
+							}
 						}
 					}
 
@@ -90,10 +96,10 @@
 							$gatewayIp = $proxy['ip'];
 							$staticProxyIps = array();
 
-							if (!empty($proxy['local_forwarding_proxies'])) {
-								$forwardingSources[] = $gatewayIp = $proxy['local_forwarding_proxies'][$staticProxyChunkKey]['ip'];
+							if (!empty($proxy['global_forwarding_proxies'])) {
+								$forwardingSources[] = $gatewayIp = $proxy['global_forwarding_proxies'][$staticProxyChunkKey]['ip'];
 
-								if (empty($proxy['local_forwarding_proxies'][$staticProxyChunkKey]['allow_direct'])) {
+								if (empty($proxy['global_forwarding_proxies'][$staticProxyChunkKey]['allow_direct'])) {
 									$gatewayAcls[] = 'always_direct deny ip' . $serverData['proxy_ips'][$gatewayIp];
 									$gatewayAcls[] = 'never_direct allow ip' . $serverData['proxy_ips'][$gatewayIp];
 								}
@@ -302,6 +308,9 @@
 								'type' => 'forwarding'
 							));
 							unset($globalForwardingProxyParameters['conditions']['node_id']);
+							$localForwardingProxyParameters['fields'] = array(
+								'id'
+							);
 							$globalForwardingProxies = $this->fetch('proxies', $globalForwardingProxyParameters);
 							$localForwardingProxies = $this->fetch('proxies', $localForwardingProxyParameters);
 

@@ -1345,7 +1345,7 @@
 			);
 
 			if (!empty($parameters['items']['list_proxy_items']['count'])) {
-				$forwardingProxyData = $gatewayProxyData = $staticProxyData = array();
+				$forwardingProxyData = $proxyData = $staticProxyData = array();
 				$rotateData = array(
 					'allow_direct' => true,
 					'previous_rotation_proxy_id' => null,
@@ -1372,6 +1372,7 @@
 							$listGatewayProxyIds = $parameters['items']['list_proxy_items']['data'];
 							$listStaticProxyIds = array_diff($parameters['items']['list_static_proxy_items']['data'], $listGatewayProxyIds);
 							$listForwardingProxyIds = array_diff($parameters['items']['list_forwarding_proxy_items']['data'], array_merge($listGatewayProxyIds, $listStaticProxyIds));
+							$rotateOnEveryRequest = empty($rotateData['rotation_frequency']);
 
 							foreach ($listGatewayProxyIds as $gatewayProxyId) {
 								$rotateData['id'] = $gatewayProxyId;
@@ -1382,12 +1383,22 @@
 										'gateway_proxy_id' => $gatewayProxyId,
 										'proxy_id' => $forwardingProxyId
 									);
+									$proxyData[] = array(
+										'allow_direct' => !$rotateOnEveryRequest,
+										'id' => $forwardingProxyId,
+										'type' => $rotateOnEveryRequest ? 'forwarding' : 'static'
+									);
 								}
 
 								foreach ($listStaticProxyIds as $staticProxyId) {
 									$staticProxyData[] = array(
 										'gateway_proxy_id' => $gatewayProxyId,
 										'proxy_id' => $staticProxyId
+									);
+									$proxyData[] = array(
+										'allow_direct' => true,
+										'id' => $staticProxyId,
+										'type' => 'static'
 									);
 								}
 
@@ -1415,21 +1426,21 @@
 									$forwardingProxyData = array();
 								}
 
-								$gatewayProxyData[] = $gatewayProxy;
+								$proxyData[] = $gatewayProxy;
 							}
 						}
 					}
 				} else {
 					foreach ($parameters['items']['list_proxy_items']['data'] as $proxyId) {
 						$rotateData['id'] = $proxyId;
-						$gatewayProxyData[] = $rotateData;
+						$proxyData[] = $rotateData;
 					}
 				}
 
 				if (
-					!empty($gatewayProxyData) &&
+					!empty($proxyData) &&
 					$this->save($this->_formatPluralToSingular($table) . '_forwarding_' . $table, $forwardingProxyData) &&
-					$this->save($table, $gatewayProxyData) &&
+					$this->save($table, $proxyData) &&
 					$this->save($this->_formatPluralToSingular($table) . '_static_' . $table, $staticProxyData)
 				) {
 					$response['message'] = array(

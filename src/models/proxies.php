@@ -1345,7 +1345,7 @@
 			);
 
 			if (!empty($parameters['items']['list_proxy_items']['count'])) {
-				$forwardingProxyData = $proxyData = $staticProxyData = array();
+				$forwardingProxyData = $gatewayProxyData = $staticProxyData = array();
 				$rotateData = array(
 					'allow_direct' => true,
 					'previous_rotation_proxy_id' => null,
@@ -1375,7 +1375,7 @@
 
 							foreach ($listGatewayProxyIds as $gatewayProxyId) {
 								$rotateData['id'] = $gatewayProxyId;
-								$proxyData[] = $rotateData;
+								$gatewayProxy = $rotateData;
 
 								foreach ($listForwardingProxyIds as $forwardingProxyId) {
 									$forwardingProxyData[] = array(
@@ -1390,20 +1390,46 @@
 										'proxy_id' => $staticProxyId
 									);
 								}
+
+								if (!empty($rotateData['rotation_frequency'])) {
+									$initialRotationProxy = $this->fetch('proxies', array(
+										'conditions' => array(
+											'id' => $staticProxyId
+										),
+										'fields' => array(
+											'id',
+											'ip'
+										)
+									));
+
+									if (!empty($initialRotationProxy['count'])) {
+										$gatewayProxy = array_merge(array(
+											'previous_rotation_proxy_id' => null,
+											'previous_rotation_proxy_ip' => null,
+											'rotation_proxy_id' => $initialRotationProxy['data'][0]['id'],
+											'rotation_proxy_ip' => $initialRotationProxy['data'][0]['ip']
+										), $gatewayProxy);
+									}
+
+									$staticProxyData = array_merge($forwardingProxyData, $staticProxyData);
+									$forwardingProxyData = array();
+								}
+
+								$gatewayProxyData[] = $gatewayProxy;
 							}
 						}
 					}
 				} else {
 					foreach ($parameters['items']['list_proxy_items']['data'] as $proxyId) {
 						$rotateData['id'] = $proxyId;
-						$proxyData[] = $rotateData;
+						$gatewayProxyData[] = $rotateData;
 					}
 				}
 
 				if (
-					!empty($proxyData) &&
+					!empty($gatewayProxyData) &&
 					$this->save($this->_formatPluralToSingular($table) . '_forwarding_' . $table, $forwardingProxyData) &&
-					$this->save($table, $proxyData) &&
+					$this->save($table, $gatewayProxyData) &&
 					$this->save($this->_formatPluralToSingular($table) . '_static_' . $table, $staticProxyData)
 				) {
 					$response['message'] = array(

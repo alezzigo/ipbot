@@ -94,14 +94,15 @@
 					if (!empty($proxy['static_proxies'])) {
 						foreach ($proxy['static_proxies'] as $staticProxyChunkKey => $staticProxies) {
 							$gatewayIp = $proxy['ip'];
+							$gatewayIpIndex = (integer) $serverData['proxy_ips'][$gatewayIp];
 							$staticProxyIps = array();
 
 							if (!empty($proxy['global_forwarding_proxies'])) {
 								$forwardingSources[] = $gatewayIp = $proxy['global_forwarding_proxies'][$staticProxyChunkKey]['ip'];
 
 								if (empty($proxy['global_forwarding_proxies'][$staticProxyChunkKey]['allow_direct'])) {
-									$gatewayAcls[] = 'always_direct deny ip' . $serverData['proxy_ips'][$gatewayIp];
-									$gatewayAcls[] = 'never_direct allow ip' . $serverData['proxy_ips'][$gatewayIp];
+									$gatewayAcls[] = 'always_direct deny ip' . $gatewayIpIndex;
+									$gatewayAcls[] = 'never_direct allow ip' . $gatewayIpIndex;
 								}
 							}
 
@@ -109,7 +110,7 @@
 
 							foreach ($staticProxies as $staticProxy) {
 								$gatewayAcls[] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxy['http_rotation_port'] . ' 4827 allow-miss connect-timeout=5 htcp=no-clr name=' . $staticProxy['id'] . ' no-digest no-netdb-exchange no-query proxy-only ' . $loadBalanceMethod;
-								$gatewayAcls[] = 'cache_peer_access ' . $staticProxy['id'] . ' allow ip' . $serverData['proxy_ips'][$gatewayIp];
+								$gatewayAcls[] = 'cache_peer_access ' . $staticProxy['id'] . ' allow ip' . $gatewayIpIndex;
 								$formattedProxies['whitelist'][json_encode($forwardingSources)][] = $staticProxy['ip'];
 							}
 						}

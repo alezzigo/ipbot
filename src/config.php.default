@@ -397,7 +397,7 @@
 					'static' => array(
 						'squid' => array(
 							'configuration' => array(
-								'include /etc/squid3/proxy_ip_acl.conf',
+								'include [acl_filename]',
 								'[ports]',
 								'access_log none',
 								'balance_on_multiple_ip off',

@@ -491,18 +491,14 @@
 										)
 									);
 
-									if (!empty($response['data']['dns_ips'])) {
-										foreach ($this->proxyConfigurations as $proxyProtocol => $proxyConfiguration) {
-											// ..
-
-											if (
-												!empty($proxyConfiguration) &&
-												!empty($proxyConfiguration[$server['data'][0]['server_configuration_type']][$proxyConfigurationType = $server['data'][0][$proxyProtocol . '_proxy_configuration']]) &&
-												method_exists($this, ($method = '_format' . ucwords($proxyConfigurationType) . 'AccessControls')) &&
-												($formattedAcls = $this->$method($response['data']))
-											) {
-												$response['data'][$proxyProtocol] = $formattedAcls;
-											}
+									foreach ($this->proxyConfigurations as $proxyProtocol => $proxyConfiguration) {
+										if (
+											!empty($proxyConfiguration) &&
+											!empty($proxyConfiguration[$server['data'][0]['server_configuration_type']][$proxyConfigurationType = $server['data'][0][$proxyProtocol . '_proxy_configuration']]) &&
+											method_exists($this, ($method = '_format' . ucwords($proxyConfigurationType) . 'AccessControls')) &&
+											($formattedAcls = $this->$method($response['data']))
+										) {
+											$response['data'][$proxyProtocol] = $formattedAcls;
 										}
 									}
 

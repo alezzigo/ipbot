@@ -79,7 +79,7 @@
 
 					if (!empty($proxy['global_forwarding_proxies'])) {
 						foreach ($proxy['global_forwarding_proxies'] as $globalForwardingProxy) {
-							$gatewayAcls[] = 'cache_peer ' . $globalForwardingProxy['ip'] . ' parent ' . $globalForwardingProxy['http_rotation_port'] . ' 4827 allow-miss connect-timeout=5 htcp=no-clr name=' . $globalForwardingProxy['id'] . ' no-digest no-netdb-exchange no-query proxy-only round-robin';
+							$gatewayAcls[] = 'cache_peer ' . $globalForwardingProxy['ip'] . ' parent [forwarding_port] 4827 allow-miss connect-timeout=5 name=' . $globalForwardingProxy['id'] . ' round-robin';
 							$gatewayAcls[] = 'cache_peer_access ' . $globalForwardingProxy['id'] . ' allow ip' . $serverData['proxy_ips'][$proxy['ip']];
 
 							if (
@@ -109,7 +109,7 @@
 							$loadBalanceMethod = empty($staticProxies[1]) ? 'default' : 'round-robin';
 
 							foreach ($staticProxies as $staticProxy) {
-								$gatewayAcls[] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxy['http_rotation_port'] . ' 4827 allow-miss connect-timeout=5 htcp=no-clr name=' . $staticProxy['id'] . ' no-digest no-netdb-exchange no-query proxy-only ' . $loadBalanceMethod;
+								$gatewayAcls[] = 'cache_peer ' . $staticProxy['ip'] . ' parent [static_port] 4827 allow-miss connect-timeout=5 name=' . $staticProxy['id'] . ' ' . $loadBalanceMethod;
 								$gatewayAcls[] = 'cache_peer_access ' . $staticProxy['id'] . ' allow ip' . $gatewayIpIndex;
 								$formattedProxies['whitelist'][json_encode($forwardingSources)][] = $staticProxy['ip'];
 							}
@@ -256,7 +256,6 @@
 					'allow_direct',
 					'disable_http',
 					'http_port',
-					'http_rotation_port',
 					'id',
 					'ip',
 					'isp',

@@ -25,7 +25,6 @@
 							</div>
 							<div class="clear"></div>
 							<div class="item-list" page="forwarding" table="proxies"></div>
-							<div class="clear"></div>
 							<div class="item-list" page="static" table="proxies"></div>
 						</div>
 						<div class="clear"></div>

@@ -8,10 +8,9 @@
 						<h1>Proxy Authentication Configuration</h1>
 					</div>
 					<div class="item-body">
-						<p class="message">These proxy usernames and passwords may be stored in plain text. Please make sure they don't include any sensitive information.</p>
 						<label for="username">Proxy Username</label>
 						<input class="username" id="username" name="username" placeholder="Between 4 and 15 characters" type="text">
-						<label for="password">Proxy Password</label>
+						<label for="password">Proxy Password <span class="details icon tooltip tooltip-bottom" item_title="Proxy passwords may be stored in plain text. Please make sure they don't include any sensitive information."></span></label>
 						<input class="password" id="password" name="password" placeholder="Between 4 and 15 characters" type="text">
 						<div class="checkbox-container">
 							<span checked="0" class="checkbox" id="generate-unique" name="generate_unique"></span>

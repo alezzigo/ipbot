@@ -397,7 +397,7 @@
 					'static' => array(
 						'squid' => array(
 							'configuration' => array(
-								'include [acl_filename]',
+								'include [acl_filepath]',
 								'[ports]',
 								'access_log none',
 								'balance_on_multiple_ip off',

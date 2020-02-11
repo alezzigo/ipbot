@@ -108,6 +108,8 @@ onLoad(function() {
 					+item.getAttribute('checked') ? elements.removeClass(toggleSelector, 'hidden') : elements.addClass(toggleSelector, 'hidden');
 				}
 			}
+
+			processWindowEvents('resize');
 		});
 	});
 	selectAllElements('.button.frame-button, .frame .button.submit', function(selectedElementKey, selectedElement) {

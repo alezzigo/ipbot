@@ -99,6 +99,7 @@
 
 							if (!empty($proxy['global_forwarding_proxies'])) {
 								$forwardingSources[] = $gatewayIp = $proxy['global_forwarding_proxies'][$staticProxyChunkKey]['ip'];
+								$gatewayIpIndex = (integer) $serverData['proxy_ips'][$gatewayIp];
 
 								if (empty($proxy['global_forwarding_proxies'][$staticProxyChunkKey]['allow_direct'])) {
 									$gatewayAcls[] = 'always_direct deny ip' . $gatewayIpIndex;

@@ -187,7 +187,9 @@ var processDownload = function(frameName, frameSelector) {
 		});
 		api.setRequestParameters({
 			action: frameName,
-			data: frameData
+			data: frameData,
+			itemListName: snakeCaseString('listProxyItems'),
+			url: apiRequestParameters.current.settings.baseUrl + 'api/' + apiRequestParameters.current.defaults.table
 		}, true);
 
 		if (apiRequestParameters.current.items.listProxyItems.data.length === 1) {

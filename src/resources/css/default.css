@@ -13,6 +13,7 @@
 .no-padding-bottom { padding-bottom: 0 !important; }
 .no-padding-right { padding-right: 0 !important; }
 .no-padding-top { padding-top: 0 !important; }
+.width-auto { width: auto !important; }
 
 body,
 html,
@@ -224,6 +225,10 @@ main {
 			line-height: 19px !important;
 			margin-top: 4px;
 		}
+.field-group-container span.icon {
+	margin-left: 10px;
+	margin-top: 8px;
+}
 .field-group {
 	float: left;
 	margin-bottom: 18px;
@@ -968,7 +973,6 @@ main {
 .item-configuration-container .item-controls-container .item-header .item-controls-heading-container {
 	display: block;
 	float: left;
-
 	width: 100%;
 }
 	.item-configuration-container .item-controls-container .item-header .item-controls-heading-container label {

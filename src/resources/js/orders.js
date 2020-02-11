@@ -160,7 +160,7 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue) {
 			upgradeData += '<label for="upgrade-quantity">Select Order Upgrade Quantity</label>';
 			upgradeData += '<div class="field-group no-margin">';
 			upgradeData += '<a class="button change-quantity-button decrease decrease-quantity"' + (upgradeValue <= upgradeValueMinimum ? ' disabled="disabled"' : '') + ' href="javascript:void(0);" event_step="-1">-</a>';
-			upgradeData += '<input class="change-quantity-field upgrade-quantity width-auto" event_step="0" id="upgrade-quantity" max="' + response.data.product.maximumQuantity + '" min="' + response.data.product.minimumQuantity + '" name="upgrade_quantity" step="1" type="number" value="' + response.data.upgradeQuantity + '">';
+			upgradeData += '<input class="change-quantity-field upgrade-quantity" event_step="0" id="upgrade-quantity" max="' + response.data.product.maximumQuantity + '" min="' + response.data.product.minimumQuantity + '" name="upgrade_quantity" step="1" type="number" value="' + response.data.upgradeQuantity + '">';
 			upgradeData += '<input class="hidden" name="confirm_upgrade" type="hidden" value="1">';
 			upgradeData += '<a class="button change-quantity-button increase increase-quantity"' + (upgradeValue >= response.data.product.maximumQuantity ? ' disabled="disabled"' : '') + ' href="javascript:void(0);" event_step="1">+</a>';
 			upgradeData += '</div>';

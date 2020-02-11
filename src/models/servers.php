@@ -70,6 +70,8 @@
 					);
 
 					if (!empty($proxy['global_forwarding_proxies'])) {
+						// TODO: Add options for decryption and custom source IPs
+
 						foreach ($proxy['global_forwarding_proxies'] as $globalForwardingProxy) {
 							$gatewayAcls[] = 'cache_peer ' . $globalForwardingProxy['ip'] . ' parent [forwarding_port] 4827 allow-miss connect-timeout=5 name=' . $globalForwardingProxy['id'] . ' round-robin';
 							$gatewayAcls[] = 'cache_peer_access ' . $globalForwardingProxy['id'] . ' allow ip' . $serverData['proxy_ips'][$proxy['ip']];

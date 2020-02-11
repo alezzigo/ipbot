@@ -1358,11 +1358,11 @@
 					$response['message']['text'] = 'A minimum of 1 static proxy is required for the selected gateway proxies, please try again.';
 
 					if (!empty($parameters['items']['list_static_proxy_items']['count'])) {
-						$response['message']['text'] = 'A minimum of 1 minute is required for the selected gateway proxy rotation frequency, please try again.';
+						$response['message']['text'] = 'A minimum of 5 minutes is required for the selected gateway proxy rotation frequency, please try again.';
 
 						if (
 							!empty($parameters['data']['rotation_frequency']) &&
-							$parameters['data']['rotation_frequency'] >= 1
+							$parameters['data']['rotation_frequency'] >= 5
 						) {
 							$rotateData = array(
 								'allow_direct' => false,

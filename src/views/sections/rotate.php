@@ -17,7 +17,7 @@
 							<div class="field-group-container">
 								<div class="field-group rotation-frequency no-margin-top width-auto">
 									<span>Rotate IP Every</span>
-									<input min="1" name="rotation_frequency" type="number" width="88" value="1">
+									<input min="5" name="rotation_frequency" type="number" width="88" value="5">
 									<span>Minute(s)</span>
 								</div>
 								<span class="align-left details icon tooltip tooltip-bottom" item_title="Every request to the selected gateway proxies will route to a static proxy IP from the selected static proxy IPs below. The static proxy IP will rotate every X number of minutes and the gateway proxies will remain the same."></span>

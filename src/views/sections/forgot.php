@@ -11,6 +11,7 @@
 						<div class="message-container"></div>
 						<label for="forgot-email">Email</label>
 						<input class="email" id="forgot-email" name="email" type="text">
+						<div class="clear"></div>
 						<a class="button frame-button" frame="login" href="javascript:void(0);">Remember your password?</a>
 					</div>
 					<div class="item-footer">

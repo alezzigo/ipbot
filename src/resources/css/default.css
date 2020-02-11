@@ -101,8 +101,8 @@ label {
 	display: block;
 	float: left;
 	font-weight: 600;
+	line-height: 23px;
 	padding: 2px 0;
-	width: 100%;
 }
 input,
 textarea {
@@ -270,6 +270,7 @@ main {
 		line-height: 36px;
 		margin-bottom: 10px;
 		padding: 0;
+		width: 100%;
 	}
 		.field-group label[type="radio"] input {
 			cursor: pointer;
@@ -728,19 +729,21 @@ main {
 		margin: 1px 0 8px 5px;
 		width: 18px;
 	}
-		.icon.tooltip:hover.tooltip:after {
+		.tooltip:hover.tooltip:after {
 			background-color: #444;
+			color: #fff;
 			content: attr(item_title);
 			display: inline-block;
 			font-size: 12px;
 			font-weight: 600;
-			line-height: 15px;
+			line-height: 18px;
 			margin-left: -1px;
 			opacity: 1 !important;
 			padding: 7px 10px 6px;
 			position: absolute;
+			z-index: 1;
 		}
-			.icon.tooltip:hover.tooltip-bottom:after {
+			.tooltip:hover.tooltip-bottom:after {
 				margin-top: 23px;
 			}
 		.icon.close {
@@ -750,6 +753,12 @@ main {
 		.icon.delete {
 			background: url('../images/icons/icon-delete.png') center no-repeat;
 			margin-top: 0;
+		}
+		.icon.details {
+			background: url('../images/icons/icon-details.png') center no-repeat;
+			cursor: help;
+			float: right;
+			margin-left: 10px;
 		}
 		.icon.edit {
 			background: url('../images/icons/icon-edit.png') center no-repeat;
@@ -807,6 +816,7 @@ main {
 		}
 		.icon.close,
 		.icon.delete,
+		.icon.details,
 		.icon.edit,
 		.icon.next,
 		.icon.previous,
@@ -998,6 +1008,7 @@ main {
 }
 .transactions .label {
 	display: block;
+	line-height: 27px;
 	margin-bottom: 2px;
 	margin-right: 0;
 	padding-top: 1px;

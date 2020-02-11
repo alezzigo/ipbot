@@ -12,6 +12,7 @@
 							<span checked="0" class="endpoint-enable checkbox" id="endpoint-enable" name="endpoint_enable"></span>
 							<label class="custom-checkbox-label" for="endpoint-enable" name="endpoint_enable">Enable Proxy API Endpoint</label>
 						</div>
+						<div class="clear"></div>
 						<div class="endpoint-enabled-container hidden">
 							<input class="hidden" name="confirm_endpoint_settings" type="hidden" value="1">
 							<label for="endpoint-username">API Endpoint Username</label>

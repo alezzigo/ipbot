@@ -108,6 +108,7 @@
 							}
 
 							$loadBalanceMethod = empty($staticProxies[1]) ? 'default' : 'round-robin';
+							shuffle($staticProxies);
 
 							foreach ($staticProxies as $staticProxy) {
 								$gatewayAcls[] = 'cache_peer ' . $staticProxy['ip'] . ' parent [static_port] 4827 allow-miss connect-timeout=5 name=' . $staticProxy['id'] . ' ' . $loadBalanceMethod;

@@ -232,6 +232,8 @@ const processItemList = function(itemListName, callback) {
 		itemListData += '<div class="item-configuration">';
 		itemListData += '<div class="item-controls-container controls-container scrollable">';
 		itemListData += '<div class="item-header">';
+		itemListData += '<div class="item-controls-heading-container"></div>';
+		itemListData += '<span class="clear"></span>';
 		itemListData += '<div class="align-right">';
 		itemListData += '<span class="pagination" current_page="' + itemListParameters.page + '" results="' + itemListParameters.resultsPerPage + '">';
 		itemListData += '<span class="align-left hidden item-controls results">';

@@ -676,11 +676,6 @@ main {
 			line-height: 21px;
 			margin-bottom: -1px;
 		}
-			.item-container .item-header .additional-item-controls-container .additional-item-controls {
-				border-top: 1px solid #ddd;
-				margin-top: 15px;
-				padding-top: 15px;
-			}
 			.item-container .item-header .message {
 				margin-bottom: 8px;
 				margin-top: 15px;
@@ -741,7 +736,7 @@ main {
 			opacity: 1 !important;
 			padding: 7px 10px 6px;
 			position: absolute;
-			z-index: 1;
+			z-index: 5;
 		}
 			.tooltip:hover.tooltip-bottom:after {
 				margin-top: 23px;
@@ -759,6 +754,7 @@ main {
 			cursor: help;
 			float: right;
 			margin-left: 10px;
+			margin-top: 2px;
 		}
 		.icon.edit {
 			background: url('../images/icons/icon-edit.png') center no-repeat;
@@ -970,6 +966,12 @@ main {
 .item-configuration-container .checked-container {
 	display: block;
 }
+.item-configuration-container .item-controls-container .item-header .item-controls-heading-container {
+	display: block;
+	float: left;
+	margin-bottom: 2px;
+	width: 100%;
+}
 .item-configuration-container .item-controls-container .item-header .main-button,
 .item-configuration-container .item-controls-container .item-header .alternate-button {
 	font-size: 11px;
@@ -987,6 +989,11 @@ main {
 .item-configuration-container .item-controls-container .item-header .alternate-button {
 	padding-top: 10px;
 	padding-bottom: 9px;
+}
+.item-configuration-container .item-controls-container .item-header .additional-item-controls-container .additional-item-controls {
+	border-top: 1px solid #ddd;
+	margin-top: 15px;
+	padding-top: 15px;
 }
 .item-configuration-container .item-controls-container.scrolling .item-header {
 	border-top: none !important;

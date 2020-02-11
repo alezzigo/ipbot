@@ -65,13 +65,6 @@
 						}
 					}
 
-					if (
-						$proxyType === 'gateway_proxies' &&
-						empty($proxy['allow_direct'])
-					) {
-						$gatewayAcls[] = 'never_direct allow ip' . $serverData['proxy_ips'][$proxy['ip']];
-					}
-
 					$forwardingSources = array(
 						$proxy['ip']
 					);
@@ -90,21 +83,23 @@
 						}
 					}
 
+					if (
+						$proxyType === 'gateway_proxies' &&
+						empty($proxy['allow_direct'])
+					) {
+						$gatewayAcls[] = 'never_direct allow ip' . $serverData['proxy_ips'][$proxy['ip']];
+					}
+
 					if (!empty($proxy['static_proxies'])) {
 						foreach ($proxy['static_proxies'] as $staticProxyChunkKey => $staticProxies) {
 							$gatewayIp = $proxy['ip'];
-							$gatewayIpIndex = (integer) $serverData['proxy_ips'][$gatewayIp];
 							$staticProxyIps = array();
 
 							if (!empty($proxy['global_forwarding_proxies'])) {
 								$forwardingSources[] = $gatewayIp = $proxy['global_forwarding_proxies'][$staticProxyChunkKey]['ip'];
-								$gatewayIpIndex = (integer) $serverData['proxy_ips'][$gatewayIp];
-
-								if (empty($proxy['global_forwarding_proxies'][$staticProxyChunkKey]['allow_direct'])) {
-									$gatewayAcls[] = 'never_direct allow ip' . $gatewayIpIndex;
-								}
 							}
 
+							$gatewayIpIndex = (integer) $serverData['proxy_ips'][$gatewayIp];
 							$loadBalanceMethod = empty($staticProxies[1]) ? 'default' : 'round-robin';
 							shuffle($staticProxies);
 
@@ -112,6 +107,13 @@
 								$gatewayAcls[] = 'cache_peer ' . $staticProxy['ip'] . ' parent [static_port] 4827 allow-miss connect-timeout=5 name=' . $staticProxy['id'] . ' ' . $loadBalanceMethod;
 								$gatewayAcls[] = 'cache_peer_access ' . $staticProxy['id'] . ' allow ip' . $gatewayIpIndex;
 								$formattedProxies['whitelist'][json_encode($forwardingSources)][] = $staticProxy['ip'];
+							}
+
+							if (
+								$gatewayIp !== $proxy['ip'] &&
+								empty($proxy['global_forwarding_proxies'][$staticProxyChunkKey]['allow_direct'])
+							) {
+								$gatewayAcls[] = 'never_direct allow ip' . $gatewayIpIndex;
 							}
 						}
 					}

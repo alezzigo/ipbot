@@ -188,8 +188,10 @@ const processCartItems = function(response, itemListParameters) {
 
 			itemListData += '<h2>Pricing Details</h2>';
 			itemListData += '<p class="no-margin-bottom"><label>Subtotal</label></p>';
+			itemListData += '<div class="clear"></div>';
 			itemListData += '<p>' + (Math.round(response.data.cart.subtotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billingCurrency + '</p>';
 			itemListData += '<p class="no-margin-bottom"><label>Cart Total</label></p>';
+			itemListData += '<div class="clear"></div>';
 			itemListData += '<p>' + (Math.round(response.data.cart.total * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billingCurrency + '</p>';
 			itemListData += '<p class="message">Additional fees for shipping and/or tax may apply before submitting final payment.</p>';
 			additionalItemControlData += '<div class="additional-item-controls">';

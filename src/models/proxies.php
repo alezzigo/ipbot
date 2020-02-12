@@ -1450,6 +1450,13 @@
 				}
 			}
 
+			$response['items'][$parameters['item_list_name']] = array(
+				'count' => 0,
+				'data' => array(),
+				'name' => $parameters['item_list_name'],
+				'table' => $table
+			);
+			$response['tokens'][$parameters['item_list_name']] = array();
 			$response = array_merge($this->fetch($table, $parameters), $response);
 			return $response;
 		}

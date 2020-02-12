@@ -54,6 +54,11 @@
 				<div class="feature-screenshot">
 					<img alt="Bulk request processing screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/order-bulk-action.png">
 				</div>
+				<h2>Configure Gateway IP Rotation Settings</h2>
+				<p>Convert any static proxy IP in your control panel into a rotating proxy gateway with custom rotation intervals. IPs can be used as direct static proxies and gateway exit proxies simultaneously.</p>
+				<div class="feature-screenshot">
+					<img alt="Proxy rotation settings screenshot" src="<?php echo $config->settings['base_url']; ?>resources/images/screenshots/proxy-rotation.png">
+				</div>
 				<h2>Download HTTP Request Logs</h2>
 				<p>Coming soon: Select individual proxy IPs and download a comprehensive log of all HTTP / HTTPS proxy requests within a specified date range.</p>
 			</div>

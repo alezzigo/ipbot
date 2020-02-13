@@ -1518,7 +1518,6 @@
 	 * @return array $response
 	 */
 		public function shellProcessRemoveReplacedProxies($table) {
-			// TODO: Automatically remove replaced proxy associations from proxy_forwarding_proxies and proxy_static_proxies
 			$response = array(
 				'message' => array(
 					'status' => 'error',
@@ -1559,6 +1558,12 @@
 				if (
 					$this->delete('proxies', array(
 						'id' => $proxyIds
+					)) &&
+					$this->delete('proxy_forwarding_proxies', array(
+						'proxy_id' => $proxyIds
+					)) &&
+					$this->delete('proxy_static_proxies', array(
+						'proxy_id' => $proxyIds
 					)) &&
 					$this->save('nodes', $nodeData)
 				) {

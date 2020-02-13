@@ -512,7 +512,7 @@ const processItemList = function(itemListName, callback) {
 			items: response.items,
 			tokens: response.tokens
 		}, true);
-		itemListGrid = response.items[itemListName].data;
+		itemListGrid = typeof response.items[itemListName].data !== 'undefined' ? response.items[itemListName].data : [];
 		itemListGridCount = itemListGrid.length;
 
 		if (typeof itemListParameters.callback === 'function') {

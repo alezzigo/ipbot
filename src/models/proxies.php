@@ -1270,7 +1270,6 @@
 									$this->save($table, $processingNodes['data']) &&
 									!empty($oldItems['count'])
 								) {
-									$response['items'][$parameters['item_list_name']] = array();
 									$response['message'] = array(
 										'status' => 'success',
 										'text' => $parameters['items'][$parameters['item_list_name']]['count'] . ' of your selected ' . $table . ' replaced successfully.'

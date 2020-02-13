@@ -1,8 +1,9 @@
 var processInvoice = function() {
+	const invoiceId = elements.get('input[name="invoice_id"]').value;
 	api.setRequestParameters({
 		action: 'invoice',
 		conditions: {
-			id: elements.get('input[name="invoice_id"]').value
+			id: invoiceId
 		},
 		table: 'invoices',
 		url: apiRequestParameters.current.settings.baseUrl + 'api/invoices'
@@ -308,11 +309,12 @@ var processLoginVerification = function(response) {
 	}
 };
 var processPayment = function(frameName, frameSelector) {
+	const invoiceId = elements.get('input[name="invoice_id"]').value;
 	delete apiRequestParameters.current.conditions;
 	api.setRequestParameters({
 		action: 'payment',
 		data: {
-			invoiceId: elements.get('input[name="invoice_id"]').value
+			invoiceId: invoiceId
 		},
 		table: 'transactions',
 		url: apiRequestParameters.current.settings.baseUrl + 'api/transactions'

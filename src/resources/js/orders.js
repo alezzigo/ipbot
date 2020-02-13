@@ -109,7 +109,7 @@ var processUpgrade = function(frameName, frameSelector, upgradeValue) {
 		processOrders();
 	}
 
-	let orderId = parseInt(window.location.search.substr(1));
+	const orderId = parseInt(window.location.search.substr(1));
 	let orderItemCount = apiRequestParameters.current.listOrderItems.selectedItemCount;
 	upgradeValue = upgradeValue || 1;
 	api.setRequestParameters({

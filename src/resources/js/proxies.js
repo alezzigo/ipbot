@@ -1,5 +1,5 @@
 var processActions = function(frameName, frameSelector) {
-	let orderId = elements.get('input[name="order_id"]').value;
+	const orderId = elements.get('input[name="order_id"]').value;
 	api.setRequestParameters({
 		action: 'fetch',
 		conditions: {
@@ -298,10 +298,11 @@ var processDownload = function(frameName, frameSelector) {
 	processDownloadFormat();
 };
 var processEndpoint = function(frameName, frameSelector) {
+	const orderId = elements.get('input[name="order_id"]').value;
 	api.setRequestParameters({
 		action: 'endpoint',
 		data: {
-			orderId: elements.get('input[name="order_id"]').value
+			orderId: orderId
 		},
 		table: 'orders',
 		url: apiRequestParameters.current.settings.baseUrl + 'api/orders'
@@ -529,7 +530,7 @@ const processGroupItems = function(response, itemListParameters) {
 		groupNameButton.addEventListener('click', groupNameButton.clickListener);
 
 		if (response.data.length) {
-			for (itemListDataKey in response.data) {
+			for (let itemListDataKey in response.data) {
 				let intervalSelectTypes = intervalSelectValues = quantitySelectValues = '';
 				let item = response.data[itemListDataKey];
 				itemListData += '<tr group_id="' + item.id + '" class="">';
@@ -573,7 +574,7 @@ const processGroupItems = function(response, itemListParameters) {
 	}
 };
 var processOrder = function() {
-	let orderId = document.querySelector('input[name="order_id"]').value;
+	const orderId = elements.get('input[name="order_id"]').value;
 	api.setRequestParameters({
 		action: 'view',
 		conditions: {

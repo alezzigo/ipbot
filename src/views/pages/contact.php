@@ -10,7 +10,7 @@
 			<h1>Contact</h1>
 			<div class="section">
 				<p>Full demo and documentation is coming soon with version 1.0.</p>
-				<p>Please send an email to <a href="mailto:parsonsbots@gmail.com">parsonsbots@gmail.com</a> for any inquiries or feature requests.</p>
+				<p>Please send an email to <a href="mailto:parsonsbots@gmail.com">parsonsbots@gmail.com</a> for general inquiries or support if things go wrong.</p>
 			</div>
 		</div>
 	</div>

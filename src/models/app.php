@@ -326,6 +326,194 @@
 		}
 
 	/**
+	 * Decode item list indexes and retrieve corresponding item IDs based on parameters
+	 *
+	 * @param array $parameters
+	 * @param boolean $retrieveItems
+	 *
+	 * @return array $response
+	 */
+		protected function _decodeItems($parameters, $retrieveItems = false) {
+			$response = array();
+
+			if (!empty($parameters['items'])) {
+				foreach ($parameters['items'] as $itemListName => $items) {
+					$response[$itemListName] = array(
+						'count' => count($items['data']),
+						'data' => $items['data'],
+						'name' => $itemListName,
+						'table' => $items['table']
+					);
+
+					if (
+						!empty($items['data']) &&
+						!empty($this->encode[$items['table']])
+					) {
+						$itemIndexes = array();
+						$itemIndexLines = $items['data'];
+						$itemIndex = $itemCount = 0;
+
+						foreach ($itemIndexLines as $offsetIndex => $itemIndexLine) {
+							$itemIndexLineChunks = explode('_', $itemIndexLine);
+
+							foreach ($itemIndexLineChunks as $itemIndexLineChunk) {
+								$itemStatus = substr($itemIndexLineChunk, 0, 1);
+								$itemStatusCount = substr($itemIndexLineChunk, 1);
+
+								if ($itemStatus) {
+									if ($retrieveItems) {
+										for ($i = 0; $i < $itemStatusCount; $i++) {
+											$itemIndexes[$itemIndex + $i] = 1;
+										}
+									}
+
+									$itemCount += $itemStatusCount;
+								}
+
+								$itemIndex += $itemStatusCount;
+							}
+						}
+
+						$response[$itemListName]['count'] = $itemCount;
+
+						if (
+							empty($itemIndexes) ||
+							!$itemCount
+						) {
+							continue;
+						}
+
+						if ($retrieveItems) {
+							$dataTable = !empty($this->encode[$items['table']]['data_table']) ? $this->encode[$items['table']]['data_table'] : $items['table'];
+							$itemParameters = array_merge($parameters, array(
+								'fields' => array(
+									'id'
+								),
+								'limit' => $itemIndex,
+								'offset' => 0
+							));
+
+							if (!empty($this->encode[$items['table']]['sort'])) {
+								$itemParameters['sort'] = $this->encode[$items['table']]['sort'];
+							}
+
+							$conditions = array(
+								'id' => array()
+							);
+							$itemIds = $this->fetch($dataTable, $itemParameters);
+							$response[$itemListName] = array_merge($response[$itemListName], array(
+								'parameters' => $itemParameters,
+								'table' => $dataTable
+							));
+
+							if (!empty($itemIds['data'])) {
+								$conditions['id'] = array_values(array_intersect_key($itemIds['data'], $itemIndexes));
+							}
+
+							if (
+								!empty($parameters['data']['instant_replacement']) &&
+								$parameters['action'] == 'replace'
+							) {
+								$conditions[]['NOT']['AND'] = array(
+									'status' => 'replaced'
+								);
+								$conditions[]['OR'] = array(
+									'next_replacement_available' => null,
+									'next_replacement_available <' => date('Y-m-d H:i:s', time())
+								);
+							}
+
+							$response[$itemListName] = array_merge($response[$itemListName], $this->fetch($dataTable, array(
+								'conditions' => $conditions,
+								'fields' => array(
+									'id'
+								)
+							)));
+						}
+					}
+				}
+			}
+
+			return $response;
+		}
+
+	/**
+	 * Encode item IDs into item list indexes
+	 *
+	 * @param array $parameters
+	 *
+	 * @return array $response
+	 */
+		protected function _encodeItems($parameters) {
+			$response = array();
+
+			if (!empty($parameters['items'])) {
+				foreach ($parameters['items'] as $itemListName => $items) {
+					$response['tokens'][$itemListName] = array();
+
+					if (
+						empty($items['parameters']) ||
+						(
+							!empty($parameters['processing']) &&
+							$parameters['processing']['chunks'] > 1
+						)
+					) {
+						$response['items'][$itemListName] = array_merge($parameters['items'][$itemListName], array(
+							'count' => 0,
+							'data' => array()
+						));
+						continue;
+					}
+
+					$itemIds = $this->fetch($items['table'], $items['parameters']);
+
+					if (!empty($itemIds['count'])) {
+						$itemIndexes = array();
+						$itemIndexLineIndex = $itemStatusCount = 0;
+						$selectedItemIndexes = array_intersect($itemIds['data'], $parameters['items'][$itemListName]['data']);
+						$unselectedItemIndexes = array_diff($itemIds['data'], $parameters['items'][$itemListName]['data']);
+						array_walk($selectedItemIndexes, function(&$selectedItemIdValue, $selectedItemIdKey) {
+							$selectedItemIdValue = 1;
+						});
+						array_walk($unselectedItemIndexes, function(&$unselectedItemIdValue, $unselectedItemIdKey) {
+							$unselectedItemIdValue = 0;
+						});
+						$allItemIndexes = array_merge($selectedItemIndexes, $unselectedItemIndexes);
+
+						foreach ($allItemIndexes as $itemIndex => $itemStatus) {
+							if (((10000 * ($itemIndexLineIndex + 1)) - $itemIndex) === 1) {
+								$itemIndexes[$itemIndexLineIndex][] = $itemStatus . $itemStatusCount;
+								$itemStatusCount = 0;
+								$itemIndexLineIndex++;
+							}
+
+							$itemStatusCount++;
+
+							if (
+								!isset($allItemIndexes[$itemIndex + 1]) ||
+								$allItemIndexes[$itemIndex + 1] != $itemStatus
+							) {
+								$itemIndexes[$itemIndexLineIndex][] = $itemStatus . $itemStatusCount;
+								$itemStatusCount = 0;
+							}
+						}
+
+						foreach ($itemIndexes as $itemIndexLineIndex => $itemStatusCounts) {
+							$itemIndexes[$itemIndexLineIndex] = implode('_', $itemStatusCounts);
+						}
+					}
+
+					$response['items'][$itemListName] = array_merge($parameters['items'][$itemListName], array(
+						'count' => count($selectedItemIndexes),
+						'data' => $itemIndexes
+					));
+				}
+			}
+
+			return $response;
+		}
+
+	/**
 	 * Format array of data to SQL query conditions
 	 *
 	 * @param array $conditions
@@ -721,6 +909,16 @@
 			}
 
 			$defaultAction = !empty($encode['default_action']) ? $encode['default_action'] : 'fetch';
+			$encodeAction = (
+				$encode &&
+				(
+					empty($encode['exclude_actions']) ||
+					(
+						is_array($encode['exclude_actions']) &&
+						!in_array($action, $encode['exclude_actions'])
+					)
+				)
+			);
 			$itemListName = $parameters['item_list_name'] = !empty($parameters['item_list_name']) ? $parameters['item_list_name'] : $table;
 			$response['items'] = $parameters['items'] = isset($parameters['items']) ? $parameters['items'] : $clearItems;
 			$response['tokens'][$itemListName] = $token;
@@ -732,16 +930,7 @@
 				$parameters['data'] = $this->_parseFormDataItems($parameters['data']);
 			}
 
-			if (
-				$encode &&
-				(
-					empty($encode['exclude_actions']) ||
-					(
-						is_array($encode['exclude_actions']) &&
-						!in_array($action, $encode['exclude_actions'])
-					)
-				)
-			) {
+			if ($encodeAction) {
 				if (
 					empty($parameters['tokens'][$itemListName]) ||
 					$parameters['tokens'][$itemListName] === $token
@@ -768,7 +957,7 @@
 						!empty($parameters['items'][$itemListName])
 					) {
 						$itemIndexLineCount = count($parameters['items'][$itemListName]['data']);
-						$items = $this->_retrieveItems($parameters);
+						$items = $this->_decodeItems($parameters);
 						$parametersToEncode = array_intersect_key($parameters, array(
 							'action' => true,
 							'conditions' => true,
@@ -801,7 +990,7 @@
 
 						if ($itemIndexLineCount === 1) {
 							if (is_string($parameters['items'][$itemListName]['data'][0])) {
-								$parameters['items'] = $this->_retrieveItems($parameters, true);
+								$parameters['items'] = $this->_decodeItems($parameters, true);
 							}
 
 							$actionData[0] = array_merge($actionData[0], array(
@@ -901,6 +1090,14 @@
 
 			if (!empty($message)) {
 				$response['message'] = $message;
+			}
+
+			if (
+				$encodeAction &&
+				!empty($response['items'][$parameters['item_list_name']]['data'])
+			) {
+				$parameters['processing'] = $response['processing'];
+				$response = array_merge($response, $this->_encodeItems($parameters));
 			}
 
 			return $response;
@@ -1187,110 +1384,6 @@
 			}
 
 			$response = $this->_parseParameters($response, 'camel');
-			return $response;
-		}
-
-	/**
-	 * Decode indexes and retrieve corresponding item IDs based on parameters
-	 *
-	 * @param array $parameters
-	 * @param boolean $decode
-	 *
-	 * @return array $response
-	 */
-		protected function _retrieveItems($parameters, $decode = false) {
-			$response = array();
-
-			if (!empty($parameters['items'])) {
-				foreach ($parameters['items'] as $itemListName => $items) {
-					$response[$itemListName] = array(
-						'count' => count($items['data']),
-						'data' => $items['data'],
-						'name' => $itemListName,
-						'table' => $items['table']
-					);
-
-					if (
-						!empty($items['data']) &&
-						!empty($this->encode[$items['table']])
-					) {
-						$itemIndexes = array();
-						$itemIndexLines = $items['data'];
-						$index = $itemCount = 0;
-
-						foreach ($itemIndexLines as $offsetIndex => $itemIndexLine) {
-							$itemIndexLineChunks = explode('_', $itemIndexLine);
-
-							foreach ($itemIndexLineChunks as $itemIndexLineChunk) {
-								$itemStatus = substr($itemIndexLineChunk, 0, 1);
-								$itemStatusCount = substr($itemIndexLineChunk, 1);
-
-								if ($itemStatus) {
-									if ($decode) {
-										for ($i = 0; $i < $itemStatusCount; $i++) {
-											$itemIndexes[$index + $i] = 1;
-										}
-									}
-
-									$itemCount += $itemStatusCount;
-								}
-
-								$index += $itemStatusCount;
-							}
-						}
-
-						$response[$itemListName]['count'] = $itemCount;
-
-						if (
-							empty($itemIndexes) ||
-							!$itemCount
-						) {
-							continue;
-						}
-
-						if ($decode) {
-							$dataTable = !empty($this->encode[$items['table']]['data_table']) ? $this->encode[$items['table']]['data_table'] : $items['table'];
-							$itemParameters = array_merge($parameters, array(
-								'fields' => array(
-									'id'
-								),
-								'limit' => $index,
-								'offset' => 0
-							));
-
-							if (!empty($this->encode[$items['table']]['sort'])) {
-								$itemParameters['sort'] = $this->encode[$items['table']]['sort'];
-							}
-
-							$itemIds = $this->fetch($dataTable, $itemParameters);
-							$conditions = array(
-								'id' => !empty($itemIds['data']) ? array_values(array_intersect_key($itemIds['data'], $itemIndexes)) : array()
-							);
-
-							if (
-								!empty($parameters['data']['instant_replacement']) &&
-								$parameters['action'] == 'replace'
-							) {
-								$conditions[]['NOT']['AND'] = array(
-									'status' => 'replaced'
-								);
-								$conditions[]['OR'] = array(
-									'next_replacement_available' => null,
-									'next_replacement_available <' => date('Y-m-d H:i:s', time())
-								);
-							}
-
-							$response[$itemListName] = array_merge($response[$itemListName], $this->fetch($dataTable, array(
-								'conditions' => $conditions,
-								'fields' => array(
-									'id'
-								)
-							)));
-						}
-					}
-				}
-			}
-
 			return $response;
 		}
 

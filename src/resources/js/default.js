@@ -471,6 +471,7 @@ const processItemList = function(itemListName, callback) {
 		)
 	) {
 		itemListParameters.page = 1;
+		itemListGrid = [];
 	}
 
 	api.setRequestParameters({
@@ -507,21 +508,12 @@ const processItemList = function(itemListName, callback) {
 			return false;
 		}
 
-		if (
-			typeof response.items[itemListName] === 'object' &&
-			response.items[itemListName].data.length === 0
-		) {
-			var mergeRequestParameters = {
-				items: {}
-			};
-			mergeRequestParameters.items[itemListName] = {
-				data: [],
-				table: itemListParameters.table
-			};
-			api.setRequestParameters(mergeRequestParameters, true);
-			itemListGridCount = 0;
-			itemListGrid = [];
-		}
+		api.setRequestParameters({
+			items: response.items,
+			tokens: response.tokens
+		}, true);
+		itemListGrid = response.items[itemListName].data;
+		itemListGridCount = itemListGrid.length;
 
 		if (typeof itemListParameters.callback === 'function') {
 			itemListParameters.callback(response, itemListParameters);
@@ -574,14 +566,6 @@ const processItemList = function(itemListName, callback) {
 			elements.removeClass(itemListParameters.selector + ' .item-controls, ' + itemListParameters.selector + ' .items', 'hidden');
 		} else {
 			elements.addClass(itemListParameters.selector + ' .item-controls, ' + itemListParameters.selector + ' .items', 'hidden');
-		}
-
-		if (response.tokens[itemListName] !== 'undefined') {
-			var mergeRequestParameters = {
-				tokens: []
-			};
-			mergeRequestParameters.tokens[itemListName] = response.tokens[itemListName];
-			api.setRequestParameters(mergeRequestParameters, true);
 		}
 
 		if (elements.get(itemListParameters.selector + ' .items .checkbox[index]')) {

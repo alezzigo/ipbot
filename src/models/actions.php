@@ -116,7 +116,7 @@
 										'table' => $actionTable
 									);
 									$actionData[0]['encoded_items_processed'] = json_encode(array_merge($itemsProcessed, $parameters['items'][$parameters['item_list_name']]['data']));
-									$parameters['items'] = $this->_retrieveItems($parameters, true);
+									$parameters['items'] = $this->_decodeItems($parameters, true);
 								}
 
 								$parameters['data']['action'] = array_merge($actionData[0], array(

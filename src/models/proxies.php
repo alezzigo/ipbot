@@ -329,17 +329,9 @@
 						}
 					}
 				}
-
-				$response['items'][$parameters['item_list_name']] = array(
-					'count' => 0,
-					'data' => array(),
-					'name' => $parameters['item_list_name'],
-					'table' => $table
-				);
-				$response['tokens'][$parameters['item_list_name']] = array();
 			}
 
-			$response = array_merge($this->fetch($table, $parameters), $response);
+			$response = array_merge($this->search($table, $parameters), $response);
 			return $response;
 		}
 
@@ -796,13 +788,8 @@
 					'space' => ' ',
 					'underscore' => '_'
 				);
-
-				if (
-					empty($parameters['data']['separated_by']) ||
-					empty($separator = $separators[$parameters['data']['separated_by']])
-				) {
-					$separator = "\n";
-				}
+				$separatorKey = !empty($parameters['data']['separated_by']) ? $parameters['data']['separated_by'] : 'new_line';
+				$separator = $separators[$separatorKey];
 
 				foreach ($response['data'] as $key => $data) {
 					$items[$key] = '';
@@ -893,14 +880,8 @@
 				}
 			}
 
-			$response['items']['list_proxy_items'] = array(
-				'count' => 0,
-				'data' => array(),
-				'name' => 'list_proxy_items',
-				'table' => $table
-			);
 			$parameters['fields'] = $this->permissions[$table]['fetch']['fields'];
-			$response = array_merge($this->fetch($table, $parameters), $response);
+			$response = array_merge($this->search($table, $parameters), $response);
 			return $response;
 		}
 
@@ -1317,14 +1298,7 @@
 				}
 			}
 
-			$response['items'][$parameters['item_list_name']] = array(
-				'count' => 0,
-				'data' => array(),
-				'name' => $parameters['item_list_name'],
-				'table' => $table
-			);
-			$response['tokens'][$parameters['item_list_name']] = array();
-			$response = array_merge($this->fetch($table, $parameters), $response);
+			$response = array_merge($this->search($table, $parameters), $response);
 			return $response;
 		}
 
@@ -1450,14 +1424,7 @@
 				}
 			}
 
-			$response['items'][$parameters['item_list_name']] = array(
-				'count' => 0,
-				'data' => array(),
-				'name' => $parameters['item_list_name'],
-				'table' => $table
-			);
-			$response['tokens'][$parameters['item_list_name']] = array();
-			$response = array_merge($this->fetch($table, $parameters), $response);
+			$response = array_merge($this->search($table, $parameters), $response);
 			return $response;
 		}
 
@@ -1473,7 +1440,7 @@
 			$conditions = array();
 
 			if (
-				$broadSearchFields = $this->permissions[$table]['search']['fields'] &&
+				($broadSearchFields = $this->permissions[$table]['search']['fields']) &&
 				!empty($parameters['data']['broad_search'])
 			) {
 				$conditions = array_map(function($broadSearchTerm) use ($broadSearchFields) {
@@ -1530,12 +1497,17 @@
 			}
 
 			$parameters['conditions'] = array_merge($conditions, $parameters['conditions']);
-			$response = array_merge($response = $this->fetch($table, $parameters), array(
-				'message' => array(
-					'status' => 'success',
-					'text' => $response['count'] . ' search result' . ($response['count'] !== 1 ? 's' : '')  . ' found. <a class="clear" href="javascript:void(0);">Clear search filter</a>.'
-				)
-			));
+			$response = $this->fetch($table, $parameters);
+
+			if (!empty($conditions)) {
+				$response = array_merge($response, array(
+					'message' => array(
+						'status' => 'success',
+						'text' => $response['count'] . ' search result' . ($response['count'] !== 1 ? 's' : '')  . ' found. <a class="clear" href="javascript:void(0);">Clear search filter</a>.'
+					)
+				));
+			}
+
 			return $response;
 		}
 

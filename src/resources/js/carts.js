@@ -113,18 +113,10 @@ const processCartItems = function(response, itemListParameters) {
 					intervalType: elements.get(cartItemSelector + ' select.interval-type').value,
 					intervalValue: elements.get(cartItemSelector + ' select.interval-value').value,
 					quantity: elements.get(cartItemSelector + ' select.quantity').value
-				},
-				items: {
-					listCartItems: {}
 				}
 			}, true);
 			elements.setAttribute('.button.checkout', 'disabled');
 			api.sendRequest(function(response) {
-				api.setRequestParameters({
-					items: {
-						listCartItems: selectedCartItems
-					}
-				}, true);
 				processCartItems(response);
 			});
 		};

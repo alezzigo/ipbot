@@ -905,17 +905,6 @@ var processOrder = function() {
 };
 var processProxyItems = function(response, itemListParameters) {
 	if (typeof itemListParameters !== 'object') {
-		if (apiRequestParameters.current.action === 'search') {
-			var mergeRequestParameters = {
-				items: {}
-			};
-			mergeRequestParameters.items.listProxyItems = {
-				data: [],
-				table: 'proxies'
-			};
-			api.setRequestParameters(mergeRequestParameters, true);
-		}
-
 		processItemList('listProxyItems');
 	} else {
 		elements.html('.message-container.proxies', typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
@@ -1020,6 +1009,7 @@ var processProxyItems = function(response, itemListParameters) {
 
 					if (!response.processing.tokenId) {
 						var mergeRequestParameters = {
+							items: {},
 							listProxyItems: {
 								page: 1
 							}

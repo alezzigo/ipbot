@@ -1,6 +1,6 @@
 var processEmail = function() {
 	processUser();
-	var hash = window.location.search.substr(1);
+	let hash = window.location.search.substr(1);
 
 	if (hash) {
 		api.setRequestParameters({
@@ -11,17 +11,15 @@ var processEmail = function() {
 	}
 
 	if (
-		apiRequestParameters.current.data['token'] ||
-		apiRequestParameters.current.data['email']
+		apiRequestParameters.current.data['email'] ||
+		apiRequestParameters.current.data['token']
 	) {
 		api.setRequestParameters({
 			action: 'email',
 			url: apiRequestParameters.current.settings.baseUrl + 'api/users'
 		});
 		api.sendRequest(function(response) {
-			var messageContainer = document.querySelector('.change-email .message-container');
-
-			if (messageContainer) {
+			if (elements.get('.change-email .message-container')) {
 				if (
 					!hash &&
 					response.user === false
@@ -40,13 +38,13 @@ var processEmail = function() {
 					response.message.status === 'success' &&
 					typeof response.data !== 'undefined'
 				) {
-					document.querySelector('.change-email input.email').value = response.data.newEmail;
+					elements.get('.change-email input.email').value = response.data.newEmail;
 					elements.setAttribute('.change-email input.email', 'disabled', 'disabled');
 					processUser();
 					elements.addClass('.change-email form-item', 'hidden');
 				}
 
-				messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+				elements.html('.change-email .message-container', (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : ''));
 			}
 		});
 	}
@@ -57,10 +55,8 @@ var processRemove = function() {
 		url: apiRequestParameters.current.settings.baseUrl + 'api/users'
 	});
 	api.sendRequest(function(response) {
-		var messageContainer = document.querySelector('.request-removal .message-container');
-
-		if (messageContainer) {
-			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		if (elements.get('.request-removal .message-container')) {
+			elements.html('.request-removal .message-container', (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : ''));
 		}
 
 		processUser();
@@ -71,7 +67,7 @@ var processRemove = function() {
 	});
 };
 var processReset = function() {
-	var hash = window.location.search.substr(1);
+	let hash = window.location.search.substr(1);
 	api.setRequestParameters({
 		action: 'reset',
 		data: {
@@ -80,15 +76,13 @@ var processReset = function() {
 		url: apiRequestParameters.current.settings.baseUrl + 'api/users'
 	}, true);
 	api.sendRequest(function(response) {
-		var messageContainer = document.querySelector('.reset .message-container');
-
-		if (messageContainer) {
-			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+		if (elements.get('.reset .message-container')) {
+			elements.html('.reset .message-container', (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : ''));
 		}
 
 		if (typeof response.user !== 'undefined') {
 			if (response.user.email) {
-				document.querySelector('.reset .email').value = response.user.email;
+				elements.get('.reset .email').value = response.user.email;
 				elements.removeClass('.reset .submit', 'hidden');
 			}
 
@@ -104,17 +98,14 @@ var processReset = function() {
 	});
 };
 var processUser = function() {
-	var userContainer = document.querySelector('.user-container');
-	var userData = '';
+	let userData = '';
 	elements.removeClass('.form-item', 'hidden');
 	api.setRequestParameters({
 		action: 'view',
 		url: apiRequestParameters.current.settings.baseUrl + 'api/users'
 	});
 	api.sendRequest(function(response) {
-		var messageContainer = document.querySelector('main .message-container');
-
-		if (messageContainer) {
+		if (elements.get('main .message-container')) {
 			if (response.user === false) {
 				elements.addClass('nav .user', 'hidden');
 				elements.removeClass('nav .guest', 'hidden');
@@ -124,10 +115,10 @@ var processUser = function() {
 				};
 			}
 
-			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
+			elements.html('main .message-container', (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : ''));
 		}
 
-		if (userContainer) {
+		if (elements.get('.user-container')) {
 			if (response.user !== false) {
 				userData += '<h2>Account Details</h2>';
 				userData += '<p><strong>User ID</strong><br>' + response.user.id + '</p>';
@@ -151,21 +142,23 @@ var processUser = function() {
 
 				if (response.user.subscriptions) {
 					userData += '<h2>Account Subscriptions</h2>';
-					response.user.subscriptions.map(function(item, index) {
-						userData += '<div class="item-container item-button" subscription_id="' + item.id + '">';
+
+					for (let subscriptionDataKey in response.user.subscriptions) {
+						let subscription = response.user.subscriptions[subscriptionDataKey];
+						userData += '<div class="item-container item-button" subscription_id="' + subscription.id + '">';
 						userData += '<div class="item">';
 						userData += '<div class="item-body">';
-						userData += '<p><strong>Subscription #' + item.id + '</strong></p>';
-						userData += '<p>' + item.price + ' ' + apiRequestParameters.current.settings.billingCurrency + ' per ' + item.intervalValue + ' ' + item.intervalType + (item.intervalValue !== 1 ? 's' : '') + '</p>';
+						userData += '<p><strong>Subscription #' + subscription.id + '</strong></p>';
+						userData += '<p>' + subscription.price + ' ' + apiRequestParameters.current.settings.billingCurrency + ' per ' + subscription.intervalValue + ' ' + subscription.intervalType + (subscription.intervalValue !== 1 ? 's' : '') + '</p>';
 						userData += '<span class="label-container">';
-						userData += '<label class="label ' + item.status + '">' + item.status.replace('_', ' ') + '</label>';
+						userData += '<label class="label ' + subscription.status + '">' + subscription.status.replace('_', ' ') + '</label>';
 						userData += '</span>';
-						userData += (item.status.indexOf('cancel') < 0 ? '<a class="cancel cancel-subscription" href="javascript:void(0);" subscription_id="' + item.id + '">Request Cancellation</a>' : '');
+						userData += (subscription.status.indexOf('cancel') < 0 ? '<a class="cancel cancel-subscription" href="javascript:void(0);" subscription_id="' + subscription.id + '">Request Cancellation</a>' : '');
 						userData += '<div class="hidden message-container no-margin-bottom"></div>';
 						userData += '</div>';
 						userData += '</div>';
 						userData += '</div>';
-					});
+					}
 				}
 
 				userData += '<h2>Remove Account</h2>';
@@ -177,12 +170,13 @@ var processUser = function() {
 				}
 			}
 
-			userContainer.innerHTML = userData;
+			elements.html('.user-container', userData);
 
 			if (response.user.subscriptions) {
-				response.user.subscriptions.map(function(item, index) {
-					var cancelSubscriptionButton = document.querySelector('.item-button[subscription_id="' + item.id + '"] .cancel-subscription');
-					var cancelSubscription = function(subscriptionId) {
+				for (let subscriptionDataKey in response.user.subscriptions) {
+					let subscription = response.user.subscriptions[subscriptionDataKey];
+					let cancelSubscriptionButton = elements.get('.item-button[subscription_id="' + subscription.id + '"] .cancel-subscription');
+					let cancelSubscription = function(subscriptionId) {
 						api.setRequestParameters({
 							action: 'cancel',
 							data: {
@@ -191,7 +185,7 @@ var processUser = function() {
 						}, true);
 						api.sendRequest(function(response) {
 							if (typeof response.message.text !== 'undefined') {
-								var subscriptionContainerSelector = '.item-button[subscription_id="' + subscriptionId + '"]';
+								const subscriptionContainerSelector = '.item-button[subscription_id="' + subscriptionId + '"]';
 								elements.addClass('.item-button[subscription_id] .message-container', 'hidden');
 								elements.html('.item-button[subscription_id] .message-container', '');
 								elements.html(subscriptionContainerSelector + ' .message-container', '<p class="message ' + response.message.status + ' no-margin-bottom">' + response.message.text + '</p>');
@@ -212,10 +206,10 @@ var processUser = function() {
 						};
 						cancelSubscriptionButton.addEventListener('click', cancelSubscriptionButton.clickListener);
 					}
-				});
+				}
 			}
 
-			userAddBalanceButton = userContainer.querySelector('.button.add-to-balance');
+			let userAddBalanceButton = elements.get('.user-container .button.add-to-balance');
 
 			if (userAddBalanceButton) {
 				userAddBalanceButton.removeEventListener('click', userAddBalanceButton.clickListener);
@@ -223,15 +217,11 @@ var processUser = function() {
 					api.setRequestParameters({
 						action: 'balance',
 						data: {
-							balance: userContainer.querySelector('.balance-amount').value
+							balance: elements.get('.user-container .balance-amount').value
 						}
 					}, true);
 					api.sendRequest(function(response) {
-						var messageContainer = document.querySelector('.balance-message-container');
-
-						if (messageContainer) {
-							messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
-						}
+						elements.html('.balance-message-container', (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : ''));
 
 						if (
 							typeof response.redirect === 'string' &&
@@ -242,8 +232,8 @@ var processUser = function() {
 						}
 					});
 				};
-				userAddBalanceButton.addEventListener('click', userAddBalanceButton.clickListener);
 				elements.removeAttribute('.button.add-to-balance', 'disabled');
+				userAddBalanceButton.addEventListener('click', userAddBalanceButton.clickListener);
 			}
 		}
 	});
@@ -254,11 +244,7 @@ var processUsers = function(frameName, frameSelector) {
 		url: apiRequestParameters.current.settings.baseUrl + 'api/users'
 	});
 	api.sendRequest(function(response) {
-		var messageContainer = document.querySelector('.' + frameName + ' .message-container');
-
-		if (messageContainer) {
-			messageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
-		}
+		elements.html('.message-container.' + frameName, (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : ''));
 
 		if (
 			typeof response.redirect === 'string' &&

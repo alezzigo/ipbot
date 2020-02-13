@@ -760,8 +760,8 @@
 
 			if (!empty($existingUser)) {
 				if (
-					!empty($parameters['data']['confirm_password']) &&
-					!empty($parameters['data']['password'])
+					isset($parameters['data']['confirm_password']) &&
+					isset($parameters['data']['password'])
 				) {
 					$response['message']['text'] = 'Password must be at least 10 characters, please try again.';
 

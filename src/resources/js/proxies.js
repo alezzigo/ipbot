@@ -1,5 +1,5 @@
 var processActions = function(frameName, frameSelector) {
-	var orderId = document.querySelector('input[name="order_id"]').value;
+	let orderId = elements.get('input[name="order_id"]').value;
 	api.setRequestParameters({
 		action: 'fetch',
 		conditions: {
@@ -12,13 +12,15 @@ var processActions = function(frameName, frameSelector) {
 		url: apiRequestParameters.current.settings.baseUrl + 'api/actions'
 	});
 	api.sendRequest(function(response) {
-		var actionData = '<p class="error message">No recent order actions to list.</p>';
+		let actionData = '<p class="error message">No recent order actions to list.</p>';
 
 		if (response.data.length) {
 			actionData = '<p class="message">Your most-recent actions for order #' + orderId + ' are displayed below.</p>';
 			actionData += '<div class="details">';
-			response.data.map(function(action, index) {
-				var actionParameters = action.encodedParameters;
+
+			for (let actionDataKey in response.data) {
+				let action = response.data[actionDataKey];
+				let actionParameters = action.encodedParameters;
 				actionData += '<div class="item-button item-container">';
 				actionData += '<div class="item">';
 				actionData += '<p><strong>Request to ' + actionParameters.action + ' ' + actionParameters.itemCount + ' ' + actionParameters.table.replace('_', ' ') + '</strong></p>';
@@ -31,11 +33,11 @@ var processActions = function(frameName, frameSelector) {
 				actionData += '<label class="label ' + (action.progress === 100 ? 'active' : 'inactive') + '">' + (action.progress === 100 ? 'Completed' : 'Interrupted') + ' ' + action.progress + '%</label>';
 				actionData += '</div>';
 				actionData += '</div>';
-			});
+			}
+
 			actionData += '</div>';
 		}
 
-		document.querySelector('.actions-container').innerHTML = actionData;
 		api.setRequestParameters({
 			action: apiRequestParameters.previous.action,
 			conditions: apiRequestParameters.previous.conditions,
@@ -44,22 +46,17 @@ var processActions = function(frameName, frameSelector) {
 			table: apiRequestParameters.previous.table,
 			url: apiRequestParameters.previous.url
 		});
+		elements.html('.actions-container', actionData);
 	});
 };
 var processDowngrade = function() {
-	var downgradeContainer = document.querySelector('.downgrade-container');
-	var pagination = document.querySelector('.item-configuration .pagination');
 	api.setRequestParameters({
 		action: 'downgrade'
 	});
 	api.sendRequest(function(response) {
-		var downgradeData = '';
-		var downgradeMessageContainer = document.querySelector('.downgrade-configuration .message-container');
+		let downgradeData = '';
 		elements.setAttribute('.button.submit', 'disabled');
-
-		if (downgradeMessageContainer) {
-			downgradeMessageContainer.innerHTML = (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : '');
-		}
+		elements.html('.downgrade-configuration .message-container', (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : ''));
 
 		if (
 			typeof response.redirect === 'string' &&
@@ -102,11 +99,11 @@ var processDowngrade = function() {
 			delete apiRequestParameters.current.data.confirmDowngrade;
 		}
 
-		downgradeContainer.innerHTML = downgradeData;
+		elements.html('.downgrade-container', downgradeData);
 	});
 };
 var processDownload = function(frameName, frameSelector) {
-	var downloadOptions = {
+	const downloadOptions = {
 		columns: [
 			{
 				name: 'ip',
@@ -175,9 +172,9 @@ var processDownload = function(frameName, frameSelector) {
 			}
 		]
 	};
-	var downloadData = '';
-	var processDownloadFormat = function() {
-		var frameData = {};
+	let downloadData = '';
+	const processDownloadFormat = function() {
+		let frameData = {};
 		elements.addClass(frameSelector + ' .item-controls', 'hidden');
 		elements.removeClass(frameSelector + ' .loading', 'hidden');
 		elements.setAttribute(frameSelector + ' input[name="confirm_download"]', 'value', 0);
@@ -194,8 +191,8 @@ var processDownload = function(frameName, frameSelector) {
 
 		if (apiRequestParameters.current.items.listProxyItems.data.length === 1) {
 			api.sendRequest(function(response) {
-				document.querySelector(frameSelector + ' textarea[name="copy"]').value = response.data;
 				elements.addClass(frameSelector + ' .loading', 'hidden');
+				elements.get(frameSelector + ' textarea[name="copy"]').value = response.data;
 				elements.removeAttribute(frameSelector + ' .list-format select', 'disabled');
 				elements.removeClass(frameSelector + ' .item-controls', 'hidden');
 				api.setRequestParameters({
@@ -291,7 +288,7 @@ var processDownload = function(frameName, frameSelector) {
 		};
 		element.addEventListener('change', element.changeListener);
 	});
-	var itemsCopy = elements.get(frameSelector + ' .button.copy');
+	let itemsCopy = elements.get(frameSelector + ' .button.copy');
 	itemsCopy.removeEventListener('click', itemsCopy.clickListener);
 	itemsCopy.clickListener = function() {
 		elements.get('[name="copy"]').select();
@@ -304,7 +301,7 @@ var processEndpoint = function(frameName, frameSelector) {
 	api.setRequestParameters({
 		action: 'endpoint',
 		data: {
-			orderId: document.querySelector('input[name="order_id"]').value
+			orderId: elements.get('input[name="order_id"]').value
 		},
 		table: 'orders',
 		url: apiRequestParameters.current.settings.baseUrl + 'api/orders'
@@ -314,8 +311,9 @@ var processEndpoint = function(frameName, frameSelector) {
 		processWindowEvents('resize');
 
 		if (response.data) {
-			var endpointEnableCheckboxInput = document.querySelector('.endpoint-enable');
-			var endpointEnableCheckboxLabel = document.querySelector('label[for="endpoint-enable"]');
+			elements.addClass('.endpoint-enabled-container', 'hidden');
+			let endpointEnableCheckboxInput = elements.get('.endpoint-enable');
+			let endpointEnableCheckboxLabel = elements.get('label[for="endpoint-enable"]');
 			endpointEnableCheckboxInput.removeEventListener('click', endpointEnableCheckboxInput.clickListener);
 			endpointEnableCheckboxLabel.removeEventListener('click', endpointEnableCheckboxLabel.clickListener);
 			endpointEnableCheckboxInput.clickListener = endpointEnableCheckboxLabel.clickListener = function() {
@@ -327,14 +325,13 @@ var processEndpoint = function(frameName, frameSelector) {
 			};
 			endpointEnableCheckboxInput.addEventListener('click', endpointEnableCheckboxInput.clickListener);
 			endpointEnableCheckboxLabel.addEventListener('click', endpointEnableCheckboxLabel.clickListener);
-			elements.addClass('.endpoint-enabled-container', 'hidden');
 
 			if (typeof response.data.endpointEnable !== 'undefined') {
 				if (response.data.endpointEnable) {
 					elements.removeClass('.endpoint-enabled-container', 'hidden');
 				}
 
-				var endpointShowDocumentation = document.querySelector('.endpoint-show-documentation');
+				let endpointShowDocumentation = elements.get('.endpoint-show-documentation');
 				endpointShowDocumentation.removeEventListener('click', endpointShowDocumentation.clickListener);
 				endpointShowDocumentation.clickListener = function() {
 					if (elements.hasClass('.endpoint-documentation', 'hidden')) {
@@ -921,7 +918,7 @@ var processProxyItems = function(response, itemListParameters) {
 				}
 			});
 			setTimeout(function() {
-				var itemsClear = elements.get('.item-configuration a.clear');
+				let itemsClear = elements.get('.item-configuration a.clear');
 				itemsClear.removeEventListener('click', itemsClear.clickListener);
 				itemsClear.clickListener = function() {
 					api.setRequestParameters({
@@ -960,12 +957,12 @@ var processProxyItems = function(response, itemListParameters) {
 		}
 
 		if (response.processing) {
-			var actionDetails = 'to ' + response.processing.parameters.action + ' ' + response.processing.parameters.itemCount + ' ' + response.processing.parameters.table;
-			var itemProcessingData = '<p class="message">Your recent bulk action ' + actionDetails + ' is in progress.</p>';
+			const actionDetails = 'to ' + response.processing.parameters.action + ' ' + response.processing.parameters.itemCount + ' ' + response.processing.parameters.table;
+			let itemProcessingData = '<p class="message">Your recent bulk action ' + actionDetails + ' is in progress.</p>';
 			var timeoutId = setTimeout(function() {}, 1);
-			var processActionProgress = function(response) {
-				var actionProgress = (response.processing ? response.processing.progress : 0);
-				var actionProcessed = (response.processing ? response.processing.processed : false);
+			const processActionProgress = function(response) {
+				const actionProgress = (response.processing ? response.processing.progress : 0);
+				const actionProcessed = (response.processing ? response.processing.processed : false);
 				elements.html('.progress-text', actionProgress + '%');
 				elements.setAttribute('.progress', 'style', 'width: ' + actionProgress + '%');
 

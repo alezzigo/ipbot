@@ -185,7 +185,7 @@
 			$formattedAcls[] = 'http_access deny all';
 			$response = array(
 				'acls' => implode("\n", $formattedAcls),
-				'configuration' => implode("\n", $this->proxyConfigurations['http']['static']['squid']['configuration']),
+				'configuration' => implode("\n", $this->proxyConfigurations['http']['squid']['configuration']),
 				'files' => $formattedFiles,
 				'users' => $formattedUsers
 			);
@@ -195,10 +195,10 @@
 			}
 
 			if (
-				!empty($this->proxyConfigurations['http']['static']['squid']['ports']) &&
+				!empty($this->proxyConfigurations['http']['squid']['ports']) &&
 				!empty($disabledProxies)
 			) {
-				$splitDisabledPorts = array_chunk($this->proxyConfigurations['http']['static']['squid']['ports'], '10');
+				$splitDisabledPorts = array_chunk($this->proxyConfigurations['http']['squid']['ports'], '10');
 				$splitDisabledProxies = array_chunk($disabledProxies, '10');
 
 				foreach ($splitDisabledProxies as $proxies) {
@@ -421,8 +421,7 @@
 					'http_proxy_configuration',
 					'id',
 					'ip',
-					'server_configuration',
-					'server_configuration_type'
+					'server_configuration'
 				)
 			));
 			$proxyConfiguration = $serverConfiguration = array();
@@ -450,13 +449,11 @@
 							$response['message']['status'] = 'Invalid server configuration type, please check your configuration file and server options in database.';
 
 							if (
-								!empty($this->serverConfigurations) &&
 								!empty($server['data'][0]['server_configuration']) &&
-								!empty($server['data'][0]['server_configuration_type']) &&
-								!empty($this->serverConfigurations[$server['data'][0]['server_configuration']][$server['data'][0]['server_configuration_type']])
+								!empty($this->serverConfigurations[$server['data'][0]['server_configuration']])
 							) {
 								$response['message']['status'] = 'Invalid proxy configuration settings, please check your configuration file and server options in database.';
-								$serverConfiguration = $this->serverConfigurations[$server['data'][0]['server_configuration']][$server['data'][0]['server_configuration_type']];
+								$serverConfiguration = $this->serverConfigurations[$server['data'][0]['server_configuration']];
 
 								if (
 									!empty($this->proxyConfigurations) &&
@@ -498,8 +495,8 @@
 
 									foreach ($this->proxyConfigurations as $proxyProtocol => $proxyConfiguration) {
 										if (
-											!empty($proxyConfiguration) &&
-											!empty($proxyConfiguration[$server['data'][0]['server_configuration_type']][$proxyConfigurationType = $server['data'][0][$proxyProtocol . '_proxy_configuration']]) &&
+											($proxyConfigurationType = $server['data'][0][$proxyProtocol . '_proxy_configuration']) &&
+											!empty($proxyConfiguration[$proxyConfigurationType]) &&
 											method_exists($this, ($method = '_format' . ucwords($proxyConfigurationType) . 'AccessControls')) &&
 											($formattedAcls = $this->$method($response['data']))
 										) {

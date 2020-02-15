@@ -73,7 +73,7 @@
 						// TODO: Add options for decryption and custom source IPs
 
 						foreach ($proxy['global_forwarding_proxies'] as $globalForwardingProxy) {
-							$gatewayAcls[] = 'cache_peer ' . $globalForwardingProxy['ip'] . ' parent [forwarding_port] 4827 allow-miss connect-timeout=5 name=' . $globalForwardingProxy['id'] . ' round-robin';
+							$gatewayAcls[] = 'cache_peer ' . $globalForwardingProxy['ip'] . ' parent [forwarding_port] 0 name=' . $globalForwardingProxy['id'] . ' round-robin';
 							$gatewayAcls[] = 'cache_peer_access ' . $globalForwardingProxy['id'] . ' allow ip' . $serverData['proxy_ips'][$proxy['ip']];
 
 							if (
@@ -105,8 +105,9 @@
 							$loadBalanceMethod = empty($staticProxies[1]) ? 'default' : 'round-robin';
 							shuffle($staticProxies);
 
+							// TODO: add static port rotation from database values, not in dynamic_proxy_reconfiguration config
 							foreach ($staticProxies as $staticProxy) {
-								$gatewayAcls[] = 'cache_peer ' . $staticProxy['ip'] . ' parent [static_port] 4827 allow-miss connect-timeout=5 name=' . $staticProxy['id'] . ' ' . $loadBalanceMethod;
+								$gatewayAcls[] = 'cache_peer ' . $staticProxy['ip'] . ' parent [static_port] 0 name=' . $staticProxy['id'] . ' ' . $loadBalanceMethod;
 								$gatewayAcls[] = 'cache_peer_access ' . $staticProxy['id'] . ' allow ip' . $gatewayIpIndex;
 								$formattedProxies['whitelist'][json_encode($forwardingSources)][] = $staticProxy['ip'];
 							}

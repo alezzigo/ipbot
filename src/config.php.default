@@ -443,6 +443,7 @@
 						'configuration' => '/etc/squid3/',
 						'process_id' => '/var/run/'
 					),
+					'process_minimum' => 8,
 					'process_name' => 'squid3',
 					'version' => '3.3.4'
 				)

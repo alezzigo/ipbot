@@ -13,10 +13,6 @@
 	 * @return array $response
 	 */
 		protected function _formatSquid($serverDetails) {
-			if (empty($serverDetails['proxy_processes']['squid'][5])) {
-				return false;
-			}
-
 			$disabledProxies = $formattedFiles = $formattedProxies = $formattedProxyProcessConfigurations = $formattedProxyProcessPorts = $formattedUsers = $gatewayAcls = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = array();
 			$formattedAcls = array(
 				'auth_param basic program /usr/lib/squid3/basic_ncsa_auth /etc/squid3/passwords',
@@ -27,6 +23,13 @@
 			);
 			$proxyConfiguration = $this->proxyConfigurations['squid'];
 			$userIndex = 0;
+
+			if (
+				($processMinimum = !empty($proxyConfiguration['process_minimum']) ? $proxyConfiguration['process_minimum'] : 1) &&
+				count($serverDetails['proxy_processes']['squid']) < $processMinimum
+			) {
+				return false;
+			}
 
 			if (!empty($serverDetails['proxy_ips'])) {
 				foreach ($serverDetails['proxy_ips'] as $proxyIp => $proxyIndex) {
@@ -517,7 +520,6 @@
 
 					if (empty($response[$serverProxyProcess['type']][$key]['ports'])) {
 						unset($response[$serverProxyProcess['type']][$key]);
-						$response[$serverProxyProcess['type']] = array_values($response[$serverProxyProcess['type']]);
 					}
 				}
 			}

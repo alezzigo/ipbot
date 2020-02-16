@@ -14,18 +14,18 @@
 	 */
 		protected function _formatSquid($serverDetails) {
 			$disabledProxies = $formattedFiles = $formattedProxies = $formattedProxyProcessConfigurations = $formattedProxyProcessPorts = $formattedUsers = $gatewayAcls = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = array();
+			$configuration = $this->proxyConfigurations['squid'];
 			$formattedAcls = array(
-				'auth_param basic program /usr/lib/squid3/basic_ncsa_auth /etc/squid3/passwords',
+				'auth_param basic program /usr/lib/squid3/basic_ncsa_auth ' . $configuration['paths']['configuration'] . 'passwords',
 				'auth_param basic children 88888',
 				'auth_param basic realm ' . $this->settings['site_name'],
 				'auth_param basic credentialsttl 88888 days',
 				'auth_param basic casesensitive on'
 			);
-			$proxyConfiguration = $this->proxyConfigurations['squid'];
 			$userIndex = 0;
 
 			if (
-				($processMinimum = !empty($proxyConfiguration['process_minimum']) ? $proxyConfiguration['process_minimum'] : 1) &&
+				($processMinimum = !empty($configuration['process_minimum']) ? $configuration['process_minimum'] : 1) &&
 				count($serverDetails['proxy_processes']['squid']) < $processMinimum
 			) {
 				return false;
@@ -39,10 +39,10 @@
 			}
 
 			foreach ($serverDetails['proxy_processes']['squid'] as $key => $proxyProcess) {
-				$proxyProcessConfigurationParameters = implode("\n", $proxyConfiguration['parameters']);
-				$proxyProcessName = $proxyConfiguration['process_name'] . ($proxyProcess['number'] ? '-redundant' . $proxyProcess['number'] : '');
-				$proxyProcessConfigurationFilePath = $proxyConfiguration['paths']['configuration'] . $proxyProcessName . '.conf';
-				$proxyProcessIdPath = $proxyConfiguration['paths']['process_id'] . $proxyProcessName . '.pid';
+				$proxyProcessConfigurationParameters = implode("\n", $configuration['parameters']);
+				$proxyProcessName = $configuration['process_name'] . ($proxyProcess['number'] ? '-redundant' . $proxyProcess['number'] : '');
+				$proxyProcessConfigurationFilePath = $configuration['paths']['configuration'] . $proxyProcessName . '.conf';
+				$proxyProcessIdPath = $configuration['paths']['process_id'] . $proxyProcessName . '.pid';
 				$proxyProcessConfigurationParameters = str_replace('[dns_ips]', implode(' ', $proxyProcess['dns_ips']), $proxyProcessConfigurationParameters);
 				$proxyProcessConfigurationParameters = str_replace('[pid]', $proxyProcessIdPath, $proxyProcessConfigurationParameters);
 				$proxyProcessConfigurationParameters = str_replace('[ports]', 'http_port ' . implode("\n" . 'http_port ', $proxyProcess['ports']), $proxyProcessConfigurationParameters);
@@ -171,11 +171,11 @@
 					$splitAuthentication = explode($this->keys['start'], $credentials);
 					$formattedAcls[] = 'acl user' . $userIndex . ' proxy_auth ' . $splitAuthentication[0];
 					$formattedFiles[] = array(
-						'path' => '/etc/squid3/users/' . $userIndex . '/d.txt',
+						'path' => $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt',
 						'contents' => implode("\n", $destinations)
 					);
 					$formattedUsers[$splitAuthentication[0]] = $splitAuthentication[1];
-					$proxyAuthenticationAcls[] = 'acl d' . $userIndex . ' localip "/etc/squid3/users/' . $userIndex . '/d.txt"';
+					$proxyAuthenticationAcls[] = 'acl d' . $userIndex . ' localip "' . $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt"';
 					$proxyAuthenticationAcls[] = 'http_access allow d' . $userIndex . ' user' . $userIndex;
 					$userIndex++;
 				}
@@ -190,15 +190,15 @@
 
 					foreach ($splitSources as $sourceChunk) {
 						$formattedFiles[] = array(
-							'path' => '/etc/squid3/users/' . $userIndex . '/d.txt',
+							'path' => $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt',
 							'contents' => implode("\n", $destinations)
 						);
 						$formattedFiles[] = array(
-							'path' => '/etc/squid3/users/' . $userIndex . '/s.txt',
+							'path' => $configuration['paths']['configuration'] . 'users/' . $userIndex . '/s.txt',
 							'contents' => implode("\n", $sourceChunk)
 						);
-						$proxyWhitelistAcls[] = 'acl d' . $userIndex . ' localip "/etc/squid3/users/' . $userIndex . '/d.txt"';
-						$proxyWhitelistAcls[] = 'acl s' . $userIndex . ' src "/etc/squid3/users/' . $userIndex . '/s.txt"';
+						$proxyWhitelistAcls[] = 'acl d' . $userIndex . ' localip "' . $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt"';
+						$proxyWhitelistAcls[] = 'acl s' . $userIndex . ' src "' . $configuration['paths']['configuration'] . 'users/' . $userIndex . '/s.txt"';
 						$proxyWhitelistAcls[] = 'http_access allow s' . $userIndex . ' d' . $userIndex;
 						$userIndex++;
 					}
@@ -209,10 +209,10 @@
 
 			if (!empty($formattedProxies['public'])) {
 				$formattedFiles[] = array(
-					'path' => '/etc/squid3/users/' . $userIndex . '/d.txt',
+					'path' => $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt',
 					'contents' => implode("\n", $formattedProxies['public'])
 				);
-				$formattedAcls[] = 'acl d' . $userIndex . ' localip "/etc/squid3/users/' . $userIndex . '/d.txt"';
+				$formattedAcls[] = 'acl d' . $userIndex . ' localip "' . $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt"';
 				$formattedAcls[] = 'http_access allow d' . $userIndex . ' all';
 			}
 
@@ -228,7 +228,6 @@
 				'users' => $formattedUsers
 			);
 
-			// ..
 			return $response;
 		}
 

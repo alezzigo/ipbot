@@ -22,11 +22,12 @@
 				'auth_param basic credentialsttl 88888 days',
 				'auth_param basic casesensitive on'
 			);
+			$proxyProcesses = $serverDetails['proxy_processes']['squid'];
 			$userIndex = 0;
 
 			if (
 				($processMinimum = !empty($configuration['process_minimum']) ? $configuration['process_minimum'] : 1) &&
-				count($serverDetails['proxy_processes']['squid']) < $processMinimum
+				count($proxyProcesses) < $processMinimum
 			) {
 				return false;
 			}
@@ -38,7 +39,7 @@
 				}
 			}
 
-			foreach ($serverDetails['proxy_processes']['squid'] as $key => $proxyProcess) {
+			foreach ($proxyProcesses as $key => $proxyProcess) {
 				$proxyProcessConfigurationParameters = implode("\n", $configuration['parameters']);
 				$proxyProcessName = $configuration['process_name'] . ($proxyProcess['number'] ? '-redundant' . $proxyProcess['number'] : '');
 				$proxyProcessConfigurationFilePath = $configuration['paths']['configuration'] . $proxyProcessName . '.conf';
@@ -66,6 +67,26 @@
 					$formattedProxyProcessPorts[] = $port;
 				}
 			}
+
+			$splitProxyProcesses = array_chunk($proxyProcesses, round(count($proxyProcesses) / 2), false);
+			$primaryProxyProcessPorts = $proxyProcesses[0]['ports'];
+			$formattedForwardingProxyProcessPorts = array_values(array_diff($formattedProxyProcessPorts, $primaryProxyProcessPorts));
+			unset($proxyProcesses[0]);
+			$splitForwardingProxyProcesses = array_chunk($proxyProcesses, round(count($proxyProcesses) / 2), false);
+
+			$splitProxyProcessPortKey = array_search($splitProxyProcesses[1][0]['ports'][0], $formattedProxyProcessPorts);
+			$splitForwardingProxyProcessPortKey = array_search($splitForwardingProxyProcesses[1][0]['ports'][0], $formattedForwardingProxyProcessPorts);
+			$formattedProxyProcessPortsStart = $formattedProxyProcessPortsEnd = $formattedProxyProcessPorts;
+			$formattedForwardingProxyProcessPortsStart = $formattedForwardingProxyProcessPortsEnd = $formattedForwardingProxyProcessPorts;
+			$splitProxyProcessPorts = array(
+				array_splice($formattedProxyProcessPortsStart, 0, $splitProxyProcessPortKey),
+				array_splice($formattedProxyProcessPortsEnd, $splitProxyProcessPortKey, -1)
+			);
+			$splitForwardingProxyProcessPorts = array(
+				array_splice($formattedForwardingProxyProcessPortsStart, 0, $splitForwardingProxyProcessPortKey),
+				array_splice($formattedForwardingProxyProcessPortsEnd, $splitForwardingProxyProcessPortKey, -1)
+			);
+			// ..
 
 			$proxyData = array_intersect_key($serverDetails, array(
 				'gateway_proxies' => true,

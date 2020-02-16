@@ -13,6 +13,10 @@
 	 * @return array $response
 	 */
 		protected function _formatSquid($serverDetails) {
+			if (empty($serverDetails['proxy_processes']['squid'][5])) {
+				return false;
+			}
+
 			$disabledProxies = $formattedFiles = $formattedProxies = $formattedProxyProcessConfigurations = $formattedProxyProcessPorts = $formattedUsers = $gatewayAcls = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = array();
 			$formattedAcls = array(
 				'auth_param basic program /usr/lib/squid3/basic_ncsa_auth /etc/squid3/passwords',
@@ -21,6 +25,7 @@
 				'auth_param basic credentialsttl 88888 days',
 				'auth_param basic casesensitive on'
 			);
+			$proxyConfiguration = $this->proxyConfigurations['squid'];
 			$userIndex = 0;
 
 			if (!empty($serverDetails['proxy_ips'])) {
@@ -30,36 +35,32 @@
 				}
 			}
 
-			if (!empty($serverDetails['proxy_processes']['squid'])) {
-				$proxyConfiguration = $this->proxyConfigurations['squid'];
+			foreach ($serverDetails['proxy_processes']['squid'] as $key => $proxyProcess) {
+				$proxyProcessConfigurationParameters = implode("\n", $proxyConfiguration['parameters']);
+				$proxyProcessName = $proxyConfiguration['process_name'] . ($proxyProcess['number'] ? '-redundant' . $proxyProcess['number'] : '');
+				$proxyProcessConfigurationFilePath = $proxyConfiguration['paths']['configuration'] . $proxyProcessName . '.conf';
+				$proxyProcessIdPath = $proxyConfiguration['paths']['process_id'] . $proxyProcessName . '.pid';
+				$proxyProcessConfigurationParameters = str_replace('[dns_ips]', implode(' ', $proxyProcess['dns_ips']), $proxyProcessConfigurationParameters);
+				$proxyProcessConfigurationParameters = str_replace('[pid]', $proxyProcessIdPath, $proxyProcessConfigurationParameters);
+				$proxyProcessConfigurationParameters = str_replace('[ports]', 'http_port ' . implode("\n" . 'http_port ', $proxyProcess['ports']), $proxyProcessConfigurationParameters);
+				$proxyProcess['parameters'] = $proxyProcessConfigurationParameters;
+				$proxyProcess = array_merge(array(
+					'delays' => array(
+						'start' => 0,
+						'end' => ($proxyProcess['number'] ? 0 : 75)
+					),
+					'name' => $proxyProcessName,
+					'parameters' => $proxyProcessConfigurationParameters,
+					'paths' => array(
+						'configuration' => $proxyProcessConfigurationFilePath,
+						'process_id' => $proxyProcessIdPath
+					),
+					'start_command' => $proxyProcessName . ' start -f ' . $proxyProcessConfigurationFilePath
+				), $proxyProcess);
+				$formattedProxyProcessConfigurations[] = $proxyProcess;
 
-				foreach ($serverDetails['proxy_processes']['squid'] as $key => $proxyProcess) {
-					$proxyProcessConfigurationParameters = implode("\n", $proxyConfiguration['parameters']);
-					$proxyProcessName = $proxyConfiguration['process_name'] . ($proxyProcess['number'] ? '-redundant' . $proxyProcess['number'] : '');
-					$proxyProcessConfigurationFilePath = $proxyConfiguration['paths']['configuration'] . $proxyProcessName . '.conf';
-					$proxyProcessIdPath = $proxyConfiguration['paths']['process_id'] . $proxyProcessName . '.pid';
-					$proxyProcessConfigurationParameters = str_replace('[dns_ips]', implode(' ', $proxyProcess['dns_ips']), $proxyProcessConfigurationParameters);
-					$proxyProcessConfigurationParameters = str_replace('[pid]', $proxyProcessIdPath, $proxyProcessConfigurationParameters);
-					$proxyProcessConfigurationParameters = str_replace('[ports]', 'http_port ' . implode("\n" . 'http_port ', $proxyProcess['ports']), $proxyProcessConfigurationParameters);
-					$proxyProcess['parameters'] = $proxyProcessConfigurationParameters;
-					$proxyProcess = array_merge(array(
-						'delays' => array(
-							'start' => 0,
-							'end' => ($proxyProcess['number'] ? 0 : 75)
-						),
-						'name' => $proxyProcessName,
-						'parameters' => $proxyProcessConfigurationParameters,
-						'paths' => array(
-							'configuration' => $proxyProcessConfigurationFilePath,
-							'process_id' => $proxyProcessIdPath
-						),
-						'start_command' => $proxyProcessName . ' start -f ' . $proxyProcessConfigurationFilePath
-					), $proxyProcess);
-					$formattedProxyProcessConfigurations[] = $proxyProcess;
-
-					foreach ($proxyProcess['ports'] as $port) {
-						$formattedProxyProcessPorts[] = $port;
-					}
+				foreach ($proxyProcess['ports'] as $port) {
+					$formattedProxyProcessPorts[] = $port;
 				}
 			}
 
@@ -516,6 +517,7 @@
 
 					if (empty($response[$serverProxyProcess['type']][$key]['ports'])) {
 						unset($response[$serverProxyProcess['type']][$key]);
+						$response[$serverProxyProcess['type']] = array_values($response[$serverProxyProcess['type']]);
 					}
 				}
 			}

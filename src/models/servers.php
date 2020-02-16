@@ -6,15 +6,14 @@
 	class ServersModel extends AppModel {
 
 	/**
-	 * Format Squid access controls for list of IPs
+	 * Format Squid access controls
 	 *
-	 * @param array $serverData
+	 * @param array $serverDetails
 	 *
 	 * @return array $response
 	 */
-		protected function _formatSquidAccessControls($serverData) {
-			// TODO: Add process for continuous IP rotation with city selection, IPv6 support
-			$disabledProxies = $formattedFiles = $formattedProxies = $formattedUsers = $gatewayAcls = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = array();
+		protected function _formatSquid($serverDetails) {
+			$disabledProxies = $formattedFiles = $formattedProxies = $formattedProxyProcessConfigurations = $formattedProxyProcessPorts = $formattedUsers = $gatewayAcls = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = array();
 			$formattedAcls = array(
 				'auth_param basic program /usr/lib/squid3/basic_ncsa_auth /etc/squid3/passwords',
 				'auth_param basic children 88888',
@@ -24,19 +23,54 @@
 			);
 			$userIndex = 0;
 
-			if (!empty($serverData['proxy_ips'])) {
-				foreach ($serverData['proxy_ips'] as $proxyIp => $proxyIndex) {
+			if (!empty($serverDetails['proxy_ips'])) {
+				foreach ($serverDetails['proxy_ips'] as $proxyIp => $proxyIndex) {
 					$proxyIpAcls[] = 'acl ip' . $proxyIndex . ' localip ' . $proxyIp;
 					$proxyIpAcls[] = 'tcp_outgoing_address ' . $proxyIp . ' ip' . $proxyIndex;
 				}
 			}
 
-			$proxyData = array_intersect_key($serverData, array(
+			if (!empty($serverDetails['proxy_processes']['squid'])) {
+				$proxyConfiguration = $this->proxyConfigurations['squid'];
+
+				foreach ($serverDetails['proxy_processes']['squid'] as $key => $proxyProcess) {
+					$proxyProcessConfigurationParameters = implode("\n", $proxyConfiguration['parameters']);
+					$proxyProcessName = $proxyConfiguration['process_name'] . ($proxyProcess['number'] ? '-redundant' . $proxyProcess['number'] : '');
+					$proxyProcessConfigurationFilePath = $proxyConfiguration['paths']['configuration'] . $proxyProcessName . '.conf';
+					$proxyProcessIdPath = $proxyConfiguration['paths']['process_id'] . $proxyProcessName . '.pid';
+					$proxyProcessConfigurationParameters = str_replace('[dns_ips]', implode(' ', $proxyProcess['dns_ips']), $proxyProcessConfigurationParameters);
+					$proxyProcessConfigurationParameters = str_replace('[pid]', $proxyProcessIdPath, $proxyProcessConfigurationParameters);
+					$proxyProcessConfigurationParameters = str_replace('[ports]', 'http_port ' . implode("\n" . 'http_port ', $proxyProcess['ports']), $proxyProcessConfigurationParameters);
+					$proxyProcess['parameters'] = $proxyProcessConfigurationParameters;
+					$proxyProcess = array_merge(array(
+						'delays' => array(
+							'start' => 0,
+							'end' => ($proxyProcess['number'] ? 0 : 75)
+						),
+						'name' => $proxyProcessName,
+						'parameters' => $proxyProcessConfigurationParameters,
+						'paths' => array(
+							'configuration' => $proxyProcessConfigurationFilePath,
+							'process_id' => $proxyProcessIdPath
+						),
+						'start_command' => $proxyProcessName . ' start -f ' . $proxyProcessConfigurationFilePath
+					), $proxyProcess);
+					$formattedProxyProcessConfigurations[] = $proxyProcess;
+
+					foreach ($proxyProcess['ports'] as $port) {
+						$formattedProxyProcessPorts[] = $port;
+					}
+				}
+			}
+
+			$proxyData = array_intersect_key($serverDetails, array(
 				'gateway_proxies' => true,
 				'static_proxies' => true
 			));
 
 			foreach ($proxyData as $proxyType => $proxies) {
+				// ..
+
 				foreach ($proxies as $proxy) {
 					if (
 						!empty($proxy['whitelisted_ips']) &&
@@ -70,11 +104,9 @@
 					);
 
 					if (!empty($proxy['global_forwarding_proxies'])) {
-						// TODO: Add options for decryption and custom source IPs
-
 						foreach ($proxy['global_forwarding_proxies'] as $globalForwardingProxy) {
 							$gatewayAcls[] = 'cache_peer ' . $globalForwardingProxy['ip'] . ' parent [forwarding_port] 0 name=' . $globalForwardingProxy['id'] . ' round-robin';
-							$gatewayAcls[] = 'cache_peer_access ' . $globalForwardingProxy['id'] . ' allow ip' . $serverData['proxy_ips'][$proxy['ip']];
+							$gatewayAcls[] = 'cache_peer_access ' . $globalForwardingProxy['id'] . ' allow ip' . $serverDetails['proxy_ips'][$proxy['ip']];
 
 							if (
 								!empty($proxy['local_forwarding_proxies']) &&
@@ -89,7 +121,7 @@
 						$proxyType === 'gateway_proxies' &&
 						empty($proxy['allow_direct'])
 					) {
-						$gatewayAcls[] = 'never_direct allow ip' . $serverData['proxy_ips'][$proxy['ip']];
+						$gatewayAcls[] = 'never_direct allow ip' . $serverDetails['proxy_ips'][$proxy['ip']];
 					}
 
 					if (!empty($proxy['static_proxies'])) {
@@ -101,11 +133,10 @@
 								$forwardingSources[] = $gatewayIp = $proxy['global_forwarding_proxies'][$staticProxyChunkKey]['ip'];
 							}
 
-							$gatewayIpIndex = (integer) $serverData['proxy_ips'][$gatewayIp];
+							$gatewayIpIndex = (integer) $serverDetails['proxy_ips'][$gatewayIp];
 							$loadBalanceMethod = empty($staticProxies[1]) ? 'default' : 'round-robin';
 							shuffle($staticProxies);
 
-							// TODO: add static port rotation from database values, not in dynamic_proxy_reconfiguration config
 							foreach ($staticProxies as $staticProxy) {
 								$gatewayAcls[] = 'cache_peer ' . $staticProxy['ip'] . ' parent [static_port] 0 name=' . $staticProxy['id'] . ' ' . $loadBalanceMethod;
 								$gatewayAcls[] = 'cache_peer_access ' . $staticProxy['id'] . ' allow ip' . $gatewayIpIndex;
@@ -185,25 +216,108 @@
 			$formattedAcls[] = 'http_access deny all';
 			$response = array(
 				'acls' => implode("\n", $formattedAcls),
-				'configuration' => implode("\n", $this->proxyConfigurations['http']['squid']['configuration']),
 				'files' => $formattedFiles,
+				'processes' => array(
+					'configurations' => $formattedProxyProcessConfigurations,
+					'ports' => $formattedProxyProcessPorts
+				),
 				'users' => $formattedUsers
 			);
 
-			if (strpos($response['configuration'], '[dns_ips]') !== false) {
-				$response['configuration'] = str_replace('[dns_ips]', '127.0.0.1 ' . implode(' ', $serverData['dns_ips']), $response['configuration']);
-			}
+			// ..
+			return $response;
+		}
 
-			if (
-				!empty($this->proxyConfigurations['http']['squid']['ports']) &&
-				!empty($disabledProxies)
-			) {
-				$splitDisabledPorts = array_chunk($this->proxyConfigurations['http']['squid']['ports'], '10');
-				$splitDisabledProxies = array_chunk($disabledProxies, '10');
+	/**
+	 * Retrieve server details
+	 *
+	 * @return array $response
+	 */
+		protected function _retrieveServerDetails() {
+			$response = array(
+				'message' => array(
+					'status' => 'error',
+					'text' => 'Access denied from ' . ($serverIp = $_SERVER['REMOTE_ADDR']) . ', please try again.'
+				)
+			);
+			$serverIp = '10.88.8.88'; // ..
+			$server = $this->fetch('servers', array(
+				'conditions' => array(
+					'ip' => $serverIp,
+					'status' => 'online'
+				),
+				'fields' => array(
+					'configuration',
+					'id'
+				)
+			));
+			$proxyConfiguration = $serverConfiguration = array();
 
-				foreach ($splitDisabledProxies as $proxies) {
-					foreach ($splitDisabledPorts as $ports) {
-						$response['firewall_filter'][] = '-A INPUT -p tcp ! -i lo -d ' . implode(',', $proxies) . ' -m multiport --dports ' . implode(',', $ports) . ' -j DROP';
+			if (!empty($server['count'])) {
+				$response['message']['text'] = 'Duplicate server IPs, please check server options in database.';
+				$serverData = $server['data'][0];
+
+				if ($server['count'] === 1) {
+					$response['message']['text'] = 'No active nodes available on gateway server.';
+					$nodeIds = $this->fetch('nodes', array(
+						'conditions' => array(
+							'allocated' => true,
+							'server_id' => $serverData['id']
+						),
+						'fields' => array(
+							'id'
+						)
+					));
+
+					if (!empty($nodeIds['count'])) {
+						$response['message']['text'] = 'No active proxies available on server.';
+						$serverProxyDetails = $this->_retrieveServerProxyDetails(array(
+							'node_ids' => $nodeIds['data'],
+							'id' => $serverData['id']
+						));
+
+						if (!empty($serverProxyDetails)) {
+							$response['message']['status'] = 'Invalid server configuration type, please check your configuration file and server options in database.';
+
+							if (
+								!empty($serverData['configuration']) &&
+								!empty($this->serverConfigurations[$serverData['configuration']])
+							) {
+								$response['message']['status'] = 'Invalid proxy configuration settings, please check your configuration file and server options in database.';
+								$serverConfiguration = $this->serverConfigurations[$serverData['configuration']];
+
+								if (
+									!empty($this->proxyConfigurations) &&
+									is_array($this->proxyConfigurations)
+								) {
+									$response = array(
+										'data' => array_merge($serverProxyDetails, array(
+											'server_configuration' => $serverConfiguration
+										)),
+										'message' => array(
+											'status' => 'success',
+											'text' => 'Proxies retrieved for server ' . $serverIp . ' successfully.'
+										)
+									);
+
+									foreach ($this->proxyConfigurations as $proxyType => $proxyConfiguration) {
+										if (
+											method_exists($this, ($method = '_format' . ucwords($proxyType))) &&
+											($formattedAcls = $this->$method($response['data']))
+										) {
+											$response['data'][$proxyType] = $formattedAcls;
+										}
+									}
+
+									if (!empty($response['data'])) {
+										$response['message'] = array(
+											'status' => 'success',
+											'text' => 'Proxies retrieved for server ' . $serverIp . ' successfully.'
+										);
+									}
+								}
+							}
+						}
 					}
 				}
 			}
@@ -212,46 +326,17 @@
 		}
 
 	/**
-	 * Retrieve DNS IPs
+	 * Retrieve server proxy details
 	 *
-	 * @param array $nodeIds
-	 *
-	 * @return array $response
-	 */
-		protected function _retrieveDnsIps($nodeIds) {
-			$response = array();
-			$dnsIps = $this->fetch('dns_ips', array(
-				'conditions' => array(
-					'node_id' => $nodeIds
-				),
-				'fields' => array(
-					'ip'
-				),
-				'sort' => array(
-					'field' => 'created',
-					'order' => 'ASC'
-				)
-			));
-
-			if (!empty($dnsIps['count'])) {
-				$response = array_unique($dnsIps['data']);
-			}
-
-			return $response;
-		}
-
-	/**
-	 * Retrieve proxy data
-	 *
-	 * @param array $nodeIds
+	 * @param array $serverData
 	 *
 	 * @return array $response
 	 */
-		protected function _retrieveProxyData($nodeIds) {
+		protected function _retrieveServerProxyDetails($serverData) {
 			$response = array();
 			$proxyParameters = array(
 				'conditions' => array(
-					'node_id' => $nodeIds,
+					'node_id' => $serverData['node_ids'],
 					'type' => 'gateway',
 					'NOT' => array(
 						'status' => 'offline'
@@ -397,123 +482,99 @@
 				$response['proxy_ips'] = array_combine($proxyIps['data'], range(0, count($proxyIps['data']) - 1));
 			}
 
+			$response['proxy_processes'] = $this->_retrieveServerProxyProcesses($serverData['id']);
 			return $response;
 		}
 
 	/**
-	 * Retrieve server data
+	 * Retrieve server proxy processes
+	 *
+	 * @param integer $serverId
 	 *
 	 * @return array $response
 	 */
-		protected function _retrieveServerData() {
-			$response = array(
-				'message' => array(
-					'status' => 'error',
-					'text' => 'Access denied from ' . ($serverIp = $_SERVER['REMOTE_ADDR']) . ', please try again.'
-				)
-			);
-			$server = $this->fetch('servers', array(
+		protected function _retrieveServerProxyProcesses($serverId) {
+			$response = array();
+			$serverProxyProcesses = $this->fetch('server_proxy_processes', array(
 				'conditions' => array(
-					'ip' => $serverIp,
-					'status' => 'online'
+					'server_id' => $serverId
 				),
 				'fields' => array(
-					'http_proxy_configuration',
 					'id',
-					'ip',
-					'server_configuration'
+					'number',
+					'protocol',
+					'type'
 				)
 			));
-			$proxyConfiguration = $serverConfiguration = array();
 
-			if (!empty($server['count'])) {
-				$response['message']['text'] = 'Duplicate server IPs, please check server options in database.';
-
-				if ($server['count'] === 1) {
-					$response['message']['text'] = 'No active nodes available on gateway server.';
-					$nodeIds = $this->fetch('nodes', array(
-						'conditions' => array(
-							'allocated' => true,
-							'server_id' => $server['data'][0]['id']
-						),
-						'fields' => array(
-							'id'
-						)
+			if (!empty($serverProxyProcesses['count'])) {
+				foreach ($serverProxyProcesses['data'] as $key => $serverProxyProcess) {
+					$response[$serverProxyProcess['type']][$key] = array_merge($serverProxyProcess, array(
+						'dns_ips' => $this->_retrieveServerProxyProcessDnsIps($serverProxyProcess['id']),
+						'ports' => $this->_retrieveServerProxyProcessPorts($serverProxyProcess['id'])
 					));
 
-					if (!empty($nodeIds['count'])) {
-						$response['message']['text'] = 'No active proxies available on server.';
-						$proxyData = $this->_retrieveProxyData($nodeIds['data']);
-
-						if (!empty($proxyData)) {
-							$response['message']['status'] = 'Invalid server configuration type, please check your configuration file and server options in database.';
-
-							if (
-								!empty($server['data'][0]['server_configuration']) &&
-								!empty($this->serverConfigurations[$server['data'][0]['server_configuration']])
-							) {
-								$response['message']['status'] = 'Invalid proxy configuration settings, please check your configuration file and server options in database.';
-								$serverConfiguration = $this->serverConfigurations[$server['data'][0]['server_configuration']];
-
-								if (
-									!empty($this->proxyConfigurations) &&
-									is_array($this->proxyConfigurations)
-								) {
-									if (!empty($this->settings['open_unallocated_proxies'])) {
-										$unallocatedNodes = $this->fetch('nodes', array(
-											'conditions' => array(
-												'allocated' => false,
-												'server_id' => $server['data'][0]['id']
-											),
-											'fields' => array(
-												'id',
-												'ip'
-											)
-										));
-
-										if (!empty($unallocatedNodes['count'])) {
-											foreach ($unallocatedNodes['data'] as $unallocatedNode) {
-												$proxyData['static_proxies'][] = array(
-													'ip' => $unallocatedNode['ip'],
-													'require_authentication' => false
-												);
-												$proxyData['proxy_ips'][$unallocatedNode['id']] = $unallocatedNode['ip'];
-											}
-										}
-									}
-
-									$response = array(
-										'data' => array_merge($proxyData, array(
-											'dns_ips' => $this->_retrieveDnsIps($nodeIds['data']),
-											'server' => $serverConfiguration
-										)),
-										'message' => array(
-											'status' => 'success',
-											'text' => 'Proxies retrieved for server ' . $serverIp . ' successfully.'
-										)
-									);
-
-									foreach ($this->proxyConfigurations as $proxyProtocol => $proxyConfiguration) {
-										if (
-											($proxyConfigurationType = $server['data'][0][$proxyProtocol . '_proxy_configuration']) &&
-											!empty($proxyConfiguration[$proxyConfigurationType]) &&
-											method_exists($this, ($method = '_format' . ucwords($proxyConfigurationType) . 'AccessControls')) &&
-											($formattedAcls = $this->$method($response['data']))
-										) {
-											$response['data'][$proxyProtocol] = $formattedAcls;
-										}
-									}
-
-									if (!empty($response['data'])) {
-										$response['message'] = array(
-											'status' => 'success',
-											'text' => 'Proxies retrieved for server ' . $serverIp . ' successfully.'
-										);
-									}
-								}
-							}
-						}
+					if (empty($response[$serverProxyProcess['type']][$key]['ports'])) {
+						unset($response[$serverProxyProcess['type']][$key]);
 					}
+				}
+			}
+
+			return $response;
+		}
+
+	/**
+	 * Retrieve server proxy process DNS IPs
+	 *
+	 * @param integer $processId
+	 *
+	 * @return array $response
+	 */
+		protected function _retrieveServerProxyProcessDnsIps($processId) {
+			$response = array();
+			$serverProxyProcessDnsIps = $this->fetch('server_proxy_process_dns_ips', array(
+				'conditions' => array(
+					'server_proxy_process_id' => $processId
+				),
+				'fields' => array(
+					'ip'
+				)
+			));
+
+			if (!empty($serverProxyProcessDnsIps['count'])) {
+				foreach ($serverProxyProcessDnsIps['data'] as $serverProxyProcessDnsIp) {
+					$response[] = $serverProxyProcessDnsIp;
+				}
+			}
+
+			if (empty($response)) {
+				$response[] = '127.0.0.1';
+			}
+
+			return $response;
+		}
+
+	/**
+	 * Retrieve server proxy process ports
+	 *
+	 * @param integer $processId
+	 *
+	 * @return array $response
+	 */
+		protected function _retrieveServerProxyProcessPorts($processId) {
+			$response = array();
+			$serverProxyProcessPorts = $this->fetch('server_proxy_process_ports', array(
+				'conditions' => array(
+					'server_proxy_process_id' => $processId
+				),
+				'fields' => array(
+					'number'
+				)
+			));
+
+			if (!empty($serverProxyProcessPorts['count'])) {
+				foreach ($serverProxyProcessPorts['data'] as $serverProxyProcessPort) {
+					$response[] = $serverProxyProcessPort;
 				}
 			}
 

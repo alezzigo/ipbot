@@ -9,7 +9,7 @@
 	 * @return array Response
 	 */
 		public function api() {
-			$response = $this->_retrieveServerData();
+			$response = $this->_retrieveServerDetails();
 
 			if (
 				!empty($_POST['json']) &&

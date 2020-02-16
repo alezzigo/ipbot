@@ -393,60 +393,59 @@
 			);
 
 			$this->proxyConfigurations = array(
-				'http' => array(
-					'squid' => array(
-						'configuration' => array(
-							'include [acl_filepath]',
-							'[ports]',
-							'access_log none',
-							'balance_on_multiple_ip off',
-							'cache deny all',
-							'cache_mem 256 MB',
-							'cache_log /dev/null',
-							'cache_replacement_policy heap LFUDA',
-							'cache_swap_high 2',
-							'cache_swap_low 1',
-							'chunked_request_body_max_size 0',
-							'client_db off',
-							'client_lifetime 2 seconds',
-							'client_persistent_connections off',
-							'connect_timeout 2 seconds',
-							'dns_nameservers [dns_ips]',
-							'dns_retransmit_interval 2 seconds',
-							'dns_timeout 2 seconds',
-							'dns_v4_first on',
-							'error_directory /usr/share/squid3/errors/English',
-							'forward_max_tries 2',
-							'forward_timeout 2 seconds',
-							'half_closed_clients off',
-							'logfile_rotate 0',
-							'log_icp_queries off',
-							'maximum_object_size 0 MB',
-							'maximum_object_size_in_memory 0 KB',
-							'max_open_disk_fds 0',
-							'memory_cache_shared off',
-							'memory_pools off',
-							'memory_replacement_policy heap LFUDA',
-							'netdb_filename none',
-							'persistent_connection_after_error off',
-							'[pid]',
-							'quick_abort_max 0 KB',
-							'quick_abort_min 0 KB',
-							'range_offset_limit 0',
-							'read_timeout 2 seconds',
-							'request_timeout 2 seconds',
-							'server_persistent_connections off',
-							'shutdown_lifetime 8 seconds',
-							'vary_ignore_expire on',
-							'write_timeout 2 seconds'
-						),
-						'ports' => array(
-							'80',
-							'8888'
-						)
-					)
-				),
-				'socks' => array()
+				'squid' => array(
+					'parameters' => array(
+						'include [acl_filepath]',
+						'[ports]',
+						'access_log none',
+						'balance_on_multiple_ip off',
+						'cache deny all',
+						'cache_mem 256 MB',
+						'cache_log /dev/null',
+						'cache_replacement_policy heap LFUDA',
+						'cache_swap_high 2',
+						'cache_swap_low 1',
+						'chunked_request_body_max_size 0',
+						'client_db off',
+						'client_lifetime 2 seconds',
+						'client_persistent_connections off',
+						'connect_timeout 2 seconds',
+						'dns_nameservers [dns_ips]',
+						'dns_retransmit_interval 2 seconds',
+						'dns_timeout 2 seconds',
+						'dns_v4_first on',
+						'error_directory /usr/share/squid3/errors/English',
+						'forward_max_tries 2',
+						'forward_timeout 2 seconds',
+						'half_closed_clients off',
+						'logfile_rotate 0',
+						'log_icp_queries off',
+						'maximum_object_size 0 MB',
+						'maximum_object_size_in_memory 0 KB',
+						'max_open_disk_fds 0',
+						'memory_cache_shared off',
+						'memory_pools off',
+						'memory_replacement_policy heap LFUDA',
+						'netdb_filename none',
+						'persistent_connection_after_error off',
+						'[pid]',
+						'quick_abort_max 0 KB',
+						'quick_abort_min 0 KB',
+						'range_offset_limit 0',
+						'read_timeout 2 seconds',
+						'request_timeout 2 seconds',
+						'server_persistent_connections off',
+						'shutdown_lifetime 8 seconds',
+						'vary_ignore_expire on',
+						'write_timeout 2 seconds'
+					),
+					'paths' => array(
+						'configuration' => '/etc/squid3/',
+						'process_id' => '/var/run/'
+					),
+					'process_name' => 'squid3',
+					'version' => '3.3.4'
+				)
 			);
 
 			$this->sessions = array(
@@ -592,12 +591,11 @@
 				),
 				'from_email' => 'email@localhost',
 				'google_site_verification' => '',
-				'open_unallocated_proxies' => false,
 				'session_cookies' => array(
 					'enabled' => true,
 					'lifetime' => 8888888888
 				),
-				'site_name' => 'IPBot',
+				'site_name' => 'IPBot.com',
 				'timezone' => array(
 					'display' => 'PDT',
 					'identifier' => 'America/Los_Angeles',

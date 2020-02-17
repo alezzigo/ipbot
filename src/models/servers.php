@@ -206,8 +206,19 @@
 
 									$forwardingProxyProcessPort = $forwardingProxyProcessPorts[$splitForwardingProxyIndexes[$splitForwardingProxyProcessPortKey]];
 									$splitForwardingProxyIndexes[$splitForwardingProxyProcessPortKey]++;
-									$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $forwardingProxyProcessPort . ' 0 name=' . $staticProxy['id'] . ' ' . $loadBalanceMethod;
-									$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $staticProxy['id'] . ' allow ip' . $gatewayIpIndex;
+									$staticProxyProcessPorts = array(
+										$forwardingProxyProcessPort
+									);
+
+									if ($loadBalanceMethod === 'default') {
+										$staticProxyProcessPorts = $forwardingProxyProcessPorts;
+									}
+
+									foreach ($staticProxyProcessPorts as $staticProxyProcessPortKey => $staticProxyProcessPort) {
+										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxyProcessPort . ' 0 name=' . $staticProxy['id'] . $staticProxyProcessPortKey . ' ' . $loadBalanceMethod;
+										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $staticProxy['id'] . $staticProxyProcessPortKey . ' allow ip' . $gatewayIpIndex;
+									}
+
 									$formattedProxies['whitelist'][json_encode($forwardingSources)][] = $staticProxy['ip'];
 								}
 

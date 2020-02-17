@@ -13,6 +13,8 @@
 	 * @return array $response
 	 */
 		protected function _formatSquid($serverDetails) {
+			// TODO: simplify reconfiguration to match new API settings
+			// TODO: add round-robin local (with multiple source IPs) and external DNS parsing to API for reconfiguration
 			$disabledProxies = $formattedFiles = $formattedProxies = $formattedProxyProcessConfigurations = $formattedProxyProcessPorts = $formattedUsers = $gatewayAcls = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = array();
 			$configuration = $this->proxyConfigurations['squid'];
 			$formattedAcls = array(
@@ -348,7 +350,6 @@
 					'text' => 'Access denied from ' . ($serverIp = $_SERVER['REMOTE_ADDR']) . ', please try again.'
 				)
 			);
-			$serverIp = '10.88.8.88'; // ..
 			$server = $this->fetch('servers', array(
 				'conditions' => array(
 					'ip' => $serverIp,

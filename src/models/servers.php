@@ -14,7 +14,6 @@
 	 */
 		protected function _formatSquid($serverDetails) {
 			// TODO: simplify reconfiguration to match new API settings
-			// TODO: add round-robin local (with multiple source IPs) and external DNS parsing to API for reconfiguration
 			$disabledProxies = $formattedFiles = $formattedProxies = $formattedProxyProcessConfigurations = $formattedProxyProcessPorts = $formattedUsers = $gatewayAcls = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = array();
 			$configuration = $this->proxyConfigurations['squid'];
 			$formattedAcls = array(
@@ -163,7 +162,7 @@
 
 								$forwardingProxyProcessPort = $forwardingProxyProcessPorts[$splitForwardingProxyIndexes[$splitForwardingProxyProcessPortKey]];
 								$splitForwardingProxyIndexes[$splitForwardingProxyProcessPortKey]++;
-								$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $globalForwardingProxy['ip'] . ' parent ' . $forwardingProxyProcessPort . ' 0 connect-timeout=4 connect-fail-limit=2 name=' . $globalForwardingProxy['id'] . ' round-robin';
+								$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $globalForwardingProxy['ip'] . ' parent ' . $forwardingProxyProcessPort . ' 0 connect-fail-limit=2 connect-timeout=2 name=' . $globalForwardingProxy['id'] . ' round-robin';
 								$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $globalForwardingProxy['id'] . ' allow ip' . $serverDetails['proxy_ips'][$proxy['ip']];
 							}
 
@@ -217,7 +216,7 @@
 									}
 
 									foreach ($staticProxyProcessPorts as $staticProxyProcessPortKey => $staticProxyProcessPort) {
-										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxyProcessPort . ' 0 connect-timeout=4 connect-fail-limit=2 name=' . $staticProxy['id'] . $staticProxyProcessPortKey . ' ' . $loadBalanceMethod;
+										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxyProcessPort . ' 0 connect-fail-limit=2 connect-timeout=2 name=' . $staticProxy['id'] . $staticProxyProcessPortKey . ' ' . $loadBalanceMethod;
 										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $staticProxy['id'] . $staticProxyProcessPortKey . ' allow ip' . $gatewayIpIndex;
 									}
 
@@ -381,8 +380,8 @@
 					if (!empty($nodeIds['count'])) {
 						$response['message']['text'] = 'No active proxies available on server.';
 						$serverProxyDetails = $this->_retrieveServerProxyDetails(array(
-							'node_ids' => $nodeIds['data'],
-							'id' => $serverData['id']
+							'id' => $serverData['id'],
+							'node_ids' => $nodeIds['data']
 						));
 
 						if (!empty($serverProxyDetails)) {
@@ -442,7 +441,24 @@
 	 * @return array $response
 	 */
 		protected function _retrieveServerProxyDetails($serverData) {
-			$response = array();
+			$response = array(
+				'proxy_processes' => $this->_retrieveServerProxyProcesses($serverData['id'])
+			);
+
+			if (empty($response['proxy_processes'])) {
+				return false;
+			}
+
+			foreach ($response['proxy_processes'] as $proxyProcessType => $proxyProcesses) {
+				foreach ($proxyProcesses as $proxyProcessKey => $proxyProcess) {
+					foreach ($proxyProcess['dns'] as $dnsProcesses) {
+						$response['dns_process_load_balance_ips'][$dnsProcesses['listening_ip']][$dnsProcesses['source_ip']] = $dnsProcesses['source_ip'];
+						$response['dns_process_source_ips'][$dnsProcesses['source_ip']] = $dnsProcesses['source_ip'];
+						$response['proxy_processes'][$proxyProcessType][$proxyProcessKey]['dns_ips'][$dnsProcesses['listening_ip']] = $dnsProcesses['listening_ip'];
+					}
+				}
+			}
+
 			$proxyParameters = array(
 				'conditions' => array(
 					'node_id' => $serverData['node_ids'],
@@ -591,7 +607,6 @@
 				$response['proxy_ips'] = array_combine($proxyIps['data'], range(0, count($proxyIps['data']) - 1));
 			}
 
-			$response['proxy_processes'] = $this->_retrieveServerProxyProcesses($serverData['id']);
 			return $response;
 		}
 
@@ -619,11 +634,14 @@
 			if (!empty($serverProxyProcesses['count'])) {
 				foreach ($serverProxyProcesses['data'] as $key => $serverProxyProcess) {
 					$response[$serverProxyProcess['type']][$key] = array_merge($serverProxyProcess, array(
-						'dns_ips' => $this->_retrieveServerProxyProcessDnsIps($serverProxyProcess['id']),
+						'dns' => $this->_retrieveServerProxyProcessDnsProcesses($serverProxyProcess['id']),
 						'ports' => $this->_retrieveServerProxyProcessPorts($serverProxyProcess['id'])
 					));
 
-					if (empty($response[$serverProxyProcess['type']][$key]['ports'])) {
+					if (
+						empty($response[$serverProxyProcess['type']][$key]['dns']) ||
+						empty($response[$serverProxyProcess['type']][$key]['ports'])
+					) {
 						unset($response[$serverProxyProcess['type']][$key]);
 					}
 				}
@@ -633,31 +651,34 @@
 		}
 
 	/**
-	 * Retrieve server proxy process DNS IPs
+	 * Retrieve server proxy process DNS processes
 	 *
-	 * @param integer $processId
+	 * @param integer $serverProxyProcessId
 	 *
 	 * @return array $response
 	 */
-		protected function _retrieveServerProxyProcessDnsIps($processId) {
+		protected function _retrieveServerProxyProcessDnsProcesses($serverProxyProcessId) {
 			$response = array();
-			$serverProxyProcessDnsIps = $this->fetch('server_proxy_process_dns_ips', array(
+			$serverProxyProcessDnsProcesses = $this->fetch('server_proxy_process_dns_processes', array(
 				'conditions' => array(
-					'server_proxy_process_id' => $processId
+					'server_proxy_process_id' => $serverProxyProcessId
 				),
 				'fields' => array(
-					'ip'
+					'listening_ip',
+					'local',
+					'sort',
+					'source_ip'
+				),
+				'sort' => array(
+					'field' => 'sort',
+					'order' => 'ASC'
 				)
 			));
 
-			if (!empty($serverProxyProcessDnsIps['count'])) {
-				foreach ($serverProxyProcessDnsIps['data'] as $serverProxyProcessDnsIp) {
-					$response[] = $serverProxyProcessDnsIp;
+			if (!empty($serverProxyProcessDnsProcesses['count'])) {
+				foreach ($serverProxyProcessDnsProcesses['data'] as $serverProxyProcessDnsProcess) {
+					$response[] = $serverProxyProcessDnsProcess;
 				}
-			}
-
-			if (empty($response)) {
-				$response[] = '127.0.0.1';
 			}
 
 			return $response;
@@ -666,15 +687,15 @@
 	/**
 	 * Retrieve server proxy process ports
 	 *
-	 * @param integer $processId
+	 * @param integer $serverProxyProcessId
 	 *
 	 * @return array $response
 	 */
-		protected function _retrieveServerProxyProcessPorts($processId) {
+		protected function _retrieveServerProxyProcessPorts($serverProxyProcessId) {
 			$response = array();
 			$serverProxyProcessPorts = $this->fetch('server_proxy_process_ports', array(
 				'conditions' => array(
-					'server_proxy_process_id' => $processId
+					'server_proxy_process_id' => $serverProxyProcessId
 				),
 				'fields' => array(
 					'number'

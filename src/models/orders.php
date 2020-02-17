@@ -16,7 +16,6 @@
 			$response = array();
 			$servers = $this->fetch('servers', array(
 				'conditions' => array(
-					'server_configuration_type' => $orderData['type'],
 					'status' => 'online'
 				),
 				'fields' => array(
@@ -27,7 +26,6 @@
 					'ip',
 					'isp',
 					'region',
-					'server_configuration_type',
 					'status'
 				)
 			));

@@ -161,7 +161,7 @@
 
 								$forwardingProxyProcessPort = $forwardingProxyProcessPorts[$splitForwardingProxyIndexes[$splitForwardingProxyProcessPortKey]];
 								$splitForwardingProxyIndexes[$splitForwardingProxyProcessPortKey]++;
-								$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $globalForwardingProxy['ip'] . ' parent ' . $forwardingProxyProcessPort . ' 0 name=' . $globalForwardingProxy['id'] . ' round-robin';
+								$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $globalForwardingProxy['ip'] . ' parent ' . $forwardingProxyProcessPort . ' 0 connect-timeout=4 connect-fail-limit=2 name=' . $globalForwardingProxy['id'] . ' round-robin';
 								$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $globalForwardingProxy['id'] . ' allow ip' . $serverDetails['proxy_ips'][$proxy['ip']];
 							}
 
@@ -215,7 +215,7 @@
 									}
 
 									foreach ($staticProxyProcessPorts as $staticProxyProcessPortKey => $staticProxyProcessPort) {
-										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxyProcessPort . ' 0 name=' . $staticProxy['id'] . $staticProxyProcessPortKey . ' ' . $loadBalanceMethod;
+										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxyProcessPort . ' 0 connect-timeout=4 connect-fail-limit=2 name=' . $staticProxy['id'] . $staticProxyProcessPortKey . ' ' . $loadBalanceMethod;
 										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $staticProxy['id'] . $staticProxyProcessPortKey . ' allow ip' . $gatewayIpIndex;
 									}
 

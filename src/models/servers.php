@@ -287,6 +287,13 @@
 
 			$formattedAcls[] = 'http_access deny all';
 
+			foreach ($formattedProxyProcessConfigurations as $formattedProxyProcessConfiguration) {
+				$formattedFiles[] = array(
+					'contents' => $formattedProxyProcessConfiguration['parameters'],
+					'path' => $formattedProxyProcessConfiguration['paths']['configuration']
+				);
+			}
+
 			foreach ($splitGatewayAcls as $splitGatewayAclKey => $gatewayAcls) {
 				$formattedFiles[] = array(
 					'contents' => implode("\n", array_merge($formattedAcls, $gatewayAcls)),
@@ -302,6 +309,7 @@
 				),
 				'users' => $formattedUsers
 			);
+
 			return $response;
 		}
 

@@ -385,7 +385,7 @@
 						));
 
 						if (!empty($serverProxyDetails)) {
-							$response['message']['status'] = 'Invalid server configuration type, please check your configuration file and server options in database.';
+							$response['message']['status'] = 'Invalid server configuration, please check your configuration file and server options in database.';
 
 							if (
 								!empty($serverData['configuration']) &&

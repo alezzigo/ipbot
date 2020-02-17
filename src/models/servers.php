@@ -400,6 +400,7 @@
 								) {
 									$response = array(
 										'data' => array_merge($serverProxyDetails, array(
+											'proxy_configurations' => $this->proxyConfigurations,
 											'server_configuration' => $serverConfiguration
 										)),
 										'message' => array(

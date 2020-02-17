@@ -96,7 +96,7 @@
 			));
 
 			foreach ($splitProxyProcesses as $splitProxyProcessKey => $proxyProcesses) {
-				$aclFilename =  'acls' . ((integer) $forwardingProcessChunkKey) . '.conf';
+				$aclFilename =  'acls' . ((integer) $splitProxyProcessKey) . '.conf';
 				$splitProxyProcessKeyStartingIndex = 0;
 
 				if (!empty($splitProxyProcesses[$splitProxyProcessKey - 1])) {
@@ -110,6 +110,8 @@
 					$formattedProxyProcessConfigurations[$formattedProxyProcessKey]['parameters'] = str_replace('[acl_filepath]', $configuration['paths']['configuration'] . $aclFilename, $formattedProxyProcessConfigurations[$formattedProxyProcessKey]['parameters']);
 				}
 			}
+
+			$splitForwardingProxyProcessPorts = array_reverse($splitForwardingProxyProcessPorts);
 
 			foreach ($serverProxies as $proxyType => $proxies) {
 				foreach ($proxies as $proxy) {
@@ -229,13 +231,17 @@
 				}
 			}
 
+			if (!empty($gatewayAcls)) {
+				$splitGatewayAcls = $gatewayAcls;
+			}
+
 			if (!empty($formattedProxies['authentication'])) {
 				foreach ($formattedProxies['authentication'] as $credentials => $destinations) {
 					$splitAuthentication = explode($this->keys['start'], $credentials);
 					$formattedAcls[] = 'acl user' . $userIndex . ' proxy_auth ' . $splitAuthentication[0];
 					$formattedFiles[] = array(
-						'path' => $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt',
-						'contents' => implode("\n", $destinations)
+						'contents' => implode("\n", $destinations),
+						'path' => $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt'
 					);
 					$formattedUsers[$splitAuthentication[0]] = $splitAuthentication[1];
 					$proxyAuthenticationAcls[] = 'acl d' . $userIndex . ' localip "' . $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt"';
@@ -253,12 +259,12 @@
 
 					foreach ($splitSources as $sourceChunk) {
 						$formattedFiles[] = array(
-							'path' => $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt',
-							'contents' => implode("\n", $destinations)
+							'contents' => implode("\n", $destinations),
+							'path' => $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt'
 						);
 						$formattedFiles[] = array(
-							'path' => $configuration['paths']['configuration'] . 'users/' . $userIndex . '/s.txt',
-							'contents' => implode("\n", $sourceChunk)
+							'contents' => implode("\n", $sourceChunk),
+							'path' => $configuration['paths']['configuration'] . 'users/' . $userIndex . '/s.txt'
 						);
 						$proxyWhitelistAcls[] = 'acl d' . $userIndex . ' localip "' . $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt"';
 						$proxyWhitelistAcls[] = 'acl s' . $userIndex . ' src "' . $configuration['paths']['configuration'] . 'users/' . $userIndex . '/s.txt"';
@@ -272,18 +278,23 @@
 
 			if (!empty($formattedProxies['public'])) {
 				$formattedFiles[] = array(
-					'path' => $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt',
-					'contents' => implode("\n", $formattedProxies['public'])
+					'contents' => implode("\n", $formattedProxies['public']),
+					'path' => $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt'
 				);
 				$formattedAcls[] = 'acl d' . $userIndex . ' localip "' . $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt"';
 				$formattedAcls[] = 'http_access allow d' . $userIndex . ' all';
 			}
 
-			// ..
-			$formattedAcls = array_merge($formattedAcls, $gatewayAcls);
 			$formattedAcls[] = 'http_access deny all';
+
+			foreach ($splitGatewayAcls as $splitGatewayAclKey => $gatewayAcls) {
+				$formattedFiles[] = array(
+					'contents' => implode("\n", array_merge($formattedAcls, $gatewayAcls)),
+					'path' => $configuration['paths']['configuration'] . 'acls' . ((integer) $splitGatewayAclKey) . '.conf'
+				);
+			}
+
 			$response = array(
-				'acls' => implode("\n", $formattedAcls),
 				'files' => $formattedFiles,
 				'processes' => array(
 					'configurations' => $formattedProxyProcessConfigurations,

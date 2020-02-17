@@ -310,6 +310,18 @@
 				'users' => $formattedUsers
 			);
 
+			if (!empty($disabledProxies)) {
+				// TODO: use ipset for disabled IPs and ports
+				$splitDisabledPorts = array_chunk($formattedProxyProcessPorts, '10');
+				$splitDisabledProxies = array_chunk($disabledProxies, '10');
+
+				foreach ($splitDisabledProxies as $disabledProxies) {
+					foreach ($splitDisabledPorts as $disabledPorts) {
+						$response['firewall_filter'][] = '-A INPUT -p tcp ! -i lo -d ' . implode(',', $disabledProxies) . ' -m multiport --dports ' . implode(',', $disabledPorts) . ' -j DROP';
+					}
+				}
+			}
+
 			return $response;
 		}
 

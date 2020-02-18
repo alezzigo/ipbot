@@ -599,6 +599,16 @@
 				),
 				'from_email' => 'email@localhost',
 				'google_site_verification' => '',
+				'reconfiguration' => array(
+					'paths' => array(
+						'cache' => '/scripts/cache',
+						'errors' => '/scripts/errors',
+						'firewall_rules' => '/scripts/rules',
+						'passwords' => '/scripts/passwords',
+						'process_ids' => '/scripts/pid',
+						'users' => '/scripts/users'
+					)
+				),
 				'session_cookies' => array(
 					'enabled' => true,
 					'lifetime' => 8888888888

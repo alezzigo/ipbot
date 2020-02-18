@@ -440,7 +440,9 @@
 						'write_timeout 2 seconds'
 					),
 					'paths' => array(
+						'authentication' => '/usr/lib/squid3/basic_ncsa_auth',
 						'configuration' => '/etc/squid3/',
+						'passwords' => '/scripts/passwords',
 						'process_id' => '/var/run/'
 					),
 					'process_minimum' => 8,

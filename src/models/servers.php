@@ -17,7 +17,7 @@
 			$disabledProxies = $formattedFiles = $formattedProxies = $formattedProxyProcessConfigurations = $formattedProxyProcessPorts = $formattedUsers = $gatewayAcls = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = array();
 			$configuration = $this->proxyConfigurations['squid'];
 			$formattedAcls = array(
-				'auth_param basic program /usr/lib/squid3/basic_ncsa_auth ' . $configuration['paths']['configuration'] . 'passwords',
+				'auth_param basic program ' . $configuration['paths']['authentication'] . ' ' . $configuration['paths']['passwords'],
 				'auth_param basic children 88888',
 				'auth_param basic realm ' . $this->settings['site_name'],
 				'auth_param basic credentialsttl 88888 days',

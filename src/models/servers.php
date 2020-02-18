@@ -318,9 +318,12 @@
 				'processes' => array(
 					'configurations' => $formattedProxyProcessConfigurations,
 					'ports' => $formattedProxyProcessPorts
-				),
-				'users' => $formattedUsers
+				)
 			);
+
+			if (empty($serverDetails['users'])) {
+				$response['users'] = $formattedUsers;
+			}
 
 			if (!empty($disabledProxies)) {
 				// TODO: use ipset for disabled IPs and ports
@@ -414,6 +417,11 @@
 											method_exists($this, ($method = '_format' . ucwords($proxyType))) &&
 											($formattedAcls = $this->$method($response['data']))
 										) {
+											if (empty($response['data']['users'])) {
+												$response['data']['users'] = $formattedAcls['users'];
+											}
+
+											unset($formattedAcls['users']);
 											$response['data'][$proxyType] = $formattedAcls;
 										}
 									}

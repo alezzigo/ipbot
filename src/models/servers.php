@@ -408,8 +408,6 @@
 												} elseif ($formattedProxyProcessItemKey !== 'users') {
 													$response['data'][$formattedProxyProcessItemKey] = array_merge($response['data'][$formattedProxyProcessItemKey], $formattedProxyProcessItem);
 												}
-
-												unset($formattedProxyProcessItems[$formattedProxyProcessItemKey]);
 											}
 										}
 									}

@@ -389,7 +389,8 @@
 									$response = array(
 										'data' => array_merge($serverProxyDetails, array(
 											'proxy_configurations' => $this->proxyConfigurations,
-											'server_configuration' => $serverConfiguration
+											'server_configuration' => $serverConfiguration,
+											'settings' => $this->settings['reconfiguration']
 										)),
 										'message' => array(
 											'status' => 'success',

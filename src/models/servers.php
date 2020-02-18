@@ -185,12 +185,14 @@
 					}
 
 					if (!empty($proxy['static_proxies'])) {
-						foreach ($proxy['static_proxies'] as $staticProxyChunkKey => $staticProxies) {
+						$splitStaticProxies = $proxy['static_proxies'];
+
+						foreach ($splitStaticProxies as $splitStaticProxyKey => $staticProxies) {
 							$gatewayIp = $proxy['ip'];
 							$staticProxyIps = array();
 
 							if (!empty($proxy['global_forwarding_proxies'])) {
-								$forwardingSources[] = $gatewayIp = $proxy['global_forwarding_proxies'][$staticProxyChunkKey]['ip'];
+								$forwardingSources[] = $gatewayIp = $proxy['global_forwarding_proxies'][$splitStaticProxyKey]['ip'];
 							}
 
 							$gatewayIpIndex = (integer) $serverDetails['proxy_ips'][$gatewayIp];
@@ -225,7 +227,7 @@
 
 								if (
 									$gatewayIp !== $proxy['ip'] &&
-									empty($proxy['global_forwarding_proxies'][$staticProxyChunkKey]['allow_direct'])
+									empty($proxy['global_forwarding_proxies'][$splitStaticProxyKey]['allow_direct'])
 								) {
 									$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'never_direct allow ip' . $gatewayIpIndex;
 								}
@@ -315,10 +317,7 @@
 
 			$response = array(
 				'files' => $formattedFiles,
-				'processes' => array(
-					'configurations' => $formattedProxyProcessConfigurations,
-					'ports' => $formattedProxyProcessPorts
-				)
+				'proxy_processes' => $formattedProxyProcessConfigurations,
 			);
 
 			if (empty($serverDetails['users'])) {
@@ -459,13 +458,27 @@
 			}
 
 			foreach ($response['proxy_processes'] as $proxyProcessType => $proxyProcesses) {
+				$splitProxyProcesses = array_chunk($proxyProcesses, round(count($proxyProcesses) / 2), false);
+
 				foreach ($proxyProcesses as $proxyProcessKey => $proxyProcess) {
+					$proxyProcessPortKey = empty($proxyProcessKey) ? 'primary' : 'secondary';
+					$splitProxyProcessPortKey = (
+						!empty($splitProxyProcessPortKey) ||
+						$proxyProcess['ports'][0] === $splitProxyProcesses[1][0]['ports'][0]
+					) ? 1 : 0;
+
 					foreach ($proxyProcess['dns'] as $dnsProcesses) {
 						$response['dns_process_load_balance_ips'][$dnsProcesses['listening_ip']][$dnsProcesses['source_ip']] = $dnsProcesses['source_ip'];
 						$response['dns_process_source_ips'][$dnsProcesses['source_ip']] = $dnsProcesses['source_ip'];
 						$response['proxy_processes'][$proxyProcessType][$proxyProcessKey]['dns_ips'][$dnsProcesses['listening_ip']] = $dnsProcesses['listening_ip'];
 					}
+
+					foreach ($proxyProcess['ports'] as $proxyProcessPort) {
+						$response['proxy_process_ports'][$proxyProcessType][$proxyProcessPortKey][$splitProxyProcessPortKey][] = $proxyProcessPort;
+					}
 				}
+
+				$response['proxy_process_ports'][$proxyProcessType]['primary'] = $response['proxy_process_ports'][$proxyProcessType]['primary'][0];
 			}
 
 			$proxyParameters = array(

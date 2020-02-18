@@ -301,7 +301,9 @@
 
 			$response = array(
 				'files' => $formattedFiles,
-				'proxy_processes' => $formattedProxyProcessConfigurations,
+				'proxy_processes' => array(
+					'squid' => $formattedProxyProcessConfigurations
+				)
 			);
 
 			if (empty($serverDetails['users'])) {
@@ -398,14 +400,17 @@
 									foreach ($this->proxyConfigurations as $proxyType => $proxyConfiguration) {
 										if (
 											method_exists($this, ($method = '_format' . ucwords($proxyType))) &&
-											($formattedAcls = $this->$method($response['data']))
+											($formattedProxyProcessItems = $this->$method($response['data']))
 										) {
-											if (empty($response['data']['users'])) {
-												$response['data']['users'] = $formattedAcls['users'];
-											}
+											foreach ($formattedProxyProcessItems as $formattedProxyProcessItemKey => $formattedProxyProcessItem) {
+												if (empty($response['data'][$formattedProxyProcessItemKey])) {
+													$response['data'][$formattedProxyProcessItemKey] = $formattedProxyProcessItem;
+												} elseif ($formattedProxyProcessItemKey !== 'users') {
+													$response['data'][$formattedProxyProcessItemKey] = array_merge($response['data'][$formattedProxyProcessItemKey], $formattedProxyProcessItem);
+												}
 
-											unset($formattedAcls['users']);
-											$response['data'][$proxyType] = $formattedAcls;
+												unset($formattedProxyProcessItems[$formattedProxyProcessItemKey]);
+											}
 										}
 									}
 

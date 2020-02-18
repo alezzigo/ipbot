@@ -23,12 +23,11 @@
 				'auth_param basic credentialsttl 88888 days',
 				'auth_param basic casesensitive on'
 			);
-			$proxyProcesses = $serverDetails['proxy_processes']['squid'];
 			$userIndex = 0;
 
 			if (
 				($processMinimum = !empty($configuration['process_minimum']) ? $configuration['process_minimum'] : 1) &&
-				count($proxyProcesses) < $processMinimum
+				count($serverDetails['proxy_processes']['squid']) < $processMinimum
 			) {
 				return false;
 			}
@@ -40,7 +39,7 @@
 				}
 			}
 
-			foreach ($proxyProcesses as $key => $proxyProcess) {
+			foreach ($serverDetails['proxy_processes']['squid'] as $key => $proxyProcess) {
 				$proxyProcessConfigurationParameters = implode("\n", $configuration['parameters']);
 				$proxyProcessName = $configuration['process_name'] . ($proxyProcess['number'] ? '-redundant' . $proxyProcess['number'] : '');
 				$proxyProcessConfigurationFilePath = $configuration['paths']['configuration'] . $proxyProcessName . '.conf';
@@ -69,32 +68,19 @@
 				}
 			}
 
-			$splitProxyProcesses = array_chunk($proxyProcesses, round(count($proxyProcesses) / 2), false);
-			$primaryProxyProcessPorts = $proxyProcesses[0]['ports'];
-			$formattedForwardingProxyProcessPorts = array_values(array_diff($formattedProxyProcessPorts, $primaryProxyProcessPorts));
-			unset($proxyProcesses[0]);
-			$splitForwardingProxyIndexes = array(0, 0);
-			$splitForwardingProxyProcesses = array_chunk($proxyProcesses, round(count($proxyProcesses) / 2), false);
-			$splitProxyProcessPortKey = array_search($splitProxyProcesses[1][0]['ports'][0], $formattedProxyProcessPorts);
-			$splitForwardingProxyProcessPortKey = array_search($splitForwardingProxyProcesses[1][0]['ports'][0], $formattedForwardingProxyProcessPorts);
-			$formattedProxyProcessPortsStart = $formattedProxyProcessPortsEnd = $formattedProxyProcessPorts;
-			$formattedForwardingProxyProcessPortsStart = $formattedForwardingProxyProcessPortsEnd = $formattedForwardingProxyProcessPorts;
-			$splitProxyProcessPorts = array(
-				array_splice($formattedProxyProcessPortsStart, 0, $splitProxyProcessPortKey),
-				array_splice($formattedProxyProcessPortsEnd, $splitProxyProcessPortKey, -1)
-			);
-			$splitForwardingProxyProcessPorts = array(
-				array(
-					array_splice($formattedForwardingProxyProcessPortsStart, 0, $splitForwardingProxyProcessPortKey)
-				),
-				array(
-					array_splice($formattedForwardingProxyProcessPortsEnd, $splitForwardingProxyProcessPortKey, -1)
-				)
-			);
 			$serverProxies = array_intersect_key($serverDetails, array(
 				'gateway_proxies' => true,
 				'static_proxies' => true
 			));
+			$splitForwardingProxyProcessPortIndexes = array(0, 0);
+			$splitForwardingProxyProcessPorts = array_reverse($serverDetails['proxy_process_ports']['squid']['secondary']);
+			$splitProxyProcesses = array_chunk($serverDetails['proxy_processes']['squid'], round(count($serverDetails['proxy_processes']['squid']) / 2), false);
+
+			foreach ($splitForwardingProxyProcessPorts as $splitForwardingProxyProcessPortKey => $splitForwardingProxyProcessPort) {
+				$splitForwardingProxyProcessPorts[$splitForwardingProxyProcessPortKey] = array(
+					$splitForwardingProxyProcessPort
+				);
+			}
 
 			foreach ($splitProxyProcesses as $splitProxyProcessKey => $proxyProcesses) {
 				$aclFilename =  'acls' . ((integer) $splitProxyProcessKey) . '.conf';
@@ -111,8 +97,6 @@
 					$formattedProxyProcessConfigurations[$formattedProxyProcessKey]['parameters'] = str_replace('[acl_filepath]', $configuration['paths']['configuration'] . $aclFilename, $formattedProxyProcessConfigurations[$formattedProxyProcessKey]['parameters']);
 				}
 			}
-
-			$splitForwardingProxyProcessPorts = array_reverse($splitForwardingProxyProcessPorts);
 
 			foreach ($serverProxies as $proxyType => $proxies) {
 				foreach ($proxies as $proxy) {
@@ -156,12 +140,12 @@
 							foreach ($splitForwardingProxyProcessPorts as $splitForwardingProxyProcessPortKey => $forwardingProxyProcessPorts) {
 								$forwardingProxyProcessPorts = $forwardingProxyProcessPorts[1];
 
-								if (empty($forwardingProxyProcessPorts[$splitForwardingProxyIndexes[$splitForwardingProxyProcessPortKey]])) {
-									$splitForwardingProxyIndexes[$splitForwardingProxyProcessPortKey] = 0;
+								if (empty($forwardingProxyProcessPorts[$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey]])) {
+									$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey] = 0;
 								}
 
-								$forwardingProxyProcessPort = $forwardingProxyProcessPorts[$splitForwardingProxyIndexes[$splitForwardingProxyProcessPortKey]];
-								$splitForwardingProxyIndexes[$splitForwardingProxyProcessPortKey]++;
+								$forwardingProxyProcessPort = $forwardingProxyProcessPorts[$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey]];
+								$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey]++;
 								$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $globalForwardingProxy['ip'] . ' parent ' . $forwardingProxyProcessPort . ' 0 connect-fail-limit=2 connect-timeout=2 name=' . $globalForwardingProxy['id'] . ' round-robin';
 								$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $globalForwardingProxy['id'] . ' allow ip' . $serverDetails['proxy_ips'][$proxy['ip']];
 							}
@@ -203,12 +187,12 @@
 								$forwardingProxyProcessPorts = $forwardingProxyProcessPorts[0];
 
 								foreach ($staticProxies as $staticProxy) {
-									if (empty($forwardingProxyProcessPorts[$splitForwardingProxyIndexes[$splitForwardingProxyProcessPortKey]])) {
-										$splitForwardingProxyIndexes[$splitForwardingProxyProcessPortKey] = 0;
+									if (empty($forwardingProxyProcessPorts[$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey]])) {
+										$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey] = 0;
 									}
 
-									$forwardingProxyProcessPort = $forwardingProxyProcessPorts[$splitForwardingProxyIndexes[$splitForwardingProxyProcessPortKey]];
-									$splitForwardingProxyIndexes[$splitForwardingProxyProcessPortKey]++;
+									$forwardingProxyProcessPort = $forwardingProxyProcessPorts[$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey]];
+									$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey]++;
 									$staticProxyProcessPorts = array(
 										$forwardingProxyProcessPort
 									);
@@ -218,7 +202,7 @@
 									}
 
 									foreach ($staticProxyProcessPorts as $staticProxyProcessPortKey => $staticProxyProcessPort) {
-										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxyProcessPort . ' 0 connect-fail-limit=2 connect-timeout=2 name=' . $staticProxy['id'] . $staticProxyProcessPortKey . ' ' . $loadBalanceMethod;
+										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxyProcessPort . ' 0 connect-fail-limit=1 connect-timeout=2 name=' . $staticProxy['id'] . $staticProxyProcessPortKey . ' ' . $loadBalanceMethod;
 										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $staticProxy['id'] . $staticProxyProcessPortKey . ' allow ip' . $gatewayIpIndex;
 									}
 

@@ -103,11 +103,11 @@
 				if (!empty($splitProxyProcesses[$splitProxyProcessKey - 1])) {
 					$previousProxyProcesss = $splitProxyProcesses[$splitProxyProcessKey - 1];
 					end($previousProxyProcesss);
-					$splitProxyProcessKeyStartingIndex = key($previousProxyProcesss) * $splitProxyProcessKey;
+					$splitProxyProcessKeyStartingIndex = (key($previousProxyProcesss) * $splitProxyProcessKey) + 1;
 				}
 
 				foreach ($proxyProcesses as $proxyProcessKey => $proxyProcess) {
-					$formattedProxyProcessKey = $proxyProcessKey + $splitProxyProcessKeyStartingIndex + 1;
+					$formattedProxyProcessKey = $proxyProcessKey + $splitProxyProcessKeyStartingIndex;
 					$formattedProxyProcessConfigurations[$formattedProxyProcessKey]['parameters'] = str_replace('[acl_filepath]', $configuration['paths']['configuration'] . $aclFilename, $formattedProxyProcessConfigurations[$formattedProxyProcessKey]['parameters']);
 				}
 			}

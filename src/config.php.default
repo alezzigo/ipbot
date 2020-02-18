@@ -441,9 +441,10 @@
 					),
 					'paths' => array(
 						'authentication' => '/usr/lib/squid3/basic_ncsa_auth',
-						'configuration' => '/etc/squid3/',
+						'configuration' => '/scripts/configuration/squid/',
 						'passwords' => '/scripts/passwords',
-						'process_id' => '/var/run/'
+						'process_id' => '/var/run/',
+						'users' => '/scripts/users/squid/'
 					),
 					'process_minimum' => 8,
 					'process_name' => 'squid3',
@@ -603,12 +604,13 @@
 				'google_site_verification' => '',
 				'reconfiguration' => array(
 					'paths' => array(
-						'cache' => '/scripts/cache',
-						'errors' => '/scripts/errors',
-						'firewall_rules' => '/scripts/rules',
+						'cache' => '/scripts/cache/',
+						'configuration' => '/scripts/configuration/',
+						'errors' => '/scripts/errors/',
+						'firewall_rules' => '/scripts/rules/',
 						'passwords' => '/scripts/passwords',
-						'process_ids' => '/scripts/pid',
-						'users' => '/scripts/users'
+						'process_ids' => '/scripts/pid/',
+						'users' => '/scripts/users/'
 					)
 				),
 				'session_cookies' => array(

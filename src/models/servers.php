@@ -239,10 +239,10 @@
 					$formattedAcls[] = 'acl user' . $userIndex . ' proxy_auth ' . $splitAuthentication[0];
 					$formattedFiles[] = array(
 						'contents' => implode("\n", $destinations),
-						'path' => $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt'
+						'path' => $configuration['paths']['users'] . $userIndex . '/d.txt'
 					);
 					$formattedUsers[$splitAuthentication[0]] = $splitAuthentication[1];
-					$proxyAuthenticationAcls[] = 'acl d' . $userIndex . ' localip "' . $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt"';
+					$proxyAuthenticationAcls[] = 'acl d' . $userIndex . ' localip "' . $configuration['paths']['users'] . $userIndex . '/d.txt"';
 					$proxyAuthenticationAcls[] = 'http_access allow d' . $userIndex . ' user' . $userIndex;
 					$userIndex++;
 				}
@@ -258,14 +258,14 @@
 					foreach ($splitSources as $sourceChunk) {
 						$formattedFiles[] = array(
 							'contents' => implode("\n", $destinations),
-							'path' => $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt'
+							'path' => $configuration['paths']['users'] . $userIndex . '/d.txt'
 						);
 						$formattedFiles[] = array(
 							'contents' => implode("\n", $sourceChunk),
-							'path' => $configuration['paths']['configuration'] . 'users/' . $userIndex . '/s.txt'
+							'path' => $configuration['paths']['users'] . $userIndex . '/s.txt'
 						);
-						$proxyWhitelistAcls[] = 'acl d' . $userIndex . ' localip "' . $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt"';
-						$proxyWhitelistAcls[] = 'acl s' . $userIndex . ' src "' . $configuration['paths']['configuration'] . 'users/' . $userIndex . '/s.txt"';
+						$proxyWhitelistAcls[] = 'acl d' . $userIndex . ' localip "' . $configuration['paths']['users'] . $userIndex . '/d.txt"';
+						$proxyWhitelistAcls[] = 'acl s' . $userIndex . ' src "' . $configuration['paths']['users'] . $userIndex . '/s.txt"';
 						$proxyWhitelistAcls[] = 'http_access allow s' . $userIndex . ' d' . $userIndex;
 						$userIndex++;
 					}
@@ -277,9 +277,9 @@
 			if (!empty($formattedProxies['public'])) {
 				$formattedFiles[] = array(
 					'contents' => implode("\n", $formattedProxies['public']),
-					'path' => $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt'
+					'path' => $configuration['paths']['users'] . $userIndex . '/d.txt'
 				);
-				$formattedAcls[] = 'acl d' . $userIndex . ' localip "' . $configuration['paths']['configuration'] . 'users/' . $userIndex . '/d.txt"';
+				$formattedAcls[] = 'acl d' . $userIndex . ' localip "' . $configuration['paths']['users'] . $userIndex . '/d.txt"';
 				$formattedAcls[] = 'http_access allow d' . $userIndex . ' all';
 			}
 

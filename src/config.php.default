@@ -441,7 +441,7 @@
 					),
 					'paths' => array(
 						'authentication' => '/usr/lib/squid3/basic_ncsa_auth',
-						'configuration' => '/scripts/configuration/squid/',
+						'configurations' => '/scripts/configurations/squid/',
 						'passwords' => '/scripts/passwords',
 						'process_id' => '/var/run/',
 						'users' => '/scripts/users/squid/'
@@ -604,8 +604,9 @@
 				'google_site_verification' => '',
 				'reconfiguration' => array(
 					'paths' => array(
+						'base' => '/scripts/',
 						'cache' => '/scripts/cache/',
-						'configuration' => '/scripts/configuration/',
+						'configurations' => '/scripts/configurations/',
 						'errors' => '/scripts/errors/',
 						'firewall_rules' => '/scripts/rules/',
 						'passwords' => '/scripts/passwords',

@@ -42,7 +42,7 @@
 			foreach ($serverDetails['proxy_processes']['squid'] as $key => $proxyProcess) {
 				$proxyProcessConfigurationParameters = implode("\n", $configuration['parameters']);
 				$proxyProcessName = $configuration['process_name'] . ($proxyProcess['number'] ? '-redundant' . $proxyProcess['number'] : '');
-				$proxyProcessConfigurationFilePath = $configuration['paths']['configuration'] . $proxyProcessName . '.conf';
+				$proxyProcessConfigurationFilePath = $configuration['paths']['configurations'] . $proxyProcessName . '.conf';
 				$proxyProcessIdPath = $configuration['paths']['process_id'] . $proxyProcessName . '.pid';
 				$proxyProcessConfigurationParameters = str_replace('[dns_ips]', implode(' ', $proxyProcess['dns_ips']), $proxyProcessConfigurationParameters);
 				$proxyProcessConfigurationParameters = str_replace('[pid]', $proxyProcessIdPath, $proxyProcessConfigurationParameters);
@@ -94,7 +94,7 @@
 
 				foreach ($proxyProcesses as $proxyProcessKey => $proxyProcess) {
 					$formattedProxyProcessKey = $proxyProcessKey + $splitProxyProcessKeyStartingIndex;
-					$formattedProxyProcessConfigurations[$formattedProxyProcessKey]['parameters'] = str_replace('[acl_filepath]', $configuration['paths']['configuration'] . $aclFilename, $formattedProxyProcessConfigurations[$formattedProxyProcessKey]['parameters']);
+					$formattedProxyProcessConfigurations[$formattedProxyProcessKey]['parameters'] = str_replace('[acl_filepath]', $configuration['paths']['configurations'] . $aclFilename, $formattedProxyProcessConfigurations[$formattedProxyProcessKey]['parameters']);
 				}
 			}
 
@@ -288,14 +288,14 @@
 			foreach ($formattedProxyProcessConfigurations as $formattedProxyProcessConfiguration) {
 				$formattedFiles[] = array(
 					'contents' => $formattedProxyProcessConfiguration['parameters'],
-					'path' => $formattedProxyProcessConfiguration['paths']['configuration']
+					'path' => $formattedProxyProcessConfiguration['paths']['configurations']
 				);
 			}
 
 			foreach ($splitGatewayAcls as $splitGatewayAclKey => $gatewayAcls) {
 				$formattedFiles[] = array(
 					'contents' => implode("\n", array_merge($formattedAcls, $gatewayAcls)),
-					'path' => $configuration['paths']['configuration'] . 'acls' . ((integer) $splitGatewayAclKey) . '.conf'
+					'path' => $configuration['paths']['configurations'] . 'acls' . ((integer) $splitGatewayAclKey) . '.conf'
 				);
 			}
 

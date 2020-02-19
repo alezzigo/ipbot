@@ -448,6 +448,7 @@
 					),
 					'process_minimum' => 8,
 					'process_name' => 'squid3',
+					'protocol' => 'http',
 					'version' => '3.3.4'
 				)
 			);

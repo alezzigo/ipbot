@@ -219,16 +219,15 @@
 						}
 					}
 
-					if (empty($proxy['require_authentication'])) {
-						$formattedProxies['public'][] = $proxy['ip'];
-					}
-
 					if (!empty($proxy['disable_http'])) {
 						$disabledProxies[$proxy['ip']] = $proxy['ip'];
 					}
 				}
 			}
 
+
+
+			// ..
 			if (!empty($gatewayAcls)) {
 				$splitGatewayAcls = $gatewayAcls;
 			}
@@ -273,16 +272,6 @@
 			}
 
 			$formattedAcls = array_merge($formattedAcls, $proxyWhitelistAcls, $proxyAuthenticationAcls);
-
-			if (!empty($formattedProxies['public'])) {
-				$formattedFiles[] = array(
-					'contents' => implode("\n", $formattedProxies['public']),
-					'path' => $configuration['paths']['users'] . $userIndex . '/d.txt'
-				);
-				$formattedAcls[] = 'acl d' . $userIndex . ' localip "' . $configuration['paths']['users'] . $userIndex . '/d.txt"';
-				$formattedAcls[] = 'http_access allow d' . $userIndex . ' all';
-			}
-
 			$formattedAcls[] = 'http_access deny all';
 
 			foreach ($formattedProxyProcessConfigurations as $formattedProxyProcessConfiguration) {

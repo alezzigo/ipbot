@@ -110,7 +110,7 @@
 							empty($formattedProxies['whitelist'][$sources]) ||
 							!in_array($proxy['ip'], $formattedProxies['whitelist'][$sources])
 						) {
-							$formattedProxies['whitelist'][$sources][] = $proxy['ip'];
+							$formattedProxies['whitelist'][$sources][$proxy['ip']] = $proxy['ip'];
 						}
 					}
 
@@ -154,7 +154,7 @@
 								!empty($proxy['local_forwarding_proxies']) &&
 								in_array($globalForwardingProxy['id'], $proxy['local_forwarding_proxies'])
 							) {
-								$formattedProxies['whitelist'][json_encode($forwardingSources)][] = $globalForwardingProxy['ip'];
+								$formattedProxies['whitelist'][json_encode($forwardingSources)][$globalForwardingProxy['ip']] = $globalForwardingProxy['ip'];
 							}
 						}
 					}
@@ -206,7 +206,7 @@
 										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $staticProxy['id'] . $staticProxyProcessPortKey . ' allow ip' . $gatewayIpIndex;
 									}
 
-									$formattedProxies['whitelist'][json_encode($forwardingSources)][] = $staticProxy['ip'];
+									$formattedProxies['whitelist'][json_encode($forwardingSources)][$staticProxy['ip']] = $staticProxy['ip'];
 								}
 
 								if (

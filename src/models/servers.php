@@ -288,7 +288,7 @@
 			foreach ($formattedProxyProcessConfigurations as $formattedProxyProcessConfiguration) {
 				$formattedFiles[] = array(
 					'contents' => $formattedProxyProcessConfiguration['parameters'],
-					'path' => $formattedProxyProcessConfiguration['paths']['configurations']
+					'path' => $formattedProxyProcessConfiguration['paths']['configuration']
 				);
 			}
 

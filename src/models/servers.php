@@ -225,13 +225,6 @@
 				}
 			}
 
-
-
-			// ..
-			if (!empty($gatewayAcls)) {
-				$splitGatewayAcls = $gatewayAcls;
-			}
-
 			if (!empty($formattedProxies['authentication'])) {
 				foreach ($formattedProxies['authentication'] as $credentials => $destinations) {
 					$splitAuthentication = explode($this->keys['start'], $credentials);
@@ -281,10 +274,16 @@
 				);
 			}
 
-			foreach ($splitGatewayAcls as $splitGatewayAclKey => $gatewayAcls) {
+			foreach (array(0, 1) as $splitAclFileNumber) {
+				$splitAclFileContents = $formattedAcls;
+
+				if (!empty($gatewayAcls[$splitAclFileNumber])) {
+					$splitAclFileContents = array_merge($splitAclFileContents, $gatewayAcls[$splitAclFileNumber]);
+				}
+
 				$formattedFiles[] = array(
-					'contents' => implode("\n", array_merge($formattedAcls, $gatewayAcls)),
-					'path' => $configuration['paths']['configurations'] . 'acls' . ((integer) $splitGatewayAclKey) . '.conf'
+					'contents' => implode("\n", $splitAclFileContents),
+					'path' => $configuration['paths']['configurations'] . 'acls' . ((integer) $splitAclFileNumber) . '.conf'
 				);
 			}
 

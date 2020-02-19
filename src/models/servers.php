@@ -45,7 +45,7 @@
 				$proxyProcessConfigurationFilePath = $configuration['paths']['configurations'] . $proxyProcessName . '.conf';
 				$proxyProcessIdPath = $configuration['paths']['process_id'] . $proxyProcessName . '.pid';
 				$proxyProcessConfigurationParameters = str_replace('[dns_ips]', implode(' ', $proxyProcess['dns_ips']), $proxyProcessConfigurationParameters);
-				$proxyProcessConfigurationParameters = str_replace('[pid]', $proxyProcessIdPath, $proxyProcessConfigurationParameters);
+				$proxyProcessConfigurationParameters = str_replace('[pid]', 'pid_filename ' . $proxyProcessIdPath, $proxyProcessConfigurationParameters);
 				$proxyProcessConfigurationParameters = str_replace('[ports]', 'http_port ' . implode("\n" . 'http_port ', $proxyProcess['ports']), $proxyProcessConfigurationParameters);
 				$proxyProcess['parameters'] = $proxyProcessConfigurationParameters;
 				$proxyProcess = array_merge(array(

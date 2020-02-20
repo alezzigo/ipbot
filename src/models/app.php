@@ -1433,25 +1433,23 @@
 	 */
 		protected function _sendMail($parameters) {
 			if (
-				empty($from = $this->_validateEmailFormat($parameters['from'])) ||
-				empty($to = $this->_validateEmailFormat($parameters['to'])) ||
+				empty($parameters['from']) ||
+				empty($parameters['subject']) ||
+				!is_string($parameters['subject']) ||
+				empty($parameters['template']['name']) ||
 				(
-					empty($subject = $parameters['subject']) ||
-					!is_string($subject)
+					($templateFile = $this->settings['base_path'] . '/views/emails/' . $parameters['template']['name'] . '.php') &&
+					!file_exists($templateFile)
 				) ||
+				empty($parameters['template']['parameters']) ||
+				!is_array($parameters['template']['parameters']) ||
 				(
-					empty($template = $parameters['template']) ||
-					!is_array($template) ||
-					!file_exists($templateFile = $this->settings['base_path'] . '/views/emails/' . $template['name'] . '.php') ||
-					(
-						!empty($templateParameters = $template['parameters']) &&
-						!is_array($templateParameters)
-					)
+					($templateParameters = $parameters['template']['parameters']) &&
+					!is_array($templateParameters)
 				) ||
-				(
-					!empty($headers = $parameters['headers']) &&
-					!is_array($headers)
-				)
+				empty($parameters['to']) ||
+				empty($this->_validateEmailFormat($parameters['from'])) ||
+				empty($this->_validateEmailFormat($parameters['to']))
 			) {
 				return false;
 			}
@@ -1459,14 +1457,14 @@
 			$headers = array(
 				'charset' => 'utf-8',
 				'Content-Type' => 'text/plain',
-				'From' => '"' . $this->settings['site_name'] . '" <' . $from . '>'
+				'From' => '"' . $this->settings['site_name'] . '" <' . $parameters['from'] . '>'
 			);
 			array_walk($headers, function(&$headerValue, $headerKey) {
 				$headerValue = $headerKey . ': ' . $headerValue;
 			});
 			$headers = implode("\r\n", $headers);
 			require_once($templateFile);
-			$response = mail($to, $subject, $message, $headers);
+			$response = mail($parameters['to'], $parameters['subject'], $message, $headers);
 			return $response;
 		}
 

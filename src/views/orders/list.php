@@ -18,7 +18,7 @@
 <main process="orders">
 	<div class="section">
 		<div class="container small">
-			<h1>Orders</h1>
+			<h1>Orders <a class="button main-button" href="<?php echo $config->settings['base_url'] ?>static-proxies">Create New Order</a></h1>
 			<div class="item-list" table="orders"></div>
 		</div>
 	</div>

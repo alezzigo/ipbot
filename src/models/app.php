@@ -1481,8 +1481,8 @@
 			$email = strtolower(trim($email));
 			$emailSplitCharacters = explode('@', $email);
 			$validAlphaNumericCharacters = 'abcdefghijklmnopqrstuvwxyz1234567890';
-			$validLocalCharacters = '!#$%&\'*+-/=?^_`{|}~' . $validAlphaNumericCharacters;
-			$validLocalSpecialCharacters = ' .(),:;<>@[]';
+			$validLocalCharacters = '.!#$%&\'*+-/=?^_`{|}~' . $validAlphaNumericCharacters;
+			$validLocalSpecialCharacters = ' (),:;<>@[]';
 			$validDomainCharacters = '-.' . $validAlphaNumericCharacters;
 
 			if (count($emailSplitCharacters) !== 2) {
@@ -1525,7 +1525,12 @@
 				foreach ($localStringSplitCharacters as $key => $localStringSplitCharacter) {
 					$localStringCharacters = array_filter(array_merge($localStringCharacters, !in_array($localStringSplitCharacter, array('\\' . '\\', '\"')) ? str_split($localStringSplitCharacter) : array()));
 				}
-			} elseif (strstr($domainString, '..')) {
+			} elseif (
+				(strpos($domainString, '..') !== false) ||
+				(strpos($localString, '..') !== false) ||
+				$localString[0] === '.' ||
+				$localString[strlen($localString) - 1] === '.'
+			) {
 				return false;
 			}
 

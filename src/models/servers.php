@@ -180,7 +180,6 @@
 							}
 
 							$gatewayIpIndex = (integer) $serverDetails['proxy_ips'][$gatewayIp];
-							$loadBalanceMethod = empty($staticProxies[1]) ? 'default' : 'round-robin';
 							shuffle($staticProxies);
 
 							foreach ($splitForwardingProxyProcessPorts as $splitForwardingProxyProcessPortKey => $forwardingProxyProcessPorts) {
@@ -197,12 +196,12 @@
 										$forwardingProxyProcessPort
 									);
 
-									if ($loadBalanceMethod === 'default') {
+									if (empty($staticProxies[1])) {
 										$staticProxyProcessPorts = $forwardingProxyProcessPorts;
 									}
 
 									foreach ($staticProxyProcessPorts as $staticProxyProcessPortKey => $staticProxyProcessPort) {
-										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxyProcessPort . ' 0 connect-fail-limit=1 connect-timeout=2 name=' . $staticProxy['id'] . $staticProxyProcessPortKey . ' ' . $loadBalanceMethod;
+										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxyProcessPort . ' 0 connect-fail-limit=1 connect-timeout=2 name=' . $staticProxy['id'] . $staticProxyProcessPortKey . ' round-robin';
 										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $staticProxy['id'] . $staticProxyProcessPortKey . ' allow ip' . $gatewayIpIndex;
 									}
 

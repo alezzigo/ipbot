@@ -85,11 +85,13 @@ h1 {
 		text-transform: capitalize;
 	}
 	h1 .main-button {
+		font-size: 11px;
+		line-height: 23px;
 		margin-right: 0;
-		padding: 0px 24px;
+		padding: 5px 24px;
 		position: absolute;
 		right: 0;
-		top: -1px;
+		top: 2px;
 	}
 h2 {
 	border-bottom: 1px solid #ddd;

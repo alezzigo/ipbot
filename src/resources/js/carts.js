@@ -161,10 +161,12 @@ const processCartItems = function(response, itemListParameters) {
 				itemListData += '</div>';
 			}
 
+			additionalItemControlData += '<div class="additional-item-controls">';
 			additionalItemControlData += '<p class="item-controls no-margin-bottom">';
 			additionalItemControlData += '<a class="align-right button main-button checkout" href="/checkout">Checkout</a>';
 			additionalItemControlData += '<span class="cart-subtotal">Subtotal: <span class="total">' + (Math.round(response.data.cart.subtotal * 100) / 100).toLocaleString(false, {minimumFractionDigits: 2}) + ' ' + apiRequestParameters.current.settings.billingCurrency + '</span></span>';
 			additionalItemControlData += '</p>';
+			additionalItemControlData += '</div>';
 		}
 
 		if (processPage === 'checkout') {

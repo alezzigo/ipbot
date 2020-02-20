@@ -225,6 +225,7 @@ const openFrame = function(frameName, frameSelector) {
 const processItemList = function(itemListName, callback) {
 	let itemListParameters = apiRequestParameters.current[itemListName];
 	const itemListTable = camelCaseString(itemListParameters.table);
+	elements.html(itemListParameters.selector + ' .message-container.status', '<p class="message">Loading</p>');
 
 	if (apiRequestParameters.current[itemListName].initial === true) {
 		let itemListData = '<div class="hidden item-container item-processing-container"></div>';

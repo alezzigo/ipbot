@@ -4,7 +4,7 @@
 	$message .= 'A new account was recently created at ' . $this->settings['site_name'] . '.' . "\n";
 	$message .= "\n";
 	$message .= 'Your user email address is:' . "\n";
-	$message .= $templateParameters['user']['email'] . "\n";
+	$message .= $templateParameters['user'][0]['email'] . "\n";
 	$message .= "\n";
 	$message .= 'You can view your dashboard at:' . "\n";
 	$message .= ($domain = 'https://' . $this->settings['base_domain']) . '/orders' . "\n";

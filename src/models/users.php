@@ -563,7 +563,7 @@
 				$response['message']['text'] = 'Invalid email or password, please try again.';
 				$existingUser = $this->fetch($table, array(
 					'conditions' => array(
-						'email' => $email = $this->_validateEmailFormat($parameters['data']['email'])
+						'email' => ($email = $this->_validateEmailFormat($parameters['data']['email']))
 					),
 					'fields' => array(
 						'id'

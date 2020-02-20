@@ -323,7 +323,7 @@
 							if ($this->save($table, $proxyData)) {
 								$response['message'] = array(
 									'status' => 'success',
-									'text' => 'Authentication saved successfully.'
+									'text' => 'Authentication saved successfully, please wait 5 to 10 minutes for the changes to apply across all proxy servers.'
 								);
 							}
 						}
@@ -1272,7 +1272,7 @@
 								) {
 									$response['message'] = array(
 										'status' => 'success',
-										'text' => $parameters['items'][$parameters['item_list_name']]['count'] . ' of your selected ' . $table . ' replaced successfully.'
+										'text' => $parameters['items'][$parameters['item_list_name']]['count'] . ' of your selected ' . $table . ' replaced successfully, please wait 5 to 10 minutes for the changes to apply across all proxy servers.'
 									);
 									$mailParameters = array(
 										'from' => $this->settings['from_email'],
@@ -1418,7 +1418,7 @@
 				) {
 					$response['message'] = array(
 						'status' => 'success',
-						'text' => 'Rotation settings saved successfully.'
+						'text' => 'Rotation settings saved successfully, please wait 5 to 10 minutes for the changes to apply across all proxy servers.'
 					);
 				}
 			}

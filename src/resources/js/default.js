@@ -121,10 +121,11 @@ const capitalizeString = function(string) {
 	return stringParts.join(' ');
 };
 const closeFrames = function(closeFrameApiRequestParameters) {
+	api.setRequestParameters(closeFrameApiRequestParameters);
 	elements.addClass('.frame-container', 'hidden');
 	elements.html('.frame .message-container', '');
 	elements.removeClass('footer, header, main', 'hidden');
-	api.setRequestParameters(closeFrameApiRequestParameters);
+	processWindowEvents('resize');
 	window.scroll(0, 0);
 };
 const elements = {

@@ -244,7 +244,7 @@ var processUsers = function(frameName, frameSelector) {
 		url: apiRequestParameters.current.settings.baseUrl + 'api/users'
 	});
 	api.sendRequest(function(response) {
-		elements.html('.message-container.' + frameName, (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : ''));
+		elements.html('[frame="' + frameName + '"] .message-container', (typeof response.message !== 'undefined' && response.message.text ? '<p class="message' + (response.message.status ? ' ' + response.message.status : '') + '">' + response.message.text + '</p>' : ''));
 
 		if (
 			typeof response.redirect === 'string' &&

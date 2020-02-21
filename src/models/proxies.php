@@ -1388,6 +1388,7 @@
 
 									if (!empty($initialRotationProxy['count'])) {
 										$gatewayProxy = array_merge(array(
+											'next_rotation_date' => date('Y-m-d H:i:s', strtotime('+' . $rotateData['rotation_frequency'] . ' minutes')),
 											'previous_rotation_proxy_id' => null,
 											'previous_rotation_proxy_ip' => null,
 											'rotation_proxy_id' => $initialRotationProxy['data'][0]['id'],

@@ -145,7 +145,7 @@
 
 								$forwardingProxyProcessPort = $forwardingProxyProcessPorts[$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey]];
 								$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey]++;
-								$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $globalForwardingProxy['ip'] . ' parent ' . $forwardingProxyProcessPort . ' 0 connect-fail-limit=1 connect-timeout=2 name=' . $globalForwardingProxy['id'] . ' round-robin';
+								$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $globalForwardingProxy['ip'] . ' parent ' . $forwardingProxyProcessPort . ' 0 connect-fail-limit=2 connect-timeout=2 name=' . $globalForwardingProxy['id'] . ' round-robin';
 								$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $globalForwardingProxy['id'] . ' allow ip' . $serverDetails['proxy_ips'][$proxy['ip']];
 							}
 

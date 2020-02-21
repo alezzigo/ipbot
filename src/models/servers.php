@@ -197,6 +197,12 @@
 
 									if (empty($staticProxies[1])) {
 										$staticProxyProcessPorts = $forwardingProxyProcessPorts;
+
+										if (!empty($proxy['whitelist_proxies'])) {
+											foreach ($proxy['whitelist_proxies'] as $whitelistProxy) {
+												$formattedProxies['whitelist'][json_encode($forwardingSources)][$whitelistProxy['ip']] = $whitelistProxy['ip'];
+											}
+										}
 									}
 
 									foreach ($staticProxyProcessPorts as $staticProxyProcessPortKey => $staticProxyProcessPort) {
@@ -536,19 +542,19 @@
 					}
 
 					$gatewayProxyStaticProxyIds = $this->fetch('proxy_static_proxies', $gatewayProxyIdParameters);
+					$staticProxyParameters = $proxyParameters;
+					$staticProxyParameters['conditions'] = array_merge($staticProxyParameters['conditions'], array(
+						'id' => $gatewayProxyStaticProxyIds['data'],
+						'type' => 'static'
+					));
+					unset($staticProxyParameters['conditions']['node_id']);
+					$staticProxies = $this->fetch('proxies', $staticProxyParameters);
+					// TODO: Allow rotation and whitelisting between multiple proxy servers
 
 					if (
 						$rotateOnEveryRequest &&
 						!empty($gatewayProxyStaticProxyIds['count'])
 					) {
-						$staticProxyParameters = $proxyParameters;
-						$staticProxyParameters['conditions'] = array_merge($staticProxyParameters['conditions'], array(
-							'id' => $gatewayProxyStaticProxyIds['data'],
-							'type' => 'static'
-						));
-						unset($staticProxyParameters['conditions']['node_id']);
-						$staticProxies = $this->fetch('proxies', $staticProxyParameters);
-
 						if (!empty($staticProxies['count'])) {
 							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array(
 								$staticProxies['data']
@@ -577,6 +583,10 @@
 							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array(
 								$rotationIntervalProxy['data']
 							);
+						}
+
+						if (!empty($staticProxies['count'])) {
+							$response['gateway_proxies'][$gatewayProxyKey]['whitelist_proxies'] = $staticProxies['data'];
 						}
 					}
 				}

@@ -13,7 +13,6 @@
 	 * @return array $response
 	 */
 		protected function _formatSquid($serverDetails) {
-			// TODO: simplify reconfiguration to match new API settings
 			$disabledProxies = $formattedFiles = $formattedProxies = $formattedProxyProcessConfigurations = $formattedProxyProcessPorts = $formattedUsers = $gatewayAcls = $proxyAuthenticationAcls = $proxyIpAcls = $proxyWhitelistAcls = array();
 			$configuration = $this->proxyConfigurations['squid'];
 			$formattedAcls = array(

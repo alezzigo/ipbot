@@ -1333,7 +1333,7 @@
 					$encodedItemString = implode('_', array(
 						implode('_', $encodedItems['list_proxy_items']['data']),
 						implode('_', $encodedItems['list_forwarding_proxy_items']['data']),
-						implode('_', $encodedItems['list_forwarding_proxy_items']['data']),
+						implode('_', $encodedItems['list_static_proxy_items']['data']),
 						$this->keys['salt']
 					));
 					$encodedItemHashString = sha1($encodedItemString);

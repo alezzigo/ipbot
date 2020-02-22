@@ -90,6 +90,7 @@
 					'password',
 					'region',
 					'status',
+					'type',
 					'user_id',
 					'username',
 					'whitelisted_ips'

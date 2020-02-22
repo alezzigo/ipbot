@@ -1041,6 +1041,7 @@ var processProxyItems = function(response, itemListParameters) {
 		let itemListData = '';
 
 		for (let itemListDataKey in response.data) {
+			// TODO: add proxy details in frame, remove details-container
 			let item = response.data[itemListDataKey];
 			itemListData += '<tr page="' + apiRequestParameters.current.listProxyItems.page + '" proxy_id="' + item.id + '" class="">';
 			itemListData += '<td style="width: 1px;">';
@@ -1052,6 +1053,7 @@ var processProxyItems = function(response, itemListParameters) {
 			itemListData += '<span class="details">';
 			itemListData += '<span class="detail"><strong>Status:</strong> ' + capitalizeString(item.status) + '</span>';
 			itemListData += '<span class="detail"><strong>Proxy IP:</strong> ' + item.ip + '</span>';
+			itemListData += '<span class="detail"><strong>Proxy Type:</strong> ' + capitalizeString(item.type) + '</span>';
 			itemListData += '<span class="detail"><strong>Location:</strong> ' + item.city + ', ' + item.region + ' ' + item.countryCode + ' </span>';
 			itemListData += '<span class="detail"><strong>ISP:</strong> ' + item.asn + ' </span>';
 			itemListData += '<span class="detail"><strong>HTTP + HTTPS Port:</strong> ' + (item.disableHttp == 1 ? 'Disabled' : '80') + '</span>';

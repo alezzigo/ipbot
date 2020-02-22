@@ -1329,6 +1329,14 @@
 
 				if (!empty($parameters['data']['gateway_enable'])) {
 					$response['message']['text'] = 'A minimum of 1 static proxy is required for the selected gateway proxies, please try again.';
+					$encodedItems = $parameters['items']['list_proxy_items']['parameters']['items'];
+					$encodedItemString = implode('_', array(
+						implode('_', $encodedItems['list_proxy_items']['data']),
+						implode('_', $encodedItems['list_forwarding_proxy_items']['data']),
+						implode('_', $encodedItems['list_forwarding_proxy_items']['data']),
+						4
+					));
+					$encodedItemHashString = sha1($encodedItemString);
 
 					if (!empty($parameters['items']['list_static_proxy_items']['count'])) {
 						$response['message']['text'] = 'A minimum of 5 minutes is required for the selected gateway proxy rotation frequency, please try again.';
@@ -1354,7 +1362,8 @@
 								foreach ($listForwardingProxyIds as $forwardingProxyId) {
 									$forwardingProxyData[] = array(
 										'gateway_proxy_id' => $gatewayProxyId,
-										'proxy_id' => $forwardingProxyId
+										'proxy_id' => $forwardingProxyId,
+										'string' => $encodedItemHashString
 									);
 									$proxyData[] = array(
 										'allow_direct' => !$rotateOnEveryRequest,
@@ -1366,7 +1375,8 @@
 								foreach ($listStaticProxyIds as $staticProxyId) {
 									$staticProxyData[] = array(
 										'gateway_proxy_id' => $gatewayProxyId,
-										'proxy_id' => $staticProxyId
+										'proxy_id' => $staticProxyId,
+										'string' => $encodedItemHashString
 									);
 									$proxyData[] = array(
 										'allow_direct' => true,
@@ -1401,6 +1411,14 @@
 								}
 
 								$proxyData[] = $gatewayProxy;
+								$this->delete('proxy_forwarding_proxies', array(
+									'gateway_proxy_id' => $gatewayProxyId,
+									'string !=' => $encodedItemString
+								));
+								$this->delete('proxy_static_proxies', array(
+									'gateway_proxy_id' => $gatewayProxyId,
+									'string !=' => $encodedItemString
+								));
 							}
 						}
 					}
@@ -1413,9 +1431,9 @@
 
 				if (
 					!empty($proxyData) &&
-					$this->save($this->_formatPluralToSingular($table) . '_forwarding_' . $table, $forwardingProxyData) &&
+					$this->save('proxy_forwarding_proxies', $forwardingProxyData) &&
 					$this->save($table, $proxyData) &&
-					$this->save($this->_formatPluralToSingular($table) . '_static_' . $table, $staticProxyData)
+					$this->save('proxy_static_proxies', $staticProxyData)
 				) {
 					$response['message'] = array(
 						'status' => 'success',

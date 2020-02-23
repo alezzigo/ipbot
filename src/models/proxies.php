@@ -1406,7 +1406,6 @@
 										), $gatewayProxy);
 									}
 
-									$staticProxyData = array_merge($forwardingProxyData, $staticProxyData);
 									$forwardingProxyData = array();
 								}
 

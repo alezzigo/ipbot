@@ -28,7 +28,7 @@
 								<label class="custom-checkbox-label" for="rotation-on-every-request" name="rotation_on_every_request">Rotate IP on Every Request <span class="details icon tooltip tooltip-bottom" item_title="Every request to the selected gateway proxies will route to a different IP from the selected static proxy IPs below. Consecutive request IPs may repeat occasionally for request pattern obscurity."></label>
 							</div>
 							<div class="clear"></div>
-							<div class="item-list" page="forwarding" table="proxies"></div>
+							<div class="hidden item-list" field="rotation_on_every_request" page="forwarding" table="proxies"></div>
 							<div class="item-list" page="static" table="proxies"></div>
 						</div>
 						<div class="clear"></div>

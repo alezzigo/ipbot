@@ -478,7 +478,8 @@
 						array_walk($unselectedItemIndexes, function(&$unselectedItemIdValue, $unselectedItemIdKey) {
 							$unselectedItemIdValue = 0;
 						});
-						$allItemIndexes = array_merge($selectedItemIndexes, $unselectedItemIndexes);
+						$allItemIndexes = $selectedItemIndexes + $unselectedItemIndexes;
+						ksort($allItemIndexes);
 
 						foreach ($allItemIndexes as $itemIndex => $itemStatus) {
 							if (((10000 * ($itemIndexLineIndex + 1)) - $itemIndex) === 1) {

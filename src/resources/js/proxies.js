@@ -1104,7 +1104,7 @@ var processRotate = function(frameName, frameSelector) {
 			action: 'fetch',
 			callback: function(response, itemListParameters) {
 				processProxyItems(response, itemListParameters);
-				let itemListHeadingData = '<label>Select Forwarding Proxies <span class="details icon tooltip tooltip-bottom" item_title="Select a list of forwarding proxies below which will forward HTTP requests from the gateway proxy to the selected list of static proxies below. It\'s highly recommended to enable forwarding proxies for larger static proxy lists to decrease request time."></span></label>';
+				let itemListHeadingData = '<label>Select Forwarding Proxies (Optional) <span class="details icon tooltip tooltip-bottom" item_title="Select a list of forwarding proxies below which will forward HTTP requests from the gateway proxy to the selected list of static proxies below. It\'s highly recommended to enable forwarding proxies for larger static proxy lists to decrease request time."></span></label>';
 				elements.html(itemListParameters.selector + ' .item-controls-heading-container', itemListHeadingData);
 				processWindowEvents('resize');
 			},

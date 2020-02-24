@@ -38,11 +38,8 @@
 			$userIndex = 0;
 
 			if (
-				empty($serverDetails['proxy_ips']) ||
-				(
-					($processMinimum = !empty($configuration['process_minimum']) ? $configuration['process_minimum'] : 1) &&
-					count($serverDetails['proxy_processes']['squid']) < $processMinimum
-				)
+				($processMinimum = !empty($configuration['process_minimum']) ? $configuration['process_minimum'] : 1) &&
+				count($serverDetails['proxy_processes']['squid']) < $processMinimum
 			) {
 				return false;
 			}
@@ -606,11 +603,12 @@
 			);
 			$proxyIps = $this->fetch('proxies', $proxyParameters);
 
-			if (!empty($proxyIps['count'])) {
-				$proxyIps['data'] = array_unique($proxyIps['data']);
-				$response['proxy_ips'] = array_combine($proxyIps['data'], range(0, count($proxyIps['data']) - 1));
+			if (empty($proxyIps['count'])) {
+				return false;
 			}
 
+			$proxyIps = array_unique($proxyIps['data']);
+			$response['proxy_ips'] = array_combine($proxyIps, range(0, count($proxyIps) - 1));
 			return $response;
 		}
 

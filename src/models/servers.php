@@ -6,6 +6,19 @@
 	class ServersModel extends AppModel {
 
 	/**
+	 * Format 3proxy access controls
+	 *
+	 * @param array $serverDetails
+	 *
+	 * @return array $response
+	 */
+		protected function _format3proxy($serverDetails) {
+			$response = array();
+			// ..
+			return $response;
+		}
+
+	/**
 	 * Format Squid access controls
 	 *
 	 * @param array $serverDetails

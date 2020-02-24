@@ -96,7 +96,7 @@
 			}
 
 			foreach ($splitProxyProcesses as $splitProxyProcessKey => $proxyProcesses) {
-				$aclFilename =  'acls' . ((integer) $splitProxyProcessKey) . '.conf';
+				$aclFilename = 'acls' . ((integer) $splitProxyProcessKey) . '.conf';
 				$splitProxyProcessKeyStartingIndex = 0;
 
 				if (!empty($splitProxyProcesses[$splitProxyProcessKey - 1])) {
@@ -115,25 +115,14 @@
 				foreach ($proxies as $proxy) {
 					if (!empty($proxy['whitelisted_ips'])) {
 						$sources = json_encode(array_filter(explode("\n", $proxy['whitelisted_ips'])));
-
-						if (
-							empty($formattedProxies['whitelist'][$sources]) ||
-							!in_array($proxy['ip'], $formattedProxies['whitelist'][$sources])
-						) {
-							$formattedProxies['whitelist'][$sources][$proxy['ip']] = $proxy['ip'];
-						}
+						$formattedProxies['whitelist'][$sources][$proxy['ip']] = $proxy['ip'];
 					}
 
 					if (
 						!empty($proxy['username']) &&
 						!empty($proxy['password'])
 					) {
-						if (
-							empty($formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']]) ||
-							!in_array($proxy['ip'], $formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']])
-						) {
-							$formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']][] = $proxy['ip'];
-						}
+						$formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']][$proxy['ip']] = $proxy['ip'];
 					}
 
 					$forwardingSources = array(

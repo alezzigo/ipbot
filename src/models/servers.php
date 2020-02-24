@@ -219,7 +219,7 @@
 									}
 
 									foreach ($staticProxyProcessPorts as $staticProxyProcessPortKey => $staticProxyProcessPort) {
-										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxyProcessPort . ' 0 connect-fail-limit=1 connect-timeout=2 name=' . $staticProxy['id'] . $staticProxyProcessPortKey . ' round-robin';
+										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxyProcessPort . ' 0 connect-fail-limit=2 connect-timeout=2 name=' . $staticProxy['id'] . $staticProxyProcessPortKey . ' round-robin';
 										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $staticProxy['id'] . $staticProxyProcessPortKey . ' allow ip' . $gatewayIpIndex;
 									}
 

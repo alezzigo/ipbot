@@ -38,17 +38,18 @@
 			$userIndex = 0;
 
 			if (
-				($processMinimum = !empty($configuration['process_minimum']) ? $configuration['process_minimum'] : 1) &&
-				count($serverDetails['proxy_processes']['squid']) < $processMinimum
+				empty($serverDetails['proxy_ips']) ||
+				(
+					($processMinimum = !empty($configuration['process_minimum']) ? $configuration['process_minimum'] : 1) &&
+					count($serverDetails['proxy_processes']['squid']) < $processMinimum
+				)
 			) {
 				return false;
 			}
 
-			if (!empty($serverDetails['proxy_ips'])) {
-				foreach ($serverDetails['proxy_ips'] as $proxyIp => $proxyIndex) {
-					$proxyIpAcls[] = 'acl ip' . $proxyIndex . ' localip ' . $proxyIp;
-					$proxyIpAcls[] = 'tcp_outgoing_address ' . $proxyIp . ' ip' . $proxyIndex;
-				}
+			foreach ($serverDetails['proxy_ips'] as $proxyIp => $proxyIndex) {
+				$proxyIpAcls[] = 'acl ip' . $proxyIndex . ' localip ' . $proxyIp;
+				$proxyIpAcls[] = 'tcp_outgoing_address ' . $proxyIp . ' ip' . $proxyIndex;
 			}
 
 			foreach ($serverDetails['proxy_processes']['squid'] as $key => $proxyProcess) {

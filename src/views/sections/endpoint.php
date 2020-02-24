@@ -74,7 +74,6 @@
 					previous_replacement_date: <span><?php echo date('Y-m-d H:i:s', time()); ?></span>,
 					region: <span>"California"</span>,
 					replacement_removal_date: <span>null</span>,
-					require_authentication: <span>true</span>,
 					status: <span>"online"</span>,
 					transfer_authentication: <span>false</span>,
 					user_id: <span>1</span>,

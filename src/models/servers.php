@@ -47,6 +47,7 @@
 			foreach ($serverDetails['proxy_ips'] as $proxyIp => $proxyIndex) {
 				$proxyIpAcls[] = 'acl ip' . $proxyIndex . ' localip ' . $proxyIp;
 				$proxyIpAcls[] = 'tcp_outgoing_address ' . $proxyIp . ' ip' . $proxyIndex;
+				$formattedProxies['authentication'][$this->keys['global_forwarding_proxy_username'] . $this->keys['start'] . $this->keys['global_forwarding_proxy_password']][$proxyIp] = $proxyIp;
 			}
 
 			foreach ($serverDetails['proxy_processes']['squid'] as $key => $proxyProcess) {
@@ -127,6 +128,7 @@
 					);
 
 					if (!empty($proxy['global_forwarding_proxies'])) {
+						// ..
 						foreach ($splitForwardingProxyProcessPorts as $splitForwardingProxyProcessPortKey => $forwardingProxyProcessPorts) {
 							$splitForwardingProxyProcessPorts[$splitForwardingProxyProcessPortKey] = array_chunk($forwardingProxyProcessPorts[0], round(count($forwardingProxyProcessPorts[0]) / 2));
 						}
@@ -164,6 +166,7 @@
 					}
 
 					if (!empty($proxy['static_proxies'])) {
+						// ..
 						$splitStaticProxies = $proxy['static_proxies'];
 
 						foreach ($splitStaticProxies as $splitStaticProxyKey => $staticProxies) {

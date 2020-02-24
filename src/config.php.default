@@ -4,8 +4,8 @@
 		public function __construct() {
 
 			$keys = array(
-				'global_password_proxy_salt' => '@_@',
-				'global_username_proxy_salt' => '(  )"-  "(    )',
+				'global_forwarding_proxy_password' => '@_@',
+				'global_forwarding_proxy_username' => '(  )"-  "(    )',
 				'salt' => '-_-',
 				'start' => 'o_o',
 				'stop' => '._.'
@@ -192,6 +192,8 @@
 			);
 
 			$this->keys = array(
+				'global_forwarding_proxy_password' => $keys['global_forwarding_proxy_password'],
+				'global_forwarding_proxy_username' => $keys['global_forwarding_proxy_username'],
 				'salt' => $keys['salt'],
 				'start' => $keys['salt'] . $keys['start'] . $keys['salt'],
 				'stop' => $keys['salt'] . $keys['stop'] . $keys['salt'],

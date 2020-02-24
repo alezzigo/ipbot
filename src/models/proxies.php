@@ -934,7 +934,6 @@
 							'previous_replacement_date',
 							'region',
 							'replacement_removal_date',
-							'require_authentication',
 							'status',
 							'transfer_authentication',
 							'user_id',
@@ -1250,7 +1249,6 @@
 										'fields' => array(
 											'disable_http',
 											'password',
-											'require_authentication',
 											'username',
 											'whitelisted_ips'
 										)
@@ -1743,7 +1741,6 @@
 					'replacement_city',
 					'replacement_country_code',
 					'replacement_region',
-					'require_authentication',
 					'status',
 					'transfer_authentication',
 					'user_id',

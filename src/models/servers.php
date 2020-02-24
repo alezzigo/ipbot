@@ -113,10 +113,7 @@
 
 			foreach ($serverProxies as $proxyType => $proxies) {
 				foreach ($proxies as $proxy) {
-					if (
-						!empty($proxy['whitelisted_ips']) &&
-						!empty($proxy['require_authentication'])
-					) {
+					if (!empty($proxy['whitelisted_ips'])) {
 						$sources = json_encode(array_filter(explode("\n", $proxy['whitelisted_ips'])));
 
 						if (
@@ -129,8 +126,7 @@
 
 					if (
 						!empty($proxy['username']) &&
-						!empty($proxy['password']) &&
-						!empty($proxy['require_authentication'])
+						!empty($proxy['password'])
 					) {
 						if (
 							empty($formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']]) ||
@@ -495,7 +491,6 @@
 					'password',
 					'previous_rotation_proxy_id',
 					'previous_rotation_proxy_ip',
-					'require_authentication',
 					'rotation_frequency',
 					'rotation_proxy_id',
 					'rotation_proxy_ip',

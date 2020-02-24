@@ -4,6 +4,8 @@
 		public function __construct() {
 
 			$keys = array(
+				'global_password_proxy_salt' => '@_@',
+				'global_username_proxy_salt' => '(  )"-  "(    )',
 				'salt' => '-_-',
 				'start' => 'o_o',
 				'stop' => '._.'

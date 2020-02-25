@@ -170,12 +170,12 @@
 									$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey] = 0;
 								}
 
-								if ($proxyHasUserAcls) {
-									$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'never_direct allow ip' . $gatewayIpIndex . ' u' . $userAclIndex;
+								if ($proxyHasWhitelistAcls) {
+									$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'never_direct allow s' . $whitelistAclIndex . ' ip' . $gatewayIpIndex;
 								}
 
-								if ($proxyHasWhitelistAcls) {
-									$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'never_direct allow ip' . $gatewayIpIndex . ' s' . $whitelistAclIndex;
+								if ($proxyHasUserAcls) {
+									$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'never_direct allow ip' . $gatewayIpIndex . ' u' . $userAclIndex;
 								}
 
 								$forwardingProxyAuthentication = $splitStaticProxyKey . '_' . $proxyIpForwardingIndex[$proxy['ip']] . '_' . $globalProxyAuthentication . '_' . $proxyIpForwardingIndex[$proxy['ip']] . '_' . $splitStaticProxyKey;
@@ -184,7 +184,15 @@
 								$forwardingProxyProcessPort = $proxyProcessPorts['forwarding'][$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey]];
 								$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey]++;
 								$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $proxy['ip'] . ' parent ' . $forwardingProxyProcessPort . ' 0 connect-fail-limit=2 connect-timeout=2 login=' . $forwardingProxyAuthentication . ' name=' . $forwardingProxyAcl . ' round-robin';
-								$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $forwardingProxyAcl . ' allow ip' . $serverDetails['proxy_ips'][$proxy['ip']];
+
+								if ($proxyHasWhitelistAcls) {
+									$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $forwardingProxyAcl . ' allow s' . $whitelistAclIndex;
+								}
+
+								if ($proxyHasUserAcls) {
+									$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $forwardingProxyAcl . ' allow u' . $userAclIndex;
+								}
+
 								$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'never_direct allow ip' . $gatewayIpIndex . ' f' . $forwardingProxyUser;
 
 								foreach ($splitStaticProxies as $staticProxyKey => $staticProxy) {

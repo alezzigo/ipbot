@@ -576,7 +576,7 @@
 							!empty($response['gateway_proxies'][$gatewayProxyKey]['static_proxies']) &&
 							($gatewayStaticProxies = $response['gateway_proxies'][$gatewayProxyKey]['static_proxies'])
 						) {
-							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array_chunk($gatewayStaticProxies[0], 50);
+							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array_chunk($gatewayStaticProxies[0], 100);
 						}
 					} elseif (
 						!empty($gatewayProxy['rotation_proxy_id']) &&

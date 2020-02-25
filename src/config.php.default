@@ -624,6 +624,7 @@
 					'enabled' => true,
 					'lifetime' => 8888888888
 				),
+				'shared_ip_maximum' => 10,
 				'site_name' => 'IPBot.com',
 				'timezone' => array(
 					'display' => 'PDT',

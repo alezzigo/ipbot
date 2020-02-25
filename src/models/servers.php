@@ -558,7 +558,10 @@
 					);
 
 					$gatewayProxyStaticProxyIds = $this->fetch('proxy_static_proxies', $gatewayProxyIdParameters);
-					$staticProxyParameters = $proxyParameters;
+					$staticProxyParameters = array_merge($proxyParameters, array(
+						'limit' => max(2, $this->settings['proxies']['rotation_ip_pool_size_maximum']),
+						'sort' => 'random'
+					));
 					$staticProxyParameters['conditions'] = array_merge($staticProxyParameters['conditions'], array(
 						'id' => $gatewayProxyStaticProxyIds['data'],
 						'type' => 'static'

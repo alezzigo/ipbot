@@ -52,6 +52,8 @@
 				$proxyIpForwardingIndex[$proxyIp] = 0;
 			}
 
+			$formattedProxies['authentication'][$this->keys['global_proxy_username'] . $this->keys['start'] . $this->keys['global_proxy_password']] = $proxyIps;
+
 			foreach (range(0, max(1, $this->settings['proxies']['shared_ip_maximum'])) as $sharedProxyIpInstance) {
 				$proxyPassword = $this->keys['global_proxy_password'] . '_' . $sharedProxyIpInstance;
 				$proxyUsername = $this->keys['salt'] . $sharedProxyIpInstance . '_' . $this->keys['global_proxy_username'];

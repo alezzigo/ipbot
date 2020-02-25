@@ -36,7 +36,8 @@
 				'auth_param basic casesensitive on'
 			);
 			$proxyIps = $proxyIpForwardingIndex = array();
-			$userIndex = 0;
+			$userAclIndex = 1;
+			$whitelistAclIndex = 0;
 
 			if (
 				($processMinimum = !empty($configuration['process_minimum']) ? $configuration['process_minimum'] : 1) &&
@@ -127,16 +128,19 @@
 
 			foreach ($serverProxies as $proxyType => $proxies) {
 				foreach ($proxies as $proxy) {
-					if (!empty($proxy['whitelisted_ips'])) {
-						$sources = json_encode(array_filter(explode("\n", $proxy['whitelisted_ips'])));
-						$formattedProxies['whitelist'][$sources][$proxy['ip']] = $proxy['ip'];
-					}
-
-					if (
+					$proxyHasUserAcls = (
 						!empty($proxy['username']) &&
 						!empty($proxy['password'])
-					) {
+					);
+					$proxyHasWhitelistAcls = !empty($proxy['whitelisted_ips']);
+
+					if ($proxyHasUserAcls) {
 						$formattedProxies['authentication'][$proxy['username'] . $this->keys['start'] . $proxy['password']][$proxy['ip']] = $proxy['ip'];
+					}
+
+					if ($proxyHasWhitelistAcls) {
+						$sources = json_encode(array_filter(explode("\n", $proxy['whitelisted_ips'])));
+						$formattedProxies['whitelist'][$sources][$proxy['ip']] = $proxy['ip'];
 					}
 
 					$forwardingSources = array(
@@ -144,7 +148,13 @@
 					);
 					$gatewayIpIndex = (integer) $serverDetails['proxy_ips'][$proxy['ip']];
 
-					if (!empty($proxy['static_proxies'])) {
+					if (
+						!empty($proxy['static_proxies']) &&
+						(
+							$proxyHasUserAcls ||
+							$proxyHasWhitelistAcls
+						)
+					) {
 						foreach ($splitForwardingProxyProcessPorts as $splitForwardingProxyProcessPortKey => $forwardingProxyProcessPorts) {
 							$splitForwardingProxyProcessPorts[$splitForwardingProxyProcessPortKey] = array_chunk($forwardingProxyProcessPorts[0], round(count($forwardingProxyProcessPorts[0]) / 2));
 						}
@@ -160,7 +170,14 @@
 									$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey] = 0;
 								}
 
-								// ..
+								if ($proxyHasUserAcls) {
+									$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'never_direct allow ip' . $gatewayIpIndex . ' u' . $userAclIndex;
+								}
+
+								if ($proxyHasWhitelistAcls) {
+									$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'never_direct allow ip' . $gatewayIpIndex . ' s' . $whitelistAclIndex;
+								}
+
 								$forwardingProxyAuthentication = $splitStaticProxyKey . '_' . $proxyIpForwardingIndex[$proxy['ip']] . '_' . $globalProxyAuthentication . '_' . $proxyIpForwardingIndex[$proxy['ip']] . '_' . $splitStaticProxyKey;
 								$forwardingProxyAcl = $proxy['id'];
 								$forwardingProxyUser = $splitStaticProxyKey . $proxyIpForwardingIndex[$proxy['ip']];
@@ -187,11 +204,21 @@
 						$proxyIpForwardingIndex[$proxyIp]++;
 					}
 
+					if ($proxyHasUserAcls) {
+						$userAclIndex++;
+					}
+
+					if ($proxyHasWhitelistAcls) {
+						$whitelistAclIndex++;
+					}
+
 					if (!empty($proxy['disable_http'])) {
 						$disabledProxies[$proxy['ip']] = $proxy['ip'];
 					}
 				}
 			}
+
+			$userAclIndex = $whitelistAclIndex = 0;
 
 			if (!empty($formattedProxies['authentication'])) {
 				$forwardingProxyAclSet = false;
@@ -199,7 +226,7 @@
 				foreach ($formattedProxies['authentication'] as $credentials => $destinations) {
 					$forwardingProxy = false;
 					$splitAuthentication = explode($this->keys['start'], $credentials);
-					$userAcl = 'u' . $userIndex;
+					$userAcl = 'u' . $userAclIndex;
 
 					if (strpos($splitAuthentication[0], $this->keys['salt']) !== false) {
 						if (strpos($splitAuthentication[0], $this->keys['salt'] . $this->keys['salt']) !== false) {
@@ -212,9 +239,9 @@
 						$forwardingProxy = true;
 					}
 
-					$destinationAcl = !$forwardingProxy ? 'd' . $userIndex : 'f';
+					$destinationAcl = !$forwardingProxy ? 'd' . $userAclIndex : 'f';
 					$destinationContents = implode("\n", $destinations);
-					$destinationPath = $configuration['paths']['users'] . (!$forwardingProxy ? $userIndex : 'f') . '/d.txt';
+					$destinationPath = $configuration['paths']['users'] . (!$forwardingProxy ? $userAclIndex : 'f') . '/d.txt';
 					$formattedAcls[] = 'acl ' . $userAcl . ' proxy_auth ' . $splitAuthentication[0];
 
 					if (empty($formattedFiles[$destinationPath])) {
@@ -242,7 +269,7 @@
 					$proxyAuthenticationAcls[] = 'http_access allow ' . $destinationAcl . ' ' . $userAcl;
 
 					if (!$forwardingProxy) {
-						$userIndex++;
+						$userAclIndex++;
 					}
 				}
 			}
@@ -256,9 +283,9 @@
 
 					foreach ($splitSources as $sourceChunk) {
 						$destinationContents = implode("\n", $destinations);
-						$destinationPath = $configuration['paths']['users'] . $userIndex . '/d.txt';
+						$destinationPath = $configuration['paths']['users'] . $whitelistAclIndex . '/d.txt';
 						$sourceContents = implode("\n", $sourceChunk);
-						$sourcePath = $configuration['paths']['users'] . $userIndex . '/s.txt';
+						$sourcePath = $configuration['paths']['users'] . $whitelistAclIndex . '/s.txt';
 
 						if (empty($formattedFiles[$destinationPath])) {
 							$formattedFiles[$destinationPath] = array(
@@ -274,10 +301,10 @@
 							);
 						}
 
-						$proxyWhitelistAcls[] = 'acl d' . $userIndex . ' localip "' . $destinationPath . '"';
-						$proxyWhitelistAcls[] = 'acl s' . $userIndex . ' src "' . $sourcePath . '"';
-						$proxyWhitelistAcls[] = 'http_access allow s' . $userIndex . ' d' . $userIndex;
-						$userIndex++;
+						$proxyWhitelistAcls[] = 'acl d' . $whitelistAclIndex . ' localip "' . $destinationPath . '"';
+						$proxyWhitelistAcls[] = 'acl s' . $whitelistAclIndex . ' src "' . $sourcePath . '"';
+						$proxyWhitelistAcls[] = 'http_access allow s' . $whitelistAclIndex . ' d' . $whitelistAclIndex;
+						$whitelistAclIndex++;
 					}
 				}
 			}

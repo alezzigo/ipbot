@@ -35,6 +35,7 @@
 				'auth_param basic credentialsttl 88888 days',
 				'auth_param basic casesensitive on'
 			);
+			$proxyIps = array();
 			$userIndex = 0;
 
 			if (
@@ -47,7 +48,14 @@
 			foreach ($serverDetails['proxy_ips'] as $proxyIp => $proxyIndex) {
 				$proxyIpAcls[] = 'acl ip' . $proxyIndex . ' localip ' . $proxyIp;
 				$proxyIpAcls[] = 'tcp_outgoing_address ' . $proxyIp . ' ip' . $proxyIndex;
-				$formattedProxies['authentication'][$this->keys['global_forwarding_proxy_username'] . $this->keys['start'] . $this->keys['global_forwarding_proxy_password']][$proxyIp] = $proxyIp;
+				$proxyIps[$proxyIp] = $proxyIp;
+			}
+
+			foreach (range(1, max(1, $this->settings['shared_ip_maximum'])) as $sharedProxyIpInstance) {
+				$forwardingProxyPassword = $this->keys['global_forwarding_proxy_password'] . '_' . $sharedProxyIpInstance;
+				$forwardingProxyUsername = $this->keys['global_forwarding_proxy_username'] . '_' . $sharedProxyIpInstance;
+				$forwardingProxyAuthentication = $forwardingProxyUsername . $this->keys['start'] . $forwardingProxyPassword;
+				$formattedProxies['authentication'][$forwardingProxyAuthentication] = $proxyIps;
 			}
 
 			foreach ($serverDetails['proxy_processes']['squid'] as $key => $proxyProcess) {

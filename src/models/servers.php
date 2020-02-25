@@ -213,12 +213,17 @@
 					}
 
 					$destinationAcl = !$forwardingProxy ? 'd' . $userIndex : 'f';
+					$destinationContents = implode("\n", $destinations);
 					$destinationPath = $configuration['paths']['users'] . (!$forwardingProxy ? $userIndex : 'f') . '/d.txt';
 					$formattedAcls[] = 'acl ' . $userAcl . ' proxy_auth ' . $splitAuthentication[0];
-					$formattedFiles[] = array(
-						'contents' => implode("\n", $destinations),
-						'path' => $destinationPath
-					);
+
+					if (empty($formattedFiles[$destinationPath])) {
+						$formattedFiles[$destinationPath] = array(
+							'contents' => $destinationContents,
+							'path' => $destinationPath
+						);
+					}
+
 					$formattedUsers[$splitAuthentication[0]] = $splitAuthentication[1];
 
 					if (
@@ -250,16 +255,27 @@
 					$splitSources = array_chunk($sources, '500');
 
 					foreach ($splitSources as $sourceChunk) {
-						$formattedFiles[] = array(
-							'contents' => implode("\n", $destinations),
-							'path' => $configuration['paths']['users'] . $userIndex . '/d.txt'
-						);
-						$formattedFiles[] = array(
-							'contents' => implode("\n", $sourceChunk),
-							'path' => $configuration['paths']['users'] . $userIndex . '/s.txt'
-						);
-						$proxyWhitelistAcls[] = 'acl d' . $userIndex . ' localip "' . $configuration['paths']['users'] . $userIndex . '/d.txt"';
-						$proxyWhitelistAcls[] = 'acl s' . $userIndex . ' src "' . $configuration['paths']['users'] . $userIndex . '/s.txt"';
+						$destinationContents = implode("\n", $destinations);
+						$destinationPath = $configuration['paths']['users'] . $userIndex . '/d.txt';
+						$sourceContents = implode("\n", $sourceChunk);
+						$sourcePath = $configuration['paths']['users'] . $userIndex . '/s.txt';
+
+						if (empty($formattedFiles[$destinationPath])) {
+							$formattedFiles[$destinationPath] = array(
+								'contents' => $destinationContents,
+								'path' => $destinationPath
+							);
+						}
+
+						if (empty($formattedFiles[$sourcePath])) {
+							$formattedFiles[$sourcePath] = array(
+								'contents' => $sourceContents,
+								'path' => $sourcePath
+							);
+						}
+
+						$proxyWhitelistAcls[] = 'acl d' . $userIndex . ' localip "' . $destinationPath . '"';
+						$proxyWhitelistAcls[] = 'acl s' . $userIndex . ' src "' . $sourcePath . '"';
 						$proxyWhitelistAcls[] = 'http_access allow s' . $userIndex . ' d' . $userIndex;
 						$userIndex++;
 					}
@@ -290,7 +306,7 @@
 			}
 
 			$response = array(
-				'files' => $formattedFiles,
+				'files' => array_values($formattedFiles),
 				'proxy_processes' => array(
 					'squid' => $formattedProxyProcessConfigurations
 				)

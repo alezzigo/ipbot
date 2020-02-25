@@ -1359,10 +1359,6 @@
 										'proxy_id' => $staticProxyId,
 										'string' => $encodedItemHashString
 									);
-									$proxyData[] = array(
-										'id' => $staticProxyId,
-										'type' => 'static'
-									);
 								}
 
 								if (!empty($rotateData['rotation_frequency'])) {

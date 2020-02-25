@@ -1100,48 +1100,11 @@ var processRequests = function(frameName, frameSelector) {
 };
 var processRotate = function(frameName, frameSelector) {
 	api.setRequestParameters({
-		listForwardingProxyItems: {
-			action: 'fetch',
-			callback: function(response, itemListParameters) {
-				processProxyItems(response, itemListParameters);
-				let itemListHeadingData = '<label>Select Forwarding Proxies (Optional) <span class="details icon tooltip tooltip-bottom" item_title="Select a list of forwarding proxies below which will forward HTTP requests from the gateway proxy to the selected list of static proxies below. It\'s highly recommended to enable forwarding proxies for larger static proxy lists to decrease request time."></span></label>';
-				elements.html(itemListParameters.selector + ' .item-controls-heading-container', itemListHeadingData);
-				processWindowEvents('resize');
-			},
-			initial: true,
-			messages: {
-				forwarding: '',
-				status: '<p class="message no-margin-top">Loading</p>'
-			},
-			options: [
-				{
-					attributes: [
-						{
-							name: 'checked',
-							value: '0'
-						},
-						{
-							name: 'class',
-							value: 'align-left checkbox no-margin-left'
-						},
-						{
-							name: 'index',
-							value: 'all-visible'
-						}
-					],
-					tag: 'span'
-				}
-			],
-			page: 1,
-			resultsPerPage: 10,
-			selector: '.item-list[page="forwarding"][table="proxies"]',
-			table: 'proxies'
-		},
 		listStaticProxyItems: {
 			action: 'fetch',
 			callback: function(response, itemListParameters) {
 				processProxyItems(response, itemListParameters);
-				let itemListHeadingData = '<label>Select Static Proxies <span class="details icon tooltip tooltip-bottom" item_title="Select a list of static proxies below which will be accessible through the selected gateway proxies. This selection will override any forwarding proxy selections for the same IP."></span></label>';
+				let itemListHeadingData = '<label>Select Static Proxies <span class="details icon tooltip tooltip-bottom" item_title="Select a list of static proxies below which will be accessible through the selected gateway proxies at the selected interval."></span></label>';
 				elements.html(itemListParameters.selector + ' .item-controls-heading-container', itemListHeadingData);
 				processWindowEvents('resize');
 			},
@@ -1175,7 +1138,6 @@ var processRotate = function(frameName, frameSelector) {
 			table: 'proxies'
 		}
 	}, true);
-	processItemList('listForwardingProxyItems');
 	processItemList('listStaticProxyItems');
 };
 api.setRequestParameters({

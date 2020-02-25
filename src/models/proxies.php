@@ -1316,7 +1316,7 @@
 			);
 
 			if (!empty($parameters['items']['list_proxy_items']['count'])) {
-				$forwardingProxyData = $proxyData = $staticProxyData = array();
+				$proxyData = $staticProxyData = array();
 				$rotateData = array(
 					'previous_rotation_proxy_id' => null,
 					'previous_rotation_proxy_ip' => null,
@@ -1329,7 +1329,6 @@
 					$encodedItems = $parameters['items']['list_proxy_items']['parameters']['items'];
 					$encodedItemString = implode('_', array(
 						implode('_', $encodedItems['list_proxy_items']['data']),
-						implode('_', $encodedItems['list_forwarding_proxy_items']['data']),
 						implode('_', $encodedItems['list_static_proxy_items']['data']),
 						$this->keys['salt']
 					));
@@ -1348,24 +1347,11 @@
 							);
 							$listGatewayProxyIds = $parameters['items']['list_proxy_items']['data'];
 							$listStaticProxyIds = array_diff($parameters['items']['list_static_proxy_items']['data'], $listGatewayProxyIds);
-							$listForwardingProxyIds = array_diff($parameters['items']['list_forwarding_proxy_items']['data'], array_merge($listGatewayProxyIds, $listStaticProxyIds));
 							$rotateOnEveryRequest = empty($rotateData['rotation_frequency']);
 
 							foreach ($listGatewayProxyIds as $gatewayProxyId) {
 								$rotateData['id'] = $gatewayProxyId;
 								$gatewayProxy = $rotateData;
-
-								foreach ($listForwardingProxyIds as $forwardingProxyId) {
-									$forwardingProxyData[] = array(
-										'gateway_proxy_id' => $gatewayProxyId,
-										'proxy_id' => $forwardingProxyId,
-										'string' => $encodedItemHashString
-									);
-									$proxyData[] = array(
-										'id' => $forwardingProxyId,
-										'type' => $rotateOnEveryRequest ? 'forwarding' : 'static'
-									);
-								}
 
 								foreach ($listStaticProxyIds as $staticProxyId) {
 									$staticProxyData[] = array(
@@ -1399,15 +1385,9 @@
 											'rotation_proxy_ip' => $initialRotationProxy['data'][0]['ip']
 										), $gatewayProxy);
 									}
-
-									$forwardingProxyData = array();
 								}
 
 								$proxyData[] = $gatewayProxy;
-								$this->delete('proxy_forwarding_proxies', array(
-									'gateway_proxy_id' => $gatewayProxyId,
-									'string !=' => $encodedItemString
-								));
 								$this->delete('proxy_static_proxies', array(
 									'gateway_proxy_id' => $gatewayProxyId,
 									'string !=' => $encodedItemString
@@ -1424,7 +1404,6 @@
 
 				if (
 					!empty($proxyData) &&
-					$this->save('proxy_forwarding_proxies', $forwardingProxyData) &&
 					$this->save($table, $proxyData) &&
 					$this->save('proxy_static_proxies', $staticProxyData)
 				) {
@@ -1570,9 +1549,6 @@
 				if (
 					$this->delete('proxies', array(
 						'id' => $proxyIds
-					)) &&
-					$this->delete('proxy_forwarding_proxies', array(
-						'proxy_id' => $proxyIds
 					)) &&
 					$this->delete('proxy_static_proxies', array(
 						'proxy_id' => $proxyIds

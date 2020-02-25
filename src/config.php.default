@@ -608,6 +608,10 @@
 				),
 				'from_email' => 'email@localhost',
 				'google_site_verification' => '',
+				'proxies' => array(
+					'rotation_ip_pool_size_maximum' => 2000,
+					'shared_ip_maximum' => 10
+				),
 				'reconfiguration' => array(
 					'paths' => array(
 						'base' => '/scripts/',
@@ -624,7 +628,6 @@
 					'enabled' => true,
 					'lifetime' => 8888888888
 				),
-				'shared_ip_maximum' => 10,
 				'site_name' => 'IPBot.com',
 				'timezone' => array(
 					'display' => 'PDT',

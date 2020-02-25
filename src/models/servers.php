@@ -49,17 +49,17 @@
 				$proxyIpAcls[] = 'acl ip' . $proxyIndex . ' localip ' . $proxyIp;
 				$proxyIpAcls[] = 'tcp_outgoing_address ' . $proxyIp . ' ip' . $proxyIndex;
 				$proxyIps[$proxyIp] = $proxyIp;
-				$proxyIpForwardingIndex[$proxyIp] = 1;
+				$proxyIpForwardingIndex[$proxyIp] = 0;
 			}
 
 			foreach (range(0, max(1, $this->settings['proxies']['shared_ip_maximum'])) as $sharedProxyIpInstance) {
 				$proxyPassword = $this->keys['global_proxy_password'] . '_' . $sharedProxyIpInstance;
-				$proxyUsername = $this->keys['global_proxy_username'] . '_' . $sharedProxyIpInstance;
+				$proxyUsername = $this->keys['salt'] . $sharedProxyIpInstance . '_' . $this->keys['global_proxy_username'];
 				$proxyAuthentication = $proxyUsername . $this->keys['start'] . $proxyPassword;
 				$formattedProxies['authentication'][$proxyAuthentication] = $proxyIps;
 
 				foreach (range(1, max(1, ceil($this->settings['proxies']['rotation_ip_pool_size_maximum'] / 100))) as $rotationProxyIpChunk) {
-					$formattedProxies['authentication'][$rotationProxyIpChunk . '_' . $proxyAuthentication . '_' . $rotationProxyIpChunk] = $proxyIps;
+					$formattedProxies['authentication'][$rotationProxyIpChunk . '_' . $this->keys['salt'] . $proxyAuthentication . '_' . $rotationProxyIpChunk] = $proxyIps;
 				}
 			}
 
@@ -242,16 +242,45 @@
 			}
 
 			if (!empty($formattedProxies['authentication'])) {
+				$forwardingProxyAclSet = false;
+
 				foreach ($formattedProxies['authentication'] as $credentials => $destinations) {
+					$forwardingProxy = false;
 					$splitAuthentication = explode($this->keys['start'], $credentials);
-					$formattedAcls[] = 'acl user' . $userIndex . ' proxy_auth ' . $splitAuthentication[0];
+					$userAcl = 'user' . $userIndex;
+
+					if (strpos($splitAuthentication[0], $this->keys['salt']) !== false) {
+						if (strpos($splitAuthentication[0], $this->keys['salt'] . $this->keys['salt']) !== false) {
+							$forwardingProxy = true;
+						}
+
+						$splitAuthentication[0] = str_replace($this->keys['salt'], '', $splitAuthentication[0]);
+						$splitUsername = explode('_', $splitAuthentication[0]);
+						$userAcl = 'forwarding_' . $splitUsername[0] . ($forwardingProxy ? '_' . $splitUsername[1] : '');
+						$forwardingProxy = true;
+					}
+
+					$destinationAcl = !$forwardingProxy ? 'd' . $userIndex : 'f';
+					$destinationPath = $configuration['paths']['users'] . (!$forwardingProxy ? $userIndex : 'f') . '/d.txt';
+					$formattedAcls[] = 'acl ' . $userAcl . ' proxy_auth ' . $splitAuthentication[0];
 					$formattedFiles[] = array(
 						'contents' => implode("\n", $destinations),
-						'path' => $configuration['paths']['users'] . $userIndex . '/d.txt'
+						'path' => $destinationPath
 					);
 					$formattedUsers[$splitAuthentication[0]] = $splitAuthentication[1];
-					$proxyAuthenticationAcls[] = 'acl d' . $userIndex . ' localip "' . $configuration['paths']['users'] . $userIndex . '/d.txt"';
-					$proxyAuthenticationAcls[] = 'http_access allow d' . $userIndex . ' user' . $userIndex;
+
+					if (
+						!$forwardingProxy ||
+						(
+							$forwardingProxy &&
+							!$forwardingProxyAclSet
+						)
+					) {
+						$proxyAuthenticationAcls[] = 'acl ' . $destinationAcl . ' localip "' . $destinationPath . '"';
+					}
+
+					$proxyAuthenticationAcls[] = 'http_access allow ' . $destinationAcl . ' ' . $userAcl;
+					$forwardingProxyAclSet = true;
 					$userIndex++;
 				}
 			}

@@ -511,7 +511,6 @@
 					)
 				),
 				'fields' => array(
-					'allow_direct',
 					'disable_http',
 					'http_port',
 					'id',
@@ -598,7 +597,6 @@
 			}
 
 			$staticProxyParameters['conditions'] = array_merge($proxyParameters['conditions'], array(
-				'allow_direct' => true,
 				'type' => 'static'
 			));
 			$staticProxies = $this->fetch('proxies', $staticProxyParameters);

@@ -1318,7 +1318,6 @@
 			if (!empty($parameters['items']['list_proxy_items']['count'])) {
 				$forwardingProxyData = $proxyData = $staticProxyData = array();
 				$rotateData = array(
-					'allow_direct' => true,
 					'previous_rotation_proxy_id' => null,
 					'previous_rotation_proxy_ip' => null,
 					'rotation_frequency' => null,
@@ -1344,7 +1343,6 @@
 							$parameters['data']['rotation_frequency'] >= 5
 						) {
 							$rotateData = array(
-								'allow_direct' => false,
 								'rotation_frequency' => (!empty($parameters['data']['rotation_on_every_request']) ? null : $parameters['data']['rotation_frequency']),
 								'type' => 'gateway'
 							);
@@ -1364,7 +1362,6 @@
 										'string' => $encodedItemHashString
 									);
 									$proxyData[] = array(
-										'allow_direct' => !$rotateOnEveryRequest,
 										'id' => $forwardingProxyId,
 										'type' => $rotateOnEveryRequest ? 'forwarding' : 'static'
 									);
@@ -1377,7 +1374,6 @@
 										'string' => $encodedItemHashString
 									);
 									$proxyData[] = array(
-										'allow_direct' => true,
 										'id' => $staticProxyId,
 										'type' => 'static'
 									);

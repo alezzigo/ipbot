@@ -281,7 +281,10 @@
 
 					$proxyAuthenticationAcls[] = 'http_access allow ' . $destinationAcl . ' ' . $userAcl;
 					$forwardingProxyAclSet = true;
-					$userIndex++;
+
+					if (!$forwardingProxy) {
+						$userIndex++;
+					}
 				}
 			}
 

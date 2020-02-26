@@ -1334,7 +1334,7 @@
 					));
 					$encodedItemHashString = sha1($encodedItemString);
 					$listGatewayProxyIds = $parameters['items']['list_proxy_items']['data'];
-					$listStaticProxyIds = array_diff($parameters['items']['list_static_proxy_items']['data'], $listGatewayProxyIds);
+					$listStaticProxyIds = array_values(array_diff($parameters['items']['list_static_proxy_items']['data'], $listGatewayProxyIds));
 
 					if (!empty($listStaticProxyIds[1])) {
 						$response['message']['text'] = 'A minimum of 5 minutes is required for the selected gateway proxy rotation frequency, please try again.';

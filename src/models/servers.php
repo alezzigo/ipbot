@@ -548,47 +548,9 @@
 				$response['gateway_proxies'] = $gatewayProxies['data'];
 
 				foreach ($response['gateway_proxies'] as $gatewayProxyKey => $gatewayProxy) {
-					$gatewayProxyIdParameters = array(
-						'conditions' => array(
-							'gateway_proxy_id' => $gatewayProxy['id']
-						),
-						'fields' => array(
-							'proxy_id'
-						)
-					);
-
-					$gatewayProxyStaticProxyIds = $this->fetch('proxy_static_proxies', $gatewayProxyIdParameters);
-					$staticProxyParameters = array_merge($proxyParameters, array(
-						'limit' => max(2, $this->settings['proxies']['rotation_ip_pool_size_maximum']),
-						'sort' => 'random'
-					));
-					$staticProxyParameters['conditions'] = array_merge($staticProxyParameters['conditions'], array(
-						'id' => $gatewayProxyStaticProxyIds['data'],
-						'type' => 'static'
-					));
-					unset($staticProxyParameters['conditions']['node_id']);
-					$staticProxies = $this->fetch('proxies', $staticProxyParameters);
-
 					if (
-						!empty($staticProxies['count']) &&
-						(
-							empty($gatewayProxy['rotation_frequency']) &&
-							!is_numeric($gatewayProxy['rotation_frequency'])
-						)
-					) {
-						if (!empty($staticProxies['count'])) {
-							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array(
-								$staticProxies['data']
-							);
-						}
-
-						if (
-							!empty($response['gateway_proxies'][$gatewayProxyKey]['static_proxies']) &&
-							($gatewayStaticProxies = $response['gateway_proxies'][$gatewayProxyKey]['static_proxies'])
-						) {
-							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array_chunk($gatewayStaticProxies[0], 100);
-						}
-					} elseif (
+						!empty($gatewayProxy['rotation_frequency']) &&
+						is_numeric($gatewayProxy['rotation_frequency']) &&
 						!empty($gatewayProxy['rotation_proxy_id']) &&
 						!empty($gatewayProxy['rotation_proxy_ip'])
 					) {
@@ -602,6 +564,43 @@
 							$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array(
 								$rotationIntervalProxy['data']
 							);
+							// TODO: add previous interval port rotation method to new forwarding method
+						}
+					} else {
+						$gatewayProxyIdParameters = array(
+							'conditions' => array(
+								'gateway_proxy_id' => $gatewayProxy['id']
+							),
+							'fields' => array(
+								'proxy_id'
+							)
+						);
+
+						$gatewayProxyStaticProxyIds = $this->fetch('proxy_static_proxies', $gatewayProxyIdParameters);
+						$staticProxyParameters = array_merge($proxyParameters, array(
+							'limit' => max(2, $this->settings['proxies']['rotation_ip_pool_size_maximum']),
+							'sort' => 'random'
+						));
+						$staticProxyParameters['conditions'] = array_merge($staticProxyParameters['conditions'], array(
+							'id' => $gatewayProxyStaticProxyIds['data'],
+							'type' => 'static'
+						));
+						unset($staticProxyParameters['conditions']['node_id']);
+						$staticProxies = $this->fetch('proxies', $staticProxyParameters);
+
+						if (!empty($staticProxies['count'])) {
+							if (!empty($staticProxies['count'])) {
+								$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array(
+									$staticProxies['data']
+								);
+							}
+
+							if (
+								!empty($response['gateway_proxies'][$gatewayProxyKey]['static_proxies']) &&
+								($gatewayStaticProxies = $response['gateway_proxies'][$gatewayProxyKey]['static_proxies'])
+							) {
+								$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array_chunk($gatewayStaticProxies[0], 100);
+							}
 						}
 					}
 				}

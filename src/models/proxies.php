@@ -1325,7 +1325,7 @@
 				);
 
 				if (!empty($parameters['data']['gateway_enable'])) {
-					$response['message']['text'] = 'A minimum of 1 static proxy is required for the selected gateway proxies, please try again.';
+					$response['message']['text'] = 'A minimum of 2 static proxies are required for the selected gateway proxies, please try again.';
 					$encodedItems = $parameters['items']['list_proxy_items']['parameters']['items'];
 					$encodedItemString = implode('_', array(
 						implode('_', $encodedItems['list_proxy_items']['data']),
@@ -1333,8 +1333,10 @@
 						$this->keys['salt']
 					));
 					$encodedItemHashString = sha1($encodedItemString);
+					$listGatewayProxyIds = $parameters['items']['list_proxy_items']['data'];
+					$listStaticProxyIds = array_diff($parameters['items']['list_static_proxy_items']['data'], $listGatewayProxyIds);
 
-					if (!empty($parameters['items']['list_static_proxy_items']['count'])) {
+					if (!empty($listStaticProxyIds[1])) {
 						$response['message']['text'] = 'A minimum of 5 minutes is required for the selected gateway proxy rotation frequency, please try again.';
 
 						if (
@@ -1345,8 +1347,6 @@
 								'rotation_frequency' => (!empty($parameters['data']['rotation_on_every_request']) ? null : $parameters['data']['rotation_frequency']),
 								'type' => 'gateway'
 							);
-							$listGatewayProxyIds = $parameters['items']['list_proxy_items']['data'];
-							$listStaticProxyIds = array_diff($parameters['items']['list_static_proxy_items']['data'], $listGatewayProxyIds);
 							$rotateOnEveryRequest = empty($rotateData['rotation_frequency']);
 
 							foreach ($listGatewayProxyIds as $gatewayProxyId) {

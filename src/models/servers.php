@@ -62,7 +62,7 @@
 				$proxyAuthentication = $proxyUsername . $this->keys['start'] . $proxyPassword;
 				$formattedProxies['authentication'][$proxyAuthentication] = $proxyIps;
 
-				foreach (range(0, max(1, ceil($this->settings['proxies']['rotation_ip_pool_size_maximum'] / 100))) as $rotationProxyIpChunk) {
+				foreach (range(0, 20) as $rotationProxyIpChunk) {
 					$formattedProxies['authentication'][$rotationProxyIpChunk . '_' . $this->keys['salt'] . $proxyAuthentication . '_' . $rotationProxyIpChunk] = $proxyIps;
 				}
 			}
@@ -578,7 +578,7 @@
 
 						$gatewayProxyStaticProxyIds = $this->fetch('proxy_static_proxies', $gatewayProxyIdParameters);
 						$staticProxyParameters = array_merge($proxyParameters, array(
-							'limit' => max(2, $this->settings['proxies']['rotation_ip_pool_size_maximum']),
+							'limit' => max(1, $this->settings['proxies']['rotation_ip_pool_size_maximum']),
 							'sort' => 'random'
 						));
 						$staticProxyParameters['conditions'] = array_merge($staticProxyParameters['conditions'], array(
@@ -599,7 +599,7 @@
 								!empty($response['gateway_proxies'][$gatewayProxyKey]['static_proxies']) &&
 								($gatewayStaticProxies = $response['gateway_proxies'][$gatewayProxyKey]['static_proxies'])
 							) {
-								$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array_chunk($gatewayStaticProxies[0], 100);
+								$response['gateway_proxies'][$gatewayProxyKey]['static_proxies'] = array_chunk($gatewayStaticProxies[0], max(1, count($gatewayStaticProxies[0]) / 20));
 							}
 						}
 					}

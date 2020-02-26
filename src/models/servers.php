@@ -305,9 +305,9 @@
 
 					foreach ($splitSources as $sourceChunk) {
 						$destinationContents = implode("\n", $destinations);
-						$destinationPath = $configuration['paths']['users'] . $whitelistAclIndex . '/d.txt';
+						$destinationPath = $configuration['paths']['users'] . '_' . $whitelistAclIndex . '/d.txt';
 						$sourceContents = implode("\n", $sourceChunk);
-						$sourcePath = $configuration['paths']['users'] . $whitelistAclIndex . '/s.txt';
+						$sourcePath = $configuration['paths']['users'] . '_' . $whitelistAclIndex . '/s.txt';
 
 						if (empty($formattedFiles[$destinationPath])) {
 							$formattedFiles[$destinationPath] = array(
@@ -323,9 +323,9 @@
 							);
 						}
 
-						$proxyWhitelistAcls[] = 'acl d' . $whitelistAclIndex . ' localip "' . $destinationPath . '"';
+						$proxyWhitelistAcls[] = 'acl d' . $whitelistAclIndex . '_ localip "' . $destinationPath . '"';
 						$proxyWhitelistAcls[] = 'acl s' . $whitelistAclIndex . ' src "' . $sourcePath . '"';
-						$proxyWhitelistAcls[] = 'http_access allow s' . $whitelistAclIndex . ' d' . $whitelistAclIndex;
+						$proxyWhitelistAcls[] = 'http_access allow s' . $whitelistAclIndex . ' d' . $whitelistAclIndex . '_';
 						$whitelistAclIndex++;
 					}
 				}

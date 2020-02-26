@@ -641,17 +641,14 @@ const range = function(low, high, step) {
 };
 const repeat = function(count, pattern) {
 	let response = '';
+	let index = 0;
 
-	while (count > 1) {
-		if (count & 1) {
-			response += pattern;
-		}
-
-		count >>= 1;
-		pattern += pattern;
+	while (count > index) {
+		index++;
+		response += pattern;
 	}
 
-	return response + (count < 1 ? '' : pattern);
+	return response;
 };
 const selectAllElements = function(selector, callback) {
 	let response = [];

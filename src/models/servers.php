@@ -179,7 +179,7 @@
 								}
 
 								$forwardingProxyAuthentication = $splitStaticProxyKey . '_' . $proxyIpForwardingIndex[$proxy['ip']] . '_' . $globalProxyAuthentication . '_' . $proxyIpForwardingIndex[$proxy['ip']] . '_' . $splitStaticProxyKey;
-								$forwardingProxyAcl = $proxy['id'];
+								$forwardingProxyAcl = $proxy['id'] . $splitStaticProxyKey;
 								$forwardingProxyUser = $splitStaticProxyKey . $proxyIpForwardingIndex[$proxy['ip']];
 								$forwardingProxyProcessPort = $proxyProcessPorts['forwarding'][$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey]];
 								$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey]++;

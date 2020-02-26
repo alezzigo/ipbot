@@ -104,10 +104,8 @@
 			$splitForwardingProxyProcessPorts = array_reverse($serverDetails['proxy_process_ports']['squid']['secondary']);
 			$splitProxyProcesses = array_chunk($serverDetails['proxy_processes']['squid'], round(count($serverDetails['proxy_processes']['squid']) / 2), false);
 
-			foreach ($splitForwardingProxyProcessPorts as $splitForwardingProxyProcessPortKey => $splitForwardingProxyProcessPort) {
-				$splitForwardingProxyProcessPorts[$splitForwardingProxyProcessPortKey] = array(
-					$splitForwardingProxyProcessPort
-				);
+			foreach ($splitForwardingProxyProcessPorts as $splitForwardingProxyProcessPortKey => $forwardingProxyProcessPorts) {
+				$splitForwardingProxyProcessPorts[$splitForwardingProxyProcessPortKey] = array_chunk($forwardingProxyProcessPorts, round(count($forwardingProxyProcessPorts) / 2));
 			}
 
 			foreach ($splitProxyProcesses as $splitProxyProcessKey => $proxyProcesses) {
@@ -155,10 +153,6 @@
 							$proxyHasWhitelistAcls
 						)
 					) {
-						foreach ($splitForwardingProxyProcessPorts as $splitForwardingProxyProcessPortKey => $forwardingProxyProcessPorts) {
-							$splitForwardingProxyProcessPorts[$splitForwardingProxyProcessPortKey] = array_chunk($forwardingProxyProcessPorts[0], round(count($forwardingProxyProcessPorts[0]) / 2));
-						}
-
 						foreach ($proxy['static_proxies'] as $splitStaticProxyKey => $splitStaticProxies) {
 							foreach ($splitForwardingProxyProcessPorts as $splitForwardingProxyProcessPortKey => $forwardingProxyProcessPorts) {
 								$proxyProcessPorts = array(

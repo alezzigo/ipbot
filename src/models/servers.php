@@ -182,7 +182,7 @@
 									$forwardingProxyUser = $splitStaticProxyKey . $proxyIpForwardingIndex[$proxy['ip']];
 									$forwardingProxyProcessPort = $proxyProcessPorts['forwarding'][$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey]];
 									$splitForwardingProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey]++;
-									$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $proxy['ip'] . ' parent ' . $forwardingProxyProcessPort . ' 0 connect-fail-limit=2 connect-timeout=2 login=' . $forwardingProxyAuthentication . ' name=' . $forwardingProxyAcl . ' round-robin';
+									$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $proxy['ip'] . ' parent ' . $forwardingProxyProcessPort . ' 0 connect-fail-limit=5 connect-timeout=5 login=' . $forwardingProxyAuthentication . ' name=' . $forwardingProxyAcl . ' round-robin';
 
 									if ($proxyHasWhitelistAcls) {
 										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $forwardingProxyAcl . ' allow s' . $whitelistAclIndex;
@@ -205,7 +205,7 @@
 									if ($proxyHasForwardingProxies) {
 										$staticProxyProcessPort = $proxyProcessPorts['static'][$splitStaticProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey]];
 										$splitStaticProxyProcessPortIndexes[$splitForwardingProxyProcessPortKey]++;
-										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxyProcessPort . ' 0 connect-fail-limit=2 connect-timeout=2 login=' . $globalProxyAuthentication . ' name=' . $staticProxyAcl . ' round-robin';
+										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $staticProxyProcessPort . ' 0 connect-fail-limit=5 connect-timeout=5 login=' . $globalProxyAuthentication . ' name=' . $staticProxyAcl . ' round-robin';
 										$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $staticProxyAcl . ' allow ip' . $gatewayIpIndex . ' f' . $forwardingProxyUser;
 									} else {
 										$mergedProxyProcessPorts = array_merge($proxyProcessPorts['forwarding'], $proxyProcessPorts['static']);
@@ -214,7 +214,7 @@
 
 										foreach ($mergedProxyProcessPorts as $mergedProxyProcessPortKey => $mergedProxyProcessPort) {
 											$redundantStaticProxyAcl = $mergedProxyProcessPortKey . '_' . $staticProxyAcl;
-											$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $mergedProxyProcessPort . ' 0 connect-fail-limit=2 connect-timeout=2 login=' . $globalProxyAuthentication . ' name=' . $redundantStaticProxyAcl . ' round-robin';
+											$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer ' . $staticProxy['ip'] . ' parent ' . $mergedProxyProcessPort . ' 0 connect-fail-limit=5 connect-timeout=5 login=' . $globalProxyAuthentication . ' name=' . $redundantStaticProxyAcl . ' round-robin';
 											$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $redundantStaticProxyAcl . ' allow s' . $whitelistAclIndex;
 											$gatewayAcls[$splitForwardingProxyProcessPortKey][] = 'cache_peer_access ' . $redundantStaticProxyAcl . ' allow u' . $userAclIndex;
 										}

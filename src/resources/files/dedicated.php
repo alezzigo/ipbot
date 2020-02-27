@@ -8,7 +8,7 @@
 		* Website: https://parsonsbots.com
 
 		## Repository
-		* GIT: https://github.com/parsonsbots/dedicated-ip-checker
+		* Transferred from https://github.com/parsonsbots/dedicated-ip-checker
 
 		## Required:
 		PHP 5.x+

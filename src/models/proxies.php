@@ -244,12 +244,12 @@
 				if (
 					empty($parameters['data']['generate_unique']) &&
 					(
-						!empty($parameters['data']['username']) ||
-						!empty($parameters['data']['password'])
+						!empty($parameters['data']['password']) ||
+						!empty($parameters['data']['username'])
 					) &&
 					(
-						empty($parameters['data']['username']) ||
-						empty($parameters['data']['password'])
+						empty($parameters['data']['password']) ||
+						empty($parameters['data']['username'])
 					)
 				) {
 					$response['message']['text'] = 'Both username and password must be either set or empty.';
@@ -275,50 +275,48 @@
 					) {
 						$response['message']['text'] = 'Both username and password must be between 4 and 15 characters.';
 					} else {
-						$usernames = array();
-
-						if (!empty($parameters['data']['username'])) {
-							$existingUsernames = $this->fetch($table, array(
-								'conditions' => array(
-									'NOT' => array(
-										'username' => ''
-									)
-								),
-								'fields' => array(
-									'username'
-								)
-							));
-
-							if (!empty($existingUsernames['count'])) {
-								$usernames = array_unique($existingUsernames['data']);
-							}
+						if (empty($parameters['data']['password'])) {
+							$parameters['data']['password'] = null;
 						}
 
-						$whitelistedIps = implode("\n", (!empty($parameters['data']['whitelisted_ips']) ? $this->_parseIps($parameters['data']['whitelisted_ips']) : array()));
+						if (empty($parameters['data']['username'])) {
+							$parameters['data']['username'] = null;
+						}
 
-						foreach ($proxyIds as $proxyId) {
-							$proxy = array(
-								'disable_http' => (isset($parameters['data']['disable_http']) && $parameters['data']['disable_http']),
-								'id' => $proxyId,
+						$existingUsername = $this->fetch($table, array(
+							'conditions' => array(
 								'username' => $parameters['data']['username'],
-								'password' => $parameters['data']['password'],
-								'whitelisted_ips' => $whitelistedIps
-							);
+								'NOT' => array(
+									'password' => $parameters['data']['password'],
+									'username' => null
+								)
+							),
+							'fields' => array(
+								'id'
+							)
+						));
 
-							if (!empty($parameters['data']['generate_unique'])) {
-								$proxy = $this->_generateRandomAuthentication($proxy);
-							}
-
-							$proxyData[] = $proxy;
-						}
-
-						if (
-							!empty($parameters['data']['username']) &&
-							in_array($parameters['data']['username'], $usernames)
-						) {
-							$response['message']['text'] = 'Username [' . $parameters['data']['username'] . '] is already in use, please try a different username.';
+						if (!empty($existingUsername['count'])) {
+							$response['message']['text'] = 'Username [' . $parameters['data']['username'] . '] is already in use with a different password, please try a different username.';
 						} else {
 							$response['message']['text'] = $defaultMessage;
+							$whitelistedIps = implode("\n", (!empty($parameters['data']['whitelisted_ips']) ? $this->_parseIps($parameters['data']['whitelisted_ips']) : array()));
+
+							foreach ($proxyIds as $proxyId) {
+								$proxy = array(
+									'disable_http' => (isset($parameters['data']['disable_http']) && $parameters['data']['disable_http']),
+									'id' => $proxyId,
+									'password' => $parameters['data']['password'],
+									'username' => $parameters['data']['username'],
+									'whitelisted_ips' => $whitelistedIps
+								);
+
+								if (!empty($parameters['data']['generate_unique'])) {
+									$proxy = $this->_generateRandomAuthentication($proxy);
+								}
+
+								$proxyData[] = $proxy;
+							}
 
 							if ($this->save($table, $proxyData)) {
 								$response['message'] = array(

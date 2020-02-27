@@ -315,6 +315,10 @@
 									$proxy = $this->_generateRandomAuthentication($proxy);
 								}
 
+								if (!empty($parameters['data']['ignore_empty'])) {
+									$proxy = array_filter($proxy);
+								}
+
 								$proxyData[] = $proxy;
 							}
 

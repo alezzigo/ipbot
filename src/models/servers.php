@@ -244,6 +244,7 @@
 
 			if (!empty($formattedProxies['authentication'])) {
 				$forwardingProxyAclSet = false;
+				$forwardingUsers = array();
 
 				foreach ($formattedProxies['authentication'] as $credentials => $destinations) {
 					$forwardingProxy = false;
@@ -259,6 +260,7 @@
 						$splitUsername = explode('_', $splitAuthentication[0]);
 						$userAcl = 'f' . $splitUsername[0] . ($forwardingProxy ? $splitUsername[1] : '');
 						$forwardingProxy = true;
+						$forwardingUsers[] = $splitAuthentication[0];
 					}
 
 					$destinationAcl = !$forwardingProxy ? 'd' . $userAclIndex : 'f';
@@ -288,11 +290,20 @@
 						$proxyAuthenticationAcls[] = 'acl ' . $destinationAcl . ' localip "' . $destinationPath . '"';
 					}
 
-					$proxyAuthenticationAcls[] = 'http_access allow ' . $destinationAcl . ' ' . $userAcl;
-
 					if (!$forwardingProxy) {
+						$proxyAuthenticationAcls[] = 'http_access allow ' . $destinationAcl . ' ' . $userAcl;
 						$userAclIndex++;
 					}
+				}
+
+				if (!empty($forwardingUsers)) {
+					$forwardingUserPath = $configuration['paths']['users'] . 'f/u.txt';
+					$formattedAcls[] = 'acl fu proxy_auth "' . $forwardingUserPath . '"';
+					$formattedFiles[] = array(
+						'contents' => implode("\n", $forwardingUsers),
+						'path' => $forwardingUserPath
+					);
+					$proxyAuthenticationAcls[] = 'http_access allow f fu';
 				}
 			}
 

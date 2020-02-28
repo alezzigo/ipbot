@@ -197,14 +197,13 @@
 		## More From ParsonsBots
 		- https://github.com/parsonsbots
 		- https://parsonsbots.com
-
-
-		class DedicatedIpChecker {
-
-			public function __construct() {
-				$this->userIds = array();
-			}
 	*/
+
+	class DedicatedIpChecker {
+
+		public function __construct() {
+			$this->userIds = array();
+		}
 
 	/**
 	 * Get user ID for an IP address

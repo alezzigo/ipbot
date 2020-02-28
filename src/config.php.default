@@ -398,6 +398,35 @@
 			);
 
 			$this->proxyConfigurations = array(
+				'3proxy' => array(
+					'parameters' => array(
+						'#![binary]',
+						'stacksize 10000000',
+						'[pid]',
+						'[dns_ips]',
+						'maxconn 100000',
+						'nobandlimin',
+						'nobandlimout',
+						'flush',
+						'auth strong',
+						'allow * * * * HTTP',
+						'nolog',
+						'allow * * * * HTTPS',
+						'nolog',
+						'[acl_list]'
+						'deny * '
+					),
+					'paths' => array(
+						'configurations' => '/scripts/configurations/3proxy/',
+						'passwords' => '/scripts/passwords',
+						'process_id' => '/usr/local/etc/3proxy/',
+						'users' => '/scripts/users/3proxy/'
+					),
+					'process_minimum' => 8,
+					'process_name' => '3proxy',
+					'protocol' => 'socks',
+					'version' => '0.8.10'
+				),
 				'squid' => array(
 					'parameters' => array(
 						'include [acl_filepath]',

@@ -14,6 +14,10 @@
 	 */
 		protected function _format3proxy($serverDetails) {
 			$response = array();
+			$configuration = $this->proxyConfigurations['3proxy'];
+			$formattedAcls = array(
+				// ..
+			);
 			// ..
 			return $response;
 		}

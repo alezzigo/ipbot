@@ -18,6 +18,27 @@
 			$formattedAcls = array(
 				// ..
 			);
+
+			/*
+				Verified functional ACL list for reference:
+
+				users USER1:CL:PASS1
+				users USER2:CL:PASS2
+				# TODO: use external file for users with $
+				auth strong
+				allow USER1 *
+				socks -pPORT -iIP1 -eIP1 -46 -a
+				deny *
+				flush
+				auth iponly strong
+				allow * WHITELISTED_IP *
+				allow USER2 *
+				socks -pPORT -iIP2 -eIP2 -46 -a
+				deny *
+				flush
+				deny *
+			*/
+
 			// ..
 			return $response;
 		}
